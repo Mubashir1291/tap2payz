@@ -1,0 +1,53 @@
+import { MS, RF, S, VS } from '../utils/Responsive';
+
+export const OutfitLight8 = { fontSize: MS(8), fontFamily: 'Outfit-Light' };
+export const OutfitLight10 = { fontSize: MS(10), fontFamily: 'Outfit-Light' };
+export const OutfitLight12 = { fontSize: MS(12), fontFamily: 'Outfit-Light' };
+export const OutfitLight14 = { fontSize: MS(14), fontFamily: 'Outfit-Light' };
+export const OutfitLight16 = { fontSize: MS(16), fontFamily: 'Outfit-Light' };
+export const OutfitLight18 = { fontSize: MS(18), fontFamily: 'Outfit-Light' };
+export const OutfitLight20 = { fontSize: MS(20), fontFamily: 'Outfit-Light' };
+export const OutfitLight22 = { fontSize: MS(22), fontFamily: 'Outfit-Light' };
+export const OutfitLight24 = { fontSize: MS(24), fontFamily: 'Outfit-Light' };
+export const OutfitLight26 = { fontSize: MS(26), fontFamily: 'Outfit-Light' };
+export const OutfitLight28 = { fontSize: MS(28), fontFamily: 'Outfit-Light' };
+export const OutfitLight30 = { fontSize: MS(30), fontFamily: 'Outfit-Light' };
+
+export const OutfitReg8 = { fontSize: MS(8), fontFamily: 'Outfit-Regular' };
+export const OutfitReg10 = { fontSize: MS(10), fontFamily: 'Outfit-Regular' };
+export const OutfitReg12 = { fontSize: MS(12), fontFamily: 'Outfit-Regular' };
+export const OutfitReg14 = { fontSize: MS(14), fontFamily: 'Outfit-Regular' };
+export const OutfitReg16 = { fontSize: MS(16), fontFamily: 'Outfit-Regular' };
+export const OutfitReg18 = { fontSize: MS(18), fontFamily: 'Outfit-Regular' };
+export const OutfitReg20 = { fontSize: MS(20), fontFamily: 'Outfit-Regular' };
+export const OutfitReg22 = { fontSize: MS(22), fontFamily: 'Outfit-Regular' };
+export const OutfitReg24 = { fontSize: MS(24), fontFamily: 'Outfit-Regular' };
+export const OutfitReg26 = { fontSize: MS(26), fontFamily: 'Outfit-Regular' };
+export const OutfitReg28 = { fontSize: MS(28), fontFamily: 'Outfit-Regular' };
+export const OutfitReg30 = { fontSize: MS(30), fontFamily: 'Outfit-Regular' };
+
+export const OutfitMed8 = { fontSize: MS(8), fontFamily: 'Outfit-Medium' };
+export const OutfitMed10 = { fontSize: MS(10), fontFamily: 'Outfit-Medium' };
+export const OutfitMed12 = { fontSize: MS(12), fontFamily: 'Outfit-Medium' };
+export const OutfitMed14 = { fontSize: MS(14), fontFamily: 'Outfit-Medium' };
+export const OutfitMed16 = { fontSize: MS(16), fontFamily: 'Outfit-Medium' };
+export const OutfitMed18 = { fontSize: MS(18), fontFamily: 'Outfit-Medium' };
+export const OutfitMed20 = { fontSize: MS(20), fontFamily: 'Outfit-Medium' };
+export const OutfitMed22 = { fontSize: MS(22), fontFamily: 'Outfit-Medium' };
+export const OutfitMed24 = { fontSize: MS(24), fontFamily: 'Outfit-Medium' };
+export const OutfitMed26 = { fontSize: MS(26), fontFamily: 'Outfit-Medium' };
+export const OutfitMed28 = { fontSize: MS(28), fontFamily: 'Outfit-Medium' };
+export const OutfitMed30 = { fontSize: MS(30), fontFamily: 'Outfit-Medium' };
+
+export const OutfitSemi8 = { fontSize: MS(8), fontFamily: 'Outfit-SemiBold' };
+export const OutfitSemi10 = { fontSize: MS(10), fontFamily: 'Outfit-SemiBold' };
+export const OutfitSemi12 = { fontSize: MS(12), fontFamily: 'Outfit-SemiBold' };
+export const OutfitSemi14 = { fontSize: MS(14), fontFamily: 'Outfit-SemiBold' };
+export const OutfitSemi16 = { fontSize: MS(16), fontFamily: 'Outfit-SemiBold' };
+export const OutfitSemi18 = { fontSize: MS(18), fontFamily: 'Outfit-SemiBold' };
+export const OutfitSemi20 = { fontSize: MS(20), fontFamily: 'Outfit-SemiBold' };
+export const OutfitSemi22 = { fontSize: MS(22), fontFamily: 'Outfit-SemiBold' };
+export const OutfitSemi24 = { fontSize: MS(24), fontFamily: 'Outfit-SemiBold' };
+export const OutfitSemi26 = { fontSize: MS(26), fontFamily: 'Outfit-SemiBold' };
+export const OutfitSemi28 = { fontSize: MS(28), fontFamily: 'Outfit-SemiBold' };
+export const OutfitSemi30 = { fontSize: MS(30), fontFamily: 'Outfit-SemiBold' };
