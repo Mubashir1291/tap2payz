@@ -1,16 +1,21 @@
 import React, { useState } from 'react';
 import {
   View,
+  Text,
   StyleSheet,
   TouchableOpacity,
   StatusBar,
   KeyboardAvoidingView,
   Platform,
   ScrollView,
+  Image,
 } from 'react-native';
 import { Colors } from '../../utils/Colors';
-import CustomText from '../../components/CustomText';
+import { S, VS, MS } from '../../utils/Responsive';
+import { H1, Body1, ButtonText } from '../../utils/fonts';
 import CustomInput from '../../components/CustomInput';
+import { PSPIcon } from '../../assets/Images';
+import { IconSize60 } from '../../utils/IconSizes';
 
 const LoginScreen = ({ navigation }) => {
   const [storeId, setStoreId] = useState('');
@@ -29,21 +34,21 @@ const LoginScreen = ({ navigation }) => {
       <View style={styles.brandPanel}>
         <View style={styles.brandContent}>
           <View style={styles.logoCircle}>
-            <CustomText size={36} bold color={Colors.white}>
-              PSP
-            </CustomText>
+          <Image source={PSPIcon} style={IconSize60} />
           </View>
-          <CustomText
-            size={28}
-            bold
-            color={Colors.white}
-            style={styles.brandTitle}
+          <Text
+            style={[styles.brandTitle, H1, { color: Colors.white }]}
           >
             Point of Sale
-          </CustomText>
-          <CustomText size={16} color="rgba(255,255,255,0.8)">
+          </Text>
+             <Text
+            style={[styles.brandTitle, Body1, { color: Colors.white }]}
+          >
+          Manage your store with ease
+          </Text>
+          {/* <Text style={{ fontSize: 16, color: 'rgba(255,255,255,0.8)' }}>
             Manage your store with ease
-          </CustomText>
+          </Text> */}
         </View>
       </View>
 
@@ -58,17 +63,14 @@ const LoginScreen = ({ navigation }) => {
           showsVerticalScrollIndicator={false}
         >
           <View style={styles.formCard}>
-            <CustomText
-              size={26}
-              bold
-              color={Colors.primary}
-              style={styles.welcomeText}
+            <Text
+              style={[styles.welcomeText, H1, { fontSize: MS(26), color: Colors.primary }]}
             >
               Welcome Back
-            </CustomText>
-            <CustomText size={15} color={Colors.grey} style={styles.subtitle}>
+            </Text>
+            <Text style={[styles.subtitle, Body1, { color: Colors.grey }]}>
               Sign in to your POS terminal
-            </CustomText>
+            </Text>
 
             <View style={styles.inputsWrapper}>
               <CustomInput
@@ -101,9 +103,9 @@ const LoginScreen = ({ navigation }) => {
               activeOpacity={0.85}
               onPress={handleLogin}
             >
-              <CustomText size={17} bold color={Colors.white}>
+              <Text style={[ButtonText, { color: Colors.white }]}>
                 Login
-              </CustomText>
+              </Text>
             </TouchableOpacity>
           </View>
         </ScrollView>
@@ -123,22 +125,22 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.primary,
     justifyContent: 'center',
     alignItems: 'center',
-    paddingHorizontal: 40,
+    paddingHorizontal: S(40),
   },
   brandContent: {
     alignItems: 'center',
   },
   logoCircle: {
-    width: 100,
-    height: 100,
-    borderRadius: 50,
-    backgroundColor: Colors.secondary,
+    width: S(100),
+    height: VS(100),
+    borderRadius: MS(50),
+    backgroundColor: Colors.white,
     justifyContent: 'center',
     alignItems: 'center',
-    marginBottom: 24,
+    marginBottom: VS(24),
   },
   brandTitle: {
-    marginBottom: 8,
+    marginBottom: VS(8),
   },
   formPanel: {
     flex: 0.6,
@@ -149,34 +151,34 @@ const styles = StyleSheet.create({
     flexGrow: 1,
     justifyContent: 'center',
     paddingHorizontal: '12%',
-    paddingVertical: 40,
+    paddingVertical: VS(40),
   },
   formCard: {
     backgroundColor: Colors.white,
-    borderRadius: 20,
-    padding: 40,
+    borderRadius: MS(20),
+    padding: MS(40),
     elevation: 6,
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
+    shadowOffset: { width: 0, height: VS(4) },
     shadowOpacity: 0.08,
-    shadowRadius: 16,
+    shadowRadius: MS(16),
   },
   welcomeText: {
-    marginBottom: 4,
+    marginBottom: VS(4),
   },
   subtitle: {
-    marginBottom: 32,
+    marginBottom: VS(32),
   },
   inputsWrapper: {
-    marginBottom: 12,
+    marginBottom: VS(12),
   },
   loginButton: {
-    height: 52,
+    height: VS(52),
     backgroundColor: Colors.secondary,
-    borderRadius: 12,
+    borderRadius: MS(12),
     justifyContent: 'center',
     alignItems: 'center',
-    marginTop: 8,
+    marginTop: VS(8),
   },
 });
 

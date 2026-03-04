@@ -2,6 +2,8 @@ import React from 'react';
 import { createDrawerNavigator } from '@react-navigation/drawer';
 import HomeScreen from '../screens/app/HomeScreen';
 import CustomDrawerContent from '../components/CustomDrawerContent';
+import OpenRegisterScreen from '../screens/auth/OpenRegisterScreen';
+
 
 const Drawer = createDrawerNavigator();
 

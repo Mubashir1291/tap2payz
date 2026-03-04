@@ -1,16 +1,20 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useRef, useEffect } from 'react';
 import {
   View,
   Text,
-  StyleSheet,
   StatusBar,
   TouchableOpacity,
   FlatList,
   Image,
+  TextInput,
+  ScrollView,
+  ActivityIndicator,
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { Colors } from '../../utils/Colors';
-import { IconSize8, IconSize12, IconSize16 } from '../../utils/IconSizes';
+import { S, VS, MS } from '../../utils/Responsive';
+import { Caption, Body2, Body3, Subtitle1, Subtitle2, H4, ButtonText } from '../../utils/fonts';
+import { IconSize8, IconSize12, IconSize32, IconSize40, IconSize20 } from '../../utils/IconSizes';
 import {
   CategoriesIcon,
   CashIcon,
@@ -24,29 +28,111 @@ import {
   ImageFrameIcon,
   LeftArrowIcon,
   RightArrowIcon,
+  WarningIcon,
+  SearchIcon,
+  ListIcon,
 } from '../../assets/Images';
+import styles from './HomeScreenStyles';
+import ConfirmationModal from '../../components/ConfirmationModal';
+import { IconSize24 } from '../../utils/IconSizes';
 
 const categories = [
-  'Drikkevarer',
+  'All',
+  'Drink',
   'Pizza',
   'Burgers',
   'A la carte',
   'Frozen Items',
   'Pet Food',
   'Grains',
+  'shawarma',
+  'Donuts',
+  'Juice',
 ];
 
-const dummyProducts = Array.from({ length: 20 }).map((_, i) => ({
-  id: i.toString(),
-  name: 'Sodavand (25cl)',
-  price: 16.23,
-}));
+const dummyProducts = [
+  { id: '1', name: 'Cola (25cl)', category: 'Drink', price: 16.23 },
+  { id: '2', name: 'Orange Juice', category: 'Drink', price: 18.5 },
+  { id: '3', name: 'Mineral Water', category: 'Drink', price: 12.0 },
+
+  { id: '4', name: 'Margherita Pizza', category: 'Pizza', price: 85.0 },
+  { id: '5', name: 'Pepperoni Pizza', category: 'Pizza', price: 95.0 },
+  { id: '6', name: 'BBQ Chicken Pizza', category: 'Pizza', price: 110.0 },
+
+  { id: '7', name: 'Classic Beef Burger', category: 'Burgers', price: 70.0 },
+  { id: '8', name: 'Zinger Burger', category: 'Burgers', price: 75.0 },
+  { id: '9', name: 'Cheese Burger', category: 'Burgers', price: 65.0 },
+
+  { id: '10', name: 'Grilled Chicken Steak', category: 'A la carte', price: 140.0 },
+  { id: '11', name: 'Fish Fillet', category: 'A la carte', price: 130.0 },
+  { id: '12', name: 'Pasta Alfredo', category: 'A la carte', price: 120.0 },
+
+  { id: '13', name: 'Frozen Fries (1kg)', category: 'Frozen Items', price: 40.0 },
+  { id: '14', name: 'Frozen Nuggets (500g)', category: 'Frozen Items', price: 55.0 },
+  { id: '15', name: 'Ice Cream Tub', category: 'Frozen Items', price: 90.0 },
+
+  { id: '16', name: 'Dog Food (5kg)', category: 'Pet Food', price: 250.0 },
+  { id: '17', name: 'Cat Food (2kg)', category: 'Pet Food', price: 180.0 },
+
+  { id: '18', name: 'Basmati Rice (1kg)', category: 'Grains', price: 60.0 },
+  { id: '19', name: 'Wheat Flour (5kg)', category: 'Grains', price: 220.0 },
+  { id: '20', name: 'Lentils (500g)', category: 'Grains', price: 45.0 },
+   { id: '21', name: 'shawarma (500g)', category: 'shawarma', price: 45.0 },
+    { id: '22', name: 'donuts (500g)', category: 'Donuts', price: 45.0 },
+     { id: '23', name: 'juice (500g)', category: 'Juice', price: 45.0 },
+     { id: '24', name: 'juice (500g)', category: 'Juice', price: 45.0 },
+
+     { id: '25', name: 'juice (500g)', category: 'Juice', price: 45.0 },
+
+     { id: '26', name: 'juice (500g)', category: 'Juice', price: 45.0 },
+
+];
 
 const HomeScreen = () => {
   const navigation = useNavigation();
-  const [selectedCategory, setSelectedCategory] = useState('Drikkevarer');
+  const [selectedCategory, setSelectedCategory] = useState('All');
   const [cart, setCart] = useState([]);
   const [paymentType, setPaymentType] = useState(null);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [isAllCategoriesView, setIsAllCategoriesView] = useState(false);
+  const categoryScrollRef = useRef(null);
+  const scrollOffset = useRef(0);
+
+  const [page, setPage] = useState(1);
+  const [isLoadingMore, setIsLoadingMore] = useState(false);
+  const ITEMS_PER_PAGE = 25; // 5 rows of 5 items
+
+  const filteredProducts = useMemo(() => {
+    let products = selectedCategory === 'All'
+      ? dummyProducts
+      : dummyProducts.filter(p => p.category === selectedCategory);
+    if (searchQuery.trim()) {
+      products = products.filter(p =>
+        p.name.toLowerCase().includes(searchQuery.toLowerCase()),
+      );
+    }
+    return products;
+  }, [selectedCategory, searchQuery]);
+
+  useEffect(() => {
+    setPage(1);
+  }, [selectedCategory, searchQuery]);
+
+  const displayedProducts = useMemo(() => {
+    return filteredProducts.slice(0, page * ITEMS_PER_PAGE);
+  }, [filteredProducts, page]);
+
+  const loadMoreProducts = () => {
+    if (page * ITEMS_PER_PAGE < filteredProducts.length && !isLoadingMore) {
+      setIsLoadingMore(true);
+      // Simulate network request delay (800ms)
+      setTimeout(() => {
+        setPage(prev => prev + 1);
+        setIsLoadingMore(false);
+      }, 800);
+    }
+  };
 
   const addToCart = item => {
     const existing = cart.find(c => c.id === item.id);
@@ -80,12 +166,22 @@ const HomeScreen = () => {
       onPress={() => addToCart(item)}
     >
       <View style={styles.priceTag}>
-        <Text style={styles.priceText}>€ {item.price}</Text>
+        <Text style={[styles.priceText, Caption]}>€ {item.price}</Text>
       </View>
       <Image source={ImageFrameIcon} style={styles.productImage} />
-      <Text style={styles.productName}>{item.name}</Text>
+      <Text style={[styles.productName, Subtitle2]}>{item.name}</Text>
     </TouchableOpacity>
   );
+
+  const HandleDeleteCart = () => {
+    if (cart.length === 0) return;
+    setShowDeleteModal(true);
+  };
+
+  const confirmDeleteCart = () => {
+    setCart([]);
+    setShowDeleteModal(false);
+  };
 
   return (
     <View style={styles.root}>
@@ -104,72 +200,140 @@ const HomeScreen = () => {
             <View style={[styles.hamburgerLine, styles.hamburgerLineShort]} />
             <View style={styles.hamburgerLine} />
           </TouchableOpacity>
-
-          {/* Language Badges */}
-          <View style={styles.langBadges}>
-            <View style={[styles.langBadge, styles.langBadgeEn]}>
-              <Text style={styles.langBadgeText}>En</Text>
-            </View>
-            <View style={[styles.langBadge, styles.langBadgeDo]}>
-              <Text style={styles.langBadgeText}>Do</Text>
-            </View>
-          </View>
-
           {/* Search Bar */}
           <View style={styles.searchBar}>
-            <Text style={styles.searchPlaceholder}>🔍  Search...</Text>
+            <Image source={SearchIcon} style={[IconSize12, { marginRight: S(8) }]} />
+            <TextInput
+              style={[styles.searchInput, Body3]}
+              placeholder="Search..."
+              placeholderTextColor={'#999'}
+              value={searchQuery}
+              onChangeText={setSearchQuery}
+            />
           </View>
 
           {/* All Categories */}
-          <TouchableOpacity style={styles.allCategoryBtn}>
+          <TouchableOpacity 
+            style={styles.allCategoryBtn}
+            onPress={() => setIsAllCategoriesView(!isAllCategoriesView)}
+          >
             <Image source={CategoriesIcon} style={[IconSize12, styles.categoryIcon]} />
-            <Text style={styles.allCategoryText}>All Categories</Text>
+            <Text style={[styles.allCategoryText, Subtitle2]}>All Categories</Text>
           </TouchableOpacity>
 
           {/* Grid/List Toggle */}
-          <TouchableOpacity style={styles.viewToggle}>
-            <Image source={ChipIcon} style={[IconSize16, styles.viewToggleIcon]} />
+          <TouchableOpacity 
+            style={styles.viewToggle}
+            onPress={() => {
+              setSelectedCategory('All');
+              setIsAllCategoriesView(false);
+            }}
+          >
+            <Image source={ListIcon} style={[IconSize20, styles.viewToggleIcon]} />
           </TouchableOpacity>
         </View>
 
         {/* Categories */}
-        <View style={styles.categoryRow}>
-          <TouchableOpacity style={styles.categoryArrow}>
+        {isAllCategoriesView ? (
+          <View style={{ marginBottom: VS(16), paddingHorizontal: S(6) }}>
+            <Text style={[Subtitle1, { color: Colors.black }]}>
+              Total Categories: {categories.length - 1}
+            </Text>
+          </View>
+        ) : (
+          <View style={styles.categoryRow}>
+          <TouchableOpacity 
+            style={styles.categoryArrow}
+            onPress={() => {
+              const prevX = Math.max(0, scrollOffset.current - 200);
+              categoryScrollRef.current?.scrollTo({ x: prevX, animated: true });
+            }}
+          >
             <Image source={LeftArrowIcon} style={[IconSize12, styles.arrowIcon]} />
           </TouchableOpacity>
-          {categories.map(cat => (
-            <TouchableOpacity
-              key={cat}
-              onPress={() => setSelectedCategory(cat)}
-              style={[
-                styles.categoryBtn,
-                selectedCategory === cat && styles.activeCategory,
-              ]}
-            >
-              <Text
+          
+          <ScrollView
+            ref={categoryScrollRef}
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            onScroll={(e) => {
+              scrollOffset.current = e.nativeEvent.contentOffset.x;
+            }}
+            scrollEventThrottle={16}
+          >
+            {categories.map(cat => (
+              <TouchableOpacity
+                key={cat}
+                onPress={() => setSelectedCategory(cat)}
                 style={[
-                  styles.categoryText,
-                  selectedCategory === cat && styles.activeCategoryText,
+                  styles.categoryBtn,
+                  selectedCategory === cat && styles.activeCategory,
                 ]}
               >
-                {cat}
-              </Text>
-            </TouchableOpacity>
-          ))}
-          <TouchableOpacity style={styles.categoryArrow}>
+                <Text
+                  style={[
+                    styles.categoryText, Body3,
+                    selectedCategory === cat && styles.activeCategoryText,
+                  ]}
+                >
+                  {cat}
+                </Text>
+              </TouchableOpacity>
+            ))}
+          </ScrollView>
+
+          <TouchableOpacity 
+            style={styles.categoryArrow}
+            onPress={() => {
+              const nextX = scrollOffset.current + 200;
+              categoryScrollRef.current?.scrollTo({ x: nextX, animated: true });
+            }}
+          >
             <Image source={RightArrowIcon} style={[IconSize12, styles.arrowIcon]} />
           </TouchableOpacity>
         </View>
+        )}
 
         {/* Product Grid */}
-        <FlatList
-          data={dummyProducts}
-          keyExtractor={item => item.id}
-          renderItem={renderProduct}
-          numColumns={5}
-          showsVerticalScrollIndicator={false}
-          contentContainerStyle={styles.productListContent}
-        />
+        {isAllCategoriesView ? (
+          <FlatList
+            data={categories.filter(c => c !== 'All')}
+            keyExtractor={item => item}
+            renderItem={({ item }) => (
+              <TouchableOpacity
+                style={styles.categoryGridCard}
+                activeOpacity={0.8}
+                onPress={() => {
+                  setSelectedCategory(item);
+                  setIsAllCategoriesView(false);
+                }}
+              >
+                <Text style={[styles.categoryGridText, Subtitle2]}>{item}</Text>
+              </TouchableOpacity>
+            )}
+            numColumns={5}
+            showsVerticalScrollIndicator={false}
+            contentContainerStyle={styles.productListContent}
+          />
+        ) : (
+          <FlatList
+            data={displayedProducts}
+            keyExtractor={item => item.id}
+            renderItem={renderProduct}
+            numColumns={5}
+            showsVerticalScrollIndicator={false}
+            contentContainerStyle={styles.productListContent}
+            onEndReached={loadMoreProducts}
+            onEndReachedThreshold={0.5}
+            ListFooterComponent={
+              isLoadingMore ? (
+                <View style={{ paddingVertical: VS(20), alignItems: 'center' }}>
+                  <ActivityIndicator size="large" color={Colors.primary} />
+                </View>
+              ) : null
+            }
+          />
+        )}
       </View>
 
       {/* ───── RIGHT CART PANEL ───── */}
@@ -177,19 +341,19 @@ const HomeScreen = () => {
         {/* Cart Header Icons */}
         <View style={styles.cartHeader}>
           <TouchableOpacity style={styles.cartHeaderBtn}>
-            <Image source={RefreshICon} style={[IconSize16, styles.cartHeaderIcon]} />
+            <Image source={RefreshICon} style={[IconSize12, styles.cartHeaderIcon]} />
           </TouchableOpacity>
           <TouchableOpacity style={styles.cartHeaderBtn}>
-            <Image source={ChipIcon} style={[IconSize16, styles.cartHeaderIcon]} />
+            <Image source={ChipIcon} style={[IconSize12, styles.cartHeaderIcon]} />
           </TouchableOpacity>
-          <TouchableOpacity style={styles.cartHeaderBtn}>
-            <Image source={DeleteIcon} style={[IconSize16, styles.cartHeaderIcon]} />
+          <TouchableOpacity style={styles.cartHeaderBtn} onPress={HandleDeleteCart}>
+            <Image source={DeleteIcon} style={[IconSize12, styles.cartHeaderIcon]} />
           </TouchableOpacity>
         </View>
 
         {cart.length === 0 ? (
           <View style={styles.emptyCart}>
-            <Text style={styles.emptyCartText}>Shopping Cart is empty!</Text>
+            <Text style={[styles.emptyCartText, H4]}>Shopping Cart is empty!</Text>
           </View>
         ) : (
           <FlatList
@@ -199,8 +363,8 @@ const HomeScreen = () => {
             renderItem={({ item }) => (
               <View style={styles.cartItem}>
                 <View>
-                  <Text style={styles.cartItemName}>{item.name}</Text>
-                  <Text style={styles.cartItemPrice}>€ {item.price} x {item.qty}</Text>
+                  <Text style={[styles.cartItemName, Subtitle2]}>{item.name}</Text>
+                  <Text style={[styles.cartItemPrice, Body3]}>€ {item.price} x {item.qty}</Text>
                 </View>
 
                 <View style={styles.qtyControls}>
@@ -208,16 +372,16 @@ const HomeScreen = () => {
                     onPress={() => removeFromCart(item.id)}
                     style={styles.qtyBtn}
                   >
-                    <Text style={styles.qtyBtnText}>−</Text>
+                    <Text style={[styles.qtyBtnText, ButtonText]}>−</Text>
                   </TouchableOpacity>
 
-                  <Text style={styles.qtyText}>{item.qty}</Text>
+                  <Text style={[styles.qtyText, Body2]}>{item.qty}</Text>
 
                   <TouchableOpacity
                     onPress={() => addToCart(item)}
                     style={styles.qtyBtn}
                   >
-                    <Text style={styles.qtyBtnText}>+</Text>
+                    <Text style={[styles.qtyBtnText, ButtonText]}>+</Text>
                   </TouchableOpacity>
                 </View>
               </View>
@@ -228,24 +392,24 @@ const HomeScreen = () => {
         {/* Action Buttons */}
         <View style={styles.actionRow}>
           <TouchableOpacity style={styles.actionBtn}>
-            <Image source={DiscountIcon} style={[IconSize8, styles.actionIcon]} />
-            <Text style={styles.actionLabelText}>Quick Sale</Text>
+            <Image source={DiscountIcon} style={[IconSize12, styles.actionIcon]} />
+            <Text style={[styles.actionLabelText, Caption]}>Quick Sale</Text>
           </TouchableOpacity>
           <TouchableOpacity style={styles.actionBtn}>
-            <Image source={DollarIcon} style={[IconSize8, styles.actionIcon]} />
-            <Text style={styles.actionLabelText}>Add TIP</Text>
+            <Image source={DollarIcon} style={[IconSize12, styles.actionIcon]} />
+            <Text style={[styles.actionLabelText, Caption]}>Add TIP</Text>
           </TouchableOpacity>
           <TouchableOpacity style={styles.actionBtn}>
-            <Image source={BuyersIcon} style={[IconSize8, styles.actionIcon]} />
-            <Text style={styles.actionLabelText}>Buyer Details</Text>
+            <Image source={BuyersIcon} style={[IconSize12, styles.actionIcon]} />
+            <Text style={[styles.actionLabelText, Caption]}>Buyer Details</Text>
           </TouchableOpacity>
         </View>
 
         {/* Total Section */}
         <View style={styles.totalSection}>
           <View style={styles.totalRow}>
-            <Text style={styles.totalLabel}>Total</Text>
-            <Text style={styles.totalAmount}>DKK {total}</Text>
+            <Text style={[styles.totalLabel, Subtitle1]}>Total</Text>
+            <Text style={[styles.totalAmount, H4]}>CAD {total}</Text>
           </View>
 
           <View style={styles.paymentRow}>
@@ -256,8 +420,8 @@ const HomeScreen = () => {
               ]}
               onPress={() => setPaymentType('cash')}
             >
-              <Image source={CashIcon} style={[IconSize12, styles.paymentIcon]} />
-              <Text style={styles.paymentBtnText}>Cash Pay</Text>
+              <Image source={CashIcon} style={[IconSize24, styles.paymentIcon]} />
+              <Text style={[styles.paymentBtnText, Subtitle2]}>Cash Pay</Text>
             </TouchableOpacity>
 
             <TouchableOpacity
@@ -267,359 +431,30 @@ const HomeScreen = () => {
               ]}
               onPress={() => setPaymentType('card')}
             >
-              <Image source={CardIcon} style={[IconSize12, styles.paymentIcon]} />
-              <Text style={styles.paymentBtnText}>Card Pay</Text>
+              <Image source={CardIcon} style={[IconSize24, styles.paymentIcon]} />
+              <Text style={[styles.paymentBtnText, Subtitle2]}>Card Pay</Text>
             </TouchableOpacity>
           </View>
 
           <TouchableOpacity style={styles.placeOrderBtn}>
-            <Text style={styles.placeOrderText}>Place Order</Text>
+            <Text style={[styles.placeOrderText, ButtonText]}>Place Order</Text>
           </TouchableOpacity>
         </View>
       </View>
+
+      <ConfirmationModal
+        visible={showDeleteModal}
+        icon={WarningIcon}
+        iconStyle={IconSize40}
+        subtitle="Are you sure you want to clear cart?"
+        confirmText="Yes, Clear"
+        confirmButtonColor="#E74C3C"
+        onConfirm={confirmDeleteCart}
+        onCancel={() => setShowDeleteModal(false)}
+
+      />
     </View>
   );
 };
 
 export default HomeScreen;
-
-const styles = StyleSheet.create({
-  root: {
-    flex: 1,
-    flexDirection: 'row',
-    backgroundColor: Colors.white,
-  },
-
-  // ─── Left Panel ───
-  leftPanel: {
-    flex: 0.68,
-    backgroundColor: '#EBF0FF',
-    padding: 16,
-  },
-  header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: 16,
-  },
-  hamburgerBtn: {
-    width: 36,
-    height: 36,
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginRight: 10,
-  },
-  hamburgerLine: {
-    width: 22,
-    height: 2.5,
-    backgroundColor: Colors.black,
-    borderRadius: 2,
-    marginVertical: 2,
-  },
-  hamburgerLineShort: {
-    width: 16,
-    alignSelf: 'flex-start',
-    marginLeft: 7,
-  },
-
-  // ─── Language Badges ───
-  langBadges: {
-    flexDirection: 'row',
-    marginRight: 12,
-  },
-  langBadge: {
-    width: 28,
-    height: 28,
-    borderRadius: 14,
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginRight: 4,
-  },
-  langBadgeEn: {
-    backgroundColor: Colors.secondary,
-  },
-  langBadgeDo: {
-    backgroundColor: Colors.primary,
-  },
-  langBadgeText: {
-    fontSize: 11,
-    fontWeight: '700',
-    color: Colors.white,
-  },
-
-  // ─── Search Bar ───
-  searchBar: {
-    flex: 1,
-    height: 40,
-    borderRadius: 20,
-    backgroundColor: Colors.white,
-    justifyContent: 'center',
-    paddingHorizontal: 16,
-    marginRight: 12,
-  },
-  searchPlaceholder: {
-    fontSize: 14,
-    color: Colors.grey,
-  },
-
-  // ─── All Categories ───
-  allCategoryBtn: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: Colors.primary,
-    paddingHorizontal: 16,
-    paddingVertical: 10,
-    borderRadius: 20,
-    marginRight: 8,
-  },
-  categoryIcon: {
-    tintColor: Colors.white,
-    marginRight: 6,
-  },
-  allCategoryText: {
-    fontSize: 13,
-    fontWeight: '600',
-    color: Colors.white,
-  },
-
-  // ─── View Toggle ───
-  viewToggle: {
-    width: 40,
-    height: 40,
-    borderRadius: 10,
-    backgroundColor: Colors.white,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  viewToggleIcon: {
-    tintColor: Colors.primary,
-  },
-
-  // ─── Categories ───
-  categoryRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: 16,
-  },
-  categoryArrow: {
-    width: 30,
-    height: 30,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  arrowIcon: {
-    tintColor: Colors.primary,
-  },
-  categoryBtn: {
-    paddingHorizontal: 16,
-    paddingVertical: 8,
-    borderRadius: 20,
-    backgroundColor: Colors.white,
-    marginRight: 8,
-  },
-  activeCategory: {
-    borderWidth: 1.5,
-    borderColor: Colors.primary,
-  },
-  categoryText: {
-    fontSize: 13,
-    fontWeight: '400',
-    color: Colors.black,
-  },
-  activeCategoryText: {
-    fontWeight: '600',
-    color: Colors.primary,
-  },
-
-  // ─── Product Grid ───
-  productListContent: {
-    paddingBottom: 40,
-  },
-  productCard: {
-    flex: 1,
-    backgroundColor: Colors.white,
-    margin: 6,
-    borderRadius: 14,
-    padding: 10,
-    alignItems: 'center',
-    minWidth: 100,
-  },
-  priceTag: {
-    alignSelf: 'flex-end',
-    marginBottom: 4,
-  },
-  priceText: {
-    fontSize: 11,
-    color: Colors.grey,
-  },
-  productImage: {
-    height: 50,
-    width: 50,
-    resizeMode: 'contain',
-    marginBottom: 8,
-    opacity: 0.4,
-  },
-  productName: {
-    fontSize: 13,
-    fontWeight: '600',
-    color: Colors.black,
-  },
-
-  // ─── Cart Panel ───
-  cartPanel: {
-    flex: 0.32,
-    backgroundColor: Colors.white,
-    borderLeftWidth: 1,
-    borderLeftColor: Colors.lightGrey,
-    padding: 16,
-  },
-  cartHeader: {
-    flexDirection: 'row',
-    justifyContent: 'flex-end',
-    marginBottom: 12,
-  },
-  cartHeaderBtn: {
-    width: 40,
-    height: 40,
-    borderRadius: 10,
-    backgroundColor: '#F5F7FA',
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginLeft: 10,
-  },
-  cartHeaderIcon: {
-    tintColor: Colors.black,
-  },
-  emptyCart: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  emptyCartText: {
-    fontSize: 18,
-    fontWeight: '600',
-    color: Colors.grey,
-  },
-  cartItem: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    paddingVertical: 12,
-    borderBottomWidth: 1,
-    borderBottomColor: Colors.lightGrey,
-  },
-  cartItemName: {
-    fontSize: 14,
-    fontWeight: '600',
-    color: Colors.black,
-  },
-  cartItemPrice: {
-    fontSize: 13,
-    color: Colors.grey,
-  },
-  qtyControls: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  qtyBtn: {
-    width: 28,
-    height: 28,
-    borderRadius: 6,
-    backgroundColor: Colors.lightGrey,
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginHorizontal: 6,
-  },
-  qtyBtnText: {
-    fontSize: 16,
-    fontWeight: '600',
-  },
-  qtyText: {
-    fontSize: 14,
-  },
-
-  // ─── Action Buttons ───
-  actionRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginBottom: 12,
-    borderTopWidth: 1,
-    borderTopColor: Colors.lightGrey,
-    paddingTop: 12,
-  },
-  actionBtn: {
-    flex: 1,
-    alignItems: 'center',
-    paddingVertical: 10,
-    borderRadius: 10,
-    borderWidth: 1,
-    borderColor: Colors.lightGrey,
-    marginHorizontal: 4,
-  },
-  actionIcon: {
-    tintColor: Colors.black,
-  },
-  actionLabelText: {
-    fontSize: 11,
-    color: Colors.black,
-    marginTop: 4,
-  },
-
-  // ─── Total Section ───
-  totalSection: {
-    borderTopWidth: 1,
-    borderTopColor: Colors.lightGrey,
-    paddingTop: 12,
-  },
-  totalRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginBottom: 12,
-  },
-  totalLabel: {
-    fontSize: 16,
-    fontWeight: '600',
-  },
-  totalAmount: {
-    fontSize: 18,
-    fontWeight: '700',
-    color: Colors.black,
-  },
-  paymentRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginBottom: 12,
-  },
-  paymentBtn: {
-    flex: 1,
-    flexDirection: 'row',
-    height: 45,
-    borderRadius: 10,
-    backgroundColor: '#E8EEF8',
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginHorizontal: 4,
-  },
-  activePayment: {
-    borderWidth: 2,
-    borderColor: Colors.primary,
-  },
-  paymentIcon: {
-    tintColor: Colors.primary,
-    marginRight: 8,
-  },
-  paymentBtnText: {
-    fontSize: 14,
-    fontWeight: '600',
-  },
-  placeOrderBtn: {
-    height: 50,
-    borderRadius: 12,
-    backgroundColor: Colors.primary,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  placeOrderText: {
-    fontSize: 16,
-    fontWeight: '700',
-    color: Colors.white,
-  },
-});

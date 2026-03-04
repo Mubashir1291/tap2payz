@@ -9,7 +9,9 @@ import {
 } from 'react-native';
 import { useDispatch } from 'react-redux';
 import { Colors } from '../utils/Colors';
-import { setIsLogin } from '../redux/Reducers/userReducer';
+import { S, VS, MS } from '../utils/Responsive';
+import { logout, setIsLogin } from '../redux/Reducers/userReducer';
+import { H1, H2, Body2, Subtitle1 } from '../utils/fonts';
 import { IconSize16, IconSize28 } from '../utils/IconSizes';
 import {
   DiscountIcon,
@@ -19,6 +21,7 @@ import {
   SettingIcon,
   LogoutIcon,
 } from '../assets/Images';
+import { store } from '../redux/store';
 
 const drawerItems = [
   { label: 'Sale', icon: DiscountIcon, route: 'HomeScreen' },
@@ -33,27 +36,27 @@ const CustomDrawerContent = ({ navigation, state }) => {
   const activeRoute = state?.routes?.[state.index]?.name;
 
   const handleLogout = () => {
-    dispatch(setIsLogin(false));
+    store.dispatch(logout(true))
   };
 
   return (
     <View style={styles.container}>
       {/* Header */}
       <View style={styles.header}>
-        <Text style={styles.menuTitle}>Menu</Text>
+        <Text style={[styles.menuTitle, H1]}>Menu</Text>
         <TouchableOpacity onPress={() => navigation.closeDrawer()}>
-          <Text style={styles.closeBtn}>✕</Text>
+          <Text style={[styles.closeBtn, H1]}>✕</Text>
         </TouchableOpacity>
       </View>
 
       {/* User Profile */}
       <View style={styles.profileSection}>
         <View style={styles.avatar}>
-          <Text style={styles.avatarText}>JD</Text>
+          <Text style={[styles.avatarText, H2]}>JD</Text>
         </View>
         <View style={styles.profileText}>
-          <Text style={styles.welcomeText}>Welcome!</Text>
-          <Text style={styles.userName}>John Duo</Text>
+          <Text style={[styles.welcomeText, H2]}>Welcome!</Text>
+          <Text style={[styles.userName, Body2]}>John Duo</Text>
         </View>
       </View>
 
@@ -82,7 +85,7 @@ const CustomDrawerContent = ({ navigation, state }) => {
               />
               <Text
                 style={[
-                  styles.menuLabel,
+                  styles.menuLabel, Subtitle1,
                   isActive ? styles.menuLabelActive : styles.menuLabelDefault,
                 ]}
               >
@@ -96,7 +99,7 @@ const CustomDrawerContent = ({ navigation, state }) => {
       {/* Logout */}
       <TouchableOpacity style={styles.logoutBtn} onPress={handleLogout}>
         <Image source={LogoutIcon} style={[IconSize16, styles.logoutIcon]} />
-        <Text style={styles.logoutText}>Logout</Text>
+        <Text style={[styles.logoutText, Subtitle1]}>Logout</Text>
       </TouchableOpacity>
     </View>
   );
@@ -108,56 +111,48 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: Colors.white,
-    paddingHorizontal: 20,
-    paddingTop: 20,
-    paddingBottom: 30,
-    borderTopRightRadius: 24,
-    borderBottomRightRadius: 24,
+    paddingHorizontal: S(20),
+    paddingTop: VS(20),
+    paddingBottom: VS(30),
+    borderTopRightRadius: MS(24),
+    borderBottomRightRadius: MS(24),
   },
   header: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 24,
+    marginBottom: VS(24),
   },
   menuTitle: {
-    fontSize: 22,
-    fontWeight: '700',
     color: Colors.black,
   },
   closeBtn: {
-    fontSize: 22,
     color: Colors.black,
   },
   profileSection: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: 30,
+    marginBottom: VS(30),
   },
   avatar: {
-    width: 50,
-    height: 50,
-    borderRadius: 25,
+    width: S(50),
+    height: VS(50),
+    borderRadius: MS(25),
     backgroundColor: Colors.grey,
     justifyContent: 'center',
     alignItems: 'center',
-    marginRight: 14,
+    marginRight: S(14),
   },
   avatarText: {
-    fontSize: 18,
-    fontWeight: '700',
     color: Colors.white,
   },
   profileText: {
     flex: 1,
   },
   welcomeText: {
-    fontSize: 18,
-    fontWeight: '700',
     color: Colors.black,
   },
   userName: {
-    fontSize: 14,
     color: Colors.grey,
   },
   menuList: {
@@ -166,10 +161,10 @@ const styles = StyleSheet.create({
   menuItem: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingVertical: 16,
-    paddingHorizontal: 18,
-    borderRadius: 16,
-    marginBottom: 6,
+    paddingVertical: VS(16),
+    paddingHorizontal: S(18),
+    borderRadius: MS(16),
+    marginBottom: VS(6),
   },
   activeMenuItem: {
     backgroundColor: Colors.black,
@@ -181,9 +176,7 @@ const styles = StyleSheet.create({
     tintColor: Colors.white,
   },
   menuLabel: {
-    marginLeft: 16,
-    fontSize: 15,
-    fontWeight: '600',
+    marginLeft: S(16),
   },
   menuLabelDefault: {
     color: Colors.black,
@@ -194,19 +187,17 @@ const styles = StyleSheet.create({
   logoutBtn: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingVertical: 16,
-    paddingHorizontal: 18,
-    borderTopWidth: 1,
+    paddingVertical: VS(16),
+    paddingHorizontal: S(18),
+    borderTopWidth: VS(1),
     borderTopColor: Colors.lightGrey,
-    marginTop: 10,
+    marginTop: VS(10),
   },
   logoutIcon: {
     tintColor: Colors.black,
   },
   logoutText: {
-    marginLeft: 16,
-    fontSize: 15,
-    fontWeight: '600',
+    marginLeft: S(16),
     color: Colors.black,
   },
 });

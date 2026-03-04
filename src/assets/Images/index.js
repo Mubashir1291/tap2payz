@@ -20,4 +20,9 @@ export const ReturnIcon = require('../Images/Return.png');
 export const SettingIcon = require('../Images/Setting.png');
 export const ConnectedIcon = require('../Images/Connected.png');
 export const CloseRegisterIcon = require('../Images/CloseRegister.png');
+export const PSPIcon = require('../Images/PSPIcon.png');
+export const SearchIcon = require('../Images/Search.png');
+export const ListIcon = require('../Images/list.png');
+
+
 
