@@ -186,7 +186,7 @@ const HomeScreen = () => {
       onPress={() => addToCart(item)}
     >
       <View style={styles.priceTag}>
-        <Text style={[styles.priceText, Caption]}>€ {item.price}</Text>
+        <Text style={[styles.priceText, Caption]}>$ {item.price}</Text>
       </View>
       <Image source={ImageFrameIcon} style={styles.productImage} />
       <Text style={[styles.productName, Subtitle2]}>{item.name}</Text>
@@ -458,7 +458,7 @@ const HomeScreen = () => {
                 <View style={styles.cartItem}>
                   <View>
                     <Text style={[styles.cartItemName, Subtitle2]}>{item.name}</Text>
-                    <Text style={[styles.cartItemPrice, Body3]}>€ {item.price} x {item.qty}</Text>
+                    <Text style={[styles.cartItemPrice, Body3]}>$ {item.price} x {item.qty}</Text>
                   </View>
 
                   <View style={styles.qtyControls}>

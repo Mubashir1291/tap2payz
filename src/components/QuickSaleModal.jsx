@@ -75,7 +75,7 @@ const QuickSaleModal = ({
               <Text style={[styles.inputLabel, Subtitle2]}>Amount</Text>
               <TextInput
                 style={[styles.input, Body2]}
-                placeholder="€0.00"
+                placeholder="$0.00"
                 placeholderTextColor={Colors.grey}
                 keyboardType="numeric"
                 value={amount}

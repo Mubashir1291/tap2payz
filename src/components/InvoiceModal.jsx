@@ -82,7 +82,7 @@ const InvoiceModal = ({
                       {item.name} ({item.qty})
                     </Text>
                     <Text style={[styles.itemPrice, Subtitle2]}>
-                      €{(item.price * item.qty).toFixed(2)}
+                      ${(item.price * item.qty).toFixed(2)}
                     </Text>
                   </View>
                 ))}
@@ -95,7 +95,7 @@ const InvoiceModal = ({
               <View style={styles.totalRow}>
                 <Text style={[styles.totalLabel, Subtitle1]}>Total</Text>
                 <Text style={[styles.totalValue, {color: Colors.primary}, Subtitle1]}>
-                  €{totalAmount.toFixed(2)}
+                  ${totalAmount.toFixed(2)}
                 </Text>
               </View>
             </View>

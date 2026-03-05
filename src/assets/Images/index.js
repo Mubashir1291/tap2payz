@@ -29,6 +29,15 @@ export const HalfArrowIcon = require('../Images/HalfArrow.png');
 export const PrinterIcon = require('../Images/Printer.png');
 export const LoaderIcon = require('../Images/Loader.png');
 export const CardpaymentIcon = require('../Images/CardPayment.png');
+export const GreenDollarIcon = require('../Images/GreenDollar.png');
+export const CurveIcon = require('../Images/Curve.png');
+export const PurpleDollarIcon = require('../Images/PurpleDollar.png');
+export const CartIcon = require('../Images/Cart.png');
+export const SignalsIcon = require('../Images/Signals.png');
+export const CurveRedDownArrowIcon = require('../Images/CurveRedDownArrow.png');
+
+
+
 
 
 

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import {
   View,
   Text,
@@ -20,20 +20,23 @@ import {
   ConnectedIcon,
   SettingIcon,
   LogoutIcon,
+  LockIcon,
 } from '../assets/Images';
 import { store } from '../redux/store';
+import PassKeyModal from './PassKeyModal';
 
 const drawerItems = [
   { label: 'Sale', icon: DiscountIcon, route: 'HomeScreen' },
-  { label: 'Return', icon: ReturnIcon, route: null },
+  { label: 'Return', icon: ReturnIcon, route: 'ReturnScreen' },
   { label: 'Close Register', icon: CloseRegisterIcon, route: 'CloseRegisterScreen' },
   { label: 'Connected Devices', icon: ConnectedIcon, route: null },
-  { label: 'Settings', icon: SettingIcon, route: null },
+  { label: 'Settings', icon: SettingIcon, icon2 : LockIcon, route: null },
 ];
 
 const CustomDrawerContent = ({ navigation, state }) => {
   const dispatch = useDispatch();
   const activeRoute = state?.routes?.[state.index]?.name;
+  const [showPasskey, setShowPasskey] = useState(false);
 
   const handleLogout = () => {
     store.dispatch(logout(true))
@@ -70,10 +73,14 @@ const CustomDrawerContent = ({ navigation, state }) => {
               style={[styles.menuItem, isActive && styles.activeMenuItem]}
               activeOpacity={0.7}
               onPress={() => {
-                if (item.route) {
+                if (item.label === 'Settings') {
+                  setShowPasskey(true);
+                } else if (item.route) {
                   navigation.navigate(item.route);
+                  navigation.closeDrawer();
+                } else {
+                  navigation.closeDrawer();
                 }
-                navigation.closeDrawer();
               }}
             >
               <Image
@@ -87,10 +94,20 @@ const CustomDrawerContent = ({ navigation, state }) => {
                 style={[
                   styles.menuLabel, Subtitle1,
                   isActive ? styles.menuLabelActive : styles.menuLabelDefault,
+                  {flex: 1},
                 ]}
               >
                 {item.label}
               </Text>
+              {item.icon2 && (
+                <Image
+                  source={item.icon2}
+                  style={[
+                    IconSize16,
+                    isActive ? styles.menuIconActive : styles.menuIconDefault,
+                  ]}
+                />
+              )}
             </TouchableOpacity>
           );
         })}
@@ -101,6 +118,17 @@ const CustomDrawerContent = ({ navigation, state }) => {
         <Image source={LogoutIcon} style={[IconSize16, styles.logoutIcon]} />
         <Text style={[styles.logoutText, Subtitle1]}>Logout</Text>
       </TouchableOpacity>
+
+      <PassKeyModal
+        visible={showPasskey}
+        onProceed={(passkey) => {
+          console.log('Passkey entered:', passkey);
+          setShowPasskey(false);
+          navigation.navigate('SettingsScreen');
+          navigation.closeDrawer();
+        }}
+        onClose={() => setShowPasskey(false)}
+      />
     </View>
   );
 };

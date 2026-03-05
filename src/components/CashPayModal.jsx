@@ -53,7 +53,7 @@ const CashPayModal = ({
           {/* Total Amount */}
           <View style={styles.totalRow}>
             <Text style={[styles.totalLabel, Subtitle1]}>Total Amount:</Text>
-            <Text style={[styles.totalValue, H4]}>€{totalAmount.toFixed(2)}</Text>
+            <Text style={[styles.totalValue, H4]}>${totalAmount.toFixed(2)}</Text>
           </View>
 
           {/* Enter Amount */}
@@ -61,7 +61,7 @@ const CashPayModal = ({
             <Text style={[styles.inputLabel, Subtitle2]}>Enter Amount</Text>
             <TextInput
               style={[styles.amountInput, Body2]}
-              placeholder={`€${totalAmount.toFixed(2)}`}
+              placeholder={`$${totalAmount.toFixed(2)}`}
               placeholderTextColor={Colors.grey}
               keyboardType="numeric"
               value={enteredAmount}
@@ -72,7 +72,7 @@ const CashPayModal = ({
           {/* Change */}
           <View style={styles.changeRow}>
             <Text style={[styles.changeLabel, Subtitle1]}>Change:</Text>
-            <Text style={[styles.changeValue, H4]}>€{change}</Text>
+            <Text style={[styles.changeValue, H4]}>${change}</Text>
           </View>
 
           {/* Proceed Button */}

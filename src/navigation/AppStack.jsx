@@ -2,6 +2,8 @@ import React from 'react';
 import { createDrawerNavigator } from '@react-navigation/drawer';
 import HomeScreen from '../screens/app/HomeScreen';
 import CloseRegisterScreen from '../screens/app/CloseRegisterScreen';
+import ReturnScreen from '../screens/app/ReturnScreen';
+import SettingsScreen from '../screens/app/SettingsScreen';
 import CustomDrawerContent from '../components/CustomDrawerContent';
 import OpenRegisterScreen from '../screens/auth/OpenRegisterScreen';
 
@@ -24,6 +26,8 @@ const AppStack = () => {
     >
       <Drawer.Screen name="HomeScreen" component={HomeScreen} />
       <Drawer.Screen name="CloseRegisterScreen" component={CloseRegisterScreen} />
+      <Drawer.Screen name="ReturnScreen" component={ReturnScreen} />
+      <Drawer.Screen name="SettingsScreen" component={SettingsScreen} />
     </Drawer.Navigator>
   );
 };
