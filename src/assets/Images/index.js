@@ -23,6 +23,14 @@ export const CloseRegisterIcon = require('../Images/CloseRegister.png');
 export const PSPIcon = require('../Images/PSPIcon.png');
 export const SearchIcon = require('../Images/Search.png');
 export const ListIcon = require('../Images/list.png');
+export const TickIcon = require('../Images/Tick.png');
+export const CheckIcon = require('../Images/Check.png');
+export const HalfArrowIcon = require('../Images/HalfArrow.png');
+export const PrinterIcon = require('../Images/Printer.png');
+export const LoaderIcon = require('../Images/Loader.png');
+export const CardpaymentIcon = require('../Images/CardPayment.png');
+
+
 
 
 

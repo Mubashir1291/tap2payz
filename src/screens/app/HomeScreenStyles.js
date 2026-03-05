@@ -287,6 +287,17 @@ const styles = StyleSheet.create({
     color: Colors.black,
     marginTop: VS(4),
   },
+  tipIconContainer: {
+    position: 'relative',
+  },
+  tickIcon: {
+    position: 'absolute',
+    top: -VS(4),
+    right: -S(35),
+    width: S(12),
+    height: VS(12),
+    resizeMode: 'contain',
+  },
 
   // ─── Total Section ───
   totalSection: {

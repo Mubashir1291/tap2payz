@@ -26,7 +26,7 @@ import { store } from '../redux/store';
 const drawerItems = [
   { label: 'Sale', icon: DiscountIcon, route: 'HomeScreen' },
   { label: 'Return', icon: ReturnIcon, route: null },
-  { label: 'Close Register', icon: CloseRegisterIcon, route: null },
+  { label: 'Close Register', icon: CloseRegisterIcon, route: 'CloseRegisterScreen' },
   { label: 'Connected Devices', icon: ConnectedIcon, route: null },
   { label: 'Settings', icon: SettingIcon, route: null },
 ];

@@ -31,9 +31,17 @@ import {
   WarningIcon,
   SearchIcon,
   ListIcon,
+  TickIcon,
 } from '../../assets/Images';
 import styles from './HomeScreenStyles';
 import ConfirmationModal from '../../components/ConfirmationModal';
+import TipModal from '../../components/TipModal';
+import BuyerInfoModal from '../../components/BuyerInfoModal';
+import CashPayModal from '../../components/CashPayModal';
+import TransactionProcessModal from '../../components/TransactionProcessModal';
+import InvoiceModal from '../../components/InvoiceModal';
+import QuickSaleModal from '../../components/QuickSaleModal';
+import SwipeableCartItem from '../../components/SwipeableCartItem';
 import { IconSize24 } from '../../utils/IconSizes';
 
 const categories = [
@@ -96,6 +104,14 @@ const HomeScreen = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [isAllCategoriesView, setIsAllCategoriesView] = useState(false);
+  const [tipAmount, setTipAmount] = useState(null);
+  const [showTipModal, setShowTipModal] = useState(false);
+  const [buyerInfo, setBuyerInfo] = useState(null);
+  const [showBuyerModal, setShowBuyerModal] = useState(false);
+  const [showCashPayModal, setShowCashPayModal] = useState(false);
+  const [showTransactionModal, setShowTransactionModal] = useState(false);
+  const [showInvoiceModal, setShowInvoiceModal] = useState(false);
+  const [showQuickSaleModal, setShowQuickSaleModal] = useState(false);
   const categoryScrollRef = useRef(null);
   const scrollOffset = useRef(0);
 
@@ -104,15 +120,15 @@ const HomeScreen = () => {
   const ITEMS_PER_PAGE = 25; // 5 rows of 5 items
 
   const filteredProducts = useMemo(() => {
-    let products = selectedCategory === 'All'
-      ? dummyProducts
-      : dummyProducts.filter(p => p.category === selectedCategory);
     if (searchQuery.trim()) {
-      products = products.filter(p =>
+      // When searching, search from ALL products regardless of selected category
+      return dummyProducts.filter(p =>
         p.name.toLowerCase().includes(searchQuery.toLowerCase()),
       );
     }
-    return products;
+    return selectedCategory === 'All'
+      ? dummyProducts
+      : dummyProducts.filter(p => p.category === selectedCategory);
   }, [selectedCategory, searchQuery]);
 
   useEffect(() => {
@@ -153,6 +169,10 @@ const HomeScreen = () => {
     }
   };
 
+  const deleteFromCart = id => {
+    setCart(cart.filter(c => c.id !== id));
+  };
+
   const total = useMemo(() => {
     return cart
       .reduce((sum, item) => sum + item.price * item.qty, 0)
@@ -181,6 +201,79 @@ const HomeScreen = () => {
   const confirmDeleteCart = () => {
     setCart([]);
     setShowDeleteModal(false);
+  };
+
+  const handleOpenTipModal = () => {
+    setShowTipModal(true);
+  };
+
+  const handleAddTip = (amount) => {
+    setTipAmount(amount);
+    setShowTipModal(false);
+  };
+
+  const handleSaveTip = (amount) => {
+    setTipAmount(amount);
+    setShowTipModal(false);
+  };
+
+  const handleDeleteTip = () => {
+    setTipAmount(null);
+    setShowTipModal(false);
+  };
+
+  const handleOpenBuyerModal = () => {
+    setShowBuyerModal(true);
+  };
+
+  const handleAddBuyerInfo = (info) => {
+    setBuyerInfo(info);
+    setShowBuyerModal(false);
+  };
+
+  const handleSaveBuyerInfo = (info) => {
+    setBuyerInfo(info);
+    setShowBuyerModal(false);
+  };
+
+  const handleDeleteBuyerInfo = () => {
+    setBuyerInfo(null);
+    setShowBuyerModal(false);
+  };
+
+  const handlePlaceOrder = () => {
+    if (cart.length === 0) return;
+    if (paymentType === 'cash') {
+      setShowCashPayModal(true);
+    } else if (paymentType === 'card') {
+      setShowTransactionModal(true);
+      // Simulate card processing, then show invoice after 3 seconds
+      setTimeout(() => {
+        setShowTransactionModal(false);
+        setShowInvoiceModal(true);
+      }, 3000);
+    }
+  };
+
+  const handleCashProceed = (amountPaid) => {
+    setShowCashPayModal(false);
+    setShowInvoiceModal(true);
+  };
+
+  const handlePrintReceipt = () => {
+    // Placeholder for print logic
+    setShowInvoiceModal(false);
+  };
+
+  const handleQuickSale = ({name, price}) => {
+    const quickItem = {
+      id: `quick_${Date.now()}`,
+      name,
+      price,
+      category: 'Quick Sale',
+    };
+    addToCart(quickItem);
+    setShowQuickSaleModal(false);
   };
 
   return (
@@ -340,14 +433,14 @@ const HomeScreen = () => {
       <View style={styles.cartPanel}>
         {/* Cart Header Icons */}
         <View style={styles.cartHeader}>
-          <TouchableOpacity style={styles.cartHeaderBtn}>
-            <Image source={RefreshICon} style={[IconSize12, styles.cartHeaderIcon]} />
+          <TouchableOpacity >
+            <Image source={RefreshICon} style={[IconSize20, styles.cartHeaderIcon]} />
           </TouchableOpacity>
-          <TouchableOpacity style={styles.cartHeaderBtn}>
-            <Image source={ChipIcon} style={[IconSize12, styles.cartHeaderIcon]} />
+          <TouchableOpacity >
+            <Image source={ChipIcon} style={[IconSize20, styles.cartHeaderIcon]} />
           </TouchableOpacity>
-          <TouchableOpacity style={styles.cartHeaderBtn} onPress={HandleDeleteCart}>
-            <Image source={DeleteIcon} style={[IconSize12, styles.cartHeaderIcon]} />
+          <TouchableOpacity onPress={HandleDeleteCart}>
+            <Image source={DeleteIcon} style={[IconSize20, styles.cartHeaderIcon]} />
           </TouchableOpacity>
         </View>
 
@@ -361,46 +454,58 @@ const HomeScreen = () => {
             keyExtractor={item => item.id}
             showsVerticalScrollIndicator={false}
             renderItem={({ item }) => (
-              <View style={styles.cartItem}>
-                <View>
-                  <Text style={[styles.cartItemName, Subtitle2]}>{item.name}</Text>
-                  <Text style={[styles.cartItemPrice, Body3]}>€ {item.price} x {item.qty}</Text>
+              <SwipeableCartItem onDelete={() => deleteFromCart(item.id)}>
+                <View style={styles.cartItem}>
+                  <View>
+                    <Text style={[styles.cartItemName, Subtitle2]}>{item.name}</Text>
+                    <Text style={[styles.cartItemPrice, Body3]}>€ {item.price} x {item.qty}</Text>
+                  </View>
+
+                  <View style={styles.qtyControls}>
+                    <TouchableOpacity
+                      onPress={() => removeFromCart(item.id)}
+                      style={styles.qtyBtn}
+                    >
+                      <Text style={[styles.qtyBtnText, ButtonText]}>−</Text>
+                    </TouchableOpacity>
+
+                    <Text style={[styles.qtyText, Body2]}>{item.qty}</Text>
+
+                    <TouchableOpacity
+                      onPress={() => addToCart(item)}
+                      style={styles.qtyBtn}
+                    >
+                      <Text style={[styles.qtyBtnText, ButtonText]}>+</Text>
+                    </TouchableOpacity>
+                  </View>
                 </View>
-
-                <View style={styles.qtyControls}>
-                  <TouchableOpacity
-                    onPress={() => removeFromCart(item.id)}
-                    style={styles.qtyBtn}
-                  >
-                    <Text style={[styles.qtyBtnText, ButtonText]}>−</Text>
-                  </TouchableOpacity>
-
-                  <Text style={[styles.qtyText, Body2]}>{item.qty}</Text>
-
-                  <TouchableOpacity
-                    onPress={() => addToCart(item)}
-                    style={styles.qtyBtn}
-                  >
-                    <Text style={[styles.qtyBtnText, ButtonText]}>+</Text>
-                  </TouchableOpacity>
-                </View>
-              </View>
+              </SwipeableCartItem>
             )}
           />
         )}
 
         {/* Action Buttons */}
         <View style={styles.actionRow}>
-          <TouchableOpacity style={styles.actionBtn}>
+          <TouchableOpacity style={styles.actionBtn} onPress={() => setShowQuickSaleModal(true)}>
             <Image source={DiscountIcon} style={[IconSize12, styles.actionIcon]} />
             <Text style={[styles.actionLabelText, Caption]}>Quick Sale</Text>
           </TouchableOpacity>
-          <TouchableOpacity style={styles.actionBtn}>
-            <Image source={DollarIcon} style={[IconSize12, styles.actionIcon]} />
+          <TouchableOpacity style={styles.actionBtn} onPress={handleOpenTipModal}>
+            <View style={styles.tipIconContainer}>
+              <Image source={DollarIcon} style={[IconSize12, styles.actionIcon]} />
+              {tipAmount !== null && (
+                <Image source={TickIcon} style={styles.tickIcon} />
+              )}
+            </View>
             <Text style={[styles.actionLabelText, Caption]}>Add TIP</Text>
           </TouchableOpacity>
-          <TouchableOpacity style={styles.actionBtn}>
-            <Image source={BuyersIcon} style={[IconSize12, styles.actionIcon]} />
+          <TouchableOpacity style={styles.actionBtn} onPress={handleOpenBuyerModal}>
+            <View style={styles.tipIconContainer}>
+              <Image source={BuyersIcon} style={[IconSize12, styles.actionIcon]} />
+              {buyerInfo !== null && (
+                <Image source={TickIcon} style={styles.tickIcon} />
+              )}
+            </View>
             <Text style={[styles.actionLabelText, Caption]}>Buyer Details</Text>
           </TouchableOpacity>
         </View>
@@ -436,7 +541,7 @@ const HomeScreen = () => {
             </TouchableOpacity>
           </View>
 
-          <TouchableOpacity style={styles.placeOrderBtn}>
+          <TouchableOpacity style={styles.placeOrderBtn} onPress={handlePlaceOrder}>
             <Text style={[styles.placeOrderText, ButtonText]}>Place Order</Text>
           </TouchableOpacity>
         </View>
@@ -451,7 +556,53 @@ const HomeScreen = () => {
         confirmButtonColor="#E74C3C"
         onConfirm={confirmDeleteCart}
         onCancel={() => setShowDeleteModal(false)}
+      />
 
+      <TipModal
+        visible={showTipModal}
+        isEditMode={tipAmount !== null}
+        initialTipAmount={tipAmount}
+        onAddTip={handleAddTip}
+        onSaveTip={handleSaveTip}
+        onDeleteTip={handleDeleteTip}
+        onClose={() => setShowTipModal(false)}
+      />
+
+      <BuyerInfoModal
+        visible={showBuyerModal}
+        isEditMode={buyerInfo !== null}
+        initialBuyerInfo={buyerInfo}
+        onAddInfo={handleAddBuyerInfo}
+        onSaveInfo={handleSaveBuyerInfo}
+        onDeleteInfo={handleDeleteBuyerInfo}
+        onClose={() => setShowBuyerModal(false)}
+      />
+
+      <CashPayModal
+        visible={showCashPayModal}
+        totalAmount={parseFloat(total)}
+        onProceed={handleCashProceed}
+        onClose={() => setShowCashPayModal(false)}
+      />
+
+      <TransactionProcessModal
+        visible={showTransactionModal}
+        onClose={() => setShowTransactionModal(false)}
+      />
+
+      <InvoiceModal
+        visible={showInvoiceModal}
+        buyerInfo={buyerInfo}
+        cartItems={cart}
+        totalAmount={parseFloat(total)}
+        onPrintReceipt={handlePrintReceipt}
+        onClose={() => setShowInvoiceModal(false)}
+      />
+
+      <QuickSaleModal
+        visible={showQuickSaleModal}
+        onAddSale={handleQuickSale}
+        onClose={() => setShowQuickSaleModal(false)}
       />
     </View>
   );
