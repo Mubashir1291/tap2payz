@@ -18,6 +18,8 @@
     "@reduxjs/toolkit": "^2.11.2",
     "react": "19.2.3",
     "react-native": "0.84.1",
+    "react-native-calendars": "^1.1314.0",
+    "react-native-date-picker": "^5.0.13",
     "react-native-gesture-handler": "^2.30.0",
     "react-native-gifted-charts": "^1.4.75",
     "react-native-linear-gradient": "^2.8.3",

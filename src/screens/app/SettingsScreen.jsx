@@ -27,6 +27,8 @@ import { GreenDollarIcon, PurpleDollarIcon, SignalsIcon, CurveIcon, CurveRedDown
 import { IconSize20, IconSize12 } from '../../utils/IconSizes';
 import styles from './SettingsScreenStyles';
 import EmployeeManagement from './EmployeeManagement';
+import ZReport from './ZReport';
+import XReport from './XReport';
 
 const tabs = [
   { label: 'Reports Overview', icon: OverviewIcon },
@@ -141,6 +143,10 @@ const SettingsScreen = () => {
 
       {activeTab === 4 ? (
         <EmployeeManagement />
+      ) : activeTab === 2 ? (
+        <ZReport />
+      ) : activeTab === 3 ? (
+        <XReport isActive={activeTab === 3} />
       ) : (
         <ScrollView
           style={styles.content}

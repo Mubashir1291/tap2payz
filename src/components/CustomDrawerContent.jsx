@@ -27,7 +27,7 @@ import PassKeyModal from './PassKeyModal';
 
 const drawerItems = [
   { label: 'Sale', icon: DiscountIcon, route: 'HomeScreen' },
-  { label: 'Return', icon: ReturnIcon, route: 'ReturnScreen' },
+  // { label: 'Return', icon: ReturnIcon, route: 'ReturnScreen' },
   { label: 'Close Register', icon: CloseRegisterIcon, route: 'CloseRegisterScreen' },
   { label: 'Connected Devices', icon: ConnectedIcon, route: null },
   { label: 'Settings', icon: SettingIcon, icon2 : LockIcon, route: null },
