@@ -35,6 +35,21 @@ export const PurpleDollarIcon = require('../Images/PurpleDollar.png');
 export const CartIcon = require('../Images/Cart.png');
 export const SignalsIcon = require('../Images/Signals.png');
 export const CurveRedDownArrowIcon = require('../Images/CurveRedDownArrow.png');
+export const InventoryIcon = require('../Images/Inventory.png');
+export const EmployeeIcon = require('../Images/Employee.png');
+export const ReportIcon = require('../Images/Report.png');
+export const OverviewIcon = require('../Images/Overview.png');
+export const ExportIcon = require('../Images/Export.png');
+export const DeleteCircleIcon = require('../Images/DeleteCircle.png');
+export const EditCircleIcon = require('../Images/EditCircle.png');
+export const LockCircleIcon = require('../Images/LockCircle.png');
+export const ApprovedIcon = require('../Images/Approved.png');
+export const CameraIcon = require('../Images/Camera.png');
+
+
+
+
+
 
 
 

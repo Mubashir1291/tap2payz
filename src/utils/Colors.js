@@ -7,4 +7,6 @@ export const Colors = {
   lightGrey: '#E5E5E5',
   inputBg: '#F5F7FA',
   overlay: 'rgba(0,0,0,0.05)',
+  inputcolor: '#F1F1F1',
+  buttonColor:'#B6C8FB'
 };

@@ -182,7 +182,7 @@ const HomeScreen = () => {
   const renderProduct = ({ item }) => (
     <TouchableOpacity
       style={styles.productCard}
-      activeOpacity={0.8}
+      activeOpacity={0.5}
       onPress={() => addToCart(item)}
     >
       <View style={styles.priceTag}>
@@ -395,7 +395,7 @@ const HomeScreen = () => {
             renderItem={({ item }) => (
               <TouchableOpacity
                 style={styles.categoryGridCard}
-                activeOpacity={0.8}
+                activeOpacity={0.5}
                 onPress={() => {
                   setSelectedCategory(item);
                   setIsAllCategoriesView(false);

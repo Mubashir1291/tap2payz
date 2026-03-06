@@ -106,7 +106,21 @@ const styles = StyleSheet.create({
   },
   statLabel: {
     color: Colors.grey,
-    marginBottom: VS(4),
+  },
+  statFooter: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginTop: VS(8),
+  },
+  percentContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  trendIcon: {
+    width: S(12),
+    height: VS(12),
+    marginRight: S(4),
   },
   statPercent: {},
 
