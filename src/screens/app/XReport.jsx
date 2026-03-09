@@ -9,15 +9,14 @@ import styles from './XReportStyles';
 import SalesRefundDetailModal from '../../components/SalesRefundDetailModal';
 import DurationModal from '../../components/DurationModal';
 
-const dummyData = Array.from({ length: 10 }).map((_, index) => {
-  const isRefund = index % 2 !== 0 && index % 3 !== 0; // Just some pseudo-randomness for Sale/Refund
-  return {
-    id: index.toString(),
+const dummyData = [
+  {
+    id: '1',
     serialNumber: '213542',
     transactionNumber: '2135424624',
-    customer: isRefund ? '________' : 'Michel Gerdes',
+    customer: 'Michel Gerdes',
     totalItems: '10 Items',
-    type: isRefund ? 'Refund' : 'Sale',
+    type: 'Sale',
     dateTime: '1st Dec, 2023\n5:00 PM',
     totalSales: '€5,956.00',
     details: {
@@ -28,13 +27,81 @@ const dummyData = Array.from({ length: 10 }).map((_, index) => {
       dateTime: '1st Dec, 2023 (5:00 PM)',
       totalSales: '5,956.00',
       items: [
-        {name: 'Denis T-Shirt', sku: '2152462', qty: 6},
-        {name: 'Pure Milk', sku: '2152462', qty: 2},
-        {name: 'Coca Cola', sku: '2152462', qty: 2},
+        { name: 'Denis T-Shirt', sku: '2152462', qty: 6 },
+        { name: 'Pure Milk', sku: '2152463', qty: 2 },
+        { name: 'Coca Cola', sku: '2152464', qty: 2 },
       ],
-    }
-  }
-});
+    },
+  },
+  {
+    id: '2',
+    serialNumber: '213543',
+    transactionNumber: '2135424625',
+    customer: 'John Smith',
+    totalItems: '5 Items',
+    type: 'Sale',
+    dateTime: '2nd Dec, 2023\n3:30 PM',
+    totalSales: '€320.00',
+    details: {
+      serialNumber: '213543',
+      transactionNumber: '2135424625',
+      customer: 'John Smith',
+      totalItems: 5,
+      dateTime: '2nd Dec, 2023 (3:30 PM)',
+      totalSales: '320.00',
+      items: [
+        { name: 'Pizza', sku: '3152462', qty: 2 },
+        { name: 'Burger', sku: '3152463', qty: 2 },
+        { name: 'Pepsi', sku: '3152464', qty: 1 },
+      ],
+    },
+  },
+  {
+    id: '3',
+    serialNumber: '213544',
+    transactionNumber: '2135424626',
+    customer: '________',
+    totalItems: '3 Items',
+    type: 'Refund',
+    dateTime: '3rd Dec, 2023\n1:15 PM',
+    totalSales: '€120.00',
+    details: {
+      serialNumber: '213544',
+      transactionNumber: '2135424626',
+      customer: 'Michel Gerdes',
+      totalItems: 3,
+      dateTime: '3rd Dec, 2023 (1:15 PM)',
+      totalSales: '120.00',
+      items: [
+        { name: 'Coca Cola', sku: '4152462', qty: 1 },
+        { name: 'Denis T-Shirt', sku: '4152463', qty: 2 },
+      ],
+    },
+  },
+  {
+    id: '4',
+    serialNumber: '213545',
+    transactionNumber: '2135424627',
+    customer: 'Emma Watson',
+    totalItems: '7 Items',
+    type: 'Sale',
+    dateTime: '4th Dec, 2023\n6:45 PM',
+    totalSales: '€780.00',
+    details: {
+      serialNumber: '213545',
+      transactionNumber: '2135424627',
+      customer: 'Emma Watson',
+      totalItems: 7,
+      dateTime: '4th Dec, 2023 (6:45 PM)',
+      totalSales: '780.00',
+      items: [
+        { name: 'Burger', sku: '5152462', qty: 3 },
+        { name: 'Fries', sku: '5152463', qty: 2 },
+        { name: 'Pepsi', sku: '5152464', qty: 2 },
+      ],
+    },
+  },
+];
 
 const XReport = ({ isActive }) => {
   const [searchQuery, setSearchQuery] = useState('');

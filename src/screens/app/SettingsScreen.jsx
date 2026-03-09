@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, {useState, useCallback} from 'react';
 import {
   View,
   Text,
@@ -29,6 +29,7 @@ import styles from './SettingsScreenStyles';
 import EmployeeManagement from './EmployeeManagement';
 import ZReport from './ZReport';
 import XReport from './XReport';
+import InventoryManagement from './InventoryManagement';
 
 const tabs = [
   { label: 'Reports Overview', icon: OverviewIcon },
@@ -82,6 +83,14 @@ const SettingsScreen = () => {
   const [activeTab, setActiveTab] = useState(0);
   const [showDetailModal, setShowDetailModal] = useState(false);
   const [detailType, setDetailType] = useState('sale');
+  const [chartWidth, setChartWidth] = useState(S(380)); // default width
+
+  const onChartContainerLayout = useCallback((event) => {
+    const { width } = event.nativeEvent.layout;
+    // The gifted chart requires the specific width for drawing area.
+    // Subtract ~S(40) to account for Y-axis labels and padding.
+    setChartWidth(width - S(40));
+  }, []);
 
   const openSaleDetail = () => {
     setDetailType('sale');
@@ -141,7 +150,9 @@ const SettingsScreen = () => {
         </ScrollView>
       </View>
 
-      {activeTab === 4 ? (
+      {activeTab === 5 ? (
+        <InventoryManagement />
+      ) : activeTab === 4 ? (
         <EmployeeManagement />
       ) : activeTab === 2 ? (
         <ZReport />
@@ -232,26 +243,29 @@ const SettingsScreen = () => {
                   </TouchableOpacity>
                 </View>
               </View>
-              <LineChart
-                data={salesLineData.map(item => ({...item, onPress: openSaleDetail}))}
-                data2={refundLineData.map(item => ({...item, onPress: openRefundDetail}))}
-                height={VS(160)}
-                width={S(380)}
-                spacing={S(34)}
-                color1="#A8C8F0"
-                color2="#3B4B8A"
-                thickness={2}
-                hideDataPoints
-                curved
-                yAxisColor="transparent"
-                xAxisColor={Colors.lightGrey}
-                yAxisTextStyle={[Caption, {color: Colors.grey}]}
-                xAxisLabelTexts={xLabels}
-                xAxisLabelTextStyle={[Caption, {color: Colors.grey}]}
-                noOfSections={5}
-                rulesType="solid"
-                rulesColor={Colors.lightGrey}
-              />
+              <View style={{ flex: 1 }} onLayout={onChartContainerLayout}>
+                <LineChart
+                  data={salesLineData.map(item => ({...item, onPress: openSaleDetail}))}
+                  data2={refundLineData.map(item => ({...item, onPress: openRefundDetail}))}
+                  height={VS(160)}
+                  width={chartWidth}
+                  spacing={Math.max((chartWidth - S(20)) / 11, S(20))}
+                  initialSpacing={S(10)}
+                  color1="#A8C8F0"
+                  color2="#3B4B8A"
+                  thickness={2}
+                  hideDataPoints
+                  curved
+                  yAxisColor="transparent"
+                  xAxisColor={Colors.lightGrey}
+                  yAxisTextStyle={[Caption, {color: Colors.grey}]}
+                  xAxisLabelTexts={xLabels}
+                  xAxisLabelTextStyle={[Caption, {color: Colors.grey}]}
+                  noOfSections={5}
+                  rulesType="solid"
+                  rulesColor={Colors.lightGrey}
+                />
+              </View>
             </View>
 
             {/* Top Selling Products Pie Chart */}

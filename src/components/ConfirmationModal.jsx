@@ -39,7 +39,7 @@ const ConfirmationModal = ({
           </TouchableOpacity>
           {icon && <Image source={icon} style={iconStyle} />}
           {title && <Text style={[styles.title, H4]}>{title}</Text>}
-          {subtitle && <Text style={[styles.subtitle, H3]}>{subtitle}</Text>}
+          {subtitle && <Text style={[styles.subtitle, Body1]}>{subtitle}</Text>}
           {subtitle2 && <Text style={[styles.subtitle, Body3]}>{subtitle2}</Text>}
           <TouchableOpacity
             style={[

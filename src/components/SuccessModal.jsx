@@ -12,7 +12,7 @@ import {S, VS, MS} from '../utils/Responsive';
 import {H3, Subtitle1} from '../utils/fonts';
 import {ApprovedIcon} from '../assets/Images';
 
-const SuccessModal = ({visible, onClose, message}) => {
+const SuccessModal = ({visible, onClose, message, title = 'Successful'}) => {
   return (
     <Modal
       visible={visible}
@@ -22,7 +22,7 @@ const SuccessModal = ({visible, onClose, message}) => {
       <View style={styles.modalOverlay}>
         <View style={styles.modalContent}>
           <Image source={ApprovedIcon} style={styles.icon} />
-          <Text style={[styles.title, H3]}>Successful</Text>
+          <Text style={[styles.title, H3]}>{title}</Text>
           <Text style={[styles.message, Subtitle1]}>{message}</Text>
           
           <TouchableOpacity style={styles.closeBtn} onPress={onClose}>

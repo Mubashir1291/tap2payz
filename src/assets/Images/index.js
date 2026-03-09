@@ -45,6 +45,12 @@ export const EditCircleIcon = require('../Images/EditCircle.png');
 export const LockCircleIcon = require('../Images/LockCircle.png');
 export const ApprovedIcon = require('../Images/Approved.png');
 export const CameraIcon = require('../Images/Camera.png');
+export const ScanIcon = require('../Images/Scan.png');
+export const UploadIcon = require('../Images/Upload.png');
+export const ArrowDownIcon = require('../Images/ArrowDown.png');
+
+
+
 
 
 
