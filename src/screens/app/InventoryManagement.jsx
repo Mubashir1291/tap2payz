@@ -21,15 +21,15 @@ import styles from './InventoryManagementStyles';
 import SortModal from '../../components/SortModal';
 
 const dummyData = [
-  { id: '1', name: "Men's Leather Jacket", sku: 'avbd4562536', barcode: 'avbd4562536', category: "Men's Wear", discount: 'End of Year (521426)', qty: '1000', price: '€ 5,956.00', status: 'Active' },
-  { id: '2', name: "Men's Leather Jacket", sku: 'avbd4562536', barcode: 'avbd4562536', category: "Men's Wear", discount: 'End of Year (521426)', qty: '1000', price: '€ 5,956.00', status: 'Active' },
-  { id: '3', name: "Men's Leather Jacket", sku: 'avbd4562536', barcode: 'avbd4562536', category: "Men's Wear", discount: '50% off Sale (521426)', qty: '1000', price: '€ 5,956.00', status: 'Active' },
-  { id: '4', name: "Men's Leather Jacket", sku: 'avbd4562536', barcode: 'avbd4562536', category: "Men's Wear", discount: 'End of Year (521426)', qty: '1000', price: '€ 5,956.00', status: 'Inavtive' },
-  { id: '5', name: "Men's Leather Jacket", sku: 'avbd4562536', barcode: 'avbd4562536', category: "Men's Wear", discount: 'End of Year (521426)', qty: '1000', price: '€ 5,956.00', status: 'Active' },
-  { id: '6', name: "Men's Leather Jacket", sku: 'avbd4562536', barcode: 'avbd4562536', category: "Men's Wear", discount: '50% off Sale (521426)', qty: '1000', price: '€ 5,956.00', status: 'Active' },
-  { id: '7', name: "Men's Leather Jacket", sku: 'avbd4562536', barcode: 'avbd4562536', category: "Winter Collection", discount: 'End of Year (521426)', qty: '1000', price: '€ 5,956.00', status: 'Inavtive' },
-  { id: '8', name: "Men's Leather Jacket", sku: 'avbd4562536', barcode: 'avbd4562536', category: "Winter Collection", discount: '50% off Sale (521426)', qty: '1000', price: '€ 5,956.00', status: 'Inavtive' },
-  { id: '9', name: "Men's Leather Jacket", sku: 'avbd4562536', barcode: 'avbd4562536', category: "Winter Collection", discount: 'End of Year (521426)', qty: '1000', price: '€ 5,956.00', status: 'Active' },
+  { id: '1', name: "Men's Leather Jacket", sku: 'avbd4562536', barcode: 'avbd4562536', category: "Men's Wear", discount: 'End of Year (521426)', qty: '1000', price: '$ 5,956.00', status: 'Active' },
+  { id: '2', name: "Men's Leather Jacket", sku: 'avbd4562536', barcode: 'avbd4562536', category: "Men's Wear", discount: 'End of Year (521426)', qty: '1000', price: '$ 5,956.00', status: 'Active' },
+  { id: '3', name: "Men's Leather Jacket", sku: 'avbd4562536', barcode: 'avbd4562536', category: "Men's Wear", discount: '50% off Sale (521426)', qty: '1000', price: '$ 5,956.00', status: 'Active' },
+  { id: '4', name: "Men's Leather Jacket", sku: 'avbd4562536', barcode: 'avbd4562536', category: "Men's Wear", discount: 'End of Year (521426)', qty: '1000', price: '$ 5,956.00', status: 'Inavtive' },
+  { id: '5', name: "Men's Leather Jacket", sku: 'avbd4562536', barcode: 'avbd4562536', category: "Men's Wear", discount: 'End of Year (521426)', qty: '1000', price: '$ 5,956.00', status: 'Active' },
+  { id: '6', name: "Men's Leather Jacket", sku: 'avbd4562536', barcode: 'avbd4562536', category: "Men's Wear", discount: '50% off Sale (521426)', qty: '1000', price: '$ 5,956.00', status: 'Active' },
+  { id: '7', name: "Men's Leather Jacket", sku: 'avbd4562536', barcode: 'avbd4562536', category: "Winter Collection", discount: 'End of Year (521426)', qty: '1000', price: '$ 5,956.00', status: 'Inavtive' },
+  { id: '8', name: "Men's Leather Jacket", sku: 'avbd4562536', barcode: 'avbd4562536', category: "Winter Collection", discount: '50% off Sale (521426)', qty: '1000', price: '$ 5,956.00', status: 'Inavtive' },
+  { id: '9', name: "Men's Leather Jacket", sku: 'avbd4562536', barcode: 'avbd4562536', category: "Winter Collection", discount: 'End of Year (521426)', qty: '1000', price: '$ 5,956.00', status: 'Active' },
 ];
 
 const dummyCategories = [
@@ -422,14 +422,14 @@ const InventoryManagement = () => {
                 </View>
                 <View style={styles.formCol}>
                   <View style={styles.formLabelRow}><Text style={[styles.formLabel, Body3]}>Price</Text></View>
-                  <TextInput style={[styles.formInput, Body3]} placeholder="€ 20.00" value={formData.price} onChangeText={(t) => setFormData({...formData, price: t})} />
+                  <TextInput style={[styles.formInput, Body3]} placeholder="$ 20.00" value={formData.price} onChangeText={(t) => setFormData({...formData, price: t})} />
                 </View>
               </View>
 
               <View style={styles.formRow}>
                 <View style={styles.formCol}>
                   <View style={styles.formLabelRow}><Text style={[styles.formLabel, Body3]}>Tax</Text></View>
-                  <TextInput style={[styles.formInput, Body3]} placeholder="€ 20.00" value={formData.tax} onChangeText={(t) => setFormData({...formData, tax: t})} />
+                  <TextInput style={[styles.formInput, Body3]} placeholder="$ 20.00" value={formData.tax} onChangeText={(t) => setFormData({...formData, tax: t})} />
                 </View>
                 <View style={styles.formCol}>
                   <View style={styles.formLabelRow}><Text style={[styles.formLabel, Body3]}>Qty</Text></View>
@@ -452,7 +452,7 @@ const InventoryManagement = () => {
                 </View>
                 <View style={styles.formCol}>
                   <View style={styles.formLabelRow}><Text style={[styles.formLabel, Body3]}>Discount Amount</Text></View>
-                  <TextInput style={[styles.formInput, Body3]} placeholder="€ 5.00" value={formData.discountAmount} onChangeText={(t) => setFormData({...formData, discountAmount: t})} />
+                  <TextInput style={[styles.formInput, Body3]} placeholder="$ 5.00" value={formData.discountAmount} onChangeText={(t) => setFormData({...formData, discountAmount: t})} />
                 </View>
               </View>
 

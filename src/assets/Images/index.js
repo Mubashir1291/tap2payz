@@ -48,8 +48,10 @@ export const CameraIcon = require('../Images/Camera.png');
 export const ScanIcon = require('../Images/Scan.png');
 export const UploadIcon = require('../Images/Upload.png');
 export const ArrowDownIcon = require('../Images/ArrowDown.png');
-
-
+export const ShopIcon = require('../Images/shop.png');
+export const MenuIcon = require('../Images/Menu.png');
+export const SplitIcon = require('../Images/Split.png');
+export const CancelOrderIcon = require('../Images/CancelOrder.png');
 
 
 

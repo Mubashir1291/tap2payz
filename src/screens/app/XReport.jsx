@@ -18,7 +18,7 @@ const dummyData = [
     totalItems: '10 Items',
     type: 'Sale',
     dateTime: '1st Dec, 2023\n5:00 PM',
-    totalSales: '€5,956.00',
+    totalSales: '$5,956.00',
     details: {
       serialNumber: '213542',
       transactionNumber: '2135424624',
@@ -41,7 +41,7 @@ const dummyData = [
     totalItems: '5 Items',
     type: 'Sale',
     dateTime: '2nd Dec, 2023\n3:30 PM',
-    totalSales: '€320.00',
+    totalSales: '$320.00',
     details: {
       serialNumber: '213543',
       transactionNumber: '2135424625',
@@ -64,7 +64,7 @@ const dummyData = [
     totalItems: '3 Items',
     type: 'Refund',
     dateTime: '3rd Dec, 2023\n1:15 PM',
-    totalSales: '€120.00',
+    totalSales: '$120.00',
     details: {
       serialNumber: '213544',
       transactionNumber: '2135424626',
@@ -86,7 +86,7 @@ const dummyData = [
     totalItems: '7 Items',
     type: 'Sale',
     dateTime: '4th Dec, 2023\n6:45 PM',
-    totalSales: '€780.00',
+    totalSales: '$780.00',
     details: {
       serialNumber: '213545',
       transactionNumber: '2135424627',
