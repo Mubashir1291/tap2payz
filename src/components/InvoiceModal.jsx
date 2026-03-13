@@ -18,6 +18,8 @@ const InvoiceModal = ({
   buyerInfo = null,
   cartItems = [],
   totalAmount = 0,
+  discountAmount = 0,
+  tipAmount = 0,
   onPrintReceipt,
   onClose,
 }) => {
@@ -88,15 +90,35 @@ const InvoiceModal = ({
                 ))}
               </View>
 
-              {/* Solid Divider */}
-              <View style={styles.solidDivider} />
+              {/* Totals Section */}
+              <View style={styles.totalsContainer}>
+                {discountAmount > 0 && (
+                  <View style={styles.infoRow}>
+                    <Text style={[styles.infoLabel, Body2]}>Discount</Text>
+                    <Text style={[styles.infoValue, {color: '#E74C3C'}, Subtitle2]}>
+                      -${discountAmount.toFixed(2)}
+                    </Text>
+                  </View>
+                )}
+                {tipAmount > 0 && (
+                  <View style={styles.infoRow}>
+                    <Text style={[styles.infoLabel, Body2]}>Tip</Text>
+                    <Text style={[styles.infoValue, Subtitle2]}>
+                      +${parseFloat(tipAmount).toFixed(2)}
+                    </Text>
+                  </View>
+                )}
+                
+                {/* Solid Divider */}
+                <View style={[styles.solidDivider, {marginTop: VS(8)}]} />
 
-              {/* Total */}
-              <View style={styles.totalRow}>
-                <Text style={[styles.totalLabel, Subtitle1]}>Total</Text>
-                <Text style={[styles.totalValue, {color: Colors.primary}, Subtitle1]}>
-                  ${totalAmount.toFixed(2)}
-                </Text>
+                {/* Total */}
+                <View style={styles.totalRow}>
+                  <Text style={[styles.totalLabel, Subtitle1]}>Total</Text>
+                  <Text style={[styles.totalValue, {color: Colors.primary}, Subtitle1]}>
+                    ${totalAmount.toFixed(2)}
+                  </Text>
+                </View>
               </View>
             </View>
 
@@ -208,7 +230,10 @@ const styles = StyleSheet.create({
   totalRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    paddingVertical: VS(4),
+    paddingVertical: VS(8),
+  },
+  totalsContainer: {
+    marginTop: VS(8),
   },
   totalLabel: {
     color: Colors.black,

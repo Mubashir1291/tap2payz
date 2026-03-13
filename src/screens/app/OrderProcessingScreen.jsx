@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useRef } from 'react';
+import React, { useState, useMemo, useRef, useEffect } from 'react';
 import {
   View,
   Text,
@@ -32,8 +32,12 @@ import BuyerInfoModal from '../../components/BuyerInfoModal';
 import QuickSaleModal from '../../components/QuickSaleModal';
 import ProcessOrderModal from '../../components/ProcessOrderModal';
 import ConfirmationModal from '../../components/ConfirmationModal';
+import SuccessModal from '../../components/SuccessModal';
 import CartNoteModal from '../../components/CartNoteModal';
 import DiscountModal from '../../components/DiscountModal';
+import PaymentMethodModal from '../../components/PaymentMethodModal';
+import InvoiceModal from '../../components/InvoiceModal';
+import TransactionProcessModal from '../../components/TransactionProcessModal';
 
 const categories = [
   { name: 'Beverages', icon: ImageFrameIcon },
@@ -58,7 +62,7 @@ const dummyProducts = [
 const OrderProcessingScreen = () => {
   const navigation = useNavigation();
   const route = useRoute();
-  const { tableNumber } = route.params || { tableNumber: '7' };
+  const { tableNumber, orderType } = route.params || { tableNumber: '7', orderType: 'Dine in' };
 
   const [selectedCategory, setSelectedCategory] = useState('Beverages');
   const [cart, setCart] = useState([
@@ -76,7 +80,23 @@ const OrderProcessingScreen = () => {
   const [showProcessModal, setShowProcessModal] = useState(false);
   const [showNoteModal, setShowNoteModal] = useState(false);
   const [showDiscountModal, setShowDiscountModal] = useState(false);
+  const [showPaymentModal, setShowPaymentModal] = useState(false);
+  const [showInvoiceModal, setShowInvoiceModal] = useState(false);
+  const [showTransactionModal, setShowTransactionModal] = useState(false);
+  const [showSuccessModal, setShowSuccessModal] = useState(false);
   const [selectedCartItem, setSelectedCartItem] = useState(null);
+
+  // Simulate card transaction processing
+  useEffect(() => {
+    let timer;
+    if (showTransactionModal) {
+      timer = setTimeout(() => {
+        setShowTransactionModal(false);
+        setShowSuccessModal(true);
+      }, 2000); // 2 seconds processing time
+    }
+    return () => clearTimeout(timer);
+  }, [showTransactionModal]);
   const [discountCode, setDiscountCode] = useState('');
   const [discountAmount, setDiscountAmount] = useState(0);
 
@@ -117,8 +137,8 @@ const OrderProcessingScreen = () => {
   }, [cart]);
 
   const total = useMemo(() => {
-    return (subtotal - discountAmount).toFixed(2);
-  }, [subtotal, discountAmount]);
+    return (subtotal - discountAmount + (parseFloat(tipAmount) || 0)).toFixed(2);
+  }, [subtotal, discountAmount, tipAmount]);
 
   const hasQuickSale = useMemo(() => {
     return cart.some(item => item.productId?.toString().startsWith('quick_'));
@@ -159,6 +179,11 @@ const OrderProcessingScreen = () => {
     setCart([]);
     setShowCancelModal(false);
     navigation.goBack();
+  };
+
+  const handleCloseInvoice = () => {
+    setShowInvoiceModal(false);
+    navigation.navigate('TableSelectionScreen');
   };
 
   const openNoteModal = (item) => {
@@ -271,10 +296,12 @@ const OrderProcessingScreen = () => {
       <View style={styles.cartPanel}>
         <View style={styles.cartPanelHeader}>
           <Text style={[styles.tableInfo, Subtitle1]}>Table #: {tableNumber}</Text>
-          <TouchableOpacity style={styles.splitBtn}>
-            <Image source={SplitIcon} style={[IconSize16, styles.splitIcon, ]} />
-            <Text style={[styles.splitText, Body3]}>Split Items</Text>
-          </TouchableOpacity>
+          {orderType !== 'Take Away' && (
+            <TouchableOpacity style={styles.splitBtn}>
+                <Image source={SplitIcon} style={[IconSize16, styles.splitIcon, ]} />
+                <Text style={[styles.splitText, Body3]}>Split Items</Text>
+            </TouchableOpacity>
+          )}
           <Text style={[styles.cashierInfo, Body3]}>Cashier: Jane</Text>
         </View>
 
@@ -397,6 +424,7 @@ const OrderProcessingScreen = () => {
             <TouchableOpacity 
                 style={[styles.primaryBtn, cart.length === 0 && styles.primaryBtnDisabled]} 
                 disabled={cart.length === 0}
+                onPress={() => setShowPaymentModal(true)}
             >
                 <Text style={[styles.primaryBtnText, ButtonText]}>Proceed to Checkout</Text>
             </TouchableOpacity>
@@ -460,6 +488,47 @@ const OrderProcessingScreen = () => {
         onSave={handleSaveDiscount}
         onDelete={handleDeleteDiscount}
         initialDiscountCode={discountCode}
+      />
+
+      <PaymentMethodModal
+        visible={showPaymentModal}
+        totalAmount={parseFloat(total)}
+        currency="$"
+        onProceed={(data) => {
+          setShowPaymentModal(false);
+          if (data.method === 'Cash') {
+            setShowSuccessModal(true);
+          } else {
+            setShowTransactionModal(true);
+          }
+        }}
+        onClose={() => setShowPaymentModal(false)}
+      />
+
+      <InvoiceModal
+        visible={showInvoiceModal}
+        buyerInfo={buyerInfo}
+        cartItems={cart}
+        totalAmount={parseFloat(total)}
+        discountAmount={discountAmount}
+        tipAmount={tipAmount}
+        onPrintReceipt={handleCloseInvoice}
+        onClose={handleCloseInvoice}
+      />
+
+      <SuccessModal
+        visible={showSuccessModal}
+        title="Order Complete"
+        message="Your order #1254632 is completed successfully."
+        onClose={() => {
+          setShowSuccessModal(false);
+          setShowInvoiceModal(true);
+        }}
+      />
+
+      <TransactionProcessModal
+        visible={showTransactionModal}
+        onClose={() => setShowTransactionModal(false)}
       />
     </View>
   );

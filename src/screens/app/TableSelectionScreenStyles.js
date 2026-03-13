@@ -96,6 +96,31 @@ const styles = StyleSheet.create({
     marginRight: S(6),
   },
 
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'transparent',
+  },
+  dropdownContainer: {
+    position: 'absolute',
+    backgroundColor: Colors.white,
+    borderRadius: MS(8),
+    padding: MS(8),
+    elevation: 5,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+  },
+  dropdownItem: {
+    paddingVertical: VS(10),
+    paddingHorizontal: S(12),
+    borderBottomWidth: 1,
+    borderBottomColor: '#f0f0f0',
+  },
+  dropdownItemText: {
+    color: '#2b3474',
+  },
+
   // ─── Table Grid ───
   gridContainer: {
     paddingBottom: VS(40),
@@ -227,7 +252,7 @@ const styles = StyleSheet.create({
     marginHorizontal: S(4),
   },
   actionIcon: {
-    tintColor: '#555',
+color: Colors.grey,
     marginBottom: VS(4),
   },
   actionLabelText: {
@@ -294,6 +319,81 @@ const styles = StyleSheet.create({
   checkoutBtnText: {
     color: '#777',
     fontSize: MS(13),
+  },
+
+  // ─── Categories (Take Away) ───
+  categoryRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: VS(16),
+  },
+  categoryArrow: {
+    width: S(30),
+    height: VS(30),
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: Colors.white,
+    borderRadius: MS(15),
+    marginHorizontal: S(4),
+  },
+  categoryBtn: {
+    paddingHorizontal: S(16),
+    paddingVertical: VS(10),
+    borderRadius: MS(25),
+    backgroundColor: Colors.white,
+    marginRight: S(12),
+    flexDirection: 'row',
+    alignItems: 'center',
+    minWidth: S(100),
+    justifyContent: 'center',
+  },
+  activeCategory: {
+    backgroundColor: Colors.white,
+    borderWidth: VS(1),
+    borderColor: '#3E468A',
+  },
+  categoryText: {
+    color: '#3E468A',
+    marginLeft: S(6),
+  },
+  categoryIcon: {
+    tintColor: '#3E468A',
+  },
+
+  // ─── Product Grid (Take Away) ───
+  productListContent: {
+    paddingBottom: VS(40),
+  },
+  productCard: {
+    flex: 1,
+    maxWidth: '18%', // Approx 5 columns
+    backgroundColor: Colors.white,
+    margin: MS(6),
+    borderRadius: MS(14),
+    padding: MS(10),
+    alignItems: 'center',
+    minWidth: S(100),
+    height: VS(120),
+    justifyContent: 'center',
+  },
+  priceTag: {
+    position: 'absolute',
+    top: VS(8),
+    right: S(8),
+  },
+  priceText: {
+    color: Colors.black,
+  },
+  productImage: {
+    height: VS(40),
+    width: S(40),
+    resizeMode: 'contain',
+    marginBottom: VS(8),
+    opacity: 0.2,
+  },
+  productName: {
+    color: Colors.black,
+    textAlign: 'center',
   },
 });
 
