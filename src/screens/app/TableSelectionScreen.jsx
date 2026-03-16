@@ -13,7 +13,7 @@ import {
 import { useNavigation } from '@react-navigation/native';
 import { Colors } from '../../utils/Colors';
 import { S, VS, MS } from '../../utils/Responsive';
-import { Subtitle2, Body3, H4, Subtitle1, Caption, Overline } from '../../utils/fonts';
+import { Subtitle2, Body3, H4, Subtitle1, Caption, Overline, Body1 } from '../../utils/fonts';
 import { IconSize12, IconSize16, IconSize20, IconSize40 } from '../../utils/IconSizes';
 import {
   LeftArrowIcon,
@@ -282,18 +282,18 @@ const TableSelectionScreen = () => {
         {/* Table Core (the square part) */}
         <View style={[styles.tableCore, { backgroundColor: coreColor }]}>
           <Text style={styles.tableNameText}>Table {item.number}</Text>
-          <Text style={styles.tableSeatText}>Seats: {item.seats}</Text>
+          <Text style={{...Overline, color: Colors.grey}}>Seats: {item.seats}</Text>
           
           {isProcessing && (
             <View style={styles.statusIndicatorContainer}>
               <View style={[styles.statusDot, {backgroundColor: '#C8933A'}]} />
-              <Text style={styles.statusText}>Processing</Text>
+              <Text style={{...Overline, color: Colors.grey}}>Processing</Text>
             </View>
           )}
           {item.isModified && (
             <View style={styles.statusIndicatorContainer}>
               <View style={[styles.statusDot, {backgroundColor: '#8B5A2B'}]} />
-              <Text style={styles.statusText}>Modified</Text>
+              <Text style={{...Overline, color: Colors.grey}}>Modified</Text>
             </View>
           )}
         </View>

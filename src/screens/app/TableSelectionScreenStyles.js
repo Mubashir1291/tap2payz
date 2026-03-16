@@ -194,7 +194,6 @@ const styles = StyleSheet.create({
   statusIndicatorContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: VS(2),
   },
   statusDot: {
     width: MS(6),

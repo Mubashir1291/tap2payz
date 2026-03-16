@@ -100,8 +100,23 @@ export default StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     zIndex: 2,
-    borderWidth: 1.5,
-    borderColor: 'rgba(0,0,0,0.03)',
+  },
+  selectedTableCore: {
+    backgroundColor: '#A4B4FF',
+  },
+  acquiredTableCore: {
+    backgroundColor: '#A4B4FF',
+  },
+  selectionDotContainer: {
+    position: 'absolute',
+    top: '15%',
+    right: '15%',
+    zIndex: 3,
+  },
+  selectionDot: {
+    width: MS(6),
+    height: MS(6),
+    tintColor: '#3E468A',
   },
   controlsContainer: {
     width: '32%', // Fixed percentage instead of flex: 1
@@ -146,8 +161,8 @@ export default StyleSheet.create({
   },
   visualizationContainer: {
     flex: 1,
-    borderWidth: 2,
-    borderColor: '#E7E7E7',
+    borderWidth: 1,
+    borderColor: Colors.grey,
     borderStyle: 'dashed',
     borderRadius: MS(15),
     padding: MS(20),
@@ -162,6 +177,16 @@ export default StyleSheet.create({
     color: '#333',
     fontWeight: '600',
   },
+  vizTableText: {
+    fontSize: MS(14),
+    fontWeight: 'bold',
+    color: '#333',
+  },
+  vizSeatText: {
+    fontSize: MS(10),
+    color: '#333',
+    marginTop: VS(2),
+  },
   emptyStateContainer: {
     flex: 1,
     justifyContent: 'center',
@@ -169,6 +194,13 @@ export default StyleSheet.create({
   },
   emptyText: {
     color: '#999',
+  },
+  addedTablesContainer: {
+    flex: 1,
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    alignItems: 'flex-start',
+    justifyContent: 'flex-start',
   },
   addTableBtn: {
     position: 'absolute',
@@ -178,8 +210,109 @@ export default StyleSheet.create({
     paddingHorizontal: S(30),
     paddingVertical: VS(12),
     borderRadius: MS(10),
+    marginBottom: VS(10),
   },
   addTableBtnText: {
+    color: Colors.black,
+  },
+  
+  // Action Overlay Styles
+  actionOverlay: {
+    position: 'absolute',
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderRadius: MS(20),
+    top: VS(20),
+    left: S(20),
+    paddingHorizontal: S(5),
+    paddingVertical: VS(3),
+    zIndex: 10,
+    backgroundColor: Colors.white,
+    elevation: 4,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 2,
+  },
+  actionBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingLeft: S(7),
+    paddingRight: S(2),
+    paddingVertical: VS(2),
+    borderRadius: MS(12),
+    marginHorizontal: S(2),
+  },
+  editActionBtn: {
+    backgroundColor: '#3E468A',
+  },
+  deleteActionBtn: {
+    backgroundColor: '#D32F2F',
+  },
+  actionBtnText: {
     color: Colors.white,
+    marginRight: S(4),
+    fontSize: MS(9),
+    fontWeight: '600',
+  },
+  actionIconContainer: {
+    backgroundColor: 'rgba(255,255,255,0.25)',
+    borderRadius: MS(8),
+    padding: MS(2),
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  
+  // Modal Styles
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.5)',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  modalContent: {
+    width: '40%',
+    backgroundColor: '#F2F2F2',
+    borderRadius: MS(15),
+    padding: MS(20),
+    alignItems: 'center',
+  },
+  modalHeader: {
+    width: '100%',
+    alignItems: 'flex-end',
+    marginBottom: VS(10),
+  },
+  modalCloseBtn: {
+    padding: MS(5),
+  },
+  modalTitle: {
+    color: Colors.black,
+    marginBottom: VS(20),
+  },
+  inputGroup: {
+    width: '100%',
+    marginBottom: VS(20),
+  },
+  modalLabel: {
+    color: Colors.black,
+    marginBottom: VS(8),
+  },
+  modalInput: {
+    backgroundColor: '#E7E7E7',
+    borderRadius: MS(10),
+    paddingHorizontal: S(15),
+    paddingVertical: VS(12),
+    color: Colors.black,
+  },
+  saveChangesBtn: {
+    backgroundColor: '#A4B4FF',
+    paddingHorizontal: S(40),
+    paddingVertical: VS(12),
+    borderRadius: MS(10),
+    marginTop: VS(10),
+  },
+  saveChangesText: {
+    color: Colors.black,
   },
 });

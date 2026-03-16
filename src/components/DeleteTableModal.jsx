@@ -33,7 +33,7 @@ const DeleteTableModal = ({ visible, onClose, onDelete }) => {
           </View>
 
           <Text style={[styles.message, Subtitle1]}>
-            Are you sure you want to delete this Store?{'\n'}
+            Are you sure you want to delete this Table?{'\n'}
             your all data will be lost.
           </Text>
 

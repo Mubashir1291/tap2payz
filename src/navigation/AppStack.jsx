@@ -28,8 +28,8 @@ const AppStack = () => {
         overlayColor: 'rgba(0,0,0,0.4)',
       }}
     >
-      {/* <Drawer.Screen name="HomeScreen" component={HomeScreen} /> */}
-      {/* <Drawer.Screen name="CloseRegisterScreen" component={CloseRegisterScreen} /> */}
+      <Drawer.Screen name="HomeScreen" component={HomeScreen} />
+      <Drawer.Screen name="CloseRegisterScreen" component={CloseRegisterScreen} />
       {/* <Drawer.Screen name="ReturnScreen" component={ReturnScreen} /> */}
       <Drawer.Screen name="TableSelectionScreen" component={TableSelectionScreen} />
       <Drawer.Screen name="ViewOrdersScreen" component={ViewOrdersScreen} />
