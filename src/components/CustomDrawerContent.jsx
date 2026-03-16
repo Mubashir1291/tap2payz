@@ -21,6 +21,7 @@ import {
   SettingIcon,
   LogoutIcon,
   LockIcon,
+  TableIcon,
 } from '../assets/Images';
 import { store } from '../redux/store';
 import PassKeyModal from './PassKeyModal';
@@ -31,6 +32,8 @@ const drawerItems = [
   { label: 'Close Register', icon: CloseRegisterIcon, route: 'CloseRegisterScreen' },
   { label: 'Connected Devices', icon: ConnectedIcon, route: null },
   { label: 'Settings', icon: SettingIcon, icon2 : LockIcon, route: null },
+  { label: 'Table Management', icon: TableIcon, route: 'TableManagementScreen' },
+
 ];
 
 const CustomDrawerContent = ({ navigation, state }) => {

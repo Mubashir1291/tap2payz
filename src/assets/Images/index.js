@@ -52,6 +52,11 @@ export const ShopIcon = require('../Images/shop.png');
 export const MenuIcon = require('../Images/Menu.png');
 export const SplitIcon = require('../Images/Split.png');
 export const CancelOrderIcon = require('../Images/CancelOrder.png');
+export const FloorIcon = require('../Images/Floor.png');
+export const TableIcon = require('../Images/Table.png');
+export const DeleteTableIcon = require('../Images/DeleteTable.png');
+
+
 
 
 

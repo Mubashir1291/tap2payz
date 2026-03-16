@@ -9,6 +9,8 @@ import OpenRegisterScreen from '../screens/auth/OpenRegisterScreen';
 import TableSelectionScreen from '../screens/app/TableSelectionScreen';
 import ViewOrdersScreen from '../screens/app/ViewOrdersScreen';
 import OrderProcessingScreen from '../screens/app/OrderProcessingScreen';
+import TableManagementScreen from '../screens/app/TableManagementScreen';
+import AddNewTableScreen from '../screens/app/AddNewTableScreen';
 
 const Drawer = createDrawerNavigator();
 
@@ -32,6 +34,8 @@ const AppStack = () => {
       <Drawer.Screen name="TableSelectionScreen" component={TableSelectionScreen} />
       <Drawer.Screen name="ViewOrdersScreen" component={ViewOrdersScreen} />
       <Drawer.Screen name="OrderProcessingScreen" component={OrderProcessingScreen} />
+      <Drawer.Screen name="TableManagementScreen" component={TableManagementScreen} />
+      <Drawer.Screen name="AddNewTableScreen" component={AddNewTableScreen} />
 
 
       <Drawer.Screen name="SettingsScreen" component={SettingsScreen} />
