@@ -35,15 +35,18 @@ import {
 } from '../../assets/Images';
 import styles from './HomeScreenStyles';
 import ConfirmationModal from '../../components/ConfirmationModal';
+import SuccessModal from '../../components/SuccessModal';
 import TipModal from '../../components/TipModal';
 import BuyerInfoModal from '../../components/BuyerInfoModal';
 import CashPayModal from '../../components/CashPayModal';
 import TransactionProcessModal from '../../components/TransactionProcessModal';
 import InvoiceModal from '../../components/InvoiceModal';
+import TapCardModal from '../../components/TapCardModal';
 import KitchenInvoiceModal from '../../components/KitchenInvoiceModal';
 import QuickSaleModal from '../../components/QuickSaleModal';
 import SwipeableCartItem from '../../components/SwipeableCartItem';
 import { IconSize24 } from '../../utils/IconSizes';
+import NfcManager, { NfcTech } from 'react-native-nfc-manager';
 
 const categories = [
   'All',
@@ -112,6 +115,8 @@ const HomeScreen = () => {
   const [showCashPayModal, setShowCashPayModal] = useState(false);
   const [showTransactionModal, setShowTransactionModal] = useState(false);
   const [showInvoiceModal, setShowInvoiceModal] = useState(false);
+  const [showSuccessModal, setShowSuccessModal] = useState(false);
+  const [showTapCardModal, setShowTapCardModal] = useState(false);
   const [showKitchenInvoiceModal, setShowKitchenInvoiceModal] = useState(false);
   const [showQuickSaleModal, setShowQuickSaleModal] = useState(false);
   const categoryScrollRef = useRef(null);
@@ -136,6 +141,28 @@ const HomeScreen = () => {
   useEffect(() => {
     setPage(1);
   }, [selectedCategory, searchQuery]);
+
+  useEffect(() => {
+    let timer;
+    if (showSuccessModal) {
+      timer = setTimeout(() => {
+        setShowSuccessModal(false);
+        setShowInvoiceModal(true);
+      }, 2000);
+    }
+    return () => clearTimeout(timer);
+  }, [showSuccessModal]);
+
+  useEffect(() => {
+    let timer;
+    if (showTransactionModal) {
+      timer = setTimeout(() => {
+        setShowTransactionModal(false);
+        setShowSuccessModal(true);
+      }, 2000);
+    }
+    return () => clearTimeout(timer);
+  }, [showTransactionModal]);
 
   const displayedProducts = useMemo(() => {
     return filteredProducts.slice(0, page * ITEMS_PER_PAGE);
@@ -243,17 +270,26 @@ const HomeScreen = () => {
     setShowBuyerModal(false);
   };
 
-  const handlePlaceOrder = () => {
+  const handlePlaceOrder = async () => {
     if (cart.length === 0) return;
     if (paymentType === 'cash') {
       setShowCashPayModal(true);
     } else if (paymentType === 'card') {
-      setShowTransactionModal(true);
-      // Simulate card processing, then show invoice after 3 seconds
-      setTimeout(() => {
-        setShowTransactionModal(false);
-        setShowInvoiceModal(true);
-      }, 3000);
+      setShowTapCardModal(true);
+      try {
+        await NfcManager.start();
+        await NfcManager.requestTechnology(NfcTech.Ndef); // Use NfcTech.IsoDep if you are reading standard EMV Credit Cards
+        const tag = await NfcManager.getTag();
+        console.log('Card tapped:', tag);
+        
+        setShowTapCardModal(false);
+        setShowTransactionModal(true);
+      } catch (ex) {
+        console.log('NFC Error or Cancelled:', ex);
+        setShowTapCardModal(false);
+      } finally {
+        NfcManager.cancelTechnologyRequest();
+      }
     }
   };
 
@@ -592,6 +628,16 @@ const HomeScreen = () => {
         onClose={() => setShowTransactionModal(false)}
       />
 
+      <SuccessModal
+        visible={showSuccessModal}
+        title="Payment Successful"
+        message="Your payment has been processed successfully."
+        onClose={() => {
+          setShowSuccessModal(false);
+          setShowInvoiceModal(true);
+        }}
+      />
+
       <InvoiceModal
         visible={showInvoiceModal}
         buyerInfo={buyerInfo}
@@ -612,6 +658,8 @@ const HomeScreen = () => {
         cartItems={cart}
         onClose={() => setShowKitchenInvoiceModal(false)}
       />
+      
+      <TapCardModal visible={showTapCardModal} />
     </View>
   );
 };

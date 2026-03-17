@@ -41,6 +41,8 @@ import InvoiceModal from '../../components/InvoiceModal';
 import TransactionProcessModal from '../../components/TransactionProcessModal';
 import ConfirmationModal from '../../components/ConfirmationModal';
 import SuccessModal from '../../components/SuccessModal';
+import TapCardModal from '../../components/TapCardModal';
+import NfcManager, { NfcTech } from 'react-native-nfc-manager';
 
 const categories = [
   { name: 'Beverages', icon: ImageFrameIcon },
@@ -110,6 +112,7 @@ const TableSelectionScreen = () => {
   const [showProcessModal, setShowProcessModal] = useState(false);
   const [showCancelModal, setShowCancelModal] = useState(false);
   const [showSuccessModal, setShowSuccessModal] = useState(false);
+  const [showTapCardModal, setShowTapCardModal] = useState(false);
 
   const areas = [
     'Area: 1 (Ground Floor)',
@@ -225,14 +228,24 @@ const TableSelectionScreen = () => {
     setShowCancelModal(false);
   };
 
-  // Simulate card transaction processing
+  useEffect(() => {
+    let timer;
+    if (showSuccessModal) {
+      timer = setTimeout(() => {
+        setShowSuccessModal(false);
+        setShowInvoiceModal(true);
+      }, 2000);
+    }
+    return () => clearTimeout(timer);
+  }, [showSuccessModal]);
+
   useEffect(() => {
     let timer;
     if (showTransactionModal) {
       timer = setTimeout(() => {
         setShowTransactionModal(false);
         setShowSuccessModal(true);
-      }, 2000); 
+      }, 2000);
     }
     return () => clearTimeout(timer);
   }, [showTransactionModal]);
@@ -688,12 +701,26 @@ const TableSelectionScreen = () => {
         visible={showPaymentModal}
         totalAmount={parseFloat(total)}
         currency="$"
-        onProceed={(data) => {
+        onProceed={async (data) => {
           setShowPaymentModal(false);
           if (data.method === 'Cash') {
             setShowSuccessModal(true);
           } else {
-            setShowTransactionModal(true);
+            setShowTapCardModal(true);
+            try {
+              await NfcManager.start();
+              await NfcManager.requestTechnology(NfcTech.Ndef); // Use NfcTech.IsoDep if you are reading standard EMV Credit Cards
+              const tag = await NfcManager.getTag();
+              console.log('Card tapped:', tag);
+              
+              setShowTapCardModal(false);
+              setShowTransactionModal(true);
+            } catch (ex) {
+              console.log('NFC Error or Cancelled:', ex);
+              setShowTapCardModal(false);
+            } finally {
+              NfcManager.cancelTechnologyRequest();
+            }
           }
         }}
         onClose={() => setShowPaymentModal(false)}
@@ -724,6 +751,8 @@ const TableSelectionScreen = () => {
         visible={showTransactionModal}
         onClose={() => setShowTransactionModal(false)}
       />
+      
+      <TapCardModal visible={showTapCardModal} />
     </View>
   );
 };

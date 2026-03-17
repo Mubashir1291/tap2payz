@@ -58,6 +58,8 @@ export const DeleteTableIcon = require('../Images/DeleteTable.png');
 export const ForgetDeviceIcon = require('../Images/ForgetDevice.png');
 export const NoDeviceIcon = require('../Images/NoDevice.png');
 export const ConnectedDeviceIcon = require('../Images/ConnectedDevice.png');
+export const TapCardIcon = require('../Images/TapCard.json');
+
 
 
 
