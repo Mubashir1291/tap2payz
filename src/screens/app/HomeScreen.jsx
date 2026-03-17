@@ -40,6 +40,7 @@ import BuyerInfoModal from '../../components/BuyerInfoModal';
 import CashPayModal from '../../components/CashPayModal';
 import TransactionProcessModal from '../../components/TransactionProcessModal';
 import InvoiceModal from '../../components/InvoiceModal';
+import KitchenInvoiceModal from '../../components/KitchenInvoiceModal';
 import QuickSaleModal from '../../components/QuickSaleModal';
 import SwipeableCartItem from '../../components/SwipeableCartItem';
 import { IconSize24 } from '../../utils/IconSizes';
@@ -111,6 +112,7 @@ const HomeScreen = () => {
   const [showCashPayModal, setShowCashPayModal] = useState(false);
   const [showTransactionModal, setShowTransactionModal] = useState(false);
   const [showInvoiceModal, setShowInvoiceModal] = useState(false);
+  const [showKitchenInvoiceModal, setShowKitchenInvoiceModal] = useState(false);
   const [showQuickSaleModal, setShowQuickSaleModal] = useState(false);
   const categoryScrollRef = useRef(null);
   const scrollOffset = useRef(0);
@@ -433,7 +435,7 @@ const HomeScreen = () => {
       <View style={styles.cartPanel}>
         {/* Cart Header Icons */}
         <View style={styles.cartHeader}>
-          <TouchableOpacity >
+          <TouchableOpacity onPress={() => setShowKitchenInvoiceModal(true)}>
             <Image source={RefreshICon} style={[IconSize20, styles.cartHeaderIcon]} />
           </TouchableOpacity>
           <TouchableOpacity >
@@ -603,6 +605,12 @@ const HomeScreen = () => {
         visible={showQuickSaleModal}
         onAddSale={handleQuickSale}
         onClose={() => setShowQuickSaleModal(false)}
+      />
+
+      <KitchenInvoiceModal
+        visible={showKitchenInvoiceModal}
+        cartItems={cart}
+        onClose={() => setShowKitchenInvoiceModal(false)}
       />
     </View>
   );

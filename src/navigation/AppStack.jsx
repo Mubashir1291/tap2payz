@@ -11,6 +11,8 @@ import ViewOrdersScreen from '../screens/app/ViewOrdersScreen';
 import OrderProcessingScreen from '../screens/app/OrderProcessingScreen';
 import TableManagementScreen from '../screens/app/TableManagementScreen';
 import AddNewTableScreen from '../screens/app/AddNewTableScreen';
+import ConnectedDevicesScreen from '../screens/app/ConnectedDevicesScreen';
+
 
 const Drawer = createDrawerNavigator();
 
@@ -39,6 +41,8 @@ const AppStack = () => {
 
 
       <Drawer.Screen name="SettingsScreen" component={SettingsScreen} />
+      <Drawer.Screen name="ConnectedDevicesScreen" component={ConnectedDevicesScreen} />
+
     </Drawer.Navigator>
   );
 };

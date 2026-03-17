@@ -32,10 +32,9 @@ import styles from './AddNewTableScreenStyles';
 import SuccessModal from '../../components/SuccessModal'; 
 import DeleteTableModal from '../../components/DeleteTableModal';
 
-const areas = ['Ground Floor', '1st Floor', '2nd Floor', '3rd Floor'];
-
 const AddNewTableScreen = () => {
   const navigation = useNavigation();
+  const [areas, setAreas] = useState(['Ground Floor', '1st Floor', '2nd Floor', '3rd Floor']);
   const [selectedArea, setSelectedArea] = useState('Ground Floor');
   const [seats, setSeats] = useState('');
   const [selectedTableId, setSelectedTableId] = useState(null);
@@ -48,6 +47,8 @@ const AddNewTableScreen = () => {
   const [successMessage, setSuccessMessage] = useState('');
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [tableToDelete, setTableToDelete] = useState(null);
+  const [showAddAreaModal, setShowAddAreaModal] = useState(false);
+  const [newAreaName, setNewAreaName] = useState('');
 
   const renderTableGridItem = ({ item }) => {
     const isSelected = selectedTableId === item.id;
@@ -57,7 +58,10 @@ const AddNewTableScreen = () => {
       <TouchableOpacity 
         style={styles.tableWrapper} 
         activeOpacity={0.7}
-        onPress={() => setSelectedTableId(item.id)}
+        onPress={() => {
+          setSelectedTableId(item.id);
+          setActiveActionId(null);
+        }}
         disabled={isAcquired}
       >
         {/* Top Chair */}
@@ -100,7 +104,7 @@ const AddNewTableScreen = () => {
           </TouchableOpacity>
           <Text style={[styles.headerTitle, H2]}>Add New Table</Text>
         </View>
-        <TouchableOpacity style={styles.addAreaBtn}>
+        <TouchableOpacity style={styles.addAreaBtn} onPress={() => setShowAddAreaModal(true)}>
           <Text style={[styles.addAreaText, Subtitle2]}>Add Table Area +</Text>
         </TouchableOpacity>
       </View>
@@ -109,13 +113,23 @@ const AddNewTableScreen = () => {
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
         style={{ flex: 1 }}
       >
-        <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+        <TouchableWithoutFeedback onPress={() => {
+          Keyboard.dismiss();
+          setActiveActionId(null);
+        }}>
           <ScrollView 
             style={styles.mainContainer}
             contentContainerStyle={{ flexGrow: 1 }}
+            keyboardShouldPersistTaps="handled"
             showsVerticalScrollIndicator={false}
           >
             <View style={styles.topSection}>
+              {/* Transparent overlay over top section to catch taps when action menu is open */}
+              {activeActionId !== null && (
+                <TouchableWithoutFeedback onPress={() => setActiveActionId(null)}>
+                  <View style={{ position: 'absolute', top: 0, bottom: 0, left: 0, right: 0, zIndex: 90, backgroundColor: 'transparent' }} />
+                </TouchableWithoutFeedback>
+              )}
               {/* Table Grid Selection */}
               <View style={styles.gridContainer}>
                 <FlatList
@@ -140,7 +154,10 @@ const AddNewTableScreen = () => {
                         styles.areaBtn,
                         selectedArea === area && styles.activeAreaBtn,
                       ]}
-                      onPress={() => setSelectedArea(area)}
+                      onPress={() => {
+                        setSelectedArea(area);
+                        setActiveActionId(null);
+                      }}
                     >
                       <Text
                         style={[
@@ -167,7 +184,13 @@ const AddNewTableScreen = () => {
             </View>
 
             {/* Bottom Visualization Section */}
-            <View style={styles.visualizationContainer}>
+            <View style={[styles.visualizationContainer, activeActionId !== null && { zIndex: 100 }]}>
+              {/* Transparent overlay over inactive tables to catch taps */}
+              {activeActionId !== null && (
+                <TouchableWithoutFeedback onPress={() => setActiveActionId(null)}>
+                  <View style={{ position: 'absolute', top: 0, bottom: 0, left: 0, right: 0, zIndex: 50, borderRadius: MS(15), backgroundColor: 'transparent' }} />
+                </TouchableWithoutFeedback>
+              )}
               <View style={styles.visualizationHeader}>
                 <Text style={[styles.showingAreaText, Subtitle1]}>Showing Area: {selectedArea}</Text>
               </View>
@@ -177,7 +200,11 @@ const AddNewTableScreen = () => {
                   addedTables.filter(t => t.area === selectedArea).map((table, index) => (
                     <TouchableOpacity 
                       key={index} 
-                      style={[styles.tableWrapper, { width: S(80), marginRight: S(15), marginBottom: VS(15) }]}
+                      style={[
+                        styles.tableWrapper, 
+                        { width: S(80), marginRight: S(15), marginBottom: VS(15) },
+                        activeActionId === table.id && { zIndex: 100 }
+                      ]}
                       onPress={() => setActiveActionId(activeActionId === table.id ? null : table.id)}
                     >
                       {/* Top Chair */}
@@ -197,35 +224,38 @@ const AddNewTableScreen = () => {
 
                       {/* Action Overlay */}
                       {activeActionId === table.id && (
-                        <View style={styles.actionOverlay}>
-                          <TouchableOpacity 
-                            style={[styles.actionBtn, styles.editActionBtn]}
-                            onPress={() => {
-                              setEditingTable(table);
-                              setEditSeats(table.seats.toString());
-                              setShowEditModal(true);
-                              setActiveActionId(null);
-                            }}
-                          >
-                            <Text style={styles.actionBtnText}>Edit</Text>
-                            <View style={styles.actionIconContainer}>
-                              <Image source={EditCircleIcon} style={IconSize12} />
-                            </View>
-                          </TouchableOpacity>
+                        <View style={styles.actionOverlayContainer}>
+                          <View style={styles.actionOverlay}>
+                            <TouchableOpacity 
+                              style={[styles.actionBtn, styles.editActionBtn]}
+                              onPress={() => {
+                                setEditingTable(table);
+                                setEditSeats(table.seats.toString());
+                                setShowEditModal(true);
+                                setActiveActionId(null);
+                              }}
+                            >
+                              <Text style={styles.actionBtnText}>Edit</Text>
+                              <View style={styles.actionIconContainer}>
+                                <Image source={EditCircleIcon} style={IconSize12} />
+                              </View>
+                            </TouchableOpacity>
 
-                          <TouchableOpacity 
-                            style={[styles.actionBtn, styles.deleteActionBtn]}
-                            onPress={() => {
-                              setTableToDelete(table);
-                              setShowDeleteModal(true);
-                              setActiveActionId(null);
-                            }}
-                          >
-                            <Text style={styles.actionBtnText}>Delete</Text>
-                            <View style={styles.actionIconContainer}>
-                              <Image source={DeleteCircleIcon} style={IconSize12} />
-                            </View>
-                          </TouchableOpacity>
+                            <TouchableOpacity 
+                              style={[styles.actionBtn, styles.deleteActionBtn]}
+                              onPress={() => {
+                                setTableToDelete(table);
+                                setShowDeleteModal(true);
+                                setActiveActionId(null);
+                              }}
+                            >
+                              <Text style={styles.actionBtnText}>Delete</Text>
+                              <View style={styles.actionIconContainer}>
+                                <Image source={DeleteCircleIcon} style={IconSize12} />
+                              </View>
+                            </TouchableOpacity>
+                          </View>
+                          <View style={styles.actionOverlayArrow} />
                         </View>
                       )}
                     </TouchableOpacity>
@@ -247,6 +277,7 @@ const AddNewTableScreen = () => {
                 onPress={() => {
                   setAddedTables(prev => [...prev, { id: selectedTableId, seats: seats, area: selectedArea }]);
                   setSelectedTableId(null);
+                  setActiveActionId(null);
                   // setSeats(''); // Keep seats for "last one" UX
                 }}
               >
@@ -268,7 +299,7 @@ const AddNewTableScreen = () => {
           <View style={styles.modalContent}>
             <View style={styles.modalHeader}>
               <TouchableOpacity onPress={() => setShowEditModal(false)} style={styles.modalCloseBtn}>
-                <Image source={CancelOrderIcon} style={[IconSize20, { tintColor: '#FF4D4D' }]} />
+                <Text style={styles.modalCloseText}>✕</Text>
               </TouchableOpacity>
             </View>
 
@@ -301,6 +332,53 @@ const AddNewTableScreen = () => {
               }}
             >
               <Text style={[styles.saveChangesText, Subtitle1]}>Save Changes</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
+
+      {/* Add Area Modal */}
+      <Modal
+        visible={showAddAreaModal}
+        transparent={true}
+        animationType="fade"
+        onRequestClose={() => setShowAddAreaModal(false)}
+      >
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalContent}>
+            <View style={styles.modalHeader}>
+              <TouchableOpacity onPress={() => setShowAddAreaModal(false)} style={styles.modalCloseBtn}>
+                <Text style={styles.modalCloseText}>✕</Text>
+              </TouchableOpacity>
+            </View>
+
+            <Text style={[styles.modalTitle, Subtitle1]}>Add New Area</Text>
+
+            <View style={styles.inputGroup}>
+              <Text style={[styles.modalLabel, Subtitle2]}>Area Name</Text>
+              <TextInput
+                style={[styles.modalInput, Body3]}
+                value={newAreaName}
+                onChangeText={setNewAreaName}
+                placeholder="Enter area name..."
+                placeholderTextColor={Colors.grey}
+              />
+            </View>
+
+            <TouchableOpacity 
+              style={styles.saveChangesBtn}
+              onPress={() => {
+                if (newAreaName.trim() !== '') {
+                  setAreas([...areas, newAreaName.trim()]);
+                  setNewAreaName('');
+                  setShowAddAreaModal(false);
+                  setSuccessMessage('Area Added Successfully');
+                  setShowSuccessModal(true);
+                  setTimeout(() => setShowSuccessModal(false), 2000);
+                }
+              }}
+            >
+              <Text style={[styles.saveChangesText, Subtitle1]}>Add Area</Text>
             </TouchableOpacity>
           </View>
         </View>
