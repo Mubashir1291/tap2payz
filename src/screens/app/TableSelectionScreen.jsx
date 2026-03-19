@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, useMemo } from 'react';
 import {
   View,
   Text,
@@ -10,7 +10,7 @@ import {
   TouchableWithoutFeedback,
   ScrollView,
 } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation, useRoute } from '@react-navigation/native';
 import { Colors } from '../../utils/Colors';
 import { S, VS, MS } from '../../utils/Responsive';
 import { Subtitle2, Body3, H4, Subtitle1, Caption, Overline, Body1 } from '../../utils/fonts';
@@ -62,29 +62,9 @@ const dummyProducts = [
   { id: '5', name: 'Sodavand (25cl)', price: 16.23 },
 ];
 
-// Dummy table data matched to screenshot closely
-const tables = Array.from({ length: 24 }, (_, i) => {
-  const tableNum = i + 1;
-  const isProcessing = [1, 3, 5, 15, 17, 19].includes(tableNum);
-  const isModified = tableNum === 1;
-  let seats = 4;
-  if ([2, 8, 14, 20].includes(tableNum)) seats = 6;
-  if ([3, 9, 15, 21].includes(tableNum)) seats = 8;
-  if ([4, 10, 16, 22].includes(tableNum)) seats = 10;
-  if ([5, 11, 17, 23].includes(tableNum)) seats = 12;
-  if ([6, 12, 18, 24].includes(tableNum)) seats = 14;
-
-  return {
-    id: tableNum.toString(),
-    number: tableNum,
-    seats,
-    status: isProcessing ? 'Processing' : 'Available',
-    isModified,
-  };
-});
-
 const TableSelectionScreen = () => {
   const navigation = useNavigation();
+  const route = useRoute();
   const [activeTab, setActiveTab] = useState('Dine in');
   const [selectedArea, setSelectedArea] = useState('Area: 1 (Ground Floor)');
   const [isAreaDropdownVisible, setIsAreaDropdownVisible] = useState(false);
@@ -119,6 +99,42 @@ const TableSelectionScreen = () => {
     'Area: 2 (1st Floor)',
     'Area: 3 ( 2nd Floor )',
   ];
+
+  const [processingTables, setProcessingTables] = useState([1, 3, 5, 15, 17, 19]);
+
+  useEffect(() => {
+    if (route.params?.newlyProcessedTable) {
+      setProcessingTables(prev => {
+        if (!prev.includes(route.params.newlyProcessedTable)) {
+          return [...prev, route.params.newlyProcessedTable];
+        }
+        return prev;
+      });
+      navigation.setParams({ newlyProcessedTable: undefined });
+    }
+  }, [route.params?.newlyProcessedTable]);
+
+  const tables = useMemo(() => {
+    return Array.from({ length: 24 }, (_, i) => {
+      const tableNum = i + 1;
+      const isProcessing = processingTables.includes(tableNum);
+      const isModified = tableNum === 1;
+      let seats = 4;
+      if ([2, 8, 14, 20].includes(tableNum)) seats = 6;
+      if ([3, 9, 15, 21].includes(tableNum)) seats = 8;
+      if ([4, 10, 16, 22].includes(tableNum)) seats = 10;
+      if ([5, 11, 17, 23].includes(tableNum)) seats = 12;
+      if ([6, 12, 18, 24].includes(tableNum)) seats = 14;
+
+      return {
+        id: tableNum.toString(),
+        number: tableNum,
+        seats,
+        status: isProcessing ? 'Processing' : 'Available',
+        isModified,
+      };
+    });
+  }, [processingTables]);
 
   const toggleDropdown = () => {
     if (areaSelectorRef.current) {
@@ -279,7 +295,9 @@ const TableSelectionScreen = () => {
         activeOpacity={0.7}
         onPress={() => {
           if (isProcessing) {
-            navigation.navigate('OrderProcessingScreen', { tableNumber: item.number, orderType: 'Dine in' });
+            navigation.navigate('OrderProcessingScreen', { tableNumber: item.number, orderType: 'Dine in', isNewOrder: false });
+          } else {
+            navigation.navigate('OrderProcessingScreen', { tableNumber: item.number, orderType: 'Dine in', isNewOrder: true });
           }
         }}
       >
@@ -597,6 +615,12 @@ const TableSelectionScreen = () => {
             <View style={[styles.totalRow, { marginBottom: VS(8) }]}>
               <Text style={[Subtitle2, { color: Colors.grey }]}>Discount:</Text>
               <Text style={[Subtitle2, { color: '#E74C3C' }]}>- $ {discountAmount.toFixed(2)}</Text>
+            </View>
+          )}
+          {tipAmount !== null && parseFloat(tipAmount) > 0 && (
+            <View style={[styles.totalRow, { marginBottom: VS(8) }]}>
+              <Text style={[Subtitle2, { color: Colors.grey }]}>Tip:</Text>
+              <Text style={[Subtitle2, { color: '#4CAF50' }]}>+ $ {parseFloat(tipAmount).toFixed(2)}</Text>
             </View>
           )}
           <View style={styles.totalRow}>

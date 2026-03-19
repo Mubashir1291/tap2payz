@@ -1,6 +1,6 @@
-// const endPoints = {
+const endPoints = {
 //   REGISTER: '/user-register',
-//   LOGIN: '/user-login',
+  LOGIN: '/login',
 //   UPDATE_PASSWORD: '/reset-user-password',
 //   FORGOT_PASSWORD: '/user-forgot-password',
 //   EDIT_PROFILE: '/update-user-profile-info',
@@ -15,7 +15,6 @@
 //   AI_LOGIN: '/login',
 //   AI_SESSION: '/create',
 //   AI_CHAT: '/chat',
-// };
+};
 
-// export { endPoints };
-// // 
+export { endPoints };

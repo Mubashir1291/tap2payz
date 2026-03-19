@@ -203,10 +203,9 @@ const HomeScreen = () => {
   };
 
   const total = useMemo(() => {
-    return cart
-      .reduce((sum, item) => sum + item.price * item.qty, 0)
-      .toFixed(2);
-  }, [cart]);
+    const subtotal = cart.reduce((sum, item) => sum + item.price * item.qty, 0);
+    return (subtotal + (parseFloat(tipAmount) || 0)).toFixed(2);
+  }, [cart, tipAmount]);
 
   const renderProduct = ({ item }) => (
     <TouchableOpacity
@@ -229,6 +228,8 @@ const HomeScreen = () => {
 
   const confirmDeleteCart = () => {
     setCart([]);
+    setTipAmount(null);
+    setBuyerInfo(null);
     setShowDeleteModal(false);
   };
 
@@ -301,6 +302,9 @@ const HomeScreen = () => {
   const handlePrintReceipt = () => {
     // Placeholder for print logic
     setShowInvoiceModal(false);
+    setCart([]);
+    setTipAmount(null);
+    setBuyerInfo(null);
   };
 
   const handleQuickSale = ({name, price}) => {
@@ -550,6 +554,12 @@ const HomeScreen = () => {
 
         {/* Total Section */}
         <View style={styles.totalSection}>
+          {tipAmount !== null && parseFloat(tipAmount) > 0 && (
+            <View style={[styles.totalRow, { marginBottom: VS(8) }]}>
+              <Text style={[styles.totalLabel, Subtitle2, { color: Colors.grey }]}>Tip:</Text>
+              <Text style={[styles.totalAmount, Subtitle2, { color: '#4CAF50' }]}>+ CAD {parseFloat(tipAmount).toFixed(2)}</Text>
+            </View>
+          )}
           <View style={styles.totalRow}>
             <Text style={[styles.totalLabel, Subtitle1]}>Total</Text>
             <Text style={[styles.totalAmount, H4]}>CAD {total}</Text>
@@ -643,6 +653,7 @@ const HomeScreen = () => {
         buyerInfo={buyerInfo}
         cartItems={cart}
         totalAmount={parseFloat(total)}
+        tipAmount={tipAmount}
         onPrintReceipt={handlePrintReceipt}
         onClose={() => setShowInvoiceModal(false)}
       />

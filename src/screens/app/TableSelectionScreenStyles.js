@@ -1,6 +1,7 @@
 import { StyleSheet } from 'react-native';
 import { Colors } from '../../utils/Colors';
 import { S, VS, MS } from '../../utils/Responsive';
+import { ButtonText } from '../../utils/fonts';
 
 const styles = StyleSheet.create({
   root: {
@@ -308,6 +309,10 @@ color: Colors.grey,
     color: '#777',
     fontSize: MS(12),
   },
+
+  // ─── Checkout Section ───
+  checkoutSection: {
+  },
   checkoutBtn: {
     height: VS(45),
     borderRadius: MS(8),
@@ -317,7 +322,7 @@ color: Colors.grey,
   },
   checkoutBtnText: {
     color: '#777',
-    fontSize: MS(13),
+    ...ButtonText
   },
 
   // ─── Categories (Take Away) ───

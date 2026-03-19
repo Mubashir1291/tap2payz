@@ -1,54 +1,37 @@
-// import { Fetch } from './config';
-// import { endPoints } from './endPoints';
+import { Fetch } from './config';
+import { endPoints } from './endPoints';
 
-// export const REGISTER_ACCOUNT = (formData: any) => {
+// export const REGISTER_ACCOUNT = (formData) => {
 //   console.log(formData, 'hello data');
-//   return Fetch.post(
-//     `/wp-json/register/v1${endPoints.REGISTER}`,
-//     formData,
-//     true,
-//   );
+//   return Fetch.post(`/api/v1/user${endPoints.REGISTER}`, formData, true);
 // };
 
-// export const LOGIN_ACCOUNT = (payload: any) => {
-//   console.log('this is calling login');
-//   const response = Fetch.get(
-//     `/wp-json/login/v1${endPoints.LOGIN}?username=${payload.email}&password=${payload.password}`,
-//   );
+// export const VERIFY_OTP = (payload) => {
+//   // console.log(payload, 'this is calling otp here');
+//   const response = Fetch.post(`/api/v1/auth${endPoints.VERIFYOTP}`, payload);
+//   return response;
+// };
+export const LOGIN_ACCOUNT = (payload) => {
+  const response = Fetch.post(`/auth${endPoints.LOGIN}`, payload);
+  return response;
+};
+
+// export const SEND_OTP = (payload) => {
+//   // console.log(payload, 'this is otp function');
+//   const response = Fetch.post(`/api/v1/auth${endPoints.SENDOTP}`, payload);
 //   return response;
 // };
 
-// export const UPDATE_PASSWORD = (payload: any) => {
-//   const formData = new FormData();
-//   formData.append('user_id', payload.user_id);
-//   formData.append('old_password', payload.old_password);
-//   formData.append('new_password', payload.new_password);
-//   formData.append('please_change_my_password', '1');
-
+// export const FORGOT_PASSWORD = (payload) => {
+//   console.log(payload, 'this is for forgot');
 //   const response = Fetch.post(
-//     `/wp-json/resetuserpassword/v1${endPoints.UPDATEPASSWORD}`,
-//     formData,
-//     true,
+//     `/api/v1/user${endPoints.FORGOTPASSWORD}`,
+//     payload,
 //   );
 //   return response;
 // };
 
-// export const FORGOT_PASSWORD = (email: any) => {
-//   console.log(email, 'hhhhhhhhhhhhhhhhhhhhhhh');
-//   const response = Fetch.get(
-//     `/wp-json/userforgotpassword/v1${endPoints.FORGOTPASSWORD}?email=${email?.email}`,
-//   );
+// export const GET_USER_DATA = () => {
+//   const response = Fetch.get(`/api/v1/auth${endPoints.GET_USER}`);
 //   return response;
-// };
-
-// export const EDIT_PROFILE = (payload: any) => {
-//   return Fetch.post(endPoints.EDIT_PROFILE, payload);
-// };
-
-// export const UPDATE_AVATAR = (formData: FormData) => {
-//   return Fetch.upload(endPoints.UPDATE_AVATAR, formData);
-// };
-
-// export const GET_PROFILE_AVATAR = (userId: string | number) => {
-//   return Fetch.get(`${endPoints.GET_AVATAR}?user_id=${userId}`);
 // };

@@ -64,14 +64,16 @@ const dummyProducts = [
 const OrderProcessingScreen = () => {
   const navigation = useNavigation();
   const route = useRoute();
-  const { tableNumber, orderType } = route.params || { tableNumber: '7', orderType: 'Dine in' };
+  const { tableNumber, orderType, isNewOrder } = route.params || { tableNumber: '7', orderType: 'Dine in', isNewOrder: false };
 
   const [selectedCategory, setSelectedCategory] = useState('Beverages');
-  const [cart, setCart] = useState([
-    { id: 'c1', name: 'Sodavand (25cl)', price: 35.00, qty: 2, note: '' },
-    { id: 'c2', name: 'Sodavand (25cl)', price: 35.00, qty: 2, note: '' },
-    { id: 'c3', name: 'Sodavand (25cl)', price: 35.00, qty: 2, note: '' },
-  ]);
+  const [cart, setCart] = useState(
+    isNewOrder ? [] : [
+      { id: 'c1', name: 'Sodavand (25cl)', price: 35.00, qty: 2, note: '' },
+      { id: 'c2', name: 'Sodavand (25cl)', price: 35.00, qty: 2, note: '' },
+      { id: 'c3', name: 'Sodavand (25cl)', price: 35.00, qty: 2, note: '' },
+    ]
+  );
 
   const [tipAmount, setTipAmount] = useState(null);
   const [showTipModal, setShowTipModal] = useState(false);
@@ -88,6 +90,26 @@ const OrderProcessingScreen = () => {
   const [showSuccessModal, setShowSuccessModal] = useState(false);
   const [selectedCartItem, setSelectedCartItem] = useState(null);
   const [showTapCardModal, setShowTapCardModal] = useState(false);
+
+  useEffect(() => {
+    if (isNewOrder) {
+      setCart([]);
+      setTipAmount(null);
+      setDiscountAmount(0);
+      setDiscountCode('');
+      setBuyerInfo(null);
+    } else {
+      setCart([
+        { id: 'c1', name: 'Sodavand (25cl)', price: 35.00, qty: 2, note: '' },
+        { id: 'c2', name: 'Sodavand (25cl)', price: 35.00, qty: 2, note: '' },
+        { id: 'c3', name: 'Sodavand (25cl)', price: 35.00, qty: 2, note: '' },
+      ]);
+      setTipAmount(null);
+      setDiscountAmount(0);
+      setDiscountCode('');
+      setBuyerInfo(null);
+    }
+  }, [isNewOrder, tableNumber]);
 
   useEffect(() => {
     let timer;
@@ -190,13 +212,22 @@ const OrderProcessingScreen = () => {
 
   const confirmCancelOrder = () => {
     setCart([]);
+    setTipAmount(null);
+    setDiscountAmount(0);
+    setDiscountCode('');
+    setBuyerInfo(null);
     setShowCancelModal(false);
     navigation.goBack();
   };
 
   const handleCloseInvoice = () => {
     setShowInvoiceModal(false);
-    navigation.navigate('TableSelectionScreen');
+    setCart([]);
+    setTipAmount(null);
+    setDiscountAmount(0);
+    setDiscountCode('');
+    setBuyerInfo(null);
+    navigation.navigate('TableSelectionScreen', { newlyProcessedTable: tableNumber });
   };
 
   const openNoteModal = (item) => {
@@ -412,6 +443,12 @@ const OrderProcessingScreen = () => {
                     <Text style={[styles.totalValue, Subtitle2, { color: '#E74C3C' }]}>- $ {discountAmount.toFixed(2)}</Text>
                 </View>
             )}
+            {tipAmount !== null && parseFloat(tipAmount) > 0 && (
+                <View style={[styles.totalRow, { marginBottom: VS(8) }]}>
+                    <Text style={[styles.totalLabel, Subtitle2, { color: Colors.grey }]}>Tip:</Text>
+                    <Text style={[styles.totalValue, Subtitle2, { color: '#4CAF50' }]}>+ $ {parseFloat(tipAmount).toFixed(2)}</Text>
+                </View>
+            )}
             <View style={styles.totalRow}>
                 <Text style={[styles.totalLabel, H2]}>Total:</Text>
                 <Text style={[styles.totalValue, H2]}>$ {total}</Text>
@@ -485,7 +522,10 @@ const OrderProcessingScreen = () => {
       <ProcessOrderModal
         visible={showProcessModal}
         onClose={() => setShowProcessModal(false)}
-        onPrintBill={() => setShowProcessModal(false)}
+        onPrintBill={() => {
+          setShowProcessModal(false);
+          navigation.navigate('TableSelectionScreen', { newlyProcessedTable: tableNumber });
+        }}
       />
 
       <CartNoteModal

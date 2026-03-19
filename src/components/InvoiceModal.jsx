@@ -100,7 +100,7 @@ const InvoiceModal = ({
                     </Text>
                   </View>
                 )}
-                {tipAmount > 0 && (
+            {tipAmount !== null && parseFloat(tipAmount) > 0 && (
                   <View style={styles.infoRow}>
                     <Text style={[styles.infoLabel, Body2]}>Tip</Text>
                     <Text style={[styles.infoValue, Subtitle2]}>

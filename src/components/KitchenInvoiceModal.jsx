@@ -44,24 +44,6 @@ const KitchenInvoiceModal = ({
     },
   ],
 }) => {
-  // --- Updated Scallop Logic ---
-  // This renders circles colored the same as the background below the receipt,
-  // creating the visual effect of "cuts."
-  const renderScallops = () => {
-    // Make the circles slightly larger than the indent we want to see.
-    const scallopSize = MS(35); 
-    // Calculate how many will fit, slightly wider to cover edges.
-    const count = Math.ceil((width * 0.45) / scallopSize) + 2; 
-
-    return (
-      <View style={styles.scallopContainer}>
-        {Array.from({length: count}).map((_, i) => (
-          <View key={i} style={styles.scallopCircle} />
-        ))}
-      </View>
-    );
-  };
-  // -----------------------------
 
   return (
     <Modal
@@ -107,7 +89,6 @@ const KitchenInvoiceModal = ({
             <View style={styles.dashedDivider} />
 
             {/* Items Section with Light Blue Background */}
-            {/* Note: renderScallops is now INSIDE this section */}
             <View style={styles.itemsSection}>
               <ScrollView showsVerticalScrollIndicator={false}>
                 {items.map((item, index) => (
@@ -129,9 +110,6 @@ const KitchenInvoiceModal = ({
                   </View>
                 ))}
               </ScrollView>
-              
-              {/* This places the cutout circles at the very bottom of the blue area */}
-              {renderScallops()}
             </View>
             
           </View>
@@ -157,9 +135,7 @@ const styles = StyleSheet.create({
   mainCard: {
     width: '100%',
     backgroundColor: 'white', // Colors.white
-    // Top corners rounded, bottom corners sharp (masked by blue background)
-    borderTopLeftRadius: MS(25),
-    borderTopRightRadius: MS(25),
+    borderRadius: MS(25),
     paddingTop: VS(30),
     position: 'relative',
     overflow: 'hidden', // Crucial to prevent scallops from spilling out
@@ -266,27 +242,6 @@ const styles = StyleSheet.create({
     backgroundColor: '#D1D1D1',
     marginTop: VS(15),
     opacity: 0.4,
-  },
-  // --- Updated Scallop Styles ---
-  scallopContainer: {
-    position: 'absolute',
-    bottom: -MS(18), // Move down half the scallop size to "cut" the edge
-    left: -MS(10), // Offset slightly left
-    right: -MS(10), // Offset slightly right
-    flexDirection: 'row',
-    justifyContent: 'center',
-    zIndex: 2, // Ensure circles sit on top of the blue section
-  },
-  scallopCircle: {
-    width: MS(35), // The size of the circular "cut"
-    height: MS(35),
-    borderRadius: MS(17.5),
-    // IMPORTANT: This color must match the color BELOW the receipt,
-    // which is the gray overlay color in this example.
-    backgroundColor: 'rgba(0, 0, 0, 0.5)', 
-    // If the modal background itself is white and sits on a non-transparent overlay, 
-    // this could also be 'white', depending on what's visible at the bottom.
-    marginHorizontal: MS(-1.5), // Slightly overlap circles for smooth transitions
   },
 });
 

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import {
   View,
   Text,
@@ -10,21 +10,72 @@ import {
   ScrollView,
   Image,
 } from 'react-native';
+import { useFormik } from 'formik';
+import * as Yup from 'yup';
+import Toast from 'react-native-toast-message';
+import { useDispatch } from 'react-redux';
+
 import { Colors } from '../../utils/Colors';
 import { S, VS, MS } from '../../utils/Responsive';
 import { H1, Body1, ButtonText } from '../../utils/fonts';
 import CustomInput from '../../components/CustomInput';
 import { PSPIcon } from '../../assets/Images';
 import { IconSize60 } from '../../utils/IconSizes';
+import { LOGIN_ACCOUNT } from '../../services/AuthServices';
+import { setIsLogin } from '../../redux/Reducers/userReducer';
+import { store } from '../../redux/store';
+
+const validationSchema = Yup.object().shape({
+  storeCode: Yup.string().required('Store code is required'),
+  employeeId: Yup.string().required('Employee ID is required'),
+  password: Yup.string().required('Password is required'),
+});
 
 const LoginScreen = ({ navigation }) => {
-  const [storeId, setStoreId] = useState('');
-  const [merchantId, setMerchantId] = useState('');
-  const [password, setPassword] = useState('');
+  const dispatch = useDispatch();
 
-  const handleLogin = () => {
-    navigation.navigate('OpenRegister');
+  const handleLogin = async (values) => {
+    const payload = {
+      store_code: values.storeCode,
+      employee_id: values.employeeId,
+      password: values.password,
+    };
+
+    try {
+      const response = await LOGIN_ACCOUNT(payload);
+      console.log('Login response:', response);
+      
+      if (response) {
+        store.dispatch(setIsLogin(true));
+        Toast.show({
+          type: 'success',
+          text1: 'Login Successful',
+        });
+      } else {
+        Toast.show({
+          type: 'error',
+          text1: response || 'Login failed',
+        });
+      }
+    } catch (error) {
+      console.log('Login errorrrr:', error);
+      Toast.show({
+        type: 'error',
+        text1: 'An error occurred during login',
+      
+      });
+    }
   };
+
+  const formik = useFormik({
+    initialValues: {
+      storeCode: '',
+      employeeId: '',
+      password: '',
+    },
+    validationSchema,
+    onSubmit: handleLogin,
+  });
 
   return (
     <View style={styles.root}>
@@ -74,34 +125,48 @@ const LoginScreen = ({ navigation }) => {
 
             <View style={styles.inputsWrapper}>
               <CustomInput
-                label="Store ID"
-                placeholder="Enter your store ID"
-                value={storeId}
-                onChangeText={setStoreId}
+                label="Store Code"
+                placeholder="Enter your store code"
+                value={formik.values.storeCode}
+                onChangeText={formik.handleChange('storeCode')}
+                onBlur={formik.handleBlur('storeCode')}
                 autoCapitalize="none"
+                keyboardType="numeric"
               />
+              {formik.touched.storeCode && formik.errors.storeCode && (
+                <Text style={styles.errorText}>{formik.errors.storeCode}</Text>
+              )}
 
               <CustomInput
-                label="Merchant ID"
-                placeholder="Enter your merchant ID"
-                value={merchantId}
-                onChangeText={setMerchantId}
+                label="Employee ID"
+                placeholder="Enter your employee ID"
+                value={formik.values.employeeId}
+                onChangeText={formik.handleChange('employeeId')}
+                onBlur={formik.handleBlur('employeeId')}
                 autoCapitalize="none"
+                keyboardType="numeric"
               />
+              {formik.touched.employeeId && formik.errors.employeeId && (
+                <Text style={styles.errorText}>{formik.errors.employeeId}</Text>
+              )}
 
               <CustomInput
                 label="Password"
                 placeholder="Enter your password"
-                value={password}
-                onChangeText={setPassword}
+                value={formik.values.password}
+                onChangeText={formik.handleChange('password')}
+                onBlur={formik.handleBlur('password')}
                 secureTextEntry
               />
+              {formik.touched.password && formik.errors.password && (
+                <Text style={styles.errorText}>{formik.errors.password}</Text>
+              )}
             </View>
 
             <TouchableOpacity
               style={styles.loginButton}
               activeOpacity={0.85}
-              onPress={handleLogin}
+              onPress={formik.handleSubmit}
             >
               <Text style={[ButtonText, { color: Colors.white }]}>
                 Login
@@ -179,6 +244,13 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     marginTop: VS(8),
+  },
+  errorText: {
+    color: 'red',
+    fontSize: MS(12),
+    marginTop: VS(-8),
+    marginBottom: VS(8),
+    marginLeft: S(4),
   },
 });
 
