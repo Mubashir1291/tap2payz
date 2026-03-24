@@ -17,7 +17,7 @@ import { store } from '../../redux/store';
 import { setIsLogin } from '../../redux/Reducers/userReducer';
 import { OPEN_REGISTER } from '../../services/AppServices';
 import Toast from 'react-native-toast-message';
-import DeviceInfo from 'react-native-device-info';
+import { useSelector } from 'react-redux';
 
 const summaryRows = [
   { label: 'Opening Amount', value: '0.00' },
@@ -52,6 +52,7 @@ const DENOMINATIONS = {
 };
 
 const OpenRegisterScreen = ({ navigation }) => {
+  const { deviceId } = useSelector((state) => state.device);
   const [showCashIn, setShowCashIn] = useState(true);
   const [isCurrencyModalVisible, setIsCurrencyModalVisible] = useState(false);
   const [isModalVisible, setIsModalVisible] = useState(false);
@@ -117,7 +118,8 @@ const OpenRegisterScreen = ({ navigation }) => {
       const userData = userState?.userData?.data || userState?.userData || {};
       const employeeData = userData?.employee || {};
       
-      const device_id = await DeviceInfo.getUniqueDeviceId();
+      // Use device ID from Redux (entered during login)
+      const device_id = deviceId;
       
       // Extract the Mongo ObjectIds based on the ME response
       const employee_id = employeeData?._id || "6682ba1f2f9489cc9a3f77e9";

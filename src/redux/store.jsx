@@ -3,15 +3,17 @@ import { combineReducers } from 'redux';
 import { persistReducer, persistStore } from 'redux-persist';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import UserReducer from './Reducers/userReducer';
+import DeviceReducer from './Reducers/deviceReducer';
 
 const reducers = combineReducers({
   user: UserReducer,
+  device: DeviceReducer,
 });
 
 const persistConfig = {
   key: 'root',
   storage: AsyncStorage,
-  whitelist: ['user'],
+  whitelist: ['user', 'device'],
 };
 
 const persistedReducer = persistReducer(persistConfig, reducers);

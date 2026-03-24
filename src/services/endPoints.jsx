@@ -4,6 +4,7 @@ const endPoints = {
   OPENREGISTER : '/create-cash-register',
   CLOSEREGISTER : '/close-cash-register',
   ME:'/me',
+  VERIFYDEVICE : '/verify-device',
 //   UPDATE_PASSWORD: '/reset-user-password',
 //   FORGOT_PASSWORD: '/user-forgot-password',
 //   EDIT_PROFILE: '/update-user-profile-info',
