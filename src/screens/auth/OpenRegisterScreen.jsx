@@ -15,6 +15,9 @@ import { H2, H3, H4, Subtitle1, Subtitle2, Body1, Body3, Caption, ButtonText, Bu
 import styles from './OpenRegisterScreenstyles';
 import { store } from '../../redux/store';
 import { setIsLogin } from '../../redux/Reducers/userReducer';
+import { OPEN_REGISTER } from '../../services/AppServices';
+import Toast from 'react-native-toast-message';
+import DeviceInfo from 'react-native-device-info';
 
 const summaryRows = [
   { label: 'Opening Amount', value: '0.00' },
@@ -107,9 +110,42 @@ const OpenRegisterScreen = ({ navigation }) => {
   };
 
   // STEP 3: Final Login Dispatch
-  const handleConfirm = () => {
-    setIsModalVisible(false);
-    store.dispatch(setIsLogin(true))
+  const handleConfirm = async () => {
+    try {
+    
+      const userState = store.getState()?.user || {};
+      const userData = userState?.userData?.data || userState?.userData || {};
+      const employeeData = userData?.employee || {};
+      
+      const device_id = await DeviceInfo.getUniqueDeviceId();
+      
+      // Extract the Mongo ObjectIds based on the ME response
+      const employee_id = employeeData?._id || "6682ba1f2f9489cc9a3f77e9";
+      const store_id = (employeeData?.store_id && employeeData.store_id.length > 0) 
+                         ? employeeData.store_id[0]._id 
+                         : "6662e86a589cd336b91c0333";
+
+      const payload = {
+        device_id: device_id,
+        employee_id: employee_id,
+        store_id: store_id,
+        opening_amount: parseFloat(amount)
+      };
+      
+      const res = await OPEN_REGISTER(payload);
+      console.log('OPEN_REGISTER response:', res);
+      
+      setIsModalVisible(false);
+      // store.dispatch(setIsLogin(true)); // User is already logged in now that OpenRegister is in AppStack
+      navigation.navigate('SaleScreen');
+    } catch (error) {
+       console.log("Error inside handleConfirm OpenRegister: ", error);
+       Toast.show({
+         type: 'error',
+         text1: 'Error opening register',
+         text2: error?.message || String(error),
+       });
+    }
   };
 
   const handleCancel = () => {

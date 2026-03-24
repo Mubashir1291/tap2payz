@@ -21,8 +21,8 @@ import { H1, Body1, ButtonText } from '../../utils/fonts';
 import CustomInput from '../../components/CustomInput';
 import { PSPIcon } from '../../assets/Images';
 import { IconSize60 } from '../../utils/IconSizes';
-import { LOGIN_ACCOUNT } from '../../services/AuthServices';
-import { setIsLogin } from '../../redux/Reducers/userReducer';
+import { LOGIN_ACCOUNT, ME } from '../../services/AuthServices';
+import { setIsLogin, setAccessToken, setUserData } from '../../redux/Reducers/userReducer';
 import { store } from '../../redux/store';
 
 const validationSchema = Yup.object().shape({
@@ -46,7 +46,26 @@ const LoginScreen = ({ navigation }) => {
       console.log('Login response:', response);
       
       if (response) {
+        // Extract and store token
+        const token = response.accessToken || response.token || response.data?.token || response.data?.accessToken || (typeof response === 'string' ? response : null);
+        if (token) {
+          store.dispatch(setAccessToken(token));
+        }
+
+        // Hit ME API right after login
+        try {
+          const meResponse = await ME();
+          console.log('ME response:', meResponse);
+          if (meResponse) {
+            store.dispatch(setUserData(meResponse.data || meResponse));
+          }
+        } catch (meError) {
+          console.log('ME API error:', meError);
+          // depending on needs, you could return early or show a specific toast here
+        }
+
         store.dispatch(setIsLogin(true));
+      
         Toast.show({
           type: 'success',
           text1: 'Login Successful',

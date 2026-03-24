@@ -28,7 +28,7 @@ import { store } from '../redux/store';
 import PassKeyModal from './PassKeyModal';
 
 const drawerItems = [
-  { label: 'Sale', icon: DiscountIcon, route: 'HomeScreen' },
+  { label: 'Sale', icon: DiscountIcon, route: 'SaleScreen' },
   // { label: 'Return', icon: ReturnIcon, route: 'ReturnScreen' },
   { label: 'Restaurant Orders', icon: ShopIcon, route: 'TableSelectionScreen' },
   { label: 'Close Register', icon: CloseRegisterIcon, route: 'CloseRegisterScreen' },

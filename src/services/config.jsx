@@ -8,9 +8,9 @@ import { endPoints } from './endPoints';
 // const BASE_URL = 'http://localhost:6004/api/employee-access'; // change if needed
 
 // Use 10.0.2.2 for Android Emulator, or your local Wi-Fi IP (e.g., 192.168.x.x) for physical devices
-const BASE_URL = 'http://192.168.18.229:6004/api/employee-access'; // change if needed
+// const BASE_URL = 'http://192.168.18.229:6004/api/employee-access'; // change if needed
 
-// const BASE_URL = 'https://interaia.com';
+const BASE_URL = 'https://psp-backend.webevis.com/api/employee-access'; // change if needed
 
 function getAuthToken() {
   const state = store.getState();

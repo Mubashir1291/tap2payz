@@ -33,7 +33,7 @@ import {
   ListIcon,
   TickIcon,
 } from '../../assets/Images';
-import styles from './HomeScreenStyles';
+import styles from './SaleScreenStyles';
 import ConfirmationModal from '../../components/ConfirmationModal';
 import SuccessModal from '../../components/SuccessModal';
 import TipModal from '../../components/TipModal';
@@ -100,7 +100,7 @@ const dummyProducts = [
 
 ];
 
-const HomeScreen = () => {
+const SaleScreen = () => {
   const navigation = useNavigation();
   const [selectedCategory, setSelectedCategory] = useState('All');
   const [cart, setCart] = useState([]);
@@ -675,4 +675,4 @@ const HomeScreen = () => {
   );
 };
 
-export default HomeScreen;
+export default SaleScreen;

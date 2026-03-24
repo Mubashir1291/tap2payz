@@ -1,6 +1,9 @@
 const endPoints = {
 //   REGISTER: '/user-register',
   LOGIN: '/login',
+  OPENREGISTER : '/create-cash-register',
+  CLOSEREGISTER : '/close-cash-register',
+  ME:'/me',
 //   UPDATE_PASSWORD: '/reset-user-password',
 //   FORGOT_PASSWORD: '/user-forgot-password',
 //   EDIT_PROFILE: '/update-user-profile-info',

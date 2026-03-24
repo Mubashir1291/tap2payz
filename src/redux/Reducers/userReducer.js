@@ -27,7 +27,7 @@ export const userReducer = createSlice({
   },
 });
 
-export const { setIsLogin , logout} = userReducer.actions;
+export const { setIsLogin, logout, setAccessToken, setUserData } = userReducer.actions;
 
 export default userReducer.reducer;
 export const selectLanguage = state => state.user.appLanguage;

@@ -37,7 +37,7 @@ const CloseRegisterScreen = () => {
 
   const handleCloseRegister = () => {
     // Placeholder for close register logic
-    navigation.navigate('HomeScreen');
+    navigation.navigate('SaleScreen');
   };
 
   return (
