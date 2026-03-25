@@ -194,7 +194,6 @@ const styles = StyleSheet.create({
   },
   addNoteText: {
     color: Colors.grey,
-
   },
   qtyRow: {
     flexDirection: 'row',

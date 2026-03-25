@@ -257,10 +257,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginHorizontal: S(6),
   },
-  qtyBtnText: {
-  },
-  qtyText: {
-  },
+  qtyBtnText: {},
+  qtyText: {},
 
   // ─── Action Buttons ───
   actionRow: {
@@ -323,8 +321,7 @@ const styles = StyleSheet.create({
     paddingVertical: VS(20),
     alignItems: 'center',
   },
-  totalLabel: {
-  },
+  totalLabel: {},
   totalAmount: {
     color: Colors.black,
   },
@@ -351,8 +348,7 @@ const styles = StyleSheet.create({
     tintColor: Colors.primary,
     marginRight: S(8),
   },
-  paymentBtnText: {
-  },
+  paymentBtnText: {},
   placeOrderBtn: {
     height: VS(50),
     borderRadius: MS(12),

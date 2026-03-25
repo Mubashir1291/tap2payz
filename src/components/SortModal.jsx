@@ -1,14 +1,8 @@
 import React from 'react';
-import {
-  View,
-  Text,
-  Modal,
-  StyleSheet,
-  TouchableOpacity,
-} from 'react-native';
-import {Colors} from '../utils/Colors';
-import {S, VS, MS} from '../utils/Responsive';
-import {H3} from '../utils/fonts';
+import { View, Text, Modal, StyleSheet, TouchableOpacity } from 'react-native';
+import { Colors } from '../utils/Colors';
+import { S, VS, MS } from '../utils/Responsive';
+import { H3 } from '../utils/fonts';
 
 const sortOptions = [
   { id: 'a-z', label: 'A - Z' },
@@ -16,42 +10,30 @@ const sortOptions = [
   { id: 'name', label: 'By Name' },
 ];
 
-const SortModal = ({visible, onClose, onSelect, currentSort}) => {
+const SortModal = ({ visible, onClose, onSelect, currentSort }) => {
   return (
-    <Modal
-      visible={visible}
-      transparent={true}
-      animationType="fade"
-      onRequestClose={onClose}>
-      <TouchableOpacity 
-        style={styles.modalOverlay} 
-        activeOpacity={1} 
-        onPress={onClose}>
-        
+    <Modal visible={visible} transparent={true} animationType="fade" onRequestClose={onClose}>
+      <TouchableOpacity style={styles.modalOverlay} activeOpacity={1} onPress={onClose}>
         <TouchableOpacity activeOpacity={1} style={styles.modalContent}>
           {sortOptions.map((option, index) => (
             <TouchableOpacity
               key={option.id}
-              style={[
-                styles.optionRow,
-                index < sortOptions.length - 1 && styles.borderBottom
-              ]}
+              style={[styles.optionRow, index < sortOptions.length - 1 && styles.borderBottom]}
               onPress={() => {
                 onSelect(option.id);
                 onClose();
-              }}>
+              }}
+            >
               <Text style={[styles.optionText, H3]}>{option.label}</Text>
-              
-              <View style={[
-                  styles.radioOuter, 
-                  currentSort === option.id && styles.radioOuterSelected
-                ]}>
+
+              <View
+                style={[styles.radioOuter, currentSort === option.id && styles.radioOuterSelected]}
+              >
                 {currentSort === option.id && <View style={styles.radioInner} />}
               </View>
             </TouchableOpacity>
           ))}
         </TouchableOpacity>
-
       </TouchableOpacity>
     </Modal>
   );

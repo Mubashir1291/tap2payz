@@ -1,6 +1,6 @@
-import {StyleSheet} from 'react-native';
-import {Colors} from '../../utils/Colors';
-import {S, VS, MS} from '../../utils/Responsive';
+import { StyleSheet } from 'react-native';
+import { Colors } from '../../utils/Colors';
+import { S, VS, MS } from '../../utils/Responsive';
 
 const styles = StyleSheet.create({
   root: {
@@ -104,7 +104,7 @@ const styles = StyleSheet.create({
   headerText: {
     color: Colors.black,
   },
-  
+
   colProductHeader: { flex: 0.2 },
   colProductRow: { flex: 0.2, flexDirection: 'row', alignItems: 'center' },
   colSKU: { flex: 0.12 },
@@ -115,13 +115,12 @@ const styles = StyleSheet.create({
   colPrice: { flex: 0.1 },
   colStatus: { flex: 0.07, alignItems: 'center' },
   colAction: { flex: 0.1, flexDirection: 'row', justifyContent: 'center', gap: MS(6) },
-  
+
   colCatNameHeader: { flex: 0.4 },
   colCatNameRow: { flex: 0.4, flexDirection: 'row', alignItems: 'center' },
   colCatStatus: { flex: 0.4 },
   colCatAction: { flex: 0.2, flexDirection: 'row', justifyContent: 'flex-end', gap: MS(6) },
 
-  
   tableRow: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -207,7 +206,7 @@ const styles = StyleSheet.create({
   pageText: {
     color: Colors.black,
   },
-  
+
   // MODALS
   modalOverlay: {
     flex: 1,
@@ -372,7 +371,7 @@ const styles = StyleSheet.create({
     color: '#333333',
     textAlignVertical: 'top',
   },
-  
+
   // Category Modal
   catModalContent: {
     backgroundColor: Colors.white,

@@ -1,31 +1,15 @@
 import React, { useState } from 'react';
-import {
-  View,
-  Text,
-  TextInput,
-  StyleSheet,
-} from 'react-native';
+import { View, Text, TextInput, StyleSheet } from 'react-native';
 import { Colors } from '../utils/Colors';
 import { S, VS, MS } from '../utils/Responsive';
 import { Subtitle2, Body1 } from '../utils/fonts';
 
-const CustomInput = ({
-  label,
-  containerStyle,
-  secureTextEntry,
-  ...rest
-}) => {
+const CustomInput = ({ label, containerStyle, secureTextEntry, ...rest }) => {
   const [isFocused, setIsFocused] = useState(false);
 
   return (
     <View style={[styles.container, containerStyle]}>
-      {label && (
-        <Text
-          style={[styles.label, Subtitle2, { color: Colors.primary }]}
-        >
-          {label}
-        </Text>
-      )}
+      {label && <Text style={[styles.label, Subtitle2, { color: Colors.primary }]}>{label}</Text>}
       <TextInput
         style={[styles.input, Body1, isFocused && styles.inputFocused]}
         placeholderTextColor={Colors.grey}

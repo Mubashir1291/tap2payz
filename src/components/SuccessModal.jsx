@@ -1,30 +1,19 @@
 import React from 'react';
-import {
-  View,
-  Text,
-  Modal,
-  StyleSheet,
-  TouchableOpacity,
-  Image,
-} from 'react-native';
-import {Colors} from '../utils/Colors';
-import {S, VS, MS} from '../utils/Responsive';
-import {H3, Subtitle1} from '../utils/fonts';
-import {ApprovedIcon} from '../assets/Images';
+import { View, Text, Modal, StyleSheet, TouchableOpacity, Image } from 'react-native';
+import { Colors } from '../utils/Colors';
+import { S, VS, MS } from '../utils/Responsive';
+import { H3, Subtitle1 } from '../utils/fonts';
+import { ApprovedIcon } from '../assets/Images';
 
-const SuccessModal = ({visible, onClose, message, title = 'Successful'}) => {
+const SuccessModal = ({ visible, onClose, message, title = 'Successful' }) => {
   return (
-    <Modal
-      visible={visible}
-      transparent={true}
-      animationType="fade"
-      onRequestClose={onClose}>
+    <Modal visible={visible} transparent={true} animationType="fade" onRequestClose={onClose}>
       <View style={styles.modalOverlay}>
         <View style={styles.modalContent}>
           <Image source={ApprovedIcon} style={styles.icon} />
           <Text style={[styles.title, H3]}>{title}</Text>
           <Text style={[styles.message, Subtitle1]}>{message}</Text>
-          
+
           <TouchableOpacity style={styles.closeBtn} onPress={onClose}>
             <Text style={styles.closeText}>✕</Text>
           </TouchableOpacity>

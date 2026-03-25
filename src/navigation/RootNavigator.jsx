@@ -5,7 +5,7 @@ import AuthStack from './AuthStack';
 import AppStack from './AppStack';
 
 const RootNavigator = () => {
-  const isLogin = useSelector((state) => state.user.isLogin);
+  const isLogin = useSelector(state => state.user.isLogin);
 
   return (
     <NavigationContainer>

@@ -138,15 +138,15 @@ const styles = StyleSheet.create({
     position: 'absolute',
     width: '30%',
     height: '5%', // Thinner width
- borderTopEndRadius: MS(5),
- borderTopStartRadius: MS(5),
+    borderTopEndRadius: MS(5),
+    borderTopStartRadius: MS(5),
   },
   chairBottom: {
     position: 'absolute',
     width: '30%',
     height: '5%', // Thinner width
- borderBottomEndRadius: MS(5),
- borderBottomStartRadius: MS(5),
+    borderBottomEndRadius: MS(5),
+    borderBottomStartRadius: MS(5),
   },
   chairLeft: {
     position: 'absolute',
@@ -154,8 +154,6 @@ const styles = StyleSheet.create({
     height: '30%',
     borderTopLeftRadius: MS(5),
     borderBottomLeftRadius: MS(5),
-  
-   
   },
   chairRight: {
     position: 'absolute',
@@ -206,7 +204,7 @@ const styles = StyleSheet.create({
     color: '#555',
     fontSize: MS(8),
   },
-  
+
   // ─── Right Cart Panel ───
   cartPanel: {
     flex: 0.32,
@@ -223,7 +221,7 @@ const styles = StyleSheet.create({
   cartHeaderText: {
     color: '#333',
   },
-  
+
   cartContent: {
     flex: 1,
   },
@@ -252,7 +250,7 @@ const styles = StyleSheet.create({
     marginHorizontal: S(4),
   },
   actionIcon: {
-color: Colors.grey,
+    color: Colors.grey,
     marginBottom: VS(4),
   },
   actionLabelText: {
@@ -281,7 +279,7 @@ color: Colors.grey,
     fontSize: MS(20),
     fontWeight: 'bold',
   },
-  
+
   bottomButtonGroup: {
     flexDirection: 'row',
     justifyContent: 'space-between',
@@ -311,8 +309,7 @@ color: Colors.grey,
   },
 
   // ─── Checkout Section ───
-  checkoutSection: {
-  },
+  checkoutSection: {},
   checkoutBtn: {
     height: VS(45),
     borderRadius: MS(8),
@@ -322,7 +319,7 @@ color: Colors.grey,
   },
   checkoutBtnText: {
     color: '#777',
-    ...ButtonText
+    ...ButtonText,
   },
 
   // ─── Categories (Take Away) ───

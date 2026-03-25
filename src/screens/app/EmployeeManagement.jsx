@@ -165,9 +165,7 @@ const EmployeeManagement = () => {
           <Text style={[styles.colEmail, styles.headerText, Subtitle2]}>Email Address</Text>
           <Text style={[styles.colSales, styles.headerText, Subtitle2]}>Sales</Text>
           <Text style={[styles.colTips, styles.headerText, Subtitle2]}>Tips</Text>
-          <Text style={[styles.colAction, styles.headerText, Subtitle2]}>
-            Actions
-          </Text>
+          <Text style={[styles.colAction, styles.headerText, Subtitle2]}>Actions</Text>
         </View>
 
         {/* Table Content */}

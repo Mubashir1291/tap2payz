@@ -13,11 +13,11 @@ module.exports = {
     },
   },
   rules: {
-    'no-console': ['error', {allow: ['warn', 'error']}],
+    'no-console': ['error', { allow: ['warn', 'error'] }],
     'no-debugger': 'error',
     'no-var': 'error',
-    'prefer-const': ['error', {destructuring: 'all'}],
-    eqeqeq: ['error', 'always', {null: 'ignore'}],
+    'prefer-const': ['error', { destructuring: 'all' }],
+    eqeqeq: ['error', 'always', { null: 'ignore' }],
     curly: ['error', 'all'],
     'object-shorthand': ['error', 'always'],
     'unused-imports/no-unused-imports': 'error',
@@ -44,12 +44,7 @@ module.exports = {
       },
     },
     {
-      files: [
-        'babel.config.js',
-        'metro.config.js',
-        'jest.config.js',
-        'react-native.config.js',
-      ],
+      files: ['babel.config.js', 'metro.config.js', 'jest.config.js', 'react-native.config.js'],
       env: {
         node: true,
       },

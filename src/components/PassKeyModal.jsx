@@ -1,21 +1,10 @@
-import React, {useState, useRef, useEffect} from 'react';
-import {
-  View,
-  Text,
-  Modal,
-  TouchableOpacity,
-  TextInput,
-  StyleSheet,
-} from 'react-native';
-import {Colors} from '../utils/Colors';
-import {S, VS, MS} from '../utils/Responsive';
-import {H4, Subtitle2, ButtonText} from '../utils/fonts';
+import React, { useState, useRef, useEffect } from 'react';
+import { View, Text, Modal, TouchableOpacity, TextInput, StyleSheet } from 'react-native';
+import { Colors } from '../utils/Colors';
+import { S, VS, MS } from '../utils/Responsive';
+import { H4, Subtitle2, ButtonText } from '../utils/fonts';
 
-const PassKeyModal = ({
-  visible = false,
-  onProceed,
-  onClose,
-}) => {
+const PassKeyModal = ({ visible = false, onProceed, onClose }) => {
   const [digits, setDigits] = useState(['', '', '', '', '']);
   const inputRefs = useRef([]);
 
@@ -52,11 +41,7 @@ const PassKeyModal = ({
   };
 
   return (
-    <Modal
-      animationType="fade"
-      transparent={true}
-      visible={visible}
-      onRequestClose={onClose}>
+    <Modal animationType="fade" transparent={true} visible={visible} onRequestClose={onClose}>
       <View style={styles.overlay}>
         <View style={styles.container}>
           {/* Close Button */}

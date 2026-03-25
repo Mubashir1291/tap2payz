@@ -15,7 +15,7 @@ export const deviceReducer = createSlice({
     setIsDeviceRegistered: (state, action) => {
       state.isDeviceRegistered = action.payload;
     },
-    clearDevice: (state) => {
+    clearDevice: state => {
       state.deviceId = null;
       state.isDeviceRegistered = false;
     },

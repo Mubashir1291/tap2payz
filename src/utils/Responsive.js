@@ -2,9 +2,9 @@ import { moderateScale, moderateVerticalScale } from 'react-native-size-matters'
 // Re-export with different names
 // Using factor 0.3 for gentler scaling on tablets
 
-export const S = (size) => moderateScale(size, 0.3);    // for width and margin right & left
-export const VS = (size) => moderateVerticalScale(size, 0.3); // for height, margin top & bottom
-export const MS = (size) => moderateScale(size, 0.3);    // for fontSize, borderRadius, padding
+export const S = size => moderateScale(size, 0.3); // for width and margin right & left
+export const VS = size => moderateVerticalScale(size, 0.3); // for height, margin top & bottom
+export const MS = size => moderateScale(size, 0.3); // for fontSize, borderRadius, padding
 
 // Width
 

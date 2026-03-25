@@ -1,6 +1,6 @@
-import {StyleSheet} from 'react-native';
-import {Colors} from '../../utils/Colors';
-import {S, VS, MS} from '../../utils/Responsive';
+import { StyleSheet } from 'react-native';
+import { Colors } from '../../utils/Colors';
+import { S, VS, MS } from '../../utils/Responsive';
 
 const styles = StyleSheet.create({
   root: {
@@ -78,7 +78,7 @@ const styles = StyleSheet.create({
   colDate: { flex: 0.15 },
   colSales: { flex: 0.1 },
   colAction: { flex: 0.15, alignItems: 'center' },
-  
+
   tableRow: {
     flexDirection: 'row',
     alignItems: 'center',
