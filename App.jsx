@@ -4,6 +4,7 @@ import { Provider } from 'react-redux';
 import { PersistGate } from 'redux-persist/integration/react';
 import { store, persistor } from './src/redux/store';
 import RootNavigator from './src/navigation/RootNavigator';
+import Toast from 'react-native-toast-message';
 
 const App = () => {
   return (
@@ -11,6 +12,7 @@ const App = () => {
       <PersistGate loading={null} persistor={persistor}>
         <SafeAreaProvider>
           <RootNavigator />
+          <Toast />
         </SafeAreaProvider>
       </PersistGate>
     </Provider>

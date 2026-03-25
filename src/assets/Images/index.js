@@ -20,4 +20,60 @@ export const ReturnIcon = require('../Images/Return.png');
 export const SettingIcon = require('../Images/Setting.png');
 export const ConnectedIcon = require('../Images/Connected.png');
 export const CloseRegisterIcon = require('../Images/CloseRegister.png');
+export const PSPIcon = require('../Images/PSPIcon.png');
+export const SearchIcon = require('../Images/Search.png');
+export const ListIcon = require('../Images/list.png');
+export const TickIcon = require('../Images/Tick.png');
+export const CheckIcon = require('../Images/Check.png');
+export const HalfArrowIcon = require('../Images/HalfArrow.png');
+export const PrinterIcon = require('../Images/Printer.png');
+export const LoaderIcon = require('../Images/Loader.png');
+export const CardpaymentIcon = require('../Images/CardPayment.png');
+export const GreenDollarIcon = require('../Images/GreenDollar.png');
+export const CurveIcon = require('../Images/Curve.png');
+export const PurpleDollarIcon = require('../Images/PurpleDollar.png');
+export const CartIcon = require('../Images/Cart.png');
+export const SignalsIcon = require('../Images/Signals.png');
+export const CurveRedDownArrowIcon = require('../Images/CurveRedDownArrow.png');
+export const InventoryIcon = require('../Images/Inventory.png');
+export const EmployeeIcon = require('../Images/Employee.png');
+export const ReportIcon = require('../Images/Report.png');
+export const OverviewIcon = require('../Images/Overview.png');
+export const ExportIcon = require('../Images/Export.png');
+export const DeleteCircleIcon = require('../Images/DeleteCircle.png');
+export const EditCircleIcon = require('../Images/EditCircle.png');
+export const LockCircleIcon = require('../Images/LockCircle.png');
+export const ApprovedIcon = require('../Images/Approved.png');
+export const CameraIcon = require('../Images/Camera.png');
+export const ScanIcon = require('../Images/Scan.png');
+export const UploadIcon = require('../Images/Upload.png');
+export const ArrowDownIcon = require('../Images/ArrowDown.png');
+export const ShopIcon = require('../Images/shop.png');
+export const MenuIcon = require('../Images/Menu.png');
+export const SplitIcon = require('../Images/Split.png');
+export const CancelOrderIcon = require('../Images/CancelOrder.png');
+export const FloorIcon = require('../Images/Floor.png');
+export const TableIcon = require('../Images/Table.png');
+export const DeleteTableIcon = require('../Images/DeleteTable.png');
+export const ForgetDeviceIcon = require('../Images/ForgetDevice.png');
+export const NoDeviceIcon = require('../Images/NoDevice.png');
+export const ConnectedDeviceIcon = require('../Images/ConnectedDevice.png');
+export const TapCardIcon = require('../Images/TapCard.json');
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 

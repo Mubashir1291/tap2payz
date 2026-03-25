@@ -1,11 +1,13 @@
 import React, { useState } from 'react';
 import {
   View,
+  Text,
   TextInput,
   StyleSheet,
 } from 'react-native';
 import { Colors } from '../utils/Colors';
-import CustomText from './CustomText';
+import { S, VS, MS } from '../utils/Responsive';
+import { Subtitle2, Body1 } from '../utils/fonts';
 
 const CustomInput = ({
   label,
@@ -18,17 +20,14 @@ const CustomInput = ({
   return (
     <View style={[styles.container, containerStyle]}>
       {label && (
-        <CustomText
-          size={14}
-          semiBold
-          color={Colors.primary}
-          style={styles.label}
+        <Text
+          style={[styles.label, Subtitle2, { color: Colors.primary }]}
         >
           {label}
-        </CustomText>
+        </Text>
       )}
       <TextInput
-        style={[styles.input, isFocused && styles.inputFocused]}
+        style={[styles.input, Body1, isFocused && styles.inputFocused]}
         placeholderTextColor={Colors.grey}
         secureTextEntry={secureTextEntry}
         onFocus={() => setIsFocused(true)}
@@ -41,20 +40,19 @@ const CustomInput = ({
 
 const styles = StyleSheet.create({
   container: {
-    marginBottom: 20,
+    marginBottom: VS(20),
     width: '100%',
   },
   label: {
-    marginBottom: 8,
+    marginBottom: VS(8),
   },
   input: {
-    height: 52,
+    height: VS(52),
     backgroundColor: Colors.inputBg,
-    borderRadius: 12,
-    paddingHorizontal: 16,
-    fontSize: 16,
+    borderRadius: MS(12),
+    paddingHorizontal: S(16),
     color: Colors.black,
-    borderWidth: 1.5,
+    borderWidth: VS(1.5),
     borderColor: Colors.lightGrey,
   },
   inputFocused: {

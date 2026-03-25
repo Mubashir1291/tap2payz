@@ -49,3 +49,13 @@ export const IconSize40 = {
   width: S(40),
   resizeMode: 'contain',
 };
+export const IconSize50 = {
+  height: VS(50),
+  width: S(50),
+  resizeMode: 'contain',
+};
+export const IconSize60 = {
+  height: VS(60),
+  width: S(60),
+  resizeMode: 'contain',
+};

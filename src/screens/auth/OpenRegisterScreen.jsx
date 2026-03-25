@@ -1,21 +1,23 @@
 import React, { useState } from 'react';
 import {
   View,
-  StyleSheet,
   StatusBar,
   TouchableOpacity,
   Modal,
   Text,
   Image,
   TextInput,
-  ScrollView,
 } from 'react-native';
-import { useDispatch } from 'react-redux';
-import { setIsLogin } from '../../redux/Reducers/userReducer';
 import { Colors } from '../../utils/Colors';
-import CustomText from '../../components/CustomText';
 import { WarningIcon } from '../../assets/Images';
 import { IconSize24 } from '../../utils/IconSizes';
+import { H2, H3, H4, Subtitle1, Subtitle2, Body1, Body3, Caption, ButtonText, ButtonTextSmall } from '../../utils/fonts';
+import styles from './OpenRegisterScreenstyles';
+import { store } from '../../redux/store';
+import { setIsLogin } from '../../redux/Reducers/userReducer';
+import { OPEN_REGISTER } from '../../services/AppServices';
+import Toast from 'react-native-toast-message';
+import { useSelector } from 'react-redux';
 
 const summaryRows = [
   { label: 'Opening Amount', value: '0.00' },
@@ -36,19 +38,36 @@ const numpadKeys = [
 const CANADIAN_COINS = ['5¢', '10¢', '25¢', '$1', '$2'];
 const CANADIAN_NOTES = ['$5', '$10', '$20', '$50', '$100'];
 
-const OpenRegisterScreen = () => {
-  const dispatch = useDispatch();
+const DENOMINATIONS = {
+  '5¢': 0.05,
+  '10¢': 0.10,
+  '25¢': 0.25,
+  '$1': 1.00,
+  '$2': 2.00,
+  '$5': 5.00,
+  '$10': 10.00,
+  '$20': 20.00,
+  '$50': 50.00,
+  '$100': 100.00,
+};
+
+const OpenRegisterScreen = ({ navigation }) => {
+  const { deviceId } = useSelector((state) => state.device);
   const [showCashIn, setShowCashIn] = useState(true);
-  const [isCurrencyModalVisible, setIsCurrencyModalVisible] = useState(false); // NEW
+  const [isCurrencyModalVisible, setIsCurrencyModalVisible] = useState(false);
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [amount, setAmount] = useState('0.00');
+  const [currencyCounts, setCurrencyCounts] = useState({});
+  const [showError, setShowError] = useState(false);
 
-  // Logic for Numpad (Unchanged)
+  // Logic for Numpad
   const handleKeyPress = key => {
     if (key === 'C') {
       setAmount('0.00');
+      setShowError(false);
       return;
     }
+    setShowError(false);
     if (key === '.') return;
     let raw = amount.replace('.', '');
     raw = String(parseInt(raw || '0', 10));
@@ -62,21 +81,73 @@ const OpenRegisterScreen = () => {
     setAmount(`${parseInt(intPart, 10)}.${decPart}`);
   };
 
-  // STEP 1: Open the Currency Detail Modal first
+  // STEP 1: Open the Currency Detail Modal with the entered amount
   const handleOpenRegister = () => {
+    if (parseFloat(amount) <= 0) {
+      setShowError(true);
+      return;
+    }
+    setShowError(false);
+    setCurrencyCounts({});
     setIsCurrencyModalVisible(true);
   };
 
+  const calculatedTotal = Object.keys(currencyCounts).reduce((sum, key) => {
+    const count = parseInt(currencyCounts[key] || '0', 10);
+    const value = DENOMINATIONS[key] || 0;
+    return sum + count * value;
+  }, 0).toFixed(2);
+
+  const enteredAmount = parseFloat(amount).toFixed(2);
+  const remaining = (parseFloat(enteredAmount) - parseFloat(calculatedTotal)).toFixed(2);
+  const isMatched = remaining === '0.00';
+  const isOverAmount = parseFloat(calculatedTotal) > parseFloat(enteredAmount);
+
   // STEP 2: From Currency Modal to Final Warning Modal
   const handleConfirmCurrency = () => {
+    if (!isMatched) return;
     setIsCurrencyModalVisible(false);
     setIsModalVisible(true);
   };
 
   // STEP 3: Final Login Dispatch
-  const handleConfirm = () => {
-    dispatch(setIsLogin(true));
-    setIsModalVisible(false);
+  const handleConfirm = async () => {
+    try {
+    
+      const userState = store.getState()?.user || {};
+      const userData = userState?.userData?.data || userState?.userData || {};
+      const employeeData = userData?.employee || {};
+      
+      // Use device ID from Redux (entered during login)
+      const device_id = deviceId;
+      
+      // Extract the Mongo ObjectIds based on the ME response
+      const employee_id = employeeData?._id || "6682ba1f2f9489cc9a3f77e9";
+      const store_id = (employeeData?.store_id && employeeData.store_id.length > 0) 
+                         ? employeeData.store_id[0]._id 
+                         : "6662e86a589cd336b91c0333";
+
+      const payload = {
+        device_id: device_id,
+        employee_id: employee_id,
+        store_id: store_id,
+        opening_amount: parseFloat(amount)
+      };
+      
+      const res = await OPEN_REGISTER(payload);
+      console.log('OPEN_REGISTER response:', res);
+      
+      setIsModalVisible(false);
+      // store.dispatch(setIsLogin(true)); // User is already logged in now that OpenRegister is in AppStack
+      navigation.navigate('SaleScreen');
+    } catch (error) {
+       console.log("Error inside handleConfirm OpenRegister: ", error);
+       Toast.show({
+         type: 'error',
+         text1: 'Error opening register',
+         text2: error?.message || String(error),
+       });
+    }
   };
 
   const handleCancel = () => {
@@ -86,12 +157,17 @@ const OpenRegisterScreen = () => {
 
   const renderCurrencyInput = (label) => (
     <View key={label} style={styles.currencyInputRow}>
-      <CustomText size={14} color={Colors.black}>{label}</CustomText>
+      <Text style={styles.currencyInputLabel}>{label}</Text>
       <TextInput 
         style={styles.currencyBox} 
         keyboardType="number-pad" 
         placeholder="0" 
         placeholderTextColor={Colors.grey}
+        value={currencyCounts[label] || ''}
+        onChangeText={(text) => {
+          const val = text.replace(/[^0-9]/g, '');
+          setCurrencyCounts((prev) => ({ ...prev, [label]: val }));
+        }}
       />
     </View>
   );
@@ -103,15 +179,15 @@ const OpenRegisterScreen = () => {
       {/* ── Left Panel ── */}
       <View style={styles.leftPanel}>
         <View style={styles.welcomeSection}>
-          <CustomText size={16} color={Colors.grey}>Welcome!</CustomText>
-          <CustomText size={22} bold color={Colors.black} style={{ marginTop: 2 }}>John Duo.</CustomText>
+          <Text style={[styles.welcomeText, Subtitle1]}>Welcome!</Text>
+          <Text style={[styles.userName, H2]}>John Duo.</Text>
         </View>
         <View style={styles.divider} />
         {summaryRows.map((row, index) => (
           <View key={index}>
             <View style={styles.summaryRow}>
-              <CustomText size={15} color={Colors.black}>{row.label}</CustomText>
-              <CustomText size={15} color={Colors.black}>{row.value}</CustomText>
+              <Text style={[styles.summaryText, Body1]}>{row.label}</Text>
+              <Text style={[styles.summaryText, Body1]}>{row.value}</Text>
             </View>
             {index < summaryRows.length - 1 && <View style={styles.divider} />}
           </View>
@@ -122,13 +198,13 @@ const OpenRegisterScreen = () => {
       <View style={styles.rightPanel}>
         {showCashIn && (
           <View style={styles.cashInCard}>
-            <TouchableOpacity style={styles.closeBtn} onPress={() => setShowCashIn(false)}>
-              <CustomText size={18} color={Colors.grey}>✕</CustomText>
+            <TouchableOpacity style={styles.closeBtn} onPress={() => navigation.goBack()}>
+              <Text style={[styles.closeBtnText, H4]}>✕</Text>
             </TouchableOpacity>
 
             <View style={styles.cashInHeader}>
-              <CustomText size={16} color={Colors.grey}>Cash In</CustomText>
-              <CustomText size={24} bold color={Colors.black}>CAD {amount}</CustomText>
+              <Text style={[styles.cashInLabel, Subtitle1]}>Cash In</Text>
+              <Text style={[styles.cashInAmount, H2]}>CAD {amount}</Text>
             </View>
 
             <View style={styles.numpad}>
@@ -136,7 +212,7 @@ const OpenRegisterScreen = () => {
                 <View key={rowIndex} style={styles.numpadRow}>
                   {row.map(key => (
                     <TouchableOpacity key={key} style={styles.numpadKey} onPress={() => handleKeyPress(key)}>
-                      <CustomText size={20} semiBold color={key === 'C' ? Colors.primary : Colors.black}>{key}</CustomText>
+                      <Text style={[key === 'C' ? styles.numpadClearText : styles.numpadKeyText, H3]}>{key}</Text>
                     </TouchableOpacity>
                   ))}
                 </View>
@@ -144,26 +220,35 @@ const OpenRegisterScreen = () => {
             </View>
 
             <TouchableOpacity style={styles.openRegisterBtn} onPress={handleOpenRegister}>
-              <CustomText size={16} bold color={Colors.white}>Open Register {'  →'}</CustomText>
+              <Text style={[styles.openRegisterBtnText, ButtonText]}>Open Register {'  →'}</Text>
             </TouchableOpacity>
+            {showError && (
+              <Text style={[styles.errorText, Caption]}>Please enter the amount</Text>
+            )}
           </View>
         )}
       </View>
 
-      {/* ── NEW: Set Currency Modal ── */}
+      {/* ── Set Currency Modal ── */}
       <Modal visible={isCurrencyModalVisible} transparent animationType="slide">
         <View style={styles.modalOverlay}>
           <View style={styles.currencyModalContainer}>
             <TouchableOpacity style={styles.closeBtnTop} onPress={() => setIsCurrencyModalVisible(false)}>
-              <CustomText size={20} color={Colors.grey}>✕</CustomText>
+              <Text style={[styles.closeBtnTopText, Subtitle1]}>✕</Text>
             </TouchableOpacity>
             
-            <CustomText size={22} bold style={styles.currencyTitle}>Set Currency</CustomText>
+            <Text style={[styles.currencyTitle, H4]}>Set Currency</Text>
+
+            {/* Entered Amount Banner */}
+            <View style={styles.enteredAmountBanner}>
+              <Text style={[styles.enteredAmountLabel, Body3]}>Opening Amount</Text>
+              <Text style={[styles.enteredAmountValue, Subtitle1]}>CAD {enteredAmount}</Text>
+            </View>
 
             <View style={styles.currencyGrid}>
               {/* Coins Column */}
               <View style={styles.currencyColumn}>
-                <CustomText size={18} semiBold style={{ marginBottom: 12 }}>Coins:</CustomText>
+                <Text style={[styles.currencyColumnTitle, Subtitle2]}>Coins:</Text>
                 <View style={styles.currencyGrayCard}>
                    {CANADIAN_COINS.map(renderCurrencyInput)}
                 </View>
@@ -171,7 +256,7 @@ const OpenRegisterScreen = () => {
 
               {/* Notes Column */}
               <View style={styles.currencyColumn}>
-                <CustomText size={18} semiBold style={{ marginBottom: 12 }}>Notes:</CustomText>
+                <Text style={[styles.currencyColumnTitle, Subtitle2]}>Notes:</Text>
                 <View style={styles.currencyGrayCard}>
                    {CANADIAN_NOTES.map(renderCurrencyInput)}
                 </View>
@@ -180,13 +265,30 @@ const OpenRegisterScreen = () => {
 
             <View style={styles.currencyFooter}>
                <View>
-                  <CustomText size={16} color={Colors.black}>Total:</CustomText>
-                  <CustomText size={26} bold color={Colors.black}>CAD {amount}</CustomText>
+                  <Text style={[styles.totalLabel, Body3]}>Counted:</Text>
+                  <Text style={[styles.totalAmount, H3, isOverAmount && styles.mismatchText]}>CAD {calculatedTotal}</Text>
                </View>
-               <TouchableOpacity style={styles.confirmBlueBtn} onPress={handleConfirmCurrency}>
-                  <CustomText size={18} bold color={Colors.primary}>Confirm  →</CustomText>
+               <View style={styles.remainingContainer}>
+                  <Text style={[styles.remainingLabel, Caption]}>
+                    {isOverAmount ? 'Over by:' : 'Remaining:'}
+                  </Text>
+                  <Text style={[styles.remainingValue, Subtitle1, isMatched ? styles.matchedText : styles.mismatchText]}>
+                    CAD {isOverAmount ? (parseFloat(calculatedTotal) - parseFloat(enteredAmount)).toFixed(2) : remaining}
+                  </Text>
+               </View>
+               <TouchableOpacity
+                  style={[styles.confirmBlueBtn, (!isMatched || isOverAmount) && styles.confirmBlueBtnDisabled]}
+                  onPress={handleConfirmCurrency}
+                  disabled={!isMatched || isOverAmount}
+               >
+                  <Text style={[styles.confirmBlueBtnText, ButtonTextSmall, (!isMatched || isOverAmount) && styles.confirmBlueBtnTextDisabled]}>Confirm  →</Text>
                </TouchableOpacity>
             </View>
+            {isOverAmount && (
+              <Text style={[styles.overAmountWarning, Caption]}>
+                ⚠ Counted amount exceeds the opening amount. Please adjust.
+              </Text>
+            )}
           </View>
         </View>
       </Modal>
@@ -196,13 +298,14 @@ const OpenRegisterScreen = () => {
         <View style={styles.modalOverlay}>
           <View style={styles.modalContainer}>
             <Image source={WarningIcon} style={IconSize24} />
-            <Text style={styles.modalTitle}>Ready to start making sale</Text>
+            <Text style={[styles.modalTitle, H4]}>Ready to start making sale</Text>
+            <Text style={[styles.modalSubtitle, Body3]}>Please confirm to open the register</Text>
             <View style={styles.modalButtonContainer}>
               <TouchableOpacity style={[styles.modalButton, styles.cancelButton]} onPress={handleCancel}>
-                <CustomText size={16} semiBold color={Colors.primary}>Cancel</CustomText>
+                <Text style={[styles.cancelButtonText, ButtonText]}>Cancel</Text>
               </TouchableOpacity>
               <TouchableOpacity style={[styles.modalButton, styles.confirmButton]} onPress={handleConfirm}>
-                <CustomText size={16} bold color={Colors.white}>Confirm</CustomText>
+                <Text style={[styles.confirmButtonText, ButtonText]}>Confirm</Text>
               </TouchableOpacity>
             </View>
           </View>
@@ -211,41 +314,5 @@ const OpenRegisterScreen = () => {
     </View>
   );
 };
-
-const styles = StyleSheet.create({
-  // ... (Your existing styles remain exactly as they were)
-  root: { flex: 1, flexDirection: 'row', backgroundColor: Colors.white },
-  leftPanel: { flex: 0.4, paddingVertical: 36, paddingHorizontal: 32, borderRightWidth: 1, borderRightColor: Colors.lightGrey },
-  welcomeSection: { marginBottom: 16 },
-  summaryRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingVertical: 18, paddingHorizontal: 4 },
-  divider: { height: 1, backgroundColor: Colors.lightGrey },
-  rightPanel: { flex: 0.6, backgroundColor: '#EBF0FF', justifyContent: 'center', alignItems: 'center', padding: 32 },
-  cashInCard: { width: '80%', backgroundColor: Colors.white, borderRadius: 20, padding: 28, elevation: 4, position: 'relative' },
-  closeBtn: { position: 'absolute', top: 16, right: 20, zIndex: 10, width: 32, height: 32, borderRadius: 16, backgroundColor: Colors.lightGrey, justifyContent: 'center', alignItems: 'center' },
-  cashInHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20, paddingRight: 40 },
-  numpad: { marginBottom: 20 },
-  numpadRow: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: 10 },
-  numpadKey: { flex: 1, aspectRatio: 2.8, marginHorizontal: 5, backgroundColor: '#F5F7FA', borderRadius: 12, justifyContent: 'center', alignItems: 'center' },
-  openRegisterBtn: { height: 50, backgroundColor: Colors.primary, borderRadius: 12, justifyContent: 'center', alignItems: 'center' },
-  modalOverlay: { flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: 'rgba(0, 0, 0, 0.6)' },
-  modalContainer: { width: '35%', backgroundColor: Colors.white, borderRadius: 20, padding: 32, alignItems: 'center', gap: 20 },
-  modalTitle: { textAlign: 'center', fontSize: 18, fontWeight: '600' },
-  modalButtonContainer: { flexDirection: 'row', width: '100%' },
-  modalButton: { flex: 1, height: 50, borderRadius: 12, justifyContent: 'center', alignItems: 'center' },
-  cancelButton: { backgroundColor: Colors.white, borderWidth: 1.5, borderColor: Colors.lightGrey, marginRight: 8 },
-  confirmButton: { backgroundColor: Colors.primary, marginLeft: 8 },
-
-  // ADDED STYLES FOR THE NEW CURRENCY MODAL
-  currencyModalContainer: { width: '90%', maxWidth: 900, backgroundColor: Colors.white, borderRadius: 24, padding: 40, position: 'relative' },
-  closeBtnTop: { position: 'absolute', top: 20, right: 25 },
-  currencyTitle: { textAlign: 'center', marginBottom: 30 },
-  currencyGrid: { flexDirection: 'row', justifyContent: 'space-between' },
-  currencyColumn: { flex: 0.48 },
-  currencyGrayCard: { backgroundColor: '#F7F8FA', borderRadius: 16, padding: 20 },
-  currencyInputRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 15 },
-  currencyBox: { backgroundColor: Colors.white, width: 70, height: 35, borderRadius: 6, textAlign: 'center', borderWeight: 1, borderColor: '#EEE' },
-  currencyFooter: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginTop: 40 },
-  confirmBlueBtn: { backgroundColor: '#C8D7FF', paddingHorizontal: 40, paddingVertical: 12, borderRadius: 10, flexDirection: 'row', alignItems: 'center' }
-});
 
 export default OpenRegisterScreen;

@@ -1,0 +1,24 @@
+const endPoints = {
+//   REGISTER: '/user-register',
+  LOGIN: '/login',
+  OPENREGISTER : '/create-cash-register',
+  CLOSEREGISTER : '/close-cash-register',
+  ME:'/me',
+  VERIFYDEVICE : '/verify-device',
+//   UPDATE_PASSWORD: '/reset-user-password',
+//   FORGOT_PASSWORD: '/user-forgot-password',
+//   EDIT_PROFILE: '/update-user-profile-info',
+//   UPDATE_AVATAR: '/upoload-profile-avatar',
+//   GET_AVATAR: '/get-profile-avatar',
+//   FORGOTPASSWORD: '/user-forgot-password',
+//   UPDATEPASSWORD: '/reset-user-password',
+//   AVATAR: '/upoload-profile-avatar',
+//   GETAVATAR: 'get-profile-avatar',
+//   SESSION: '/create',
+//   CHAT: '/chat',
+//   AI_LOGIN: '/login',
+//   AI_SESSION: '/create',
+//   AI_CHAT: '/chat',
+};
+
+export { endPoints };
