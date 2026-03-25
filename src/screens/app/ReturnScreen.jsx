@@ -52,7 +52,7 @@ const ReturnScreen = () => {
   const navigation = useNavigation();
   const [searchQuery, setSearchQuery] = useState('');
   const [foundInvoice, setFoundInvoice] = useState(null);
-  const [invoiceNumber, setInvoiceNumber] = useState('');
+  // const [invoiceNumber, setInvoiceNumber] = useState('');
   const [returnCart, setReturnCart] = useState([]);
   const [showInvoiceModal, setShowInvoiceModal] = useState(false);
 
@@ -60,17 +60,17 @@ const ReturnScreen = () => {
     const query = searchQuery.trim().toUpperCase();
     if (dummyInvoices[query]) {
       setFoundInvoice(dummyInvoices[query]);
-      setInvoiceNumber(query);
+      // setInvoiceNumber(query);
     } else {
       setFoundInvoice(null);
-      setInvoiceNumber('');
+      // setInvoiceNumber('');
     }
   };
 
   const handleClearSearch = () => {
     setSearchQuery('');
     setFoundInvoice(null);
-    setInvoiceNumber('');
+    // setInvoiceNumber('');
     setReturnCart([]);
   };
 
@@ -121,7 +121,7 @@ const ReturnScreen = () => {
     setReturnCart([]);
     setFoundInvoice(null);
     setSearchQuery('');
-    setInvoiceNumber('');
+    // setInvoiceNumber('');
   };
 
   const renderProduct = ({ item }) => (

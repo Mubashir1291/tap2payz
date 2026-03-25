@@ -127,6 +127,8 @@ const SettingsScreen = () => {
     setShowDetailModal(true);
   };
 
+  const pieContainerImage = () => <Image source={CartIcon} style={IconSize20} />;
+
   return (
     <View style={styles.root}>
       <StatusBar backgroundColor={Colors.primary} barStyle="light-content" />
@@ -148,20 +150,10 @@ const SettingsScreen = () => {
           {tabs.map((tab, index) => (
             <TouchableOpacity
               key={index}
-              style={[
-                styles.tab,
-                styles.rowCentered,
-                activeTab === index && styles.activeTab,
-              ]}
+              style={[styles.tab, styles.rowCentered, activeTab === index && styles.activeTab]}
               onPress={() => setActiveTab(index)}
             >
-              <Image
-                source={tab.icon}
-                style={[
-                  IconSize12,
-                  styles.tabIconStyle,
-                ]}
-              />
+              <Image source={tab.icon} style={[IconSize12, styles.tabIconStyle]} />
               <Text style={[styles.tabText, Caption, activeTab === index && styles.activeTabText]}>
                 {tab.label}
               </Text>
@@ -200,7 +192,9 @@ const SettingsScreen = () => {
                 <Text style={[styles.statLabel, Body2]}>Total Revenue</Text>
                 <View style={styles.percentContainer}>
                   <Image source={CurveIcon} style={styles.trendIcon} resizeMode="contain" />
-                  <Text style={[styles.statPercent, Caption, styles.greenPercentText]}>55.23 %</Text>
+                  <Text style={[styles.statPercent, Caption, styles.greenPercentText]}>
+                    55.23 %
+                  </Text>
                 </View>
               </View>
             </View>
@@ -216,7 +210,9 @@ const SettingsScreen = () => {
                 <Text style={[styles.statLabel, Body2]}>Total Sales</Text>
                 <View style={styles.percentContainer}>
                   <Image source={CurveIcon} style={styles.trendIcon} resizeMode="contain" />
-                  <Text style={[styles.statPercent, Caption, styles.greenPercentText]}>50.23 %</Text>
+                  <Text style={[styles.statPercent, Caption, styles.greenPercentText]}>
+                    50.23 %
+                  </Text>
                 </View>
               </View>
             </View>
@@ -294,7 +290,7 @@ const SettingsScreen = () => {
                   radius={MS(60)}
                   innerRadius={MS(35)}
                   innerCircleColor={Colors.white}
-                  centerLabelComponent={() => <Image source={CartIcon} style={IconSize20} />}
+                  centerLabelComponent={pieContainerImage}
                 />
               </View>
 

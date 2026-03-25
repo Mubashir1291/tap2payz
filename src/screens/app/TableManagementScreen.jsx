@@ -48,7 +48,7 @@ const TableManagementScreen = () => {
     // Logic to actually delete would go here (e.g., API call or state update)
   };
 
-  const confirmEdit = newSeats => {
+  const confirmEdit = () => {
     setShowEditModal(false);
     setSuccessMessage('Table Updated Successfully');
     setShowSuccessModal(true);
@@ -117,15 +117,9 @@ const TableManagementScreen = () => {
           {/* Table Header */}
           <View style={styles.tableHeader}>
             <Text style={[styles.headerCell, Subtitle2, styles.flexLarge]}>Table Area</Text>
-            <Text style={[styles.headerCell, Subtitle2, styles.flexCenterText]}>
-              Table no
-            </Text>
-            <Text style={[styles.headerCell, Subtitle2, styles.flexCenterText]}>
-              Table Seats
-            </Text>
-            <Text style={[styles.headerCell, Subtitle2, styles.flexCenterText]}>
-              Actions
-            </Text>
+            <Text style={[styles.headerCell, Subtitle2, styles.flexCenterText]}>Table no</Text>
+            <Text style={[styles.headerCell, Subtitle2, styles.flexCenterText]}>Table Seats</Text>
+            <Text style={[styles.headerCell, Subtitle2, styles.flexCenterText]}>Actions</Text>
           </View>
 
           <FlatList

@@ -56,7 +56,6 @@ const OpenRegisterScreen = ({ navigation }) => {
   const { deviceId } = useSelector(state => state.device);
   const { userData, store_id } = useSelector(state => state.user);
 
-  const [showCashIn, setShowCashIn] = useState(true);
   const [isCurrencyModalVisible, setIsCurrencyModalVisible] = useState(false);
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [amount, setAmount] = useState('0.00');
@@ -192,43 +191,39 @@ const OpenRegisterScreen = ({ navigation }) => {
 
       {/* ── Right Panel ── */}
       <View style={styles.rightPanel}>
-        {showCashIn && (
-          <View style={styles.cashInCard}>
-            <TouchableOpacity style={styles.closeBtn} onPress={() => navigation.goBack()}>
-              <Text style={[styles.closeBtnText, H4]}>✕</Text>
-            </TouchableOpacity>
+        <View style={styles.cashInCard}>
+          <TouchableOpacity style={styles.closeBtn} onPress={() => navigation.goBack()}>
+            <Text style={[styles.closeBtnText, H4]}>✕</Text>
+          </TouchableOpacity>
 
-            <View style={styles.cashInHeader}>
-              <Text style={[styles.cashInLabel, Subtitle1]}>Cash In</Text>
-              <Text style={[styles.cashInAmount, H2]}>CAD {amount}</Text>
-            </View>
-
-            <View style={styles.numpad}>
-              {numpadKeys.map((row, rowIndex) => (
-                <View key={rowIndex} style={styles.numpadRow}>
-                  {row.map(key => (
-                    <TouchableOpacity
-                      key={key}
-                      style={styles.numpadKey}
-                      onPress={() => handleKeyPress(key)}
-                    >
-                      <Text
-                        style={[key === 'C' ? styles.numpadClearText : styles.numpadKeyText, H3]}
-                      >
-                        {key}
-                      </Text>
-                    </TouchableOpacity>
-                  ))}
-                </View>
-              ))}
-            </View>
-
-            <TouchableOpacity style={styles.openRegisterBtn} onPress={handleOpenRegister}>
-              <Text style={[styles.openRegisterBtnText, ButtonText]}>Open Register {'  →'}</Text>
-            </TouchableOpacity>
-            {showError && <Text style={[styles.errorText, Caption]}>Please enter the amount</Text>}
+          <View style={styles.cashInHeader}>
+            <Text style={[styles.cashInLabel, Subtitle1]}>Cash In</Text>
+            <Text style={[styles.cashInAmount, H2]}>CAD {amount}</Text>
           </View>
-        )}
+
+          <View style={styles.numpad}>
+            {numpadKeys.map((row, rowIndex) => (
+              <View key={rowIndex} style={styles.numpadRow}>
+                {row.map(key => (
+                  <TouchableOpacity
+                    key={key}
+                    style={styles.numpadKey}
+                    onPress={() => handleKeyPress(key)}
+                  >
+                    <Text style={[key === 'C' ? styles.numpadClearText : styles.numpadKeyText, H3]}>
+                      {key}
+                    </Text>
+                  </TouchableOpacity>
+                ))}
+              </View>
+            ))}
+          </View>
+
+          <TouchableOpacity style={styles.openRegisterBtn} onPress={handleOpenRegister}>
+            <Text style={[styles.openRegisterBtnText, ButtonText]}>Open Register {'  →'}</Text>
+          </TouchableOpacity>
+          {showError && <Text style={[styles.errorText, Caption]}>Please enter the amount</Text>}
+        </View>
       </View>
 
       {/* ── Set Currency Modal ── */}

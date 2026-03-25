@@ -475,6 +475,9 @@ color: Colors.grey,
     justifyContent: 'center',
     alignItems: 'center',
   },
+  qtyMinusButtonActive: {
+    backgroundColor: '#3E468A',
+  },
   qtyPlusButton: {
     width: S(24),
     height: S(24),

@@ -11,8 +11,6 @@ import {
   ScrollView,
 } from 'react-native';
 import { useNavigation, useRoute } from '@react-navigation/native';
-import { Colors } from '../../utils/Colors';
-import { S, VS, MS } from '../../utils/Responsive';
 import { Subtitle2, Body3, H4, Subtitle1, Overline } from '../../utils/fonts';
 import { IconSize12, IconSize16, IconSize20, IconSize40 } from '../../utils/IconSizes';
 import {
@@ -337,16 +335,26 @@ const TableSelectionScreen = () => {
         }}
       >
         {/* Top Chair */}
-        <View style={[styles.chairTop, [styles.chairTopPositioning, { backgroundColor: chairColor }]]} />
+        <View
+          style={[styles.chairTop, [styles.chairTopPositioning, { backgroundColor: chairColor }]]}
+        />
         {/* Bottom Chair */}
         <View
-          style={[styles.chairBottom, [styles.chairBottomPositioning, { backgroundColor: chairColor }]]}
+          style={[
+            styles.chairBottom,
+            [styles.chairBottomPositioning, { backgroundColor: chairColor }],
+          ]}
         />
         {/* Left Chair */}
-        <View style={[styles.chairLeft, [styles.chairLeftPositioning, { backgroundColor: chairColor }]]} />
+        <View
+          style={[styles.chairLeft, [styles.chairLeftPositioning, { backgroundColor: chairColor }]]}
+        />
         {/* Right Chair */}
         <View
-          style={[styles.chairRight, [styles.chairRightPositioning, { backgroundColor: chairColor }]]}
+          style={[
+            styles.chairRight,
+            [styles.chairRightPositioning, { backgroundColor: chairColor }],
+          ]}
         />
 
         {/* Table Core (the square part) */}
@@ -556,20 +564,12 @@ const TableSelectionScreen = () => {
               data={cart}
               keyExtractor={item => item.id}
               renderItem={({ item }) => (
-                <View
-                  style={styles.cartItemCard}
-                >
+                <View style={styles.cartItemCard}>
                   <View style={styles.flexFull}>
                     <Text style={[Subtitle2, styles.blackTextColor]}>{item.name}</Text>
                     <Text style={[Body3, styles.blackTextColor]}>$ {item.price.toFixed(2)}</Text>
                     {item.note ? (
-                      <Text
-                        style={[
-                          Body3,
-                          styles.greyItalicNote,
-                        ]}
-                        numberOfLines={1}
-                      >
+                      <Text style={[Body3, styles.greyItalicNote]} numberOfLines={1}>
                         Note: {item.note}
                       </Text>
                     ) : null}
@@ -588,19 +588,10 @@ const TableSelectionScreen = () => {
                     </TouchableOpacity>
                     <View style={styles.rowCentered}>
                       <TouchableOpacity
-                        style={{
-                          width: S(24),
-                          height: S(24),
-                          borderRadius: MS(12),
-                          backgroundColor: item.qty > 1 ? '#3E468A' : Colors.grey,
-                          justifyContent: 'center',
-                          alignItems: 'center',
-                        }}
+                        style={[styles.qtyMinusButton, item.qty > 1 && styles.qtyMinusButtonActive]}
                         onPress={() => updateQty(item.id, -1)}
                       >
-                        <View
-                          style={styles.minusButtonBar}
-                        />
+                        <View style={styles.minusButtonBar} />
                       </TouchableOpacity>
                       <Text style={[Subtitle2, styles.qtyTextStyle]}>
                         {item.qty.toString().padStart(2, '0')}
@@ -617,10 +608,7 @@ const TableSelectionScreen = () => {
                     style={styles.leftMarginSmall}
                     onPress={() => removeItem(item.id)}
                   >
-                    <Image
-                      source={DeleteIcon}
-                      style={styles.deleteButtonIcon}
-                    />
+                    <Image source={DeleteIcon} style={styles.deleteButtonIcon} />
                   </TouchableOpacity>
                 </View>
               )}
@@ -631,70 +619,35 @@ const TableSelectionScreen = () => {
         {/* Actions Rows */}
         <View style={styles.actionRow}>
           <TouchableOpacity style={styles.actionBtn} onPress={() => setShowDiscountModal(true)}>
-            <View style={{ position: 'relative' }}>
+            <View style={styles.relativePosition}>
               <Image source={DiscountIcon} style={[IconSize16, styles.actionIcon]} />
               {discountCode.length > 0 && (
-                <Image
-                  source={TickIcon}
-                  style={{
-                    position: 'absolute',
-                    top: -VS(4),
-                    right: -S(15),
-                    width: S(8),
-                    height: VS(8),
-                    resizeMode: 'contain',
-                  }}
-                />
+                <Image source={TickIcon} style={styles.tickIconSmallOverlay} />
               )}
             </View>
             <Text style={Overline}>Discount</Text>
           </TouchableOpacity>
           <TouchableOpacity style={styles.actionBtn} onPress={handleOpenTipModal}>
-            <View style={{ position: 'relative' }}>
+            <View style={styles.relativePosition}>
               <Image source={DollarIcon} style={[IconSize16, styles.actionIcon]} />
               {tipAmount !== null && (
-                <Image
-                  source={TickIcon}
-                  style={styles.tickIconSmallOverlay}
-                />
+                <Image source={TickIcon} style={styles.tickIconSmallOverlay} />
               )}
             </View>
             <Text style={Overline}>Add TIP</Text>
           </TouchableOpacity>
           <TouchableOpacity style={styles.actionBtn} onPress={() => setShowQuickSaleModal(true)}>
-            <View style={{ position: 'relative' }}>
+            <View style={styles.relativePosition}>
               <Image source={RefreshICon} style={[IconSize16, styles.actionIcon]} />
-              {hasQuickSale && (
-                <Image
-                  source={TickIcon}
-                  style={{
-                    position: 'absolute',
-                    top: -VS(4),
-                    right: -S(15),
-                    width: S(8),
-                    height: VS(8),
-                    resizeMode: 'contain',
-                  }}
-                />
-              )}
+              {hasQuickSale && <Image source={TickIcon} style={styles.tickIconSmallOverlay} />}
             </View>
             <Text style={Overline}>Quick Sale</Text>
           </TouchableOpacity>
           <TouchableOpacity style={styles.actionBtn} onPress={handleOpenBuyerModal}>
-            <View style={{ position: 'relative' }}>
+            <View style={styles.relativePosition}>
               <Image source={BuyersIcon} style={[IconSize16, styles.actionIcon]} />
               {buyerInfo !== null && (
-                <Image
-                  source={TickIcon}
-                  style={{
-                    position: 'absolute',
-                    top: -VS(4),
-                    right: -S(15),
-                    width: S(8),
-                    height: VS(8),
-                    resizeMode: 'contain',
-                  }}
-                />
+                <Image source={TickIcon} style={styles.tickIconSmallOverlay} />
               )}
             </View>
             <Text style={Overline}>Buyer Details</Text>
@@ -704,15 +657,15 @@ const TableSelectionScreen = () => {
         {/* Total Section */}
         <View style={styles.totalSection}>
           {discountAmount > 0 && (
-            <View style={[styles.totalRow, { marginBottom: VS(8) }]}>
-              <Text style={[Subtitle2, { color: Colors.grey }]}>Discount:</Text>
-              <Text style={[Subtitle2, { color: '#E74C3C' }]}>- $ {discountAmount.toFixed(2)}</Text>
+            <View style={[styles.totalRow, styles.bottomMarginSmall]}>
+              <Text style={[Subtitle2, styles.greyTextColor]}>Discount:</Text>
+              <Text style={[Subtitle2, styles.redTextColor]}>- $ {discountAmount.toFixed(2)}</Text>
             </View>
           )}
           {tipAmount !== null && parseFloat(tipAmount) > 0 && (
-            <View style={[styles.totalRow, { marginBottom: VS(8) }]}>
-              <Text style={[Subtitle2, { color: Colors.grey }]}>Tip:</Text>
-              <Text style={[Subtitle2, { color: '#4CAF50' }]}>
+            <View style={[styles.totalRow, styles.bottomMarginSmall]}>
+              <Text style={[Subtitle2, styles.greyTextColor]}>Tip:</Text>
+              <Text style={[Subtitle2, styles.greenTextColor]}>
                 + $ {parseFloat(tipAmount).toFixed(2)}
               </Text>
             </View>
@@ -724,14 +677,14 @@ const TableSelectionScreen = () => {
 
           <View style={styles.bottomButtonGroup}>
             <TouchableOpacity
-              style={[styles.processBtn, cart.length === 0 && { opacity: 0.5 }]}
+              style={[styles.processBtn, cart.length === 0 && styles.halfOpacity]}
               onPress={() => cart.length > 0 && setShowProcessModal(true)}
               disabled={cart.length === 0}
             >
               <Text style={styles.btnText}>Process Order</Text>
             </TouchableOpacity>
             <TouchableOpacity
-              style={[styles.cancelBtn, cart.length === 0 && { opacity: 0.5 }]}
+              style={[styles.cancelBtn, cart.length === 0 && styles.halfOpacity]}
               onPress={() => cart.length > 0 && setShowCancelModal(true)}
               disabled={cart.length === 0}
             >
@@ -740,7 +693,7 @@ const TableSelectionScreen = () => {
           </View>
 
           <TouchableOpacity
-            style={[styles.checkoutBtn, cart.length > 0 && { backgroundColor: '#3E468A' }]}
+            style={[styles.checkoutBtn, cart.length > 0 && styles.darkBlueBg]}
             onPress={() => {
               if (cart.length > 0) {
                 if (activeTab === 'Take Away') {
@@ -751,7 +704,7 @@ const TableSelectionScreen = () => {
               }
             }}
           >
-            <Text style={[styles.checkoutBtnText, cart.length > 0 && { color: Colors.white }]}>
+            <Text style={[styles.checkoutBtnText, cart.length > 0 && styles.whiteTextColor]}>
               Proceed to Checkout
             </Text>
           </TouchableOpacity>

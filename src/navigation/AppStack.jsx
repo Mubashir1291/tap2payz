@@ -17,10 +17,12 @@ const Stack = createNativeStackNavigator();
 
 const Drawer = createDrawerNavigator();
 
+const renderDrawerContent = props => <CustomDrawerContent {...props} />;
+
 const AppStack = () => {
   return (
     <Drawer.Navigator
-      drawerContent={props => <CustomDrawerContent {...props} />}
+      drawerContent={renderDrawerContent}
       screenOptions={{
         headerShown: false,
         drawerType: 'front',

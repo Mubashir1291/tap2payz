@@ -293,7 +293,7 @@ const SaleScreen = () => {
     }
   };
 
-  const handleCashProceed = amountPaid => {
+  const handleCashProceed = () => {
     setShowCashPayModal(false);
     setShowInvoiceModal(true);
   };
