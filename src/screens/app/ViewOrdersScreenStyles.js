@@ -47,6 +47,9 @@ const styles = StyleSheet.create({
     width: S(200),
     marginRight: S(16),
   },
+  searchIconTint: {
+    tintColor: '#666',
+  },
   searchInput: {
     flex: 1,
     color: '#333',

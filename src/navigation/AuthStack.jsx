@@ -1,7 +1,6 @@
 import React from 'react';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import LoginScreen from '../screens/auth/LoginScreen';
-import OpenRegisterScreen from '../screens/auth/OpenRegisterScreen';
 
 const Stack = createNativeStackNavigator();
 
@@ -12,9 +11,5 @@ const AuthStack = () => {
     </Stack.Navigator>
   );
 };
-
-
-
-
 
 export default AuthStack;

@@ -1,19 +1,9 @@
 import React, { useState } from 'react';
-import {
-  View,
-  Text,
-  TouchableOpacity,
-  Image,
-  TextInput,
-  FlatList,
-  StatusBar,
-} from 'react-native';
+import { View, Text, TouchableOpacity, Image, TextInput, FlatList, StatusBar } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { SearchIcon, LeftArrowIcon } from '../../assets/Images';
-import { Colors } from '../../utils/Colors';
-import { S, VS, MS } from '../../utils/Responsive';
-import { H1, Subtitle2, Body3, Caption } from '../../utils/fonts';
-import { IconSize12, IconSize16, IconSize24 } from '../../utils/IconSizes';
+import { H1, Subtitle2, Body3 } from '../../utils/fonts';
+import { IconSize12, IconSize24 } from '../../utils/IconSizes';
 import styles from './ViewOrdersScreenStyles';
 import ViewInvoiceModal from '../../components/ViewInvoiceModal';
 
@@ -35,7 +25,7 @@ const ViewOrdersScreen = () => {
   const [modalVisible, setModalVisible] = useState(false);
   const [selectedOrder, setSelectedOrder] = useState(null);
 
-  const handleOpenInvoice = (orderNumber) => {
+  const handleOpenInvoice = orderNumber => {
     setSelectedOrder(orderNumber);
     setModalVisible(true);
   };
@@ -64,10 +54,7 @@ const ViewOrdersScreen = () => {
         <Text style={[styles.rowText, Body3]}>{item.subTotal}</Text>
       </View>
       <View style={styles.colActions}>
-        <TouchableOpacity 
-          style={styles.viewInvoiceBtn}
-          onPress={() => handleOpenInvoice(item.id)}
-        >
+        <TouchableOpacity style={styles.viewInvoiceBtn} onPress={() => handleOpenInvoice(item.id)}>
           <Text style={styles.viewInvoiceText}>View Invoice</Text>
         </TouchableOpacity>
       </View>
@@ -81,10 +68,7 @@ const ViewOrdersScreen = () => {
       {/* ─── Header ─── */}
       <View style={styles.headerRow}>
         <View style={styles.headerLeft}>
-          <TouchableOpacity
-            style={styles.backButton}
-            onPress={() => navigation.goBack()}
-          >
+          <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()}>
             <Image source={LeftArrowIcon} style={[IconSize24, styles.backIcon]} />
           </TouchableOpacity>
           <Text style={[styles.headerTitle, H1]}>View Orders</Text>
@@ -92,7 +76,7 @@ const ViewOrdersScreen = () => {
 
         <View style={styles.headerActions}>
           <View style={styles.searchBar}>
-            <Image source={SearchIcon} style={[IconSize12, { tintColor: '#666' }]} />
+            <Image source={SearchIcon} style={[IconSize12, styles.searchIconTint]} />
             <TextInput
               style={[styles.searchInput, Body3]}
               placeholder="Search Orders"
@@ -103,20 +87,14 @@ const ViewOrdersScreen = () => {
           </View>
 
           <View style={styles.tabsContainer}>
-            {['All', 'Completed', 'In Processing'].map((tab) => (
+            {['All', 'Completed', 'In Processing'].map(tab => (
               <TouchableOpacity
                 key={tab}
-                style={[
-                  styles.tabBtn,
-                  activeTab === tab && styles.activeTabBtn,
-                ]}
+                style={[styles.tabBtn, activeTab === tab && styles.activeTabBtn]}
                 onPress={() => setActiveTab(tab)}
               >
                 <Text
-                  style={[
-                    Subtitle2,
-                    activeTab === tab ? styles.activeTabText : styles.tabText,
-                  ]}
+                  style={[Subtitle2, activeTab === tab ? styles.activeTabText : styles.tabText]}
                 >
                   {tab}
                 </Text>
@@ -159,7 +137,7 @@ const ViewOrdersScreen = () => {
         {/* Table List */}
         <FlatList
           data={dummyOrders}
-          keyExtractor={(item) => item.id}
+          keyExtractor={item => item.id}
           renderItem={renderOrderRow}
           showsVerticalScrollIndicator={false}
           ListFooterComponent={
@@ -170,7 +148,10 @@ const ViewOrdersScreen = () => {
               <Text style={[styles.pageText, Body3]}>01</Text>
               <TouchableOpacity style={styles.pageBtn}>
                 {/* Reusing LeftArrowIcon and rotating it by 180 deg in style if needed, or simply using text. Wait, we have RightArrowIcon exported. We can import it. */}
-                <Image source={LeftArrowIcon} style={[IconSize12, styles.pageIcon, { transform: [{ rotate: '180deg' }] }]} />
+                <Image
+                  source={LeftArrowIcon}
+                  style={[IconSize12, styles.pageIcon, { transform: [{ rotate: '180deg' }] }]}
+                />
               </TouchableOpacity>
               <Text style={[styles.pageText, Body3]}>out of 20</Text>
             </View>
@@ -178,9 +159,9 @@ const ViewOrdersScreen = () => {
         />
       </View>
 
-      <ViewInvoiceModal 
-        visible={modalVisible} 
-        onClose={() => setModalVisible(false)} 
+      <ViewInvoiceModal
+        visible={modalVisible}
+        onClose={() => setModalVisible(false)}
         orderNumber={selectedOrder}
       />
     </View>

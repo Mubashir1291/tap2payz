@@ -1,110 +1,91 @@
 import React from 'react';
-import {
-  View,
-  Text,
-  Modal,
-  TouchableOpacity,
-  StyleSheet,
-  TextInput,
-  Image,
-} from 'react-native';
-import {Colors} from '../utils/Colors';
-import {S, VS, MS} from '../utils/Responsive';
-import {H4, Body2, Subtitle1, Subtitle2, Caption} from '../utils/fonts';
+import { View, Text, Modal, TouchableOpacity, StyleSheet, TextInput } from 'react-native';
+import { Colors } from '../utils/Colors';
+import { S, VS, MS } from '../utils/Responsive';
+import { H4, Body2, Subtitle1, Subtitle2 } from '../utils/fonts';
 import DatePicker from 'react-native-date-picker';
 
 // Fallback to text if no icons to perfectly match the design
 
-const DurationModal = ({
-  visible = false,
-  onClose,
-  onProceed,
-}) => {
-  const [fromDate, setFromDate] = React.useState(new Date("2023-12-01"));
-  const [toDate, setToDate] = React.useState(new Date("2023-12-31"));
+const DurationModal = ({ visible = false, onClose, onProceed }) => {
+  const [fromDate, setFromDate] = React.useState(new Date('2023-12-01'));
+  const [toDate, setToDate] = React.useState(new Date('2023-12-31'));
   const [activeDateField, setActiveDateField] = React.useState(null); // 'from' | 'to' | null
 
-  const formatDate = (date) => {
+  const formatDate = date => {
     const options = { day: 'numeric', month: 'short', year: 'numeric' };
     return date.toLocaleDateString('en-GB', options); // e.g. "1 Dec 2023"
   };
 
   return (
-    <Modal
-      animationType="fade"
-      transparent={true}
-      visible={visible}
-      onRequestClose={onClose}>
+    <Modal animationType="fade" transparent={true} visible={visible} onRequestClose={onClose}>
       <View style={styles.overlay}>
         <View style={styles.modalContent}>
           {/* Close Button */}
           <TouchableOpacity style={styles.closeBtn} onPress={onClose}>
-             <Text style={[styles.closeBtnText, Subtitle2]}>✕</Text>
+            <Text style={[styles.closeBtnText, Subtitle2]}>✕</Text>
           </TouchableOpacity>
-          
+
           <Text style={[styles.title, H4]}>Choose the time duration.</Text>
 
           <View style={styles.row}>
-             {/* From Section */}
-             <View style={styles.col}>
-                <Text style={[styles.sectionTitle, Subtitle1]}>From</Text>
-                
-                <Text style={[styles.inputLabel, Body2]}>Date</Text>
-                <TouchableOpacity style={styles.inputContainer} onPress={() => setActiveDateField('from')}>
-                   <TextInput
-                     style={[styles.input, Body2]}
-                     value={formatDate(fromDate)}
-                     editable={false}
-                     pointerEvents="none"
-                   />
-                   <Text style={styles.iconPlaceholder}>📅</Text> 
-                </TouchableOpacity>
+            {/* From Section */}
+            <View style={styles.col}>
+              <Text style={[styles.sectionTitle, Subtitle1]}>From</Text>
 
-                <Text style={[styles.inputLabel, Body2]}>Time</Text>
-                <View style={styles.inputContainer}>
-                   <TextInput
-                     style={[styles.input, Body2]}
-                     value="9:00 am"
-                     editable={false}
-                   />
-                   <Text style={styles.iconPlaceholder}>🕒</Text>
-                </View>
-             </View>
+              <Text style={[styles.inputLabel, Body2]}>Date</Text>
+              <TouchableOpacity
+                style={styles.inputContainer}
+                onPress={() => setActiveDateField('from')}
+              >
+                <TextInput
+                  style={[styles.input, Body2]}
+                  value={formatDate(fromDate)}
+                  editable={false}
+                  pointerEvents="none"
+                />
+                <Text style={styles.iconPlaceholder}>📅</Text>
+              </TouchableOpacity>
 
-             {/* To Section */}
-             <View style={styles.col}>
-                <Text style={[styles.sectionTitle, Subtitle1]}>To</Text>
-                
-                <Text style={[styles.inputLabel, Body2]}>Date</Text>
-                <TouchableOpacity style={styles.inputContainer} onPress={() => setActiveDateField('to')}>
-                   <TextInput
-                     style={[styles.input, Body2]}
-                     value={formatDate(toDate)}
-                     editable={false}
-                     pointerEvents="none"
-                   />
-                   <Text style={styles.iconPlaceholder}>📅</Text>
-                </TouchableOpacity>
+              <Text style={[styles.inputLabel, Body2]}>Time</Text>
+              <View style={styles.inputContainer}>
+                <TextInput style={[styles.input, Body2]} value="9:00 am" editable={false} />
+                <Text style={styles.iconPlaceholder}>🕒</Text>
+              </View>
+            </View>
 
-                <Text style={[styles.inputLabel, Body2]}>Time</Text>
-                <View style={styles.inputContainer}>
-                   <TextInput
-                     style={[styles.input, Body2]}
-                     value="9:00 am"
-                     editable={false}
-                   />
-                   <Text style={styles.iconPlaceholder}>🕒</Text>
-                </View>
-             </View>
+            {/* To Section */}
+            <View style={styles.col}>
+              <Text style={[styles.sectionTitle, Subtitle1]}>To</Text>
+
+              <Text style={[styles.inputLabel, Body2]}>Date</Text>
+              <TouchableOpacity
+                style={styles.inputContainer}
+                onPress={() => setActiveDateField('to')}
+              >
+                <TextInput
+                  style={[styles.input, Body2]}
+                  value={formatDate(toDate)}
+                  editable={false}
+                  pointerEvents="none"
+                />
+                <Text style={styles.iconPlaceholder}>📅</Text>
+              </TouchableOpacity>
+
+              <Text style={[styles.inputLabel, Body2]}>Time</Text>
+              <View style={styles.inputContainer}>
+                <TextInput style={[styles.input, Body2]} value="9:00 am" editable={false} />
+                <Text style={styles.iconPlaceholder}>🕒</Text>
+              </View>
+            </View>
           </View>
 
           <View style={styles.bottomRow}>
             <TouchableOpacity style={styles.proceedBtn} onPress={onProceed}>
-               <Text style={[styles.proceedBtnText, Subtitle2]}>Proceed</Text>
-               <Text style={styles.arrowIcon}>↘</Text>
+              <Text style={[styles.proceedBtnText, Subtitle2]}>Proceed</Text>
+              <Text style={styles.arrowIcon}>↘</Text>
             </TouchableOpacity>
           </View>
-          
         </View>
       </View>
 
@@ -113,10 +94,12 @@ const DurationModal = ({
         modal
         mode="date"
         open={!!activeDateField}
-        date={activeDateField === 'from' ? fromDate : activeDateField === 'to' ? toDate : new Date()}
+        date={
+          activeDateField === 'from' ? fromDate : activeDateField === 'to' ? toDate : new Date()
+        }
         buttonColor="#3B4B8A"
         dividerColor="#3B4B8A"
-        onConfirm={(date) => {
+        onConfirm={date => {
           if (activeDateField === 'from') {
             setFromDate(date);
           } else if (activeDateField === 'to') {
@@ -128,7 +111,6 @@ const DurationModal = ({
           setActiveDateField(null);
         }}
       />
-
     </Modal>
   );
 };

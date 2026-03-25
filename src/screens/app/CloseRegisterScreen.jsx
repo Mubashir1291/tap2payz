@@ -1,21 +1,15 @@
-import React, {useState} from 'react';
-import {
-  View,
-  Text,
-  TouchableOpacity,
-  StatusBar,
-  StyleSheet,
-} from 'react-native';
-import {useNavigation} from '@react-navigation/native';
-import {Colors} from '../../utils/Colors';
-import {S, VS, MS} from '../../utils/Responsive';
-import {H3, H4, Body2, Subtitle1, Subtitle2, ButtonText} from '../../utils/fonts';
+import React, { useState } from 'react';
+import { View, Text, TouchableOpacity, StatusBar, StyleSheet } from 'react-native';
+import { useNavigation } from '@react-navigation/native';
+import { Colors } from '../../utils/Colors';
+import { S, VS, MS } from '../../utils/Responsive';
+import { H3, H4, Body2, Subtitle1, Subtitle2, ButtonText } from '../../utils/fonts';
 
 const summaryData = [
-  {label: 'Opening Amount', value: '12,500'},
-  {label: 'Sales', value: '6,250'},
-  {label: 'Online Sales', value: '6,250'},
-  {label: 'Return', value: '0,00'},
+  { label: 'Opening Amount', value: '12,500' },
+  { label: 'Sales', value: '6,250' },
+  { label: 'Online Sales', value: '6,250' },
+  { label: 'Return', value: '0,00' },
 ];
 
 const CloseRegisterScreen = () => {
@@ -31,7 +25,9 @@ const CloseRegisterScreen = () => {
   };
 
   const formattedAmount = () => {
-    if (!cashOutAmount) return '0';
+    if (!cashOutAmount) {
+      return '0';
+    }
     return Number(cashOutAmount).toLocaleString();
   };
 
@@ -67,9 +63,7 @@ const CloseRegisterScreen = () => {
 
         {/* Closing Amount */}
         <View style={styles.closingRow}>
-          <Text style={[styles.closingLabel, Subtitle2]}>
-            Closing amount with cash register
-          </Text>
+          <Text style={[styles.closingLabel, Subtitle2]}>Closing amount with cash register</Text>
           <Text style={[styles.closingValue, Subtitle1]}>12,500</Text>
         </View>
       </View>
@@ -80,39 +74,30 @@ const CloseRegisterScreen = () => {
           {/* Cash Out Header */}
           <View style={styles.cashOutHeader}>
             <Text style={[styles.cashOutLabel, Subtitle1]}>Cash Out</Text>
-            <Text style={[styles.cashOutAmount, H3]}>
-              CAD {formattedAmount()}
-            </Text>
+            <Text style={[styles.cashOutAmount, H3]}>CAD {formattedAmount()}</Text>
           </View>
 
           {/* Number Pad */}
           <View style={styles.numpadGrid}>
-            {['1', '2', '3', '4', '5', '6', '7', '8', '9', '0', '00'].map(
-              num => (
-                <TouchableOpacity
-                  key={num}
-                  style={styles.numpadBtn}
-                  onPress={() => handleNumPress(num)}>
-                  <Text style={[styles.numpadText, Subtitle1]}>{num}</Text>
-                </TouchableOpacity>
-              ),
-            )}
+            {['1', '2', '3', '4', '5', '6', '7', '8', '9', '0', '00'].map(num => (
+              <TouchableOpacity
+                key={num}
+                style={styles.numpadBtn}
+                onPress={() => handleNumPress(num)}
+              >
+                <Text style={[styles.numpadText, Subtitle1]}>{num}</Text>
+              </TouchableOpacity>
+            ))}
             {/* Backspace */}
-            <TouchableOpacity
-              style={styles.numpadBtn}
-              onPress={handleBackspace}>
+            <TouchableOpacity style={styles.numpadBtn} onPress={handleBackspace}>
               <Text style={[styles.numpadText, Subtitle1]}>⌫</Text>
             </TouchableOpacity>
           </View>
         </View>
 
         {/* Close Register Button */}
-        <TouchableOpacity
-          style={styles.closeRegisterBtn}
-          onPress={handleCloseRegister}>
-          <Text style={[styles.closeRegisterText, ButtonText]}>
-            Close Register →
-          </Text>
+        <TouchableOpacity style={styles.closeRegisterBtn} onPress={handleCloseRegister}>
+          <Text style={[styles.closeRegisterText, ButtonText]}>Close Register →</Text>
         </TouchableOpacity>
       </View>
     </View>

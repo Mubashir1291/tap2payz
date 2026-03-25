@@ -2,7 +2,6 @@ import React from 'react';
 import { createDrawerNavigator } from '@react-navigation/drawer';
 import SaleScreen from '../screens/app/SaleScreen';
 import CloseRegisterScreen from '../screens/app/CloseRegisterScreen';
-import ReturnScreen from '../screens/app/ReturnScreen';
 import SettingsScreen from '../screens/app/SettingsScreen';
 import CustomDrawerContent from '../components/CustomDrawerContent';
 import OpenRegisterScreen from '../screens/auth/OpenRegisterScreen';
@@ -16,14 +15,12 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 
 const Stack = createNativeStackNavigator();
 
-
-
 const Drawer = createDrawerNavigator();
 
 const AppStack = () => {
   return (
     <Drawer.Navigator
-      drawerContent={(props) => <CustomDrawerContent {...props} />}
+      drawerContent={props => <CustomDrawerContent {...props} />}
       screenOptions={{
         headerShown: false,
         drawerType: 'front',
@@ -45,10 +42,8 @@ const AppStack = () => {
       <Drawer.Screen name="TableManagementScreen" component={TableManagementScreen} />
       <Drawer.Screen name="AddNewTableScreen" component={AddNewTableScreen} />
 
-
       <Drawer.Screen name="SettingsScreen" component={SettingsScreen} />
       <Drawer.Screen name="ConnectedDevicesScreen" component={ConnectedDevicesScreen} />
-
     </Drawer.Navigator>
   );
 };

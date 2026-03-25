@@ -310,6 +310,19 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     marginBottom: VS(12),
   },
+  tipRowMargin: {
+    marginBottom: VS(8),
+  },
+  tipLabelColor: {
+    color: Colors.grey,
+  },
+  tipAmountColor: {
+    color: '#4CAF50',
+  },
+  listFooterLoadingView: {
+    paddingVertical: VS(20),
+    alignItems: 'center',
+  },
   totalLabel: {
   },
   totalAmount: {

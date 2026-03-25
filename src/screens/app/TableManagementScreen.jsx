@@ -1,25 +1,10 @@
 import React, { useState } from 'react';
-import {
-  View,
-  Text,
-  TouchableOpacity,
-  FlatList,
-  TextInput,
-  Image,
-  StatusBar,
-} from 'react-native';
+import { View, Text, TouchableOpacity, FlatList, TextInput, Image, StatusBar } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { Colors } from '../../utils/Colors';
-import { S, VS, MS } from '../../utils/Responsive';
-import { H1, H2, Subtitle1, Subtitle2, Body2, Body3, Caption } from '../../utils/fonts';
+import { H2, Subtitle2, Body2, Body3 } from '../../utils/fonts';
 import { IconSize16, IconSize20 } from '../../utils/IconSizes';
-import {
-  MenuIcon,
-  SearchIcon,
-  EditCircleIcon,
-  DeleteCircleIcon,
-  ArrowDownIcon,
-} from '../../assets/Images';
+import { MenuIcon, SearchIcon, EditCircleIcon, DeleteCircleIcon } from '../../assets/Images';
 import styles from './TableManagementScreenStyles';
 import DeleteTableModal from '../../components/DeleteTableModal';
 import EditTableModal from '../../components/EditTableModal';
@@ -46,12 +31,12 @@ const TableManagementScreen = () => {
   const [selectedTable, setSelectedTable] = useState(null);
   const [successMessage, setSuccessMessage] = useState('');
 
-  const handleDeletePress = (table) => {
+  const handleDeletePress = table => {
     setSelectedTable(table);
     setShowDeleteModal(true);
   };
 
-  const handleEditPress = (table) => {
+  const handleEditPress = table => {
     setSelectedTable(table);
     setShowEditModal(true);
   };
@@ -63,7 +48,7 @@ const TableManagementScreen = () => {
     // Logic to actually delete would go here (e.g., API call or state update)
   };
 
-  const confirmEdit = (newSeats) => {
+  const confirmEdit = newSeats => {
     setShowEditModal(false);
     setSuccessMessage('Table Updated Successfully');
     setShowSuccessModal(true);
@@ -72,20 +57,14 @@ const TableManagementScreen = () => {
 
   const renderItem = ({ item }) => (
     <View style={styles.tableRow}>
-      <Text style={[styles.cell, Body2, { flex: 1.5 }]}>{item.area}</Text>
-      <Text style={[styles.cell, Body2, { flex: 1, textAlign: 'center' }]}>{item.tableNo}</Text>
-      <Text style={[styles.cell, Body2, { flex: 1, textAlign: 'center' }]}>{item.seats}</Text>
-      <View style={[styles.cell, styles.actionCell, { flex: 1 }]}>
-        <TouchableOpacity 
-          style={styles.actionBtn}
-          onPress={() => handleEditPress(item)}
-        >
+      <Text style={[styles.cell, Body2, styles.flexLarge]}>{item.area}</Text>
+      <Text style={[styles.cell, Body2, styles.flexCenterText]}>{item.tableNo}</Text>
+      <Text style={[styles.cell, Body2, styles.flexCenterText]}>{item.seats}</Text>
+      <View style={[styles.cell, styles.actionCell, styles.flexEqual]}>
+        <TouchableOpacity style={styles.actionBtn} onPress={() => handleEditPress(item)}>
           <Image source={EditCircleIcon} style={IconSize20} />
         </TouchableOpacity>
-        <TouchableOpacity 
-          style={styles.actionBtn}
-          onPress={() => handleDeletePress(item)}
-        >
+        <TouchableOpacity style={styles.actionBtn} onPress={() => handleDeletePress(item)}>
           <Image source={DeleteCircleIcon} style={IconSize20} />
         </TouchableOpacity>
       </View>
@@ -95,11 +74,11 @@ const TableManagementScreen = () => {
   return (
     <View style={styles.container}>
       <StatusBar backgroundColor={Colors.primary} barStyle="light-content" />
-      
+
       {/* Top Header */}
       <View style={styles.header}>
         <TouchableOpacity onPress={() => navigation.openDrawer()}>
-          <Image source={MenuIcon} style={[IconSize20, { tintColor: Colors.white }]} />
+          <Image source={MenuIcon} style={[IconSize20, styles.whiteIconTint]} />
         </TouchableOpacity>
       </View>
 
@@ -110,9 +89,9 @@ const TableManagementScreen = () => {
           <View style={styles.controls}>
             <TouchableOpacity style={styles.areaDropdown}>
               <Text style={[styles.areaText, Subtitle2]}>1st Floor</Text>
-              <Image source={MenuIcon} style={[IconSize16, { tintColor: Colors.white }]} />
+              <Image source={MenuIcon} style={[IconSize16, styles.whiteIconTint]} />
             </TouchableOpacity>
-            
+
             <View style={styles.searchContainer}>
               <Image source={SearchIcon} style={[IconSize16, styles.searchIcon]} />
               <TextInput
@@ -124,7 +103,7 @@ const TableManagementScreen = () => {
               />
             </View>
 
-            <TouchableOpacity 
+            <TouchableOpacity
               style={styles.createBtn}
               onPress={() => navigation.navigate('AddNewTableScreen')}
             >
@@ -137,16 +116,22 @@ const TableManagementScreen = () => {
         <View style={styles.tableContainer}>
           {/* Table Header */}
           <View style={styles.tableHeader}>
-            <Text style={[styles.headerCell, Subtitle2, { flex: 1.5 }]}>Table Area</Text>
-            <Text style={[styles.headerCell, Subtitle2, { flex: 1, textAlign: 'center' }]}>Table no</Text>
-            <Text style={[styles.headerCell, Subtitle2, { flex: 1, textAlign: 'center' }]}>Table Seats</Text>
-            <Text style={[styles.headerCell, Subtitle2, { flex: 1, textAlign: 'center' }]}>Actions</Text>
+            <Text style={[styles.headerCell, Subtitle2, styles.flexLarge]}>Table Area</Text>
+            <Text style={[styles.headerCell, Subtitle2, styles.flexCenterText]}>
+              Table no
+            </Text>
+            <Text style={[styles.headerCell, Subtitle2, styles.flexCenterText]}>
+              Table Seats
+            </Text>
+            <Text style={[styles.headerCell, Subtitle2, styles.flexCenterText]}>
+              Actions
+            </Text>
           </View>
 
           <FlatList
             data={dummyData}
             renderItem={renderItem}
-            keyExtractor={(item) => item.id}
+            keyExtractor={item => item.id}
             showsVerticalScrollIndicator={false}
             contentContainerStyle={styles.listContent}
           />
@@ -154,11 +139,11 @@ const TableManagementScreen = () => {
           {/* Pagination */}
           <View style={styles.pagination}>
             <TouchableOpacity style={styles.pageArrow}>
-               <Text style={styles.arrowText}>{'<'}</Text>
+              <Text style={styles.arrowText}>{'<'}</Text>
             </TouchableOpacity>
             <Text style={[styles.pageText, Body2]}>01</Text>
             <TouchableOpacity style={styles.pageArrow}>
-               <Text style={styles.arrowText}>{'>'}</Text>
+              <Text style={styles.arrowText}>{'>'}</Text>
             </TouchableOpacity>
             <Text style={[styles.outOfText, Body3]}>out of 20</Text>
           </View>

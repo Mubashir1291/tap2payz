@@ -140,4 +140,19 @@ export default StyleSheet.create({
     color: '#999',
     marginLeft: S(10),
   },
+
+  // INLINE STYLE REPLACEMENTS
+  flexLarge: {
+    flex: 1.5,
+  },
+  flexCenterText: {
+    flex: 1,
+    textAlign: 'center',
+  },
+  flexEqual: {
+    flex: 1,
+  },
+  whiteIconTint: {
+    tintColor: Colors.white,
+  },
 });

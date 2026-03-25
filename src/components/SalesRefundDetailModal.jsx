@@ -1,17 +1,9 @@
 import React from 'react';
-import {
-  View,
-  Text,
-  Modal,
-  TouchableOpacity,
-  Image,
-  ScrollView,
-  StyleSheet,
-} from 'react-native';
-import {Colors} from '../utils/Colors';
-import {S, VS, MS} from '../utils/Responsive';
-import {H4, Body2, Body3, Subtitle1, Subtitle2, Caption} from '../utils/fonts';
-import {ImageFrameIcon} from '../assets/Images';
+import { View, Text, Modal, TouchableOpacity, Image, ScrollView, StyleSheet } from 'react-native';
+import { Colors } from '../utils/Colors';
+import { S, VS, MS } from '../utils/Responsive';
+import { H4, Subtitle1, Subtitle2, Caption } from '../utils/fonts';
+import { ImageFrameIcon } from '../assets/Images';
 
 const SalesRefundDetailModal = ({
   visible = false,
@@ -19,16 +11,14 @@ const SalesRefundDetailModal = ({
   transaction = null,
   onClose,
 }) => {
-  if (!transaction) return null;
+  if (!transaction) {
+    return null;
+  }
 
   const title = type === 'refund' ? 'Refund Details' : 'Sales Details';
 
   return (
-    <Modal
-      animationType="fade"
-      transparent={true}
-      visible={visible}
-      onRequestClose={onClose}>
+    <Modal animationType="fade" transparent={true} visible={visible} onRequestClose={onClose}>
       <View style={styles.overlay}>
         <View style={styles.container}>
           {/* Close Button */}
@@ -42,77 +32,50 @@ const SalesRefundDetailModal = ({
 
             {/* Transaction Detail Card */}
             <View style={styles.detailCard}>
-              <Text style={[styles.detailTitle, Subtitle1]}>
-                Transaction Detail:
-              </Text>
+              <Text style={[styles.detailTitle, Subtitle1]}>Transaction Detail:</Text>
               <View style={styles.detailGrid}>
                 <View style={styles.detailCol}>
-                  <Text style={[styles.detailLabel, Caption]}>
-                    Serial Number:
-                  </Text>
-                  <Text style={[styles.detailValue, Subtitle2]}>
-                    {transaction.serialNumber}
-                  </Text>
+                  <Text style={[styles.detailLabel, Caption]}>Serial Number:</Text>
+                  <Text style={[styles.detailValue, Subtitle2]}>{transaction.serialNumber}</Text>
                 </View>
                 <View style={styles.detailCol}>
-                  <Text style={[styles.detailLabel, Caption]}>
-                    Transaction Number:
-                  </Text>
+                  <Text style={[styles.detailLabel, Caption]}>Transaction Number:</Text>
                   <Text style={[styles.detailValue, Subtitle2]}>
                     {transaction.transactionNumber}
                   </Text>
                 </View>
                 <View style={[styles.detailCol, styles.detailColBorder]}>
                   <Text style={[styles.detailLabel, Caption]}>Customer:</Text>
-                  <Text style={[styles.detailValue, Subtitle2]}>
-                    {transaction.customer}
-                  </Text>
+                  <Text style={[styles.detailValue, Subtitle2]}>{transaction.customer}</Text>
                 </View>
                 <View style={styles.detailCol}>
-                  <Text style={[styles.detailLabel, Caption]}>
-                    Total Items:
-                  </Text>
+                  <Text style={[styles.detailLabel, Caption]}>Total Items:</Text>
                   <Text style={[styles.detailValue, Subtitle2]}>
                     {transaction.totalItems} Items
                   </Text>
                 </View>
                 <View style={[styles.detailCol, styles.detailColBorder]}>
-                  <Text style={[styles.detailLabel, Caption]}>
-                    By Date & Time:
-                  </Text>
-                  <Text style={[styles.detailValue, Subtitle2]}>
-                    {transaction.dateTime}
-                  </Text>
+                  <Text style={[styles.detailLabel, Caption]}>By Date & Time:</Text>
+                  <Text style={[styles.detailValue, Subtitle2]}>{transaction.dateTime}</Text>
                 </View>
                 <View style={styles.detailCol}>
                   <Text style={[styles.detailLabel, Caption]}>
                     Total {type === 'refund' ? 'refund' : 'sales'}:
                   </Text>
-                  <Text style={[styles.detailValue, Subtitle2]}>
-                    ${transaction.totalSales}
-                  </Text>
+                  <Text style={[styles.detailValue, Subtitle2]}>${transaction.totalSales}</Text>
                 </View>
               </View>
             </View>
 
             {/* Purchased Items */}
-            <Text style={[styles.purchasedTitle, Subtitle1]}>
-              Purchased Items:
-            </Text>
+            <Text style={[styles.purchasedTitle, Subtitle1]}>Purchased Items:</Text>
             <View style={styles.itemsGrid}>
               {transaction.items.map((item, index) => (
                 <View key={index} style={styles.itemCard}>
-                  <Image
-                    source={ImageFrameIcon}
-                    style={styles.itemImage}
-                  />
+                  <Image source={ImageFrameIcon} style={styles.itemImage} />
                   <View style={styles.itemInfo}>
-                    <Text style={[styles.itemName, Subtitle2]}>
-                      {item.name}
-                    </Text>
-                    <Text style={[styles.itemSku, Caption]}>
-                      SKU: {item.sku}
-                    </Text>
+                    <Text style={[styles.itemName, Subtitle2]}>{item.name}</Text>
+                    <Text style={[styles.itemSku, Caption]}>SKU: {item.sku}</Text>
                     <Text style={[styles.itemQty, Caption]}>
                       Qty: {item.qty < 10 ? `0${item.qty}` : item.qty}
                     </Text>

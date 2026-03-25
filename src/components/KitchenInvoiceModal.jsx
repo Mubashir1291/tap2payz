@@ -1,21 +1,7 @@
 import React from 'react';
-import {
-  View,
-  Text,
-  Modal,
-  TouchableOpacity,
-  Image,
-  ScrollView,
-  StyleSheet,
-  Dimensions,
-} from 'react-native';
-// Assuming you have these util files. If not, replace them with standard RN styles.
-import {Colors} from '../utils/Colors';
-import {S, VS, MS} from '../utils/Responsive';
-import {H3, Body1, Body2, Subtitle2} from '../utils/fonts';
-import {PSPIcon} from '../assets/Images'; // Example logo icon
-
-const {width} = Dimensions.get('window');
+import { View, Text, Modal, TouchableOpacity, ScrollView, StyleSheet } from 'react-native';
+import { S, VS, MS } from '../utils/Responsive';
+import { H3, Body1, Body2 } from '../utils/fonts';
 
 const KitchenInvoiceModal = ({
   visible = true, // Set to true for demonstration
@@ -44,13 +30,8 @@ const KitchenInvoiceModal = ({
     },
   ],
 }) => {
-
   return (
-    <Modal
-      animationType="fade"
-      transparent={true}
-      visible={visible}
-      onRequestClose={onClose}>
+    <Modal animationType="fade" transparent={true} visible={visible} onRequestClose={onClose}>
       <View style={styles.overlay}>
         <View style={styles.container}>
           {/* Main White Card with rounded top corners */}
@@ -64,7 +45,7 @@ const KitchenInvoiceModal = ({
             <View style={styles.logoContainer}>
               <View style={styles.logoCircle}>
                 {/* Replace with your logo source */}
-                <Text style={{fontSize: MS(40), color: '#31333A'}}>FL</Text>
+                <Text style={styles.logoCircleText}>FL</Text>
                 {/* <Image source={PSPIcon} style={styles.logo} /> */}
               </View>
             </View>
@@ -97,21 +78,16 @@ const KitchenInvoiceModal = ({
                       <Text style={[styles.itemName, Body1]}>
                         {item.name} (x{item.qty})
                       </Text>
-                      <Text style={[styles.itemCategory, Body1]}>
-                        ({item.category})
-                      </Text>
+                      <Text style={[styles.itemCategory, Body1]}>({item.category})</Text>
                     </View>
                     <View style={styles.noteSection}>
-                      <Text style={[styles.noteText, Body2]}>
-                        Note: {item.note}
-                      </Text>
+                      <Text style={[styles.noteText, Body2]}>Note: {item.note}</Text>
                     </View>
                     {index < items.length - 1 && <View style={styles.itemDivider} />}
                   </View>
                 ))}
               </ScrollView>
             </View>
-            
           </View>
         </View>
       </View>
@@ -129,7 +105,7 @@ const styles = StyleSheet.create({
   },
   container: {
     // Width and alignment to resemble the modal in the image.
-    width: '45%', 
+    width: '45%',
     alignItems: 'center',
   },
   mainCard: {
@@ -168,6 +144,10 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
+  logoCircleText: {
+    fontSize: MS(40),
+    color: '#31333A',
+  },
   logo: {
     width: MS(55),
     height: MS(55),
@@ -204,7 +184,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: MS(30),
     paddingTop: VS(20),
     // Reduced bottom padding slightly to allow scallops to sit at edge
-    paddingBottom: VS(35), 
+    paddingBottom: VS(35),
     minHeight: VS(250),
     maxHeight: VS(400),
     position: 'relative',

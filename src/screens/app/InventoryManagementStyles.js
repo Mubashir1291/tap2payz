@@ -445,6 +445,25 @@ const styles = StyleSheet.create({
     fontWeight: '700',
     marginRight: S(8),
   },
+
+  // INLINE STYLE REPLACEMENTS
+  centerTextAlign: {
+    textAlign: 'center',
+  },
+  placeholderImage: {
+    backgroundColor: Colors.lightGrey,
+  },
+  alignSelfStart: {
+    alignSelf: 'flex-start',
+  },
+  largeIconStyle: {
+    width: S(80),
+    height: S(80),
+    tintColor: '#333333',
+  },
+  zIndexHigh: {
+    zIndex: 10,
+  },
 });
 
 export default styles;

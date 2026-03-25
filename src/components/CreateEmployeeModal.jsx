@@ -1,20 +1,12 @@
-import React, {useState} from 'react';
-import {
-  View,
-  Text,
-  Modal,
-  StyleSheet,
-  TouchableOpacity,
-  TextInput,
-  Image,
-} from 'react-native';
-import {Colors} from '../utils/Colors';
-import {S, VS, MS} from '../utils/Responsive';
-import {H2, Body2, Subtitle2, Caption} from '../utils/fonts';
-import {CameraIcon} from '../assets/Images';
-import {IconSize16} from '../utils/IconSizes';
+import React, { useState } from 'react';
+import { View, Text, Modal, StyleSheet, TouchableOpacity, TextInput, Image } from 'react-native';
+import { Colors } from '../utils/Colors';
+import { S, VS, MS } from '../utils/Responsive';
+import { H2, Body2, Subtitle2 } from '../utils/fonts';
+import { CameraIcon } from '../assets/Images';
+import { IconSize16 } from '../utils/IconSizes';
 
-const CreateEmployeeModal = ({visible, onClose, onCreate}) => {
+const CreateEmployeeModal = ({ visible, onClose, onCreate }) => {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -23,7 +15,7 @@ const CreateEmployeeModal = ({visible, onClose, onCreate}) => {
   const handleCreate = () => {
     // Basic validation
     if (name && email && password && password === confirmPassword) {
-      onCreate({name, email, password});
+      onCreate({ name, email, password });
       // reset fields
       setName('');
       setEmail('');
@@ -33,11 +25,7 @@ const CreateEmployeeModal = ({visible, onClose, onCreate}) => {
   };
 
   return (
-    <Modal
-      visible={visible}
-      transparent={true}
-      animationType="fade"
-      onRequestClose={onClose}>
+    <Modal visible={visible} transparent={true} animationType="fade" onRequestClose={onClose}>
       <View style={styles.modalOverlay}>
         <View style={styles.modalContent}>
           {/* Close Button */}
@@ -52,7 +40,7 @@ const CreateEmployeeModal = ({visible, onClose, onCreate}) => {
           <View style={styles.avatarContainer}>
             <View style={styles.avatarPlaceholder} />
             <TouchableOpacity style={styles.cameraBtn}>
-              <Image source={CameraIcon} style={[IconSize16, {tintColor: '#3B4B8A'}]} />
+              <Image source={CameraIcon} style={[IconSize16, { ...styles.cameraBtnImage }]} />
             </TouchableOpacity>
           </View>
 
@@ -108,9 +96,14 @@ const CreateEmployeeModal = ({visible, onClose, onCreate}) => {
 
           {/* Submit Button */}
           <TouchableOpacity
-            style={[styles.submitBtn, (!name || !email || !password || password !== confirmPassword) && styles.submitBtnDisabled]}
+            style={[
+              styles.submitBtn,
+              (!name || !email || !password || password !== confirmPassword) &&
+                styles.submitBtnDisabled,
+            ]}
             onPress={handleCreate}
-            disabled={!name || !email || !password || password !== confirmPassword}>
+            disabled={!name || !email || !password || password !== confirmPassword}
+          >
             <Text style={[styles.submitBtnText, Subtitle2]}>Add Merchant</Text>
           </TouchableOpacity>
         </View>
@@ -174,6 +167,9 @@ const styles = StyleSheet.create({
     borderRadius: MS(15),
     borderWidth: 1,
     borderColor: '#E6EAFA',
+  },
+  cameraBtnImage: {
+    tintColor: '#3B4B8A',
   },
   formRow: {
     flexDirection: 'row',

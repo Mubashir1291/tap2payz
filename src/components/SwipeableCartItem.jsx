@@ -1,21 +1,13 @@
-import React, {useRef} from 'react';
-import {
-  View,
-  Text,
-  TouchableOpacity,
-  Image,
-  Animated,
-  PanResponder,
-  StyleSheet,
-} from 'react-native';
-import {Colors} from '../utils/Colors';
-import {S, VS, MS} from '../utils/Responsive';
-import {DeleteIcon} from '../assets/Images';
+import React, { useRef } from 'react';
+import { View, TouchableOpacity, Image, Animated, PanResponder, StyleSheet } from 'react-native';
+import { Colors } from '../utils/Colors';
+import { S, VS, MS } from '../utils/Responsive';
+import { DeleteIcon } from '../assets/Images';
 
 const SWIPE_THRESHOLD = -80;
 const DELETE_BUTTON_WIDTH = S(70);
 
-const SwipeableCartItem = ({children, onDelete}) => {
+const SwipeableCartItem = ({ children, onDelete }) => {
   const translateX = useRef(new Animated.Value(0)).current;
 
   const panResponder = useRef(
@@ -54,7 +46,9 @@ const SwipeableCartItem = ({children, onDelete}) => {
       duration: 250,
       useNativeDriver: true,
     }).start(() => {
-      if (onDelete) onDelete();
+      if (onDelete) {
+        onDelete();
+      }
     });
   };
 
@@ -63,17 +57,15 @@ const SwipeableCartItem = ({children, onDelete}) => {
       {/* Delete button behind */}
       <View style={styles.deleteContainer}>
         <TouchableOpacity style={styles.deleteBtn} onPress={handleDelete}>
-          <Image
-            source={DeleteIcon}
-            style={styles.deleteIcon}
-          />
+          <Image source={DeleteIcon} style={styles.deleteIcon} />
         </TouchableOpacity>
       </View>
 
       {/* Swipeable content */}
       <Animated.View
-        style={[styles.content, {transform: [{translateX}]}]}
-        {...panResponder.panHandlers}>
+        style={[styles.content, { transform: [{ translateX }] }]}
+        {...panResponder.panHandlers}
+      >
         {children}
       </Animated.View>
     </View>

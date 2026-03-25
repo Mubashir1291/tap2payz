@@ -22,15 +22,11 @@ async function handleResponse(response) {
   if (response.status === 401) {
     store.dispatch(setIsLogin(false));
     store.dispatch(setAccessToken(null));
-    throw new Error(
-      typeof data === 'string' ? data : data?.message || 'Unauthorized',
-    );
+    throw new Error(typeof data === 'string' ? data : data?.message || 'Unauthorized');
   }
 
   if (!response.ok) {
-    throw new Error(
-      typeof data === 'string' ? data : data?.message || 'Something went wrong',
-    );
+    throw new Error(typeof data === 'string' ? data : data?.message || 'Something went wrong');
   }
 
   return data;
@@ -68,35 +64,33 @@ async function post(url, body, isMultipart = false) {
   const fullUrl = `${BASE_URL}${url}`;
   const headers = buildHeaders(isMultipart);
 
-  console.log('📤 API REQUEST');
-  console.log('➡️ URL:', fullUrl);
-  console.log('➡️ METHOD: POST');
-  console.log('➡️ HEADERS:', headers);
-  console.log('➡️ BODY:', isMultipart ? body : JSON.stringify(body));
+  // console.log('📤 API REQUEST');
+  // console.log('➡️ URL:', fullUrl);
+  // console.log('➡️ METHOD: POST');
+  // console.log('➡️ HEADERS:', headers);
+  // console.log('➡️ BODY:', isMultipart ? body : JSON.stringify(body));
 
   const response = await fetch(fullUrl, {
     method: 'POST',
-    headers: headers,
+    headers,
     body: isMultipart ? body : JSON.stringify(body),
   });
-
-  console.log('⬅️ STATUS:', response.status);
 
   return handleResponse(response);
 }
 
 async function put(url, body, isMultipart = false) {
-  const fullUrl = `${BASE_URL}${url}`;
   const headers = buildHeaders(isMultipart);
 
-  console.log('📤 API REQUEST');
-  console.log('➡️ URL:', fullUrl);
+  // console.log('📤 API REQUEST');
+  // console.log('➡️ URL:', fullUrl);
 
-  console.log('➡️ HEADERS:', headers);
-  console.log('➡️ BODY:', isMultipart ? body : JSON.stringify(body));
+  // console.log('➡️ HEADERS:', headers);
+  // console.log('➡️ BODY:', isMultipart ? body : JSON.stringify(body));
+
   const response = await fetch(`${BASE_URL}${url}`, {
     method: 'PUT',
-    headers: headers,
+    headers,
     body: isMultipart ? body : JSON.stringify(body),
   });
 

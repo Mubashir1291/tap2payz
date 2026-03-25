@@ -13,7 +13,7 @@ import {
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { Colors } from '../../utils/Colors';
 import { S, VS, MS } from '../../utils/Responsive';
-import { Subtitle2, Body3, H4, Subtitle1, Caption, Overline, Body1 } from '../../utils/fonts';
+import { Subtitle2, Body3, H4, Subtitle1, Overline } from '../../utils/fonts';
 import { IconSize12, IconSize16, IconSize20, IconSize40 } from '../../utils/IconSizes';
 import {
   LeftArrowIcon,
@@ -70,7 +70,7 @@ const TableSelectionScreen = () => {
   const [isAreaDropdownVisible, setIsAreaDropdownVisible] = useState(false);
   const [dropdownPosition, setDropdownPosition] = useState({ top: 0, left: 0, width: 0 });
   const areaSelectorRef = useRef(null);
-  
+
   const [selectedCategory, setSelectedCategory] = useState('Beverages');
   const [cart, setCart] = useState([]);
   const categoryScrollRef = useRef(null);
@@ -94,11 +94,7 @@ const TableSelectionScreen = () => {
   const [showSuccessModal, setShowSuccessModal] = useState(false);
   const [showTapCardModal, setShowTapCardModal] = useState(false);
 
-  const areas = [
-    'Area: 1 (Ground Floor)',
-    'Area: 2 (1st Floor)',
-    'Area: 3 ( 2nd Floor )',
-  ];
+  const areas = ['Area: 1 (Ground Floor)', 'Area: 2 (1st Floor)', 'Area: 3 ( 2nd Floor )'];
 
   const [processingTables, setProcessingTables] = useState([1, 3, 5, 15, 17, 19]);
 
@@ -112,7 +108,7 @@ const TableSelectionScreen = () => {
       });
       navigation.setParams({ newlyProcessedTable: undefined });
     }
-  }, [route.params?.newlyProcessedTable]);
+  }, [route.params?.newlyProcessedTable, navigation]);
 
   const tables = useMemo(() => {
     return Array.from({ length: 24 }, (_, i) => {
@@ -120,11 +116,21 @@ const TableSelectionScreen = () => {
       const isProcessing = processingTables.includes(tableNum);
       const isModified = tableNum === 1;
       let seats = 4;
-      if ([2, 8, 14, 20].includes(tableNum)) seats = 6;
-      if ([3, 9, 15, 21].includes(tableNum)) seats = 8;
-      if ([4, 10, 16, 22].includes(tableNum)) seats = 10;
-      if ([5, 11, 17, 23].includes(tableNum)) seats = 12;
-      if ([6, 12, 18, 24].includes(tableNum)) seats = 14;
+      if ([2, 8, 14, 20].includes(tableNum)) {
+        seats = 6;
+      }
+      if ([3, 9, 15, 21].includes(tableNum)) {
+        seats = 8;
+      }
+      if ([4, 10, 16, 22].includes(tableNum)) {
+        seats = 10;
+      }
+      if ([5, 11, 17, 23].includes(tableNum)) {
+        seats = 12;
+      }
+      if ([6, 12, 18, 24].includes(tableNum)) {
+        seats = 14;
+      }
 
       return {
         id: tableNum.toString(),
@@ -142,57 +148,78 @@ const TableSelectionScreen = () => {
         setDropdownPosition({
           top: py + height,
           left: px,
-          width: width,
+          width,
         });
         setIsAreaDropdownVisible(true);
       });
     }
   };
 
-  const addToCart = (product) => {
+  const addToCart = product => {
     setCart(prev => {
       const existing = prev.find(item => item.productId === product.id);
       if (existing) {
-        return prev.map(item => 
-          item.productId === product.id ? { ...item, qty: item.qty + 1 } : item
+        return prev.map(item =>
+          item.productId === product.id ? { ...item, qty: item.qty + 1 } : item,
         );
       }
-      return [...prev, { 
-        id: `c_${Date.now()}_${product.id}`, 
-        productId: product.id,
-        name: product.name, 
-        price: product.price, 
-        qty: 1,
-        note: '',
-      }];
+      return [
+        ...prev,
+        {
+          id: `c_${Date.now()}_${product.id}`,
+          productId: product.id,
+          name: product.name,
+          price: product.price,
+          qty: 1,
+          note: '',
+        },
+      ];
     });
   };
 
   const updateQty = (id, delta) => {
-    setCart(prev => prev.map(item => 
-      item.id === id ? { ...item, qty: Math.max(1, item.qty + delta) } : item
-    ));
+    setCart(prev =>
+      prev.map(item => (item.id === id ? { ...item, qty: Math.max(1, item.qty + delta) } : item)),
+    );
   };
 
-  const removeItem = (id) => {
+  const removeItem = id => {
     setCart(prev => prev.filter(item => item.id !== id));
   };
 
-  const subtotal = cart.reduce((sum, item) => sum + (item.price * item.qty), 0);
+  const subtotal = cart.reduce((sum, item) => sum + item.price * item.qty, 0);
   const total = (subtotal - discountAmount + (parseFloat(tipAmount) || 0)).toFixed(2);
 
   const hasQuickSale = cart.some(item => item.productId?.toString().startsWith('quick_'));
 
   // Modals Handlers
   const handleOpenTipModal = () => setShowTipModal(true);
-  const handleAddTip = (amount) => { setTipAmount(amount); setShowTipModal(false); };
-  const handleSaveTip = (amount) => { setTipAmount(amount); setShowTipModal(false); };
-  const handleDeleteTip = () => { setTipAmount(null); setShowTipModal(false); };
+  const handleAddTip = amount => {
+    setTipAmount(amount);
+    setShowTipModal(false);
+  };
+  const handleSaveTip = amount => {
+    setTipAmount(amount);
+    setShowTipModal(false);
+  };
+  const handleDeleteTip = () => {
+    setTipAmount(null);
+    setShowTipModal(false);
+  };
 
   const handleOpenBuyerModal = () => setShowBuyerModal(true);
-  const handleAddBuyerInfo = (info) => { setBuyerInfo(info); setShowBuyerModal(false); };
-  const handleSaveBuyerInfo = (info) => { setBuyerInfo(info); setShowBuyerModal(false); };
-  const handleDeleteBuyerInfo = () => { setBuyerInfo(null); setShowBuyerModal(false); };
+  const handleAddBuyerInfo = info => {
+    setBuyerInfo(info);
+    setShowBuyerModal(false);
+  };
+  const handleSaveBuyerInfo = info => {
+    setBuyerInfo(info);
+    setShowBuyerModal(false);
+  };
+  const handleDeleteBuyerInfo = () => {
+    setBuyerInfo(null);
+    setShowBuyerModal(false);
+  };
 
   const handleQuickSale = ({ name, price }) => {
     const quickItem = {
@@ -205,19 +232,19 @@ const TableSelectionScreen = () => {
     setShowQuickSaleModal(false);
   };
 
-  const handleSaveNote = (noteText) => {
-    setCart(prev => prev.map(item => 
-      item.id === selectedCartItem.id ? { ...item, note: noteText } : item
-    ));
+  const handleSaveNote = noteText => {
+    setCart(prev =>
+      prev.map(item => (item.id === selectedCartItem.id ? { ...item, note: noteText } : item)),
+    );
     setShowNoteModal(false);
   };
 
-  const handleSaveDiscount = (code) => {
+  const handleSaveDiscount = code => {
     setDiscountCode(code);
     if (code.length > 0) {
-        setDiscountAmount(10); // Dummy logic
+      setDiscountAmount(10); // Dummy logic
     } else {
-        setDiscountAmount(0);
+      setDiscountAmount(0);
     }
   };
 
@@ -267,10 +294,10 @@ const TableSelectionScreen = () => {
   }, [showTransactionModal]);
 
   const renderProduct = ({ item }) => (
-    <TouchableOpacity 
-        style={styles.productCard} 
-        activeOpacity={0.7}
-        onPress={() => addToCart(item)}
+    <TouchableOpacity
+      style={styles.productCard}
+      activeOpacity={0.7}
+      onPress={() => addToCart(item)}
     >
       <View style={styles.priceTag}>
         <Text style={[styles.priceText, Overline]}>$ {item.price}</Text>
@@ -282,7 +309,7 @@ const TableSelectionScreen = () => {
 
   const renderTable = ({ item }) => {
     const isProcessing = item.status === 'Processing';
-    
+
     // Screenshot exact colors:
     // Available Table: Core = #A4B4FF, Chairs = #3E468A
     // Processing Table: Core = #FEE4C1, Chairs = #FEE4C1
@@ -290,41 +317,53 @@ const TableSelectionScreen = () => {
     const chairColor = isProcessing ? '#FEE4C1' : '#3E468A';
 
     return (
-      <TouchableOpacity 
-        style={styles.tableWrapper} 
+      <TouchableOpacity
+        style={styles.tableWrapper}
         activeOpacity={0.7}
         onPress={() => {
           if (isProcessing) {
-            navigation.navigate('OrderProcessingScreen', { tableNumber: item.number, orderType: 'Dine in', isNewOrder: false });
+            navigation.navigate('OrderProcessingScreen', {
+              tableNumber: item.number,
+              orderType: 'Dine in',
+              isNewOrder: false,
+            });
           } else {
-            navigation.navigate('OrderProcessingScreen', { tableNumber: item.number, orderType: 'Dine in', isNewOrder: true });
+            navigation.navigate('OrderProcessingScreen', {
+              tableNumber: item.number,
+              orderType: 'Dine in',
+              isNewOrder: true,
+            });
           }
         }}
       >
         {/* Top Chair */}
-        <View style={[styles.chairTop, { top: '5%', left: '35%', backgroundColor: chairColor }]} />
+        <View style={[styles.chairTop, [styles.chairTopPositioning, { backgroundColor: chairColor }]]} />
         {/* Bottom Chair */}
-        <View style={[styles.chairBottom, { bottom: '5%', left: '35%', backgroundColor: chairColor }]} />
+        <View
+          style={[styles.chairBottom, [styles.chairBottomPositioning, { backgroundColor: chairColor }]]}
+        />
         {/* Left Chair */}
-        <View style={[styles.chairLeft, { left: '5%', top: '35%', backgroundColor: chairColor }]} />
+        <View style={[styles.chairLeft, [styles.chairLeftPositioning, { backgroundColor: chairColor }]]} />
         {/* Right Chair */}
-        <View style={[styles.chairRight, { right: '5%', top: '35%', backgroundColor: chairColor }]} />
-        
+        <View
+          style={[styles.chairRight, [styles.chairRightPositioning, { backgroundColor: chairColor }]]}
+        />
+
         {/* Table Core (the square part) */}
-        <View style={[styles.tableCore, { backgroundColor: coreColor }]}>
+        <View style={[styles.tableCore, [styles.tableCoreDynamic, { backgroundColor: coreColor }]]}>
           <Text style={styles.tableNameText}>Table {item.number}</Text>
-          <Text style={{...Overline, color: Colors.grey}}>Seats: {item.seats}</Text>
-          
+          <Text style={[styles.greyOverlineText]}>Seats: {item.seats}</Text>
+
           {isProcessing && (
             <View style={styles.statusIndicatorContainer}>
-              <View style={[styles.statusDot, {backgroundColor: '#C8933A'}]} />
-              <Text style={{...Overline, color: Colors.grey}}>Processing</Text>
+              <View style={[styles.statusDot, styles.processingStatusColor]} />
+              <Text style={[styles.greyOverlineText]}>Processing</Text>
             </View>
           )}
           {item.isModified && (
             <View style={styles.statusIndicatorContainer}>
-              <View style={[styles.statusDot, {backgroundColor: '#8B5A2B'}]} />
-              <Text style={{...Overline, color: Colors.grey}}>Modified</Text>
+              <View style={[styles.statusDot, styles.modifiedStatusColor]} />
+              <Text style={[styles.greyOverlineText]}>Modified</Text>
             </View>
           )}
         </View>
@@ -341,10 +380,7 @@ const TableSelectionScreen = () => {
         {/* Header */}
         <View style={styles.header}>
           <View style={styles.headerLeft}>
-            <TouchableOpacity
-              style={styles.hamburgerBtn}
-              onPress={() => navigation.openDrawer()}
-            >
+            <TouchableOpacity style={styles.hamburgerBtn} onPress={() => navigation.openDrawer()}>
               <Image source={MenuIcon} style={IconSize20} />
             </TouchableOpacity>
           </View>
@@ -362,26 +398,17 @@ const TableSelectionScreen = () => {
         <View style={styles.tabsContainer}>
           <View style={styles.tabsSwitch}>
             <TouchableOpacity
-              style={[
-                styles.tabBtn,
-                activeTab === 'Dine in' && styles.activeTabBtn,
-              ]}
+              style={[styles.tabBtn, activeTab === 'Dine in' && styles.activeTabBtn]}
               onPress={() => setActiveTab('Dine in')}
             >
               <Text
-                style={[
-                  Subtitle2,
-                  activeTab === 'Dine in' ? styles.activeTabText : styles.tabText,
-                ]}
+                style={[Subtitle2, activeTab === 'Dine in' ? styles.activeTabText : styles.tabText]}
               >
                 Dine in
               </Text>
             </TouchableOpacity>
             <TouchableOpacity
-              style={[
-                styles.tabBtn,
-                activeTab === 'Take Away' && styles.activeTabBtn,
-              ]}
+              style={[styles.tabBtn, activeTab === 'Take Away' && styles.activeTabBtn]}
               onPress={() => setActiveTab('Take Away')}
             >
               <Text
@@ -395,13 +422,13 @@ const TableSelectionScreen = () => {
             </TouchableOpacity>
           </View>
 
-          <TouchableOpacity 
+          <TouchableOpacity
             ref={areaSelectorRef}
             style={styles.areaSelector}
             onPress={toggleDropdown}
           >
             <Text style={[styles.areaText, Subtitle2]}>{selectedArea}</Text>
-            <Image source={ArrowDownIcon} style={[IconSize12, { tintColor: '#2b3474' }]} />
+            <Image source={ArrowDownIcon} style={[IconSize12, styles.darkBlueTint]} />
           </TouchableOpacity>
 
           <Modal
@@ -412,14 +439,16 @@ const TableSelectionScreen = () => {
           >
             <TouchableWithoutFeedback onPress={() => setIsAreaDropdownVisible(false)}>
               <View style={styles.modalOverlay}>
-                <View style={[
-                  styles.dropdownContainer, 
-                  { 
-                    top: dropdownPosition.top, 
-                    left: dropdownPosition.left, 
-                    minWidth: dropdownPosition.width 
-                  }
-                ]}>
+                <View
+                  style={[
+                    styles.dropdownContainer,
+                    {
+                      top: dropdownPosition.top,
+                      left: dropdownPosition.left,
+                      minWidth: dropdownPosition.width,
+                    },
+                  ]}
+                >
                   {areas.map((area, index) => (
                     <TouchableOpacity
                       key={index}
@@ -442,54 +471,57 @@ const TableSelectionScreen = () => {
         {activeTab === 'Dine in' ? (
           <FlatList
             data={tables}
-            keyExtractor={(item) => item.id}
+            keyExtractor={item => item.id}
             renderItem={renderTable}
             numColumns={6}
             showsVerticalScrollIndicator={false}
             contentContainerStyle={styles.gridContainer}
           />
         ) : (
-          <View style={{ flex: 1 }}>
+          <View style={styles.flexFull}>
             {/* Category Slider */}
             <View style={styles.categoryRow}>
-                <TouchableOpacity 
-                    style={styles.categoryArrow}
-                    onPress={() => {
-                        const prevX = Math.max(0, scrollOffset.current - 200);
-                        categoryScrollRef.current?.scrollTo({ x: prevX, animated: true });
-                    }}
-                >
-                    <Image source={LeftArrowIcon} style={IconSize12} />
-                </TouchableOpacity>
-                <ScrollView 
-                    ref={categoryScrollRef}
-                    horizontal 
-                    showsHorizontalScrollIndicator={false}
-                    onScroll={(e) => {
-                        scrollOffset.current = e.nativeEvent.contentOffset.x;
-                    }}
-                    scrollEventThrottle={16}
-                >
-                    {categories.map((cat) => (
-                        <TouchableOpacity 
-                            key={cat.name} 
-                            style={[styles.categoryBtn, selectedCategory === cat.name && styles.activeCategory]}
-                            onPress={() => setSelectedCategory(cat.name)}
-                        >
-                            <Image source={cat.icon} style={[IconSize16, styles.categoryIcon]} />
-                            <Text style={[styles.categoryText, Subtitle2]}>{cat.name}</Text>
-                        </TouchableOpacity>
-                    ))}
-                </ScrollView>
-                <TouchableOpacity 
-                    style={styles.categoryArrow}
-                    onPress={() => {
-                        const nextX = scrollOffset.current + 200;
-                        categoryScrollRef.current?.scrollTo({ x: nextX, animated: true });
-                    }}
-                >
-                    <Image source={RightArrowIcon} style={IconSize12} />
-                </TouchableOpacity>
+              <TouchableOpacity
+                style={styles.categoryArrow}
+                onPress={() => {
+                  const prevX = Math.max(0, scrollOffset.current - 200);
+                  categoryScrollRef.current?.scrollTo({ x: prevX, animated: true });
+                }}
+              >
+                <Image source={LeftArrowIcon} style={IconSize12} />
+              </TouchableOpacity>
+              <ScrollView
+                ref={categoryScrollRef}
+                horizontal
+                showsHorizontalScrollIndicator={false}
+                onScroll={e => {
+                  scrollOffset.current = e.nativeEvent.contentOffset.x;
+                }}
+                scrollEventThrottle={16}
+              >
+                {categories.map(cat => (
+                  <TouchableOpacity
+                    key={cat.name}
+                    style={[
+                      styles.categoryBtn,
+                      selectedCategory === cat.name && styles.activeCategory,
+                    ]}
+                    onPress={() => setSelectedCategory(cat.name)}
+                  >
+                    <Image source={cat.icon} style={[IconSize16, styles.categoryIcon]} />
+                    <Text style={[styles.categoryText, Subtitle2]}>{cat.name}</Text>
+                  </TouchableOpacity>
+                ))}
+              </ScrollView>
+              <TouchableOpacity
+                style={styles.categoryArrow}
+                onPress={() => {
+                  const nextX = scrollOffset.current + 200;
+                  categoryScrollRef.current?.scrollTo({ x: nextX, animated: true });
+                }}
+              >
+                <Image source={RightArrowIcon} style={IconSize12} />
+              </TouchableOpacity>
             </View>
 
             {/* Product Grid */}
@@ -524,44 +556,71 @@ const TableSelectionScreen = () => {
               data={cart}
               keyExtractor={item => item.id}
               renderItem={({ item }) => (
-                <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: VS(12), backgroundColor: '#F2F5FF', borderRadius: MS(8), padding: MS(12) }}>
-                  <View style={{ flex: 1 }}>
-                    <Text style={[Subtitle2, { color: Colors.black }]}>{item.name}</Text>
-                    <Text style={[Body3, { color: Colors.black }]}>$ {item.price.toFixed(2)}</Text>
+                <View
+                  style={styles.cartItemCard}
+                >
+                  <View style={styles.flexFull}>
+                    <Text style={[Subtitle2, styles.blackTextColor]}>{item.name}</Text>
+                    <Text style={[Body3, styles.blackTextColor]}>$ {item.price.toFixed(2)}</Text>
                     {item.note ? (
-                        <Text style={[Body3, { color: Colors.grey, fontStyle: 'italic', marginTop: VS(2) }]} numberOfLines={1}>
-                            Note: {item.note}
-                        </Text>
+                      <Text
+                        style={[
+                          Body3,
+                          styles.greyItalicNote,
+                        ]}
+                        numberOfLines={1}
+                      >
+                        Note: {item.note}
+                      </Text>
                     ) : null}
                   </View>
-                  <View style={{ alignItems: 'flex-end' }}>
-                    <TouchableOpacity 
-                        style={{ marginBottom: VS(4), backgroundColor: Colors.white, paddingHorizontal: S(8), paddingVertical: VS(2), borderRadius: MS(10) }}
-                        onPress={() => {
-                            setSelectedCartItem(item);
-                            setShowNoteModal(true);
-                        }}
+                  <View style={styles.alignFlexEnd}>
+                    <TouchableOpacity
+                      style={styles.noteButtonStyle}
+                      onPress={() => {
+                        setSelectedCartItem(item);
+                        setShowNoteModal(true);
+                      }}
                     >
-                        <Text style={[Overline, { color: Colors.grey }]}>{item.note ? 'Edit Note' : '+ Note'}</Text>
+                      <Text style={[Overline, styles.greyTextColor]}>
+                        {item.note ? 'Edit Note' : '+ Note'}
+                      </Text>
                     </TouchableOpacity>
-                    <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                      <TouchableOpacity 
-                        style={{ width: S(24), height: S(24), borderRadius: MS(12), backgroundColor: item.qty > 1 ? '#3E468A' : Colors.grey, justifyContent: 'center', alignItems: 'center' }}
+                    <View style={styles.rowCentered}>
+                      <TouchableOpacity
+                        style={{
+                          width: S(24),
+                          height: S(24),
+                          borderRadius: MS(12),
+                          backgroundColor: item.qty > 1 ? '#3E468A' : Colors.grey,
+                          justifyContent: 'center',
+                          alignItems: 'center',
+                        }}
                         onPress={() => updateQty(item.id, -1)}
                       >
-                        <View style={{ width: S(10), height: VS(2), backgroundColor: Colors.white }} />
+                        <View
+                          style={styles.minusButtonBar}
+                        />
                       </TouchableOpacity>
-                      <Text style={[Subtitle2, { marginHorizontal: S(8), color: Colors.black }]}>{item.qty.toString().padStart(2, '0')}</Text>
-                      <TouchableOpacity 
-                        style={{ width: S(24), height: S(24), borderRadius: MS(12), backgroundColor: '#3E468A', justifyContent: 'center', alignItems: 'center' }}
+                      <Text style={[Subtitle2, styles.qtyTextStyle]}>
+                        {item.qty.toString().padStart(2, '0')}
+                      </Text>
+                      <TouchableOpacity
+                        style={styles.qtyPlusButton}
                         onPress={() => updateQty(item.id, 1)}
                       >
-                        <Text style={{ color: Colors.white, fontSize: MS(18) }}>+</Text>
+                        <Text style={styles.plusButtonText}>+</Text>
                       </TouchableOpacity>
                     </View>
                   </View>
-                  <TouchableOpacity style={{ marginLeft: S(8) }} onPress={() => removeItem(item.id)}>
-                    <Image source={DeleteIcon} style={{ width: S(20), height: VS(20), tintColor: '#E74C3C' }} />
+                  <TouchableOpacity
+                    style={styles.leftMarginSmall}
+                    onPress={() => removeItem(item.id)}
+                  >
+                    <Image
+                      source={DeleteIcon}
+                      style={styles.deleteButtonIcon}
+                    />
                   </TouchableOpacity>
                 </View>
               )}
@@ -572,19 +631,32 @@ const TableSelectionScreen = () => {
         {/* Actions Rows */}
         <View style={styles.actionRow}>
           <TouchableOpacity style={styles.actionBtn} onPress={() => setShowDiscountModal(true)}>
-             <View style={{ position: 'relative' }}>
-                <Image source={DiscountIcon} style={[IconSize16, styles.actionIcon]} />
-                {discountCode.length > 0 && (
-                    <Image source={TickIcon} style={{ position: 'absolute', top: -VS(4), right: -S(15), width: S(8), height: VS(8), resizeMode: 'contain' }} />
-                )}
-             </View>
+            <View style={{ position: 'relative' }}>
+              <Image source={DiscountIcon} style={[IconSize16, styles.actionIcon]} />
+              {discountCode.length > 0 && (
+                <Image
+                  source={TickIcon}
+                  style={{
+                    position: 'absolute',
+                    top: -VS(4),
+                    right: -S(15),
+                    width: S(8),
+                    height: VS(8),
+                    resizeMode: 'contain',
+                  }}
+                />
+              )}
+            </View>
             <Text style={Overline}>Discount</Text>
           </TouchableOpacity>
           <TouchableOpacity style={styles.actionBtn} onPress={handleOpenTipModal}>
             <View style={{ position: 'relative' }}>
               <Image source={DollarIcon} style={[IconSize16, styles.actionIcon]} />
               {tipAmount !== null && (
-                <Image source={TickIcon} style={{ position: 'absolute', top: -VS(4), right: -S(15), width: S(8), height: VS(8), resizeMode: 'contain'}} />
+                <Image
+                  source={TickIcon}
+                  style={styles.tickIconSmallOverlay}
+                />
               )}
             </View>
             <Text style={Overline}>Add TIP</Text>
@@ -593,7 +665,17 @@ const TableSelectionScreen = () => {
             <View style={{ position: 'relative' }}>
               <Image source={RefreshICon} style={[IconSize16, styles.actionIcon]} />
               {hasQuickSale && (
-                <Image source={TickIcon} style={{ position: 'absolute', top: -VS(4), right: -S(15), width: S(8), height: VS(8), resizeMode: 'contain' }} />
+                <Image
+                  source={TickIcon}
+                  style={{
+                    position: 'absolute',
+                    top: -VS(4),
+                    right: -S(15),
+                    width: S(8),
+                    height: VS(8),
+                    resizeMode: 'contain',
+                  }}
+                />
               )}
             </View>
             <Text style={Overline}>Quick Sale</Text>
@@ -602,7 +684,17 @@ const TableSelectionScreen = () => {
             <View style={{ position: 'relative' }}>
               <Image source={BuyersIcon} style={[IconSize16, styles.actionIcon]} />
               {buyerInfo !== null && (
-                <Image source={TickIcon} style={{ position: 'absolute', top: -VS(4), right: -S(15), width: S(8), height: VS(8), resizeMode: 'contain' }} />
+                <Image
+                  source={TickIcon}
+                  style={{
+                    position: 'absolute',
+                    top: -VS(4),
+                    right: -S(15),
+                    width: S(8),
+                    height: VS(8),
+                    resizeMode: 'contain',
+                  }}
+                />
               )}
             </View>
             <Text style={Overline}>Buyer Details</Text>
@@ -620,7 +712,9 @@ const TableSelectionScreen = () => {
           {tipAmount !== null && parseFloat(tipAmount) > 0 && (
             <View style={[styles.totalRow, { marginBottom: VS(8) }]}>
               <Text style={[Subtitle2, { color: Colors.grey }]}>Tip:</Text>
-              <Text style={[Subtitle2, { color: '#4CAF50' }]}>+ $ {parseFloat(tipAmount).toFixed(2)}</Text>
+              <Text style={[Subtitle2, { color: '#4CAF50' }]}>
+                + $ {parseFloat(tipAmount).toFixed(2)}
+              </Text>
             </View>
           )}
           <View style={styles.totalRow}>
@@ -629,35 +723,37 @@ const TableSelectionScreen = () => {
           </View>
 
           <View style={styles.bottomButtonGroup}>
-            <TouchableOpacity 
-                style={[styles.processBtn, cart.length === 0 && { opacity: 0.5 }]} 
-                onPress={() => cart.length > 0 && setShowProcessModal(true)}
-                disabled={cart.length === 0}
+            <TouchableOpacity
+              style={[styles.processBtn, cart.length === 0 && { opacity: 0.5 }]}
+              onPress={() => cart.length > 0 && setShowProcessModal(true)}
+              disabled={cart.length === 0}
             >
               <Text style={styles.btnText}>Process Order</Text>
             </TouchableOpacity>
-            <TouchableOpacity 
-                style={[styles.cancelBtn, cart.length === 0 && { opacity: 0.5 }]} 
-                onPress={() => cart.length > 0 && setShowCancelModal(true)}
-                disabled={cart.length === 0}
+            <TouchableOpacity
+              style={[styles.cancelBtn, cart.length === 0 && { opacity: 0.5 }]}
+              onPress={() => cart.length > 0 && setShowCancelModal(true)}
+              disabled={cart.length === 0}
             >
               <Text style={styles.btnText}>Cancel Order</Text>
             </TouchableOpacity>
           </View>
 
-          <TouchableOpacity 
+          <TouchableOpacity
             style={[styles.checkoutBtn, cart.length > 0 && { backgroundColor: '#3E468A' }]}
             onPress={() => {
               if (cart.length > 0) {
                 if (activeTab === 'Take Away') {
-                    setShowPaymentModal(true);
+                  setShowPaymentModal(true);
                 } else {
-                    navigation.navigate('OrderProcessingScreen', { orderType: activeTab });
+                  navigation.navigate('OrderProcessingScreen', { orderType: activeTab });
                 }
               }
             }}
           >
-            <Text style={[styles.checkoutBtnText, cart.length > 0 && { color: Colors.white }]}>Proceed to Checkout</Text>
+            <Text style={[styles.checkoutBtnText, cart.length > 0 && { color: Colors.white }]}>
+              Proceed to Checkout
+            </Text>
           </TouchableOpacity>
         </View>
       </View>
@@ -690,7 +786,7 @@ const TableSelectionScreen = () => {
 
       <ConfirmationModal
         visible={showCancelModal}
-        icon={CancelOrderIcon }
+        icon={CancelOrderIcon}
         iconStyle={IconSize40}
         title="Cancel Order!"
         subtitle="Are you sure you want to Cancel this order?"
@@ -725,7 +821,7 @@ const TableSelectionScreen = () => {
         visible={showPaymentModal}
         totalAmount={parseFloat(total)}
         currency="$"
-        onProceed={async (data) => {
+        onProceed={async data => {
           setShowPaymentModal(false);
           if (data.method === 'Cash') {
             setShowSuccessModal(true);
@@ -734,13 +830,12 @@ const TableSelectionScreen = () => {
             try {
               await NfcManager.start();
               await NfcManager.requestTechnology(NfcTech.Ndef); // Use NfcTech.IsoDep if you are reading standard EMV Credit Cards
-              const tag = await NfcManager.getTag();
-              console.log('Card tapped:', tag);
-              
+              // const tag = await NfcManager.getTag();
+              // console.log('Card tapped:', tag);
+
               setShowTapCardModal(false);
               setShowTransactionModal(true);
-            } catch (ex) {
-              console.log('NFC Error or Cancelled:', ex);
+            } catch {
               setShowTapCardModal(false);
             } finally {
               NfcManager.cancelTechnologyRequest();
@@ -775,7 +870,7 @@ const TableSelectionScreen = () => {
         visible={showTransactionModal}
         onClose={() => setShowTransactionModal(false)}
       />
-      
+
       <TapCardModal visible={showTapCardModal} />
     </View>
   );

@@ -1,17 +1,10 @@
 import React from 'react';
-import {
-  View,
-  Text,
-  Modal,
-  TouchableOpacity,
-  FlatList,
-  Image,
-} from 'react-native';
-import { H1, H4, Subtitle1, Subtitle2, Body3, Caption, Body2 } from '../utils/fonts';
+import { View, Text, Modal, TouchableOpacity, FlatList, Image, StyleSheet } from 'react-native';
+import { H1, H4, Subtitle1, Body3, Caption, Body2 } from '../utils/fonts';
 import { Colors } from '../utils/Colors';
 import { IconSize16 } from '../utils/IconSizes';
 import { PrinterIcon } from '../assets/Images';
-import { StyleSheet } from 'react-native';
+
 import { MS, S, VS } from '../utils/Responsive';
 
 const dummyInvoiceItems = [
@@ -41,12 +34,7 @@ const ViewInvoiceModal = ({ visible, onClose, orderNumber = '5660' }) => {
   );
 
   return (
-    <Modal
-      visible={visible}
-      transparent
-      animationType="fade"
-      onRequestClose={onClose}
-    >
+    <Modal visible={visible} transparent animationType="fade" onRequestClose={onClose}>
       <View style={styles.modalOverlay}>
         <View style={styles.modalContent}>
           {/* Close Button */}
@@ -65,7 +53,9 @@ const ViewInvoiceModal = ({ visible, onClose, orderNumber = '5660' }) => {
             <View style={styles.infoLeft}>
               <Text style={[styles.infoTextList, Body3]}>ETA Transact</Text>
               <Text style={[styles.infoTextList, Body3]}>400 Applewood Crescent Suite 200</Text>
-              <Text style={[styles.infoTextList, Body3]}>Opens at 10:15 AM - Closed at 04:15 PM</Text>
+              <Text style={[styles.infoTextList, Body3]}>
+                Opens at 10:15 AM - Closed at 04:15 PM
+              </Text>
               <Text style={[styles.infoTextList, Body3]}>
                 <Text style={styles.infoLabel}>Waiter: </Text>
                 <Text style={styles.infoValue}>None</Text>
@@ -152,13 +142,12 @@ const ViewInvoiceModal = ({ visible, onClose, orderNumber = '5660' }) => {
               <Text style={[styles.grandTotalLabel, Subtitle1]}>Total:</Text>
               <Text style={[styles.grandTotalValue, H4]}>$ 9.04</Text>
             </View>
-            
+
             <TouchableOpacity style={styles.printBtn}>
               <Text style={styles.printBtnText}>Print Bill</Text>
               <Image source={PrinterIcon} style={[IconSize16, styles.printIcon]} />
             </TouchableOpacity>
           </View>
-          
         </View>
       </View>
     </Modal>
@@ -291,7 +280,7 @@ const styles = StyleSheet.create({
   colQty: { flex: 1, alignItems: 'center' },
   colPrice: { flex: 1, alignItems: 'center' },
   colTotals: { flex: 1, alignItems: 'flex-end' },
-  
+
   headerText: {
     color: '#555',
     fontWeight: 'bold',

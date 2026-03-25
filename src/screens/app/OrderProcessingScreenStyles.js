@@ -336,6 +336,40 @@ const styles = StyleSheet.create({
   primaryBtnText: {
     color: Colors.white,
   },
+
+  // INLINE STYLE REPLACEMENTS
+  minusButtonBar: {
+    width: S(10),
+    height: VS(2),
+    backgroundColor: Colors.white,
+  },
+  plusButtonText: {
+    color: Colors.white,
+    fontSize: MS(18),
+  },
+  relativePosition: {
+    position: 'relative',
+  },
+  tickIconOverlay: {
+    position: 'absolute',
+    top: -VS(4),
+    right: -S(15),
+    width: S(10),
+    height: VS(10),
+    resizeMode: 'contain',
+  },
+  bottomMarginSmall: {
+    marginBottom: VS(8),
+  },
+  greyTextColor: {
+    color: Colors.grey,
+  },
+  redTextColor: {
+    color: '#E74C3C',
+  },
+  greenTextColor: {
+    color: '#4CAF50',
+  },
 });
 
 export default styles;

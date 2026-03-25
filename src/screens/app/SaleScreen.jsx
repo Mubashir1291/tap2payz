@@ -12,9 +12,9 @@ import {
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { Colors } from '../../utils/Colors';
-import { S, VS, MS } from '../../utils/Responsive';
+import { S, VS } from '../../utils/Responsive';
 import { Caption, Body2, Body3, Subtitle1, Subtitle2, H4, ButtonText } from '../../utils/fonts';
-import { IconSize8, IconSize12, IconSize32, IconSize40, IconSize20 } from '../../utils/IconSizes';
+import { IconSize12, IconSize40, IconSize20, IconSize24 } from '../../utils/IconSizes';
 import {
   CategoriesIcon,
   CashIcon,
@@ -45,7 +45,6 @@ import TapCardModal from '../../components/TapCardModal';
 import KitchenInvoiceModal from '../../components/KitchenInvoiceModal';
 import QuickSaleModal from '../../components/QuickSaleModal';
 import SwipeableCartItem from '../../components/SwipeableCartItem';
-import { IconSize24 } from '../../utils/IconSizes';
 import NfcManager, { NfcTech } from 'react-native-nfc-manager';
 
 const categories = [
@@ -89,15 +88,14 @@ const dummyProducts = [
   { id: '18', name: 'Basmati Rice (1kg)', category: 'Grains', price: 60.0 },
   { id: '19', name: 'Wheat Flour (5kg)', category: 'Grains', price: 220.0 },
   { id: '20', name: 'Lentils (500g)', category: 'Grains', price: 45.0 },
-   { id: '21', name: 'shawarma (500g)', category: 'shawarma', price: 45.0 },
-    { id: '22', name: 'donuts (500g)', category: 'Donuts', price: 45.0 },
-     { id: '23', name: 'juice (500g)', category: 'Juice', price: 45.0 },
-     { id: '24', name: 'juice (500g)', category: 'Juice', price: 45.0 },
+  { id: '21', name: 'shawarma (500g)', category: 'shawarma', price: 45.0 },
+  { id: '22', name: 'donuts (500g)', category: 'Donuts', price: 45.0 },
+  { id: '23', name: 'juice (500g)', category: 'Juice', price: 45.0 },
+  { id: '24', name: 'juice (500g)', category: 'Juice', price: 45.0 },
 
-     { id: '25', name: 'juice (500g)', category: 'Juice', price: 45.0 },
+  { id: '25', name: 'juice (500g)', category: 'Juice', price: 45.0 },
 
-     { id: '26', name: 'juice (500g)', category: 'Juice', price: 45.0 },
-
+  { id: '26', name: 'juice (500g)', category: 'Juice', price: 45.0 },
 ];
 
 const SaleScreen = () => {
@@ -129,9 +127,7 @@ const SaleScreen = () => {
   const filteredProducts = useMemo(() => {
     if (searchQuery.trim()) {
       // When searching, search from ALL products regardless of selected category
-      return dummyProducts.filter(p =>
-        p.name.toLowerCase().includes(searchQuery.toLowerCase()),
-      );
+      return dummyProducts.filter(p => p.name.toLowerCase().includes(searchQuery.toLowerCase()));
     }
     return selectedCategory === 'All'
       ? dummyProducts
@@ -222,7 +218,9 @@ const SaleScreen = () => {
   );
 
   const HandleDeleteCart = () => {
-    if (cart.length === 0) return;
+    if (cart.length === 0) {
+      return;
+    }
     setShowDeleteModal(true);
   };
 
@@ -237,12 +235,12 @@ const SaleScreen = () => {
     setShowTipModal(true);
   };
 
-  const handleAddTip = (amount) => {
+  const handleAddTip = amount => {
     setTipAmount(amount);
     setShowTipModal(false);
   };
 
-  const handleSaveTip = (amount) => {
+  const handleSaveTip = amount => {
     setTipAmount(amount);
     setShowTipModal(false);
   };
@@ -256,12 +254,12 @@ const SaleScreen = () => {
     setShowBuyerModal(true);
   };
 
-  const handleAddBuyerInfo = (info) => {
+  const handleAddBuyerInfo = info => {
     setBuyerInfo(info);
     setShowBuyerModal(false);
   };
 
-  const handleSaveBuyerInfo = (info) => {
+  const handleSaveBuyerInfo = info => {
     setBuyerInfo(info);
     setShowBuyerModal(false);
   };
@@ -272,7 +270,9 @@ const SaleScreen = () => {
   };
 
   const handlePlaceOrder = async () => {
-    if (cart.length === 0) return;
+    if (cart.length === 0) {
+      return;
+    }
     if (paymentType === 'cash') {
       setShowCashPayModal(true);
     } else if (paymentType === 'card') {
@@ -280,13 +280,12 @@ const SaleScreen = () => {
       try {
         await NfcManager.start();
         await NfcManager.requestTechnology(NfcTech.Ndef); // Use NfcTech.IsoDep if you are reading standard EMV Credit Cards
-        const tag = await NfcManager.getTag();
-        console.log('Card tapped:', tag);
-        
+        // const tag = await NfcManager.getTag();
+        // console.log('Card tapped:', tag);
+
         setShowTapCardModal(false);
         setShowTransactionModal(true);
-      } catch (ex) {
-        console.log('NFC Error or Cancelled:', ex);
+      } catch {
         setShowTapCardModal(false);
       } finally {
         NfcManager.cancelTechnologyRequest();
@@ -294,7 +293,7 @@ const SaleScreen = () => {
     }
   };
 
-  const handleCashProceed = (amountPaid) => {
+  const handleCashProceed = amountPaid => {
     setShowCashPayModal(false);
     setShowInvoiceModal(true);
   };
@@ -307,7 +306,7 @@ const SaleScreen = () => {
     setBuyerInfo(null);
   };
 
-  const handleQuickSale = ({name, price}) => {
+  const handleQuickSale = ({ name, price }) => {
     const quickItem = {
       id: `quick_${Date.now()}`,
       name,
@@ -327,10 +326,7 @@ const SaleScreen = () => {
         {/* Header */}
         <View style={styles.header}>
           {/* Hamburger Menu */}
-          <TouchableOpacity
-            style={styles.hamburgerBtn}
-            onPress={() => navigation.openDrawer()}
-          >
+          <TouchableOpacity style={styles.hamburgerBtn} onPress={() => navigation.openDrawer()}>
             <View style={styles.hamburgerLine} />
             <View style={[styles.hamburgerLine, styles.hamburgerLineShort]} />
             <View style={styles.hamburgerLine} />
@@ -348,7 +344,7 @@ const SaleScreen = () => {
           </View>
 
           {/* All Categories */}
-          <TouchableOpacity 
+          <TouchableOpacity
             style={styles.allCategoryBtn}
             onPress={() => setIsAllCategoriesView(!isAllCategoriesView)}
           >
@@ -357,7 +353,7 @@ const SaleScreen = () => {
           </TouchableOpacity>
 
           {/* Grid/List Toggle */}
-          <TouchableOpacity 
+          <TouchableOpacity
             style={styles.viewToggle}
             onPress={() => {
               setSelectedCategory('All');
@@ -377,56 +373,54 @@ const SaleScreen = () => {
           </View>
         ) : (
           <View style={styles.categoryRow}>
-          <TouchableOpacity 
-            style={styles.categoryArrow}
-            onPress={() => {
-              const prevX = Math.max(0, scrollOffset.current - 200);
-              categoryScrollRef.current?.scrollTo({ x: prevX, animated: true });
-            }}
-          >
-            <Image source={LeftArrowIcon} style={[IconSize12, styles.arrowIcon]} />
-          </TouchableOpacity>
-          
-          <ScrollView
-            ref={categoryScrollRef}
-            horizontal
-            showsHorizontalScrollIndicator={false}
-            onScroll={(e) => {
-              scrollOffset.current = e.nativeEvent.contentOffset.x;
-            }}
-            scrollEventThrottle={16}
-          >
-            {categories.map(cat => (
-              <TouchableOpacity
-                key={cat}
-                onPress={() => setSelectedCategory(cat)}
-                style={[
-                  styles.categoryBtn,
-                  selectedCategory === cat && styles.activeCategory,
-                ]}
-              >
-                <Text
-                  style={[
-                    styles.categoryText, Body3,
-                    selectedCategory === cat && styles.activeCategoryText,
-                  ]}
-                >
-                  {cat}
-                </Text>
-              </TouchableOpacity>
-            ))}
-          </ScrollView>
+            <TouchableOpacity
+              style={styles.categoryArrow}
+              onPress={() => {
+                const prevX = Math.max(0, scrollOffset.current - 200);
+                categoryScrollRef.current?.scrollTo({ x: prevX, animated: true });
+              }}
+            >
+              <Image source={LeftArrowIcon} style={[IconSize12, styles.arrowIcon]} />
+            </TouchableOpacity>
 
-          <TouchableOpacity 
-            style={styles.categoryArrow}
-            onPress={() => {
-              const nextX = scrollOffset.current + 200;
-              categoryScrollRef.current?.scrollTo({ x: nextX, animated: true });
-            }}
-          >
-            <Image source={RightArrowIcon} style={[IconSize12, styles.arrowIcon]} />
-          </TouchableOpacity>
-        </View>
+            <ScrollView
+              ref={categoryScrollRef}
+              horizontal
+              showsHorizontalScrollIndicator={false}
+              onScroll={e => {
+                scrollOffset.current = e.nativeEvent.contentOffset.x;
+              }}
+              scrollEventThrottle={16}
+            >
+              {categories.map(cat => (
+                <TouchableOpacity
+                  key={cat}
+                  onPress={() => setSelectedCategory(cat)}
+                  style={[styles.categoryBtn, selectedCategory === cat && styles.activeCategory]}
+                >
+                  <Text
+                    style={[
+                      styles.categoryText,
+                      Body3,
+                      selectedCategory === cat && styles.activeCategoryText,
+                    ]}
+                  >
+                    {cat}
+                  </Text>
+                </TouchableOpacity>
+              ))}
+            </ScrollView>
+
+            <TouchableOpacity
+              style={styles.categoryArrow}
+              onPress={() => {
+                const nextX = scrollOffset.current + 200;
+                categoryScrollRef.current?.scrollTo({ x: nextX, animated: true });
+              }}
+            >
+              <Image source={RightArrowIcon} style={[IconSize12, styles.arrowIcon]} />
+            </TouchableOpacity>
+          </View>
         )}
 
         {/* Product Grid */}
@@ -462,7 +456,7 @@ const SaleScreen = () => {
             onEndReachedThreshold={0.5}
             ListFooterComponent={
               isLoadingMore ? (
-                <View style={{ paddingVertical: VS(20), alignItems: 'center' }}>
+                <View style={styles.listFooterLoadingView}>
                   <ActivityIndicator size="large" color={Colors.primary} />
                 </View>
               ) : null
@@ -478,7 +472,7 @@ const SaleScreen = () => {
           <TouchableOpacity onPress={() => setShowKitchenInvoiceModal(true)}>
             <Image source={RefreshICon} style={[IconSize20, styles.cartHeaderIcon]} />
           </TouchableOpacity>
-          <TouchableOpacity >
+          <TouchableOpacity>
             <Image source={ChipIcon} style={[IconSize20, styles.cartHeaderIcon]} />
           </TouchableOpacity>
           <TouchableOpacity onPress={HandleDeleteCart}>
@@ -500,23 +494,19 @@ const SaleScreen = () => {
                 <View style={styles.cartItem}>
                   <View>
                     <Text style={[styles.cartItemName, Subtitle2]}>{item.name}</Text>
-                    <Text style={[styles.cartItemPrice, Body3]}>$ {item.price} x {item.qty}</Text>
+                    <Text style={[styles.cartItemPrice, Body3]}>
+                      $ {item.price} x {item.qty}
+                    </Text>
                   </View>
 
                   <View style={styles.qtyControls}>
-                    <TouchableOpacity
-                      onPress={() => removeFromCart(item.id)}
-                      style={styles.qtyBtn}
-                    >
+                    <TouchableOpacity onPress={() => removeFromCart(item.id)} style={styles.qtyBtn}>
                       <Text style={[styles.qtyBtnText, ButtonText]}>−</Text>
                     </TouchableOpacity>
 
                     <Text style={[styles.qtyText, Body2]}>{item.qty}</Text>
 
-                    <TouchableOpacity
-                      onPress={() => addToCart(item)}
-                      style={styles.qtyBtn}
-                    >
+                    <TouchableOpacity onPress={() => addToCart(item)} style={styles.qtyBtn}>
                       <Text style={[styles.qtyBtnText, ButtonText]}>+</Text>
                     </TouchableOpacity>
                   </View>
@@ -535,18 +525,14 @@ const SaleScreen = () => {
           <TouchableOpacity style={styles.actionBtn} onPress={handleOpenTipModal}>
             <View style={styles.tipIconContainer}>
               <Image source={DollarIcon} style={[IconSize12, styles.actionIcon]} />
-              {tipAmount !== null && (
-                <Image source={TickIcon} style={styles.tickIcon} />
-              )}
+              {tipAmount !== null && <Image source={TickIcon} style={styles.tickIcon} />}
             </View>
             <Text style={[styles.actionLabelText, Caption]}>Add TIP</Text>
           </TouchableOpacity>
           <TouchableOpacity style={styles.actionBtn} onPress={handleOpenBuyerModal}>
             <View style={styles.tipIconContainer}>
               <Image source={BuyersIcon} style={[IconSize12, styles.actionIcon]} />
-              {buyerInfo !== null && (
-                <Image source={TickIcon} style={styles.tickIcon} />
-              )}
+              {buyerInfo !== null && <Image source={TickIcon} style={styles.tickIcon} />}
             </View>
             <Text style={[styles.actionLabelText, Caption]}>Buyer Details</Text>
           </TouchableOpacity>
@@ -555,9 +541,11 @@ const SaleScreen = () => {
         {/* Total Section */}
         <View style={styles.totalSection}>
           {tipAmount !== null && parseFloat(tipAmount) > 0 && (
-            <View style={[styles.totalRow, { marginBottom: VS(8) }]}>
-              <Text style={[styles.totalLabel, Subtitle2, { color: Colors.grey }]}>Tip:</Text>
-              <Text style={[styles.totalAmount, Subtitle2, { color: '#4CAF50' }]}>+ CAD {parseFloat(tipAmount).toFixed(2)}</Text>
+            <View style={[styles.totalRow, styles.tipRowMargin]}>
+              <Text style={[styles.totalLabel, Subtitle2, styles.tipLabelColor]}>Tip:</Text>
+              <Text style={[styles.totalAmount, Subtitle2, styles.tipAmountColor]}>
+                + CAD {parseFloat(tipAmount).toFixed(2)}
+              </Text>
             </View>
           )}
           <View style={styles.totalRow}>
@@ -567,10 +555,7 @@ const SaleScreen = () => {
 
           <View style={styles.paymentRow}>
             <TouchableOpacity
-              style={[
-                styles.paymentBtn,
-                paymentType === 'cash' && styles.activePayment,
-              ]}
+              style={[styles.paymentBtn, paymentType === 'cash' && styles.activePayment]}
               onPress={() => setPaymentType('cash')}
             >
               <Image source={CashIcon} style={[IconSize24, styles.paymentIcon]} />
@@ -578,10 +563,7 @@ const SaleScreen = () => {
             </TouchableOpacity>
 
             <TouchableOpacity
-              style={[
-                styles.paymentBtn,
-                paymentType === 'card' && styles.activePayment,
-              ]}
+              style={[styles.paymentBtn, paymentType === 'card' && styles.activePayment]}
               onPress={() => setPaymentType('card')}
             >
               <Image source={CardIcon} style={[IconSize24, styles.paymentIcon]} />
@@ -669,7 +651,7 @@ const SaleScreen = () => {
         cartItems={cart}
         onClose={() => setShowKitchenInvoiceModal(false)}
       />
-      
+
       <TapCardModal visible={showTapCardModal} />
     </View>
   );

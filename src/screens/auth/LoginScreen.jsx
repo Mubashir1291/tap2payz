@@ -16,11 +16,11 @@ import {
 import { useFormik } from 'formik';
 import * as Yup from 'yup';
 import Toast from 'react-native-toast-message';
-import { useDispatch, useSelector } from 'react-redux';
+import { useSelector } from 'react-redux';
 
 import { Colors } from '../../utils/Colors';
 import { S, VS, MS } from '../../utils/Responsive';
-import { H1, H2, H3, H4, Body1, Subtitle1, ButtonText, Caption } from '../../utils/fonts';
+import { H1, H4, Body1, ButtonText } from '../../utils/fonts';
 import CustomInput from '../../components/CustomInput';
 import { PSPIcon } from '../../assets/Images';
 import { IconSize60 } from '../../utils/IconSizes';
@@ -36,17 +36,14 @@ const validationSchema = Yup.object().shape({
   password: Yup.string().required('Password is required'),
 });
 
-const LoginScreen = ({ navigation }) => {
-  const dispatch = useDispatch();
-  const { isDeviceRegistered, deviceId: savedDeviceId } = useSelector(
-    (state) => state.device,
-  );
+const LoginScreen = () => {
+  const { isDeviceRegistered, deviceId: savedDeviceId } = useSelector(state => state.device);
 
   const [showDeviceModal, setShowDeviceModal] = useState(false);
   const [deviceIdInput, setDeviceIdInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
 
-  const handleLogin = async (values) => {
+  const handleLogin = async values => {
     setIsLoading(true);
     const payload = {
       store_code: values.storeCode,
@@ -56,7 +53,6 @@ const LoginScreen = ({ navigation }) => {
 
     try {
       const response = await LOGIN_ACCOUNT(payload);
-      console.log('Login response:', response);
 
       if (response) {
         // Extract and store token
@@ -73,12 +69,12 @@ const LoginScreen = ({ navigation }) => {
         // Hit ME API right after login
         try {
           const meResponse = await ME();
-          console.log('ME response:', meResponse);
+
           if (meResponse) {
             store.dispatch(setUserData(meResponse.data || meResponse));
           }
-        } catch (meError) {
-          console.log('ME API error:', meError);
+        } catch {
+          throw new Error('Failed to fetch user data after login');
         }
 
         // Check if device is already registered
@@ -104,8 +100,7 @@ const LoginScreen = ({ navigation }) => {
           text1: response || 'Login failed',
         });
       }
-    } catch (error) {
-      console.log('Login error:', error);
+    } catch {
       Toast.show({
         type: 'error',
         text1: 'An error occurred during login',
@@ -143,12 +138,15 @@ const LoginScreen = ({ navigation }) => {
       };
 
       const response = await VERIFY_DEVICE(payload);
-      console.log('VERIFY_DEVICE response:', response);
 
       // Save verified device Object ID (use _id from response)
-      const verifiedDeviceId = response?.device?._id || response?.data?._id || response?._id || response?.data?.device?._id || trimmedId;
+      const verifiedDeviceId =
+        response?.device?._id ||
+        response?.data?._id ||
+        response?._id ||
+        response?.data?.device?._id ||
+        trimmedId;
       store.dispatch(setDeviceId(verifiedDeviceId));
-      console.log('Verified device ID:', verifiedDeviceId);
       store.dispatch(setIsDeviceRegistered(true));
 
       setShowDeviceModal(false);
@@ -162,7 +160,6 @@ const LoginScreen = ({ navigation }) => {
         text1: 'Device verified successfully',
       });
     } catch (error) {
-      console.log('Device verification error:', error);
       Toast.show({
         type: 'error',
         text1: 'Device verification failed',
@@ -193,9 +190,7 @@ const LoginScreen = ({ navigation }) => {
           <View style={styles.logoCircle}>
             <Image source={PSPIcon} style={IconSize60} />
           </View>
-          <Text style={[styles.brandTitle, H1, { color: Colors.white }]}>
-            Point of Sale
-          </Text>
+          <Text style={[styles.brandTitle, H1, { color: Colors.white }]}>Point of Sale</Text>
           <Text style={[styles.brandTitle, Body1, { color: Colors.white }]}>
             Manage your store with ease
           </Text>
@@ -213,9 +208,7 @@ const LoginScreen = ({ navigation }) => {
           showsVerticalScrollIndicator={false}
         >
           <View style={styles.formCard}>
-            <Text
-              style={[styles.welcomeText, H1, { fontSize: MS(26), color: Colors.primary }]}
-            >
+            <Text style={[styles.welcomeText, H1, { fontSize: MS(26), color: Colors.primary }]}>
               Welcome Back
             </Text>
             <Text style={[styles.subtitle, Body1, { color: Colors.grey }]}>
@@ -263,7 +256,7 @@ const LoginScreen = ({ navigation }) => {
             </View>
 
             <TouchableOpacity
-              style={[styles.loginButton, isLoading && { opacity: 0.7 }]}
+              style={[styles.loginButton, isLoading && styles.loginButtonLoading]}
               activeOpacity={0.85}
               onPress={formik.handleSubmit}
               disabled={isLoading}
@@ -279,17 +272,10 @@ const LoginScreen = ({ navigation }) => {
       </KeyboardAvoidingView>
 
       {/* ── Device ID Modal ── */}
-      <Modal
-        visible={showDeviceModal}
-        transparent
-        animationType="fade"
-        onRequestClose={() => {}}
-      >
+      <Modal visible={showDeviceModal} transparent animationType="fade" onRequestClose={() => {}}>
         <View style={styles.modalOverlay}>
           <View style={styles.modalContainer}>
-            <Text style={[styles.modalTitle, H4, { color: Colors.primary }]}>
-              Register Device
-            </Text>
+            <Text style={[styles.modalTitle, H4, { color: Colors.primary }]}>Register Device</Text>
             <Text style={[styles.modalSubtitle, Body1, { color: Colors.grey }]}>
               Enter the device ID to link this terminal
             </Text>
@@ -309,9 +295,7 @@ const LoginScreen = ({ navigation }) => {
               activeOpacity={0.85}
               onPress={handleDeviceSubmit}
             >
-              <Text style={[ButtonText, { color: Colors.white }]}>
-                Verify & Continue
-              </Text>
+              <Text style={[ButtonText, { color: Colors.white }]}>Verify & Continue</Text>
             </TouchableOpacity>
           </View>
         </View>
@@ -385,6 +369,9 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     marginTop: VS(8),
+  },
+  loginButtonLoading: {
+    opacity: 0.7,
   },
   errorText: {
     color: 'red',

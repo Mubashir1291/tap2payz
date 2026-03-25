@@ -1,7 +1,5 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import { View, Text, TouchableOpacity, ScrollView, TextInput, Image } from 'react-native';
-import { Colors } from '../../utils/Colors';
-import { S, VS, MS } from '../../utils/Responsive';
 import { Subtitle2, Body3, Caption, H2 } from '../../utils/fonts';
 import { IconSize12 } from '../../utils/IconSizes';
 import { SearchIcon, LeftArrowIcon, RightArrowIcon, ExportIcon } from '../../assets/Images';
@@ -117,24 +115,25 @@ const XReport = ({ isActive }) => {
         setShowDurationModal(true);
       }
     } else {
-        // Reset state when navigating away so it prompts again next time
-        setHasSelectedDuration(false);
-        setShowDurationModal(false);
+      // Reset state when navigating away so it prompts again next time
+      setHasSelectedDuration(false);
+      setShowDurationModal(false);
     }
-  }, [isActive]);
+  }, [isActive, hasSelectedDuration]);
 
   const filteredData = useMemo(() => {
     let data = [...dummyData];
     if (searchQuery.trim() !== '') {
-      data = data.filter(item => 
-        item.transactionNumber.includes(searchQuery) || 
-        item.customer.toLowerCase().includes(searchQuery.toLowerCase())
+      data = data.filter(
+        item =>
+          item.transactionNumber.includes(searchQuery) ||
+          item.customer.toLowerCase().includes(searchQuery.toLowerCase()),
       );
     }
     return data;
   }, [searchQuery]);
 
-  const handleViewDetail = (item) => {
+  const handleViewDetail = item => {
     setSelectedTransaction(item);
     setShowDetailModal(true);
   };
@@ -148,17 +147,17 @@ const XReport = ({ isActive }) => {
     setShowDurationModal(false);
     // Note: If they close without proceeding, we could show an empty state or just show the table anyway.
     // For now, let's just show the table to avoid blocking the user entirely.
-    setHasSelectedDuration(true); 
+    setHasSelectedDuration(true);
   };
 
   if (!hasSelectedDuration) {
-      return (
-          <DurationModal 
-            visible={showDurationModal}
-            onClose={handleDurationClose}
-            onProceed={handleDurationProceed}
-          />
-      );
+    return (
+      <DurationModal
+        visible={showDurationModal}
+        onClose={handleDurationClose}
+        onProceed={handleDurationProceed}
+      />
+    );
   }
 
   return (
@@ -179,7 +178,7 @@ const XReport = ({ isActive }) => {
           </View>
 
           <TouchableOpacity style={styles.exportBtn}>
-            <Image source={ExportIcon} style={[IconSize12, { tintColor: '#3B4B8A' }]} />
+            <Image source={ExportIcon} style={[IconSize12, styles.exportIconTint]} />
             <Text style={[styles.exportBtnText, Caption]}>Export</Text>
           </TouchableOpacity>
         </View>
@@ -190,7 +189,9 @@ const XReport = ({ isActive }) => {
         {/* Table Header */}
         <View style={styles.tableHeader}>
           <Text style={[styles.colSerial, styles.headerText, Subtitle2]}>Serial Number</Text>
-          <Text style={[styles.colTransaction, styles.headerText, Subtitle2]}>Transaction Number</Text>
+          <Text style={[styles.colTransaction, styles.headerText, Subtitle2]}>
+            Transaction Number
+          </Text>
           <Text style={[styles.colCustomer, styles.headerText, Subtitle2]}>Customer</Text>
           <Text style={[styles.colItems, styles.headerText, Subtitle2]}>Total Items</Text>
           <Text style={[styles.colType, styles.headerText, Subtitle2]}>Transaction Type</Text>
@@ -206,13 +207,15 @@ const XReport = ({ isActive }) => {
           {filteredData.map((item, index) => (
             <View key={index} style={styles.tableRow}>
               <Text style={[styles.colSerial, styles.rowText, Body3]}>{item.serialNumber}</Text>
-              <Text style={[styles.colTransaction, styles.rowText, Body3]}>{item.transactionNumber}</Text>
+              <Text style={[styles.colTransaction, styles.rowText, Body3]}>
+                {item.transactionNumber}
+              </Text>
               <Text style={[styles.colCustomer, styles.rowText, Body3]}>{item.customer}</Text>
               <Text style={[styles.colItems, styles.rowText, Body3]}>{item.totalItems}</Text>
               <Text style={[styles.colType, styles.rowText, Body3]}>{item.type}</Text>
               <Text style={[styles.colDate, styles.rowText, Body3]}>{item.dateTime}</Text>
               <Text style={[styles.colSales, styles.rowText, Body3]}>{item.totalSales}</Text>
-              
+
               <View style={styles.colAction}>
                 <TouchableOpacity style={styles.viewBtn} onPress={() => handleViewDetail(item)}>
                   <Text style={[styles.viewBtnText, Caption]}>View Detail</Text>
@@ -236,7 +239,7 @@ const XReport = ({ isActive }) => {
       </View>
 
       {/* Detail Modal */}
-      <SalesRefundDetailModal 
+      <SalesRefundDetailModal
         visible={showDetailModal}
         type={selectedTransaction?.type?.toLowerCase() === 'refund' ? 'refund' : 'sale'}
         transaction={selectedTransaction?.details}

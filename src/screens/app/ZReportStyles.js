@@ -49,6 +49,9 @@ const styles = StyleSheet.create({
     color: '#3B4B8A',
     marginLeft: S(4),
   },
+  exportIconTint: {
+    tintColor: '#3B4B8A',
+  },
   tableContainer: {
     flex: 1,
     backgroundColor: Colors.white,

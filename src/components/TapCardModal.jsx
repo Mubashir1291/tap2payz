@@ -2,7 +2,7 @@ import React from 'react';
 import { View, Text, Modal, StyleSheet } from 'react-native';
 import LottieView from 'lottie-react-native';
 import { Colors } from '../utils/Colors';
-import { Body1, H1, H2, Subtitle1 } from '../utils/fonts';
+import { H2 } from '../utils/fonts';
 import { TapCardIcon } from '../assets/Images';
 import { MS, VS, S } from '../utils/Responsive';
 
@@ -33,13 +33,13 @@ const styles = StyleSheet.create({
   },
   container: {
     backgroundColor: Colors.white,
-    width   :'70%',
-    height : '70%',
+    width: '70%',
+    height: '70%',
     padding: MS(30),
     borderRadius: MS(15),
     alignItems: 'center',
     justifyContent: 'center',
-  }
+  },
 });
 
 export default TapCardModal;

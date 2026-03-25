@@ -1,21 +1,12 @@
 import React, { useState } from 'react';
-import {
-  View,
-  Text,
-  StyleSheet,
-  TouchableOpacity,
-  Image,
-  ScrollView,
-} from 'react-native';
-import { useDispatch } from 'react-redux';
+import { View, Text, StyleSheet, TouchableOpacity, Image, ScrollView } from 'react-native';
 import { Colors } from '../utils/Colors';
 import { S, VS, MS } from '../utils/Responsive';
-import { logout, setIsLogin } from '../redux/Reducers/userReducer';
+import { logout } from '../redux/Reducers/userReducer';
 import { H1, H2, Body2, Subtitle1 } from '../utils/fonts';
-import { IconSize16, IconSize28 } from '../utils/IconSizes';
+import { IconSize16 } from '../utils/IconSizes';
 import {
   DiscountIcon,
-  ReturnIcon,
   CloseRegisterIcon,
   ConnectedIcon,
   SettingIcon,
@@ -33,18 +24,16 @@ const drawerItems = [
   { label: 'Restaurant Orders', icon: ShopIcon, route: 'TableSelectionScreen' },
   { label: 'Close Register', icon: CloseRegisterIcon, route: 'CloseRegisterScreen' },
   { label: 'Connected Devices', icon: ConnectedIcon, route: 'ConnectedDevicesScreen' },
-  { label: 'Settings', icon: SettingIcon, icon2 : LockIcon, route: null },
+  { label: 'Settings', icon: SettingIcon, icon2: LockIcon, route: null },
   { label: 'Table Management', icon: TableIcon, route: 'TableManagementScreen' },
-
 ];
 
 const CustomDrawerContent = ({ navigation, state }) => {
-  const dispatch = useDispatch();
   const activeRoute = state?.routes?.[state.index]?.name;
   const [showPasskey, setShowPasskey] = useState(false);
 
   const handleLogout = () => {
-    store.dispatch(logout(true))
+    store.dispatch(logout(true));
   };
 
   return (
@@ -90,16 +79,14 @@ const CustomDrawerContent = ({ navigation, state }) => {
             >
               <Image
                 source={item.icon}
-                style={[
-                  IconSize16,
-                  isActive ? styles.menuIconActive : styles.menuIconDefault,
-                ]}
+                style={[IconSize16, isActive ? styles.menuIconActive : styles.menuIconDefault]}
               />
               <Text
                 style={[
-                  styles.menuLabel, Subtitle1,
+                  styles.menuLabel,
+                  Subtitle1,
                   isActive ? styles.menuLabelActive : styles.menuLabelDefault,
-                  {flex: 1},
+                  { ...styles.menuLabelText },
                 ]}
               >
                 {item.label}
@@ -107,10 +94,7 @@ const CustomDrawerContent = ({ navigation, state }) => {
               {item.icon2 && (
                 <Image
                   source={item.icon2}
-                  style={[
-                    IconSize16,
-                    isActive ? styles.menuIconActive : styles.menuIconDefault,
-                  ]}
+                  style={[IconSize16, isActive ? styles.menuIconActive : styles.menuIconDefault]}
                 />
               )}
             </TouchableOpacity>
@@ -126,8 +110,7 @@ const CustomDrawerContent = ({ navigation, state }) => {
 
       <PassKeyModal
         visible={showPasskey}
-        onProceed={(passkey) => {
-          console.log('Passkey entered:', passkey);
+        onProceed={() => {
           setShowPasskey(false);
           navigation.navigate('SettingsScreen');
           navigation.closeDrawer();
@@ -210,6 +193,9 @@ const styles = StyleSheet.create({
   },
   menuLabel: {
     marginLeft: S(16),
+  },
+  menuLabelText: {
+    flex: 1,
   },
   menuLabelDefault: {
     color: Colors.black,
