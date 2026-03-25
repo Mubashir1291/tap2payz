@@ -11,7 +11,6 @@ import {
 } from 'react-native';
 import { launchImageLibrary } from 'react-native-image-picker';
 import { Colors } from '../../utils/Colors';
-import { S } from '../../utils/Responsive';
 import { Subtitle2, Body3, Caption, H1 } from '../../utils/fonts';
 import { IconSize12, IconSize24, IconSize40 } from '../../utils/IconSizes';
 import {
@@ -154,7 +153,6 @@ const InventoryManagement = () => {
   const [showStatusDropdown, setShowStatusDropdown] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [showSuccessModal, setShowSuccessModal] = useState(false);
-  const [selectedProduct, setSelectedProduct] = useState(null);
 
   const [formData, setFormData] = useState({
     name: '',
@@ -264,8 +262,7 @@ const InventoryManagement = () => {
     }
   };
 
-  const handleDelete = item => {
-    setSelectedProduct(item);
+  const handleDelete = () => {
     setShowDeleteModal(true);
   };
 
@@ -399,12 +396,7 @@ const InventoryManagement = () => {
               {viewType === 'products' ? (
                 <>
                   <View style={styles.colProductRow}>
-                    <View
-                      style={[
-                        styles.productImagePlaceholder,
-                        styles.placeholderImage,
-                      ]}
-                    />
+                    <View style={[styles.productImagePlaceholder, styles.placeholderImage]} />
                     <Text style={[styles.rowText, Body3]} numberOfLines={2}>
                       {item.name}
                     </Text>
@@ -452,12 +444,7 @@ const InventoryManagement = () => {
               ) : (
                 <>
                   <View style={styles.colCatNameRow}>
-                    <View
-                      style={[
-                        styles.productImagePlaceholder,
-                        styles.placeholderImage,
-                      ]}
-                    />
+                    <View style={[styles.productImagePlaceholder, styles.placeholderImage]} />
                     <Text style={[styles.rowText, Body3]} numberOfLines={2}>
                       {item.name}
                     </Text>

@@ -1,8 +1,6 @@
 import React, { useState, useMemo, useRef, useEffect } from 'react';
 import { View, Text, StatusBar, TouchableOpacity, FlatList, Image, ScrollView } from 'react-native';
 import { useNavigation, useRoute } from '@react-navigation/native';
-import { Colors } from '../../utils/Colors';
-import { S, VS, MS } from '../../utils/Responsive';
 import {
   Subtitle1,
   Subtitle2,
@@ -404,9 +402,7 @@ const OrderProcessingScreen = () => {
                       style={[styles.qtyBtn, item.qty > 1 && styles.qtyBtnActive]}
                       onPress={() => updateQty(item.id, -1)}
                     >
-                      <View
-                        style={styles.minusButtonBar}
-                      />
+                      <View style={styles.minusButtonBar} />
                     </TouchableOpacity>
                     <Text style={[styles.qtyText, Subtitle2]}>
                       {item.qty.toString().padStart(2, '0')}
@@ -434,10 +430,7 @@ const OrderProcessingScreen = () => {
             <View style={styles.relativePosition}>
               <Image source={DiscountIcon} style={[IconSize20, styles.actionIcon]} />
               {discountCode.length > 0 && (
-                <Image
-                  source={TickIcon}
-                  style={styles.tickIconOverlay}
-                />
+                <Image source={TickIcon} style={styles.tickIconOverlay} />
               )}
             </View>
             <Text style={Overline}>Discount</Text>
@@ -445,36 +438,21 @@ const OrderProcessingScreen = () => {
           <TouchableOpacity style={styles.actionBtn} onPress={handleOpenTipModal}>
             <View style={styles.relativePosition}>
               <Image source={DollarIcon} style={IconSize20} />
-              {tipAmount !== null && (
-                <Image
-                  source={TickIcon}
-                  style={styles.tickIconOverlay}
-                />
-              )}
+              {tipAmount !== null && <Image source={TickIcon} style={styles.tickIconOverlay} />}
             </View>
             <Text style={Overline}>Add TIP</Text>
           </TouchableOpacity>
           <TouchableOpacity style={styles.actionBtn} onPress={() => setShowQuickSaleModal(true)}>
             <View style={styles.relativePosition}>
               <Image source={RefreshICon} style={IconSize20} />
-              {hasQuickSale && (
-                <Image
-                  source={TickIcon}
-                  style={styles.tickIconOverlay}
-                />
-              )}
+              {hasQuickSale && <Image source={TickIcon} style={styles.tickIconOverlay} />}
             </View>
             <Text style={Overline}>Quick Sale</Text>
           </TouchableOpacity>
           <TouchableOpacity style={styles.actionBtn} onPress={handleOpenBuyerModal}>
             <View style={styles.relativePosition}>
               <Image source={BuyersIcon} style={IconSize20} />
-              {buyerInfo !== null && (
-                <Image
-                  source={TickIcon}
-                  style={styles.tickIconOverlay}
-                />
-              )}
+              {buyerInfo !== null && <Image source={TickIcon} style={styles.tickIconOverlay} />}
             </View>
             <Text style={Overline}>Buyer Details</Text>
           </TouchableOpacity>
