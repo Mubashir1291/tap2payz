@@ -16,8 +16,7 @@ import {
   ButtonTextSmall,
 } from '../../utils/fonts';
 import styles from './OpenRegisterScreenstyles';
-import { store } from '../../redux/store';
-import { OPEN_REGISTER } from '../../services/AppServices';
+import { OPEN_REGISTER } from '../../services/StoreService';
 import Toast from 'react-native-toast-message';
 import { useSelector } from 'react-redux';
 
@@ -55,6 +54,8 @@ const DENOMINATIONS = {
 
 const OpenRegisterScreen = ({ navigation }) => {
   const { deviceId } = useSelector(state => state.device);
+  const { userData, store_id } = useSelector(state => state.user);
+
   const [showCashIn, setShowCashIn] = useState(true);
   const [isCurrencyModalVisible, setIsCurrencyModalVisible] = useState(false);
   const [isModalVisible, setIsModalVisible] = useState(false);
@@ -123,31 +124,18 @@ const OpenRegisterScreen = ({ navigation }) => {
   // STEP 3: Final Login Dispatch
   const handleConfirm = async () => {
     try {
-      const userState = store.getState()?.user || {};
-      const userData = userState?.userData?.data || userState?.userData || {};
-      const employeeData = userData?.employee || {};
-
-      // Use device ID from Redux (entered during login)
-      const device_id = deviceId;
-
-      // Extract the Mongo ObjectIds based on the ME response
-      const employee_id = employeeData?._id || '6682ba1f2f9489cc9a3f77e9';
-      const store_id =
-        employeeData?.store_id && employeeData.store_id.length > 0
-          ? employeeData.store_id[0]._id
-          : '6662e86a589cd336b91c0333';
-
       const payload = {
-        device_id,
-        employee_id,
+        device_id: deviceId,
+        employee_id: userData?._id,
         store_id,
         opening_amount: parseFloat(amount),
       };
 
       await OPEN_REGISTER(payload);
 
+      // console.log({ res });
+
       setIsModalVisible(false);
-      // store.dispatch(setIsLogin(true)); // User is already logged in now that OpenRegister is in AppStack
       navigation.navigate('SaleScreen');
     } catch (error) {
       Toast.show({

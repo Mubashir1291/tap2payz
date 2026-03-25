@@ -24,8 +24,8 @@ import { H1, H4, Body1, ButtonText } from '../../utils/fonts';
 import CustomInput from '../../components/CustomInput';
 import { PSPIcon } from '../../assets/Images';
 import { IconSize60 } from '../../utils/IconSizes';
-import { LOGIN_ACCOUNT, ME } from '../../services/AuthServices';
-import { VERIFY_DEVICE } from '../../services/AppServices';
+import { LOGIN_ACCOUNT, ME } from '../../services/AuthService';
+import { VERIFY_DEVICE } from '../../services/StoreService';
 import { setIsLogin, setAccessToken, setUserData } from '../../redux/Reducers/userReducer';
 import { setDeviceId, setIsDeviceRegistered } from '../../redux/Reducers/deviceReducer';
 import { store } from '../../redux/store';
@@ -38,6 +38,7 @@ const validationSchema = Yup.object().shape({
 
 const LoginScreen = () => {
   const { isDeviceRegistered, deviceId: savedDeviceId } = useSelector(state => state.device);
+  const { store_id } = useSelector(state => state.user);
 
   const [showDeviceModal, setShowDeviceModal] = useState(false);
   const [deviceIdInput, setDeviceIdInput] = useState('');
@@ -54,56 +55,40 @@ const LoginScreen = () => {
     try {
       const response = await LOGIN_ACCOUNT(payload);
 
-      if (response) {
-        // Extract and store token
-        const token =
-          response.accessToken ||
-          response.token ||
-          response.data?.token ||
-          response.data?.accessToken ||
-          (typeof response === 'string' ? response : null);
-        if (token) {
-          store.dispatch(setAccessToken(token));
-        }
+      store.dispatch(setAccessToken(response.token));
 
-        // Hit ME API right after login
-        try {
-          const meResponse = await ME();
+      // Hit ME API right after login
+      const meResponse = await ME();
+      const employeeData = meResponse?.employee;
 
-          if (meResponse) {
-            store.dispatch(setUserData(meResponse.data || meResponse));
-          }
-        } catch {
-          throw new Error('Failed to fetch user data after login');
-        }
+      const employeeStore =
+        employeeData?.store_id?.length > 1
+          ? employeeData?.store_id?.find(_ => _?.store_code === Number(payload.store_code))
+          : employeeData?.store_id[0];
 
-        // Check if device is already registered
-        if (isDeviceRegistered && savedDeviceId) {
-          // Device already registered from a previous session — go straight in
-          store.dispatch(setIsLogin(true));
-          Toast.show({
-            type: 'success',
-            text1: 'Login Successful',
-          });
-        } else {
-          // Show device ID modal
-          setShowDeviceModal(true);
-          Toast.show({
-            type: 'success',
-            text1: 'Login Successful',
-            text2: 'Please enter your device ID to continue',
-          });
-        }
-      } else {
+      store.dispatch(setUserData({ ...meResponse.employee, store_id: employeeStore?._id }));
+
+      // Check if device is already registered
+      if (isDeviceRegistered && savedDeviceId) {
+        // Device already registered from a previous session — go straight in
+        store.dispatch(setIsLogin(true));
         Toast.show({
-          type: 'error',
-          text1: response || 'Login failed',
+          type: 'success',
+          text1: 'Login Successful',
+        });
+      } else {
+        // Show device ID modal
+        setShowDeviceModal(true);
+        Toast.show({
+          type: 'success',
+          text1: 'Login Successful',
+          text2: 'Please enter your device ID to continue',
         });
       }
-    } catch {
+    } catch (error) {
       Toast.show({
         type: 'error',
-        text1: 'An error occurred during login',
+        text1: error?.message || 'An error occurred during login',
       });
     } finally {
       setIsLoading(false);
@@ -122,31 +107,14 @@ const LoginScreen = () => {
 
     setIsLoading(true);
     try {
-      // The backend expects the MongoDB Object ID for the store, not the store code "4002".
-      // We extract the Object ID from the ME response saved in Redux.
-      const userState = store.getState()?.user || {};
-      const userData = userState?.userData?.data || userState?.userData || {};
-      const employeeData = userData?.employee || {};
-      const storeObjectId =
-        employeeData?.store_id && employeeData.store_id.length > 0
-          ? employeeData.store_id[0]._id
-          : null;
-
       const payload = {
         device_id: trimmedId,
-        store_id: storeObjectId,
+        store_id,
       };
 
       const response = await VERIFY_DEVICE(payload);
 
-      // Save verified device Object ID (use _id from response)
-      const verifiedDeviceId =
-        response?.device?._id ||
-        response?.data?._id ||
-        response?._id ||
-        response?.data?.device?._id ||
-        trimmedId;
-      store.dispatch(setDeviceId(verifiedDeviceId));
+      store.dispatch(setDeviceId(response?.device?._id));
       store.dispatch(setIsDeviceRegistered(true));
 
       setShowDeviceModal(false);
