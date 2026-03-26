@@ -66,7 +66,7 @@ async function post(url, body, isMultipart = false) {
   const headers = buildHeaders(isMultipart);
 
   // console.log('📤 API REQUEST');
-  console.log('➡️ URL:', fullUrl);
+  // console.log('➡️ URL:', fullUrl);
   // console.log('➡️ METHOD: POST');
   // console.log('➡️ HEADERS:', headers);
   // console.log('➡️ BODY:', isMultipart ? body : JSON.stringify(body));
