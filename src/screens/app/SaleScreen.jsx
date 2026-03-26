@@ -128,14 +128,14 @@ const SaleScreen = () => {
     storeId: '',
     category_id: '',
   });
-  const [categorySearchQuery, setCategorySearchQuery] = useState({
-    page: 1,
-    itemsPerPage: 25,
-    searchText: '',
-    getAll: 'false',
-    limited: 'false',
-    storeId: '',
-  });
+  // const [categorySearchQuery, setCategorySearchQuery] = useState({
+  //   page: 1,
+  //   itemsPerPage: 25,
+  //   searchText: '',
+  //   getAll: 'false',
+  //   limited: 'false',
+  //   storeId: '',
+  // });
 
   const categoryScrollRef = useRef(null);
   const scrollOffset = useRef(0);
