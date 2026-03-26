@@ -1,8 +1,8 @@
 import ENDPOINTS from './endPoints';
 import { Fetch } from './config';
+import URLS from './urls';
 
-// const BASE_PREFIX = '/employee-access';
-const BASE_PREFIX = ':6004/api/employee-access';
+const BASE_PREFIX = `${URLS.EMPLOYEE_SERVICE}`;
 
 export const OPEN_REGISTER = async payload => {
   const response = await Fetch.post(

@@ -1,8 +1,8 @@
 import { Fetch } from './config';
 import ENDPOINTS from './endPoints';
+import URLS from './urls';
 
-// const BASE_PREFIX = '/employee-access/auth';
-const BASE_PREFIX = ':6004/api/employee-access/auth';
+const BASE_PREFIX = `${URLS.EMPLOYEE_SERVICE}/auth`;
 
 export const LOGIN_ACCOUNT = payload => {
   const response = Fetch.post(`${BASE_PREFIX}${ENDPOINTS.AUTH.LOGIN}`, payload);

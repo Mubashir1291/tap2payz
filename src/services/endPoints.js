@@ -12,7 +12,7 @@ const ENDPOINTS = {
     VERIFY_DEVICE: '/verify-device',
   },
   PRODUCTS: {
-    GET_ALL_PRODUCTS: '/get-all-products',
+    GET_ALL_PRODUCTS_WITH_INVENTORY: '/get-all-products-with-inventory',
     GET_ALL_CATEGORIES: '/get-all-categories',
   },
 };

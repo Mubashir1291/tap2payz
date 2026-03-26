@@ -1,9 +1,6 @@
 import { store } from '../redux/store';
 import { setIsLogin, setAccessToken } from '../redux/Reducers/userReducer';
 
-// const BASE_URL = 'https://psp-backend.webevis.com/api'; // change if needed
-const BASE_URL = 'http://192.168.100.52'; // change if needed
-
 function getAuthToken() {
   const state = store.getState();
   // console.log(state?.user?.accessToken, 'this is my token');
@@ -53,7 +50,7 @@ function buildHeaders(isMultipart = false) {
 ======================= */
 
 async function get(url) {
-  const response = await fetch(`${BASE_URL}${url}`, {
+  const response = await fetch(url, {
     method: 'GET',
     headers: buildHeaders(),
   });
@@ -62,16 +59,15 @@ async function get(url) {
 }
 
 async function post(url, body, isMultipart = false) {
-  const fullUrl = `${BASE_URL}${url}`;
   const headers = buildHeaders(isMultipart);
 
   // console.log('📤 API REQUEST');
-  // console.log('➡️ URL:', fullUrl);
+  // console.log('➡️ URL:', url);
   // console.log('➡️ METHOD: POST');
   // console.log('➡️ HEADERS:', headers);
   // console.log('➡️ BODY:', isMultipart ? body : JSON.stringify(body));
 
-  const response = await fetch(fullUrl, {
+  const response = await fetch(url, {
     method: 'POST',
     headers,
     body: isMultipart ? body : JSON.stringify(body),
@@ -84,12 +80,11 @@ async function put(url, body, isMultipart = false) {
   const headers = buildHeaders(isMultipart);
 
   // console.log('📤 API REQUEST');
-  // console.log('➡️ URL:', fullUrl);
-
+  // console.log('➡️ URL:', url);
   // console.log('➡️ HEADERS:', headers);
   // console.log('➡️ BODY:', isMultipart ? body : JSON.stringify(body));
 
-  const response = await fetch(`${BASE_URL}${url}`, {
+  const response = await fetch(url, {
     method: 'PUT',
     headers,
     body: isMultipart ? body : JSON.stringify(body),
@@ -99,7 +94,7 @@ async function put(url, body, isMultipart = false) {
 }
 
 async function patch(url, body) {
-  const response = await fetch(`${BASE_URL}${url}`, {
+  const response = await fetch(url, {
     method: 'PATCH',
     headers: buildHeaders(),
     body: JSON.stringify(body),
@@ -109,7 +104,7 @@ async function patch(url, body) {
 }
 
 async function _delete(url) {
-  const response = await fetch(`${BASE_URL}${url}`, {
+  const response = await fetch(url, {
     method: 'DELETE',
     headers: buildHeaders(),
   });
@@ -117,7 +112,7 @@ async function _delete(url) {
   return handleResponse(response);
 }
 async function upload(url, formData) {
-  const response = await fetch(`${BASE_URL}${url}`, {
+  const response = await fetch(url, {
     method: 'POST',
     headers: buildHeaders(true),
     body: formData,

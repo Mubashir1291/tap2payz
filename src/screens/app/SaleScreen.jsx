@@ -9,7 +9,7 @@ import {
   Image,
   TextInput,
   ScrollView,
-  ActivityIndicator,
+  // ActivityIndicator,
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { Colors } from '../../utils/Colors';
@@ -48,45 +48,8 @@ import QuickSaleModal from '../../components/QuickSaleModal';
 import SwipeableCartItem from '../../components/SwipeableCartItem';
 import NfcManager, { NfcTech } from 'react-native-nfc-manager';
 import Toast from 'react-native-toast-message';
-import { GET_ALL_CATEGORIES } from '../../services/ProductService';
+import { GET_ALL_CATEGORIES, GET_ALL_PRODUCTS_WITH_INVENTORY } from '../../services/ProductService';
 import { useSelector } from 'react-redux';
-
-const dummyProducts = [
-  { id: '1', name: 'Cola (25cl)', category: 'Drink', price: 16.23 },
-  { id: '2', name: 'Orange Juice', category: 'Drink', price: 18.5 },
-  { id: '3', name: 'Mineral Water', category: 'Drink', price: 12.0 },
-
-  { id: '4', name: 'Margherita Pizza', category: 'Pizza', price: 85.0 },
-  { id: '5', name: 'Pepperoni Pizza', category: 'Pizza', price: 95.0 },
-  { id: '6', name: 'BBQ Chicken Pizza', category: 'Pizza', price: 110.0 },
-
-  { id: '7', name: 'Classic Beef Burger', category: 'Burgers', price: 70.0 },
-  { id: '8', name: 'Zinger Burger', category: 'Burgers', price: 75.0 },
-  { id: '9', name: 'Cheese Burger', category: 'Burgers', price: 65.0 },
-
-  { id: '10', name: 'Grilled Chicken Steak', category: 'A la carte', price: 140.0 },
-  { id: '11', name: 'Fish Fillet', category: 'A la carte', price: 130.0 },
-  { id: '12', name: 'Pasta Alfredo', category: 'A la carte', price: 120.0 },
-
-  { id: '13', name: 'Frozen Fries (1kg)', category: 'Frozen Items', price: 40.0 },
-  { id: '14', name: 'Frozen Nuggets (500g)', category: 'Frozen Items', price: 55.0 },
-  { id: '15', name: 'Ice Cream Tub', category: 'Frozen Items', price: 90.0 },
-
-  { id: '16', name: 'Dog Food (5kg)', category: 'Pet Food', price: 250.0 },
-  { id: '17', name: 'Cat Food (2kg)', category: 'Pet Food', price: 180.0 },
-
-  { id: '18', name: 'Basmati Rice (1kg)', category: 'Grains', price: 60.0 },
-  { id: '19', name: 'Wheat Flour (5kg)', category: 'Grains', price: 220.0 },
-  { id: '20', name: 'Lentils (500g)', category: 'Grains', price: 45.0 },
-  { id: '21', name: 'shawarma (500g)', category: 'shawarma', price: 45.0 },
-  { id: '22', name: 'donuts (500g)', category: 'Donuts', price: 45.0 },
-  { id: '23', name: 'juice (500g)', category: 'Juice', price: 45.0 },
-  { id: '24', name: 'juice (500g)', category: 'Juice', price: 45.0 },
-
-  { id: '25', name: 'juice (500g)', category: 'Juice', price: 45.0 },
-
-  { id: '26', name: 'juice (500g)', category: 'Juice', price: 45.0 },
-];
 
 const SaleScreen = () => {
   const navigation = useNavigation();
@@ -108,7 +71,7 @@ const SaleScreen = () => {
   const [showKitchenInvoiceModal, setShowKitchenInvoiceModal] = useState(false);
   const [showQuickSaleModal, setShowQuickSaleModal] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
-  const [isLoadingMore, setIsLoadingMore] = useState(false);
+
   const [productSearchQuery, setProductSearchQuery] = useState({
     page: 1,
     itemsPerPage: 20,
@@ -118,6 +81,9 @@ const SaleScreen = () => {
     storeId: store_id,
     category_id: '',
   });
+  const [products, setProducts] = useState([]);
+  const [productsData, setProductsData] = useState(null);
+
   const [categorySearchQuery, setCategorySearchQuery] = useState({
     page: 1,
     itemsPerPage: 10,
@@ -147,19 +113,27 @@ const SaleScreen = () => {
     }
   };
 
+  const handleFetchAllProducts = async query => {
+    try {
+      const response = await GET_ALL_PRODUCTS_WITH_INVENTORY(query);
+      setProducts(response?.items);
+      setProductsData(response);
+    } catch (error) {
+      Toast.show({
+        type: 'error',
+        text1: 'Error fetching products',
+        text2: error.message,
+      });
+    }
+  };
+
   useEffect(() => {
     handleFetchAllCategories(categorySearchQuery);
   }, [categorySearchQuery]);
 
-  const filteredProducts = useMemo(() => {
-    if (searchQuery.trim()) {
-      // When searching, search from ALL products regardless of selected category
-      return dummyProducts.filter(p => p.name.toLowerCase().includes(searchQuery.toLowerCase()));
-    }
-    return selectedCategory === 'All'
-      ? dummyProducts
-      : dummyProducts.filter(p => p.category === selectedCategory);
-  }, [selectedCategory, searchQuery]);
+  useEffect(() => {
+    handleFetchAllProducts(productSearchQuery);
+  }, [productSearchQuery]);
 
   useEffect(() => {
     let timer;
@@ -182,24 +156,6 @@ const SaleScreen = () => {
     }
     return () => clearTimeout(timer);
   }, [showTransactionModal]);
-
-  const displayedProducts = useMemo(() => {
-    return filteredProducts.slice(0, productSearchQuery.page * productSearchQuery.itemsPerPage);
-  }, [filteredProducts, productSearchQuery.page, productSearchQuery.itemsPerPage]);
-
-  const loadMoreProducts = () => {
-    if (
-      productSearchQuery.page * productSearchQuery.itemsPerPage < filteredProducts.length &&
-      !isLoadingMore
-    ) {
-      setIsLoadingMore(true);
-      // Simulate network request delay (800ms)
-      setTimeout(() => {
-        setProductSearchQuery(prev => ({ ...prev, page: prev.page + 1 }));
-        setIsLoadingMore(false);
-      }, 800);
-    }
-  };
 
   const addToCart = item => {
     const existing = cart.find(c => c.id === item.id);
@@ -350,6 +306,17 @@ const SaleScreen = () => {
     }));
   }, [categories]);
 
+  const productItems = useMemo(() => {
+    return products?.map(product => ({
+      _id: product?._id,
+      name: product?.product_name,
+      price: product?.price,
+      quantity: product?.quantity,
+      quantitySold: product?.quantitySold,
+      bar_code: product?.bar_code,
+    }));
+  }, [products]);
+
   return (
     <View style={styles.root}>
       <StatusBar backgroundColor={Colors.primary} barStyle="light-content" />
@@ -482,21 +449,21 @@ const SaleScreen = () => {
           />
         ) : (
           <FlatList
-            data={displayedProducts}
-            keyExtractor={item => item.id}
+            data={productItems}
+            keyExtractor={item => item?._id}
             renderItem={renderProduct}
             numColumns={5}
             showsVerticalScrollIndicator={false}
             contentContainerStyle={styles.productListContent}
-            onEndReached={loadMoreProducts}
+            // onEndReached={loadMoreProducts}
             onEndReachedThreshold={0.5}
-            ListFooterComponent={
-              isLoadingMore ? (
-                <View style={styles.listFooterLoadingView}>
-                  <ActivityIndicator size="large" color={Colors.primary} />
-                </View>
-              ) : null
-            }
+            // ListFooterComponent={
+            //   isLoadingMore ? (
+            //     <View style={styles.listFooterLoadingView}>
+            //       <ActivityIndicator size="large" color={Colors.primary} />
+            //     </View>
+            //   ) : null
+            // }
           />
         )}
       </View>
