@@ -147,7 +147,7 @@ const CloseRegisterScreen = () => {
 
         {/* Close Register Button */}
         <TouchableOpacity
-          style={[styles.closeRegisterBtn, isLoading && { opacity: 0.7 }]}
+          style={[styles.closeRegisterBtn, isLoading && styles.closeRegisterBtnLoading]}
           onPress={handleCloseRegister}
           disabled={isLoading}
         >
@@ -269,6 +269,9 @@ const styles = StyleSheet.create({
     backgroundColor: '#B8C8E8',
     justifyContent: 'center',
     alignItems: 'center',
+  },
+  closeRegisterBtnLoading: {
+    opacity: 0.7,
   },
   closeRegisterText: {
     color: Colors.black,
