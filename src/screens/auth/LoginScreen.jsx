@@ -256,6 +256,7 @@ const LoginScreen = ({ navigation }) => {
                 onChangeText={formik.handleChange('password')}
                 onBlur={formik.handleBlur('password')}
                 secureTextEntry
+                isPassword={true}
               />
               {formik.touched.password && formik.errors.password && (
                 <Text style={styles.errorText}>{formik.errors.password}</Text>

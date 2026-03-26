@@ -5,11 +5,17 @@ import {
   TouchableOpacity,
   StatusBar,
   StyleSheet,
+  ActivityIndicator,
 } from 'react-native';
 import {useNavigation} from '@react-navigation/native';
+import {useSelector} from 'react-redux';
 import {Colors} from '../../utils/Colors';
 import {S, VS, MS} from '../../utils/Responsive';
 import {H3, H4, Body2, Subtitle1, Subtitle2, ButtonText} from '../../utils/fonts';
+import {store} from '../../redux/store';
+import {setIsRegisterOpen} from '../../redux/Reducers/userReducer';
+import {CLOSE_REGISTER} from '../../services/AppServices';
+import Toast from 'react-native-toast-message';
 
 const summaryData = [
   {label: 'Opening Amount', value: '12,500'},
@@ -20,7 +26,9 @@ const summaryData = [
 
 const CloseRegisterScreen = () => {
   const navigation = useNavigation();
+  const {deviceId} = useSelector(state => state.device);
   const [cashOutAmount, setCashOutAmount] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
 
   const handleNumPress = num => {
     setCashOutAmount(prev => prev + num);
@@ -35,9 +43,47 @@ const CloseRegisterScreen = () => {
     return Number(cashOutAmount).toLocaleString();
   };
 
-  const handleCloseRegister = () => {
-    // Placeholder for close register logic
-    navigation.navigate('SaleScreen');
+  const handleCloseRegister = async () => {
+    setIsLoading(true);
+    try {
+      const userState = store.getState()?.user || {};
+      const userData = userState?.userData?.data || userState?.userData || {};
+      const employeeData = userData?.employee || {};
+
+      const employee_id = employeeData?._id || '';
+      const store_id =
+        employeeData?.store_id && employeeData.store_id.length > 0
+          ? employeeData.store_id[0]._id
+          : '';
+
+      const payload = {
+        cash_out: parseFloat(cashOutAmount) || 0,
+        device_id: deviceId || '',
+        employee_id,
+        store_id,
+      };
+
+      const res = await CLOSE_REGISTER(payload);
+      console.log('CLOSE_REGISTER response:', res);
+
+      store.dispatch(setIsRegisterOpen(false));
+
+      Toast.show({
+        type: 'success',
+        text1: 'Register closed successfully',
+      });
+
+      navigation.navigate('SaleScreen');
+    } catch (error) {
+      console.log('Error closing register:', error);
+      Toast.show({
+        type: 'error',
+        text1: 'Error closing register',
+        text2: error?.message || String(error),
+      });
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -108,11 +154,16 @@ const CloseRegisterScreen = () => {
 
         {/* Close Register Button */}
         <TouchableOpacity
-          style={styles.closeRegisterBtn}
-          onPress={handleCloseRegister}>
-          <Text style={[styles.closeRegisterText, ButtonText]}>
-            Close Register →
-          </Text>
+          style={[styles.closeRegisterBtn, isLoading && {opacity: 0.7}]}
+          onPress={handleCloseRegister}
+          disabled={isLoading}>
+          {isLoading ? (
+            <ActivityIndicator color={Colors.black} />
+          ) : (
+            <Text style={[styles.closeRegisterText, ButtonText]}>
+              Close Register →
+            </Text>
+          )}
         </TouchableOpacity>
       </View>
     </View>

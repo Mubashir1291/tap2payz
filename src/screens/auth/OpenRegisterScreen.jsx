@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   View,
   StatusBar,
@@ -14,7 +14,7 @@ import { IconSize24 } from '../../utils/IconSizes';
 import { H2, H3, H4, Subtitle1, Subtitle2, Body1, Body3, Caption, ButtonText, ButtonTextSmall } from '../../utils/fonts';
 import styles from './OpenRegisterScreenstyles';
 import { store } from '../../redux/store';
-import { setIsLogin } from '../../redux/Reducers/userReducer';
+import { setIsLogin, setIsRegisterOpen } from '../../redux/Reducers/userReducer';
 import { OPEN_REGISTER } from '../../services/AppServices';
 import Toast from 'react-native-toast-message';
 import { useSelector } from 'react-redux';
@@ -53,12 +53,20 @@ const DENOMINATIONS = {
 
 const OpenRegisterScreen = ({ navigation }) => {
   const { deviceId } = useSelector((state) => state.device);
+  const isRegisterOpen = useSelector((state) => state.user.isRegisterOpen);
   const [showCashIn, setShowCashIn] = useState(true);
   const [isCurrencyModalVisible, setIsCurrencyModalVisible] = useState(false);
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [amount, setAmount] = useState('0.00');
   const [currencyCounts, setCurrencyCounts] = useState({});
   const [showError, setShowError] = useState(false);
+
+  // If register is already open, skip directly to SaleScreen
+  useEffect(() => {
+    if (isRegisterOpen) {
+      navigation.replace('SaleScreen');
+    }
+  }, [isRegisterOpen]);
 
   // Logic for Numpad
   const handleKeyPress = key => {
@@ -139,13 +147,23 @@ const OpenRegisterScreen = ({ navigation }) => {
       
       setIsModalVisible(false);
       // store.dispatch(setIsLogin(true)); // User is already logged in now that OpenRegister is in AppStack
+      store.dispatch(setIsRegisterOpen(true));
       navigation.navigate('SaleScreen');
     } catch (error) {
        console.log("Error inside handleConfirm OpenRegister: ", error);
+       const errorMsg = error?.message || String(error);
+
+       // If register is already open on backend, sync local state and go to SaleScreen
+       if (errorMsg.toLowerCase().includes('already opened')) {
+         setIsModalVisible(false);
+         store.dispatch(setIsRegisterOpen(true));
+         return;
+       }
+
        Toast.show({
          type: 'error',
          text1: 'Error opening register',
-         text2: error?.message || String(error),
+         text2: errorMsg,
        });
     }
   };

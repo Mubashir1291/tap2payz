@@ -13,6 +13,7 @@ import TableManagementScreen from '../screens/app/TableManagementScreen';
 import AddNewTableScreen from '../screens/app/AddNewTableScreen';
 import ConnectedDevicesScreen from '../screens/app/ConnectedDevicesScreen';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import { useSelector } from 'react-redux';
 
 const Stack = createNativeStackNavigator();
 
@@ -21,8 +22,12 @@ const Stack = createNativeStackNavigator();
 const Drawer = createDrawerNavigator();
 
 const AppStack = () => {
+  const isRegisterOpen = useSelector((state) => state.user.isRegisterOpen);
+
   return (
     <Drawer.Navigator
+      key={isRegisterOpen ? 'register-open' : 'register-closed'}
+      initialRouteName={isRegisterOpen ? 'SaleScreen' : 'OpenRegister'}
       drawerContent={(props) => <CustomDrawerContent {...props} />}
       screenOptions={{
         headerShown: false,

@@ -59,6 +59,9 @@ export const ForgetDeviceIcon = require('../Images/ForgetDevice.png');
 export const NoDeviceIcon = require('../Images/NoDevice.png');
 export const ConnectedDeviceIcon = require('../Images/ConnectedDevice.png');
 export const TapCardIcon = require('../Images/TapCard.json');
+export const ViewIcon = require('../Images/View.png');
+export const HideIcon = require('../Images/Hide.png');
+
 
 
 
