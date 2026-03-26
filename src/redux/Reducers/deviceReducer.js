@@ -3,6 +3,7 @@ import { createSlice } from '@reduxjs/toolkit';
 const initialState = {
   deviceId: null,
   isDeviceRegistered: false,
+  cashRegister: null,
 };
 
 export const deviceReducer = createSlice({
@@ -15,6 +16,9 @@ export const deviceReducer = createSlice({
     setIsDeviceRegistered: (state, action) => {
       state.isDeviceRegistered = action.payload;
     },
+    setCashRegisterData: (state, action) => {
+      state.cashRegister = action.payload;
+    },
     clearDevice: state => {
       state.deviceId = null;
       state.isDeviceRegistered = false;
@@ -22,6 +26,7 @@ export const deviceReducer = createSlice({
   },
 });
 
-export const { setDeviceId, setIsDeviceRegistered, clearDevice } = deviceReducer.actions;
+export const { setDeviceId, setIsDeviceRegistered, clearDevice, setCashRegisterData } =
+  deviceReducer.actions;
 
 export default deviceReducer.reducer;

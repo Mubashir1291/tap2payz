@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { View, StatusBar, TouchableOpacity, Modal, Text, Image, TextInput } from 'react-native';
 import { Colors } from '../../utils/Colors';
 import { WarningIcon } from '../../assets/Images';
@@ -16,17 +16,11 @@ import {
   ButtonTextSmall,
 } from '../../utils/fonts';
 import styles from './OpenRegisterScreenstyles';
-import { OPEN_REGISTER } from '../../services/StoreService';
+import { OPEN_REGISTER, GET_CASH_REGISTER } from '../../services/StoreService';
 import Toast from 'react-native-toast-message';
 import { useSelector } from 'react-redux';
-
-const summaryRows = [
-  { label: 'Opening Amount', value: '0.00' },
-  { label: 'Sales', value: '0.00' },
-  { label: 'Online Sales', value: '0.00' },
-  { label: 'Return', value: '0.00' },
-  { label: 'Opening amount with cash register', value: '0.00' },
-];
+import { setCashRegisterData } from '../../redux/Reducers/deviceReducer';
+import { store } from '../../redux/store';
 
 const numpadKeys = [
   ['1', '2', '3'],
@@ -53,7 +47,7 @@ const DENOMINATIONS = {
 };
 
 const OpenRegisterScreen = ({ navigation }) => {
-  const { deviceId } = useSelector(state => state.device);
+  const { deviceId, cashRegister } = useSelector(state => state.device);
   const { userData, store_id } = useSelector(state => state.user);
 
   const [isCurrencyModalVisible, setIsCurrencyModalVisible] = useState(false);
@@ -61,6 +55,28 @@ const OpenRegisterScreen = ({ navigation }) => {
   const [amount, setAmount] = useState('0.00');
   const [currencyCounts, setCurrencyCounts] = useState({});
   const [showError, setShowError] = useState(false);
+
+  const handleGetCashRegister = useCallback(async () => {
+    try {
+      const query = {
+        device_id: deviceId,
+        employee_id: userData?._id,
+        store_id,
+      };
+      const response = await GET_CASH_REGISTER(query);
+      store.dispatch(setCashRegisterData(response?.cashRegister));
+    } catch (error) {
+      Toast.show({
+        type: 'error',
+        text1: 'Error fetching cash register',
+        text2: error?.message || String(error),
+      });
+    }
+  }, [deviceId, userData, store_id]);
+
+  useEffect(() => {
+    handleGetCashRegister();
+  }, [handleGetCashRegister]);
 
   // Logic for Numpad
   const handleKeyPress = key => {
@@ -130,17 +146,17 @@ const OpenRegisterScreen = ({ navigation }) => {
         opening_amount: parseFloat(amount),
       };
 
-      await OPEN_REGISTER(payload);
-
-      // console.log({ res });
+      const response = await OPEN_REGISTER(payload);
 
       setIsModalVisible(false);
       navigation.navigate('SaleScreen');
+
+      store.dispatch(setCashRegisterData(response?.newCashRegister));
     } catch (error) {
       Toast.show({
         type: 'error',
         text1: 'Error opening register',
-        text2: error?.message || String(error),
+        text2: error?.message || 'Something went wrong. Please try again.',
       });
     }
   };
@@ -175,18 +191,38 @@ const OpenRegisterScreen = ({ navigation }) => {
       <View style={styles.leftPanel}>
         <View style={styles.welcomeSection}>
           <Text style={[styles.welcomeText, Subtitle1]}>Welcome!</Text>
-          <Text style={[styles.userName, H2]}>John Duo.</Text>
+          <Text style={[styles.userName, H2]}>{userData?.employee_name}.</Text>
         </View>
+
         <View style={styles.divider} />
-        {summaryRows.map((row, index) => (
-          <View key={index}>
-            <View style={styles.summaryRow}>
-              <Text style={[styles.summaryText, Body1]}>{row.label}</Text>
-              <Text style={[styles.summaryText, Body1]}>{row.value}</Text>
-            </View>
-            {index < summaryRows.length - 1 && <View style={styles.divider} />}
-          </View>
-        ))}
+
+        <View style={styles.summaryRow}>
+          <Text style={[styles.summaryText, Body1]}>Opening Amount</Text>
+          <Text style={[styles.summaryText, Body1]}>
+            {cashRegister?.opening_amount?.amount?.toFixed(2)}
+          </Text>
+        </View>
+
+        <View style={styles.divider} />
+
+        <View style={styles.summaryRow}>
+          <Text style={[styles.summaryText, Body1]}>Sales</Text>
+          <Text style={[styles.summaryText, Body1]}>{cashRegister?.cashSales?.toFixed(2)}</Text>
+        </View>
+
+        <View style={styles.divider} />
+
+        <View style={styles.summaryRow}>
+          <Text style={[styles.summaryText, Body1]}>Online Sales</Text>
+          <Text style={[styles.summaryText, Body1]}>{cashRegister?.onlineSales?.toFixed(2)}</Text>
+        </View>
+
+        <View style={styles.divider} />
+
+        <View style={styles.summaryRow}>
+          <Text style={[styles.summaryText, Body1]}>Opening amount with cash register</Text>
+          <Text style={[styles.summaryText, Body1]}>{cashRegister?.net_cash?.toFixed(2)}</Text>
+        </View>
       </View>
 
       {/* ── Right Panel ── */}

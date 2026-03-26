@@ -7,13 +7,7 @@ import AppStack from './AppStack';
 const RootNavigator = () => {
   const isLogin = useSelector(state => state.user.isLogin);
 
-  return (
-    <NavigationContainer>
-      {isLogin ? <AppStack /> : <AuthStack />}
-      {/* {<AuthStack />} */}
-      {/* {<AppStack />} */}
-    </NavigationContainer>
-  );
+  return <NavigationContainer>{isLogin ? <AppStack /> : <AuthStack />}</NavigationContainer>;
 };
 
 export default RootNavigator;
