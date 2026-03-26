@@ -1,3 +1,4 @@
+/* eslint-disable unused-imports/no-unused-vars */
 import React, { useState, useMemo, useRef, useEffect } from 'react';
 import {
   View,
@@ -46,21 +47,9 @@ import KitchenInvoiceModal from '../../components/KitchenInvoiceModal';
 import QuickSaleModal from '../../components/QuickSaleModal';
 import SwipeableCartItem from '../../components/SwipeableCartItem';
 import NfcManager, { NfcTech } from 'react-native-nfc-manager';
-// import Toast from 'react-native-toast-message';
-
-const categories = [
-  'All',
-  'Drink',
-  'Pizza',
-  'Burgers',
-  'A la carte',
-  'Frozen Items',
-  'Pet Food',
-  'Grains',
-  'shawarma',
-  'Donuts',
-  'Juice',
-];
+import Toast from 'react-native-toast-message';
+import { GET_ALL_CATEGORIES } from '../../services/ProductService';
+import { useSelector } from 'react-redux';
 
 const dummyProducts = [
   { id: '1', name: 'Cola (25cl)', category: 'Drink', price: 16.23 },
@@ -101,7 +90,8 @@ const dummyProducts = [
 
 const SaleScreen = () => {
   const navigation = useNavigation();
-  const [selectedCategory, setSelectedCategory] = useState('All');
+  const { store_id } = useSelector(state => state.user);
+
   const [cart, setCart] = useState([]);
   const [paymentType, setPaymentType] = useState(null);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
@@ -121,36 +111,45 @@ const SaleScreen = () => {
   const [isLoadingMore, setIsLoadingMore] = useState(false);
   const [productSearchQuery, setProductSearchQuery] = useState({
     page: 1,
-    itemsPerPage: 25,
+    itemsPerPage: 20,
     searchText: '',
     getAll: 'false',
     limited: 'false',
-    storeId: '',
+    storeId: store_id,
     category_id: '',
   });
-  // const [categorySearchQuery, setCategorySearchQuery] = useState({
-  //   page: 1,
-  //   itemsPerPage: 25,
-  //   searchText: '',
-  //   getAll: 'false',
-  //   limited: 'false',
-  //   storeId: '',
-  // });
+  const [categorySearchQuery, setCategorySearchQuery] = useState({
+    page: 1,
+    itemsPerPage: 10,
+    searchText: '',
+    getAll: 'false',
+    limited: 'false',
+    storeId: store_id,
+  });
+  const [categories, setCategories] = useState([]);
+  const [categoriesData, setCategoriesData] = useState(null);
+  const [selectedCategory, setSelectedCategory] = useState(null);
 
   const categoryScrollRef = useRef(null);
   const scrollOffset = useRef(0);
 
-  // const handleFetchAllCategories = () => {
-  //   try {
-  //     // const response
-  //   } catch (error) {
-  //     Toast.show({
-  //       type: 'error',
-  //       text1: 'Error fetching categories',
-  //       text2: error.message,
-  //     });
-  //   }
-  // };
+  const handleFetchAllCategories = async query => {
+    try {
+      const response = await GET_ALL_CATEGORIES(query);
+      setCategories(response?.items);
+      setCategoriesData(response);
+    } catch (error) {
+      Toast.show({
+        type: 'error',
+        text1: 'Error fetching categories',
+        text2: error.message,
+      });
+    }
+  };
+
+  useEffect(() => {
+    handleFetchAllCategories(categorySearchQuery);
+  }, [categorySearchQuery]);
 
   const filteredProducts = useMemo(() => {
     if (searchQuery.trim()) {
@@ -344,6 +343,13 @@ const SaleScreen = () => {
     setShowQuickSaleModal(false);
   };
 
+  const categoriesItems = useMemo(() => {
+    return categories?.map(cat => ({
+      _id: cat?._id,
+      name: cat?.category_name,
+    }));
+  }, [categories]);
+
   return (
     <View style={styles.root}>
       <StatusBar backgroundColor={Colors.primary} barStyle="light-content" />
@@ -419,20 +425,23 @@ const SaleScreen = () => {
               }}
               scrollEventThrottle={16}
             >
-              {categories.map(cat => (
+              {categoriesItems?.map((cat, index) => (
                 <TouchableOpacity
-                  key={cat}
+                  key={index}
                   onPress={() => setSelectedCategory(cat)}
-                  style={[styles.categoryBtn, selectedCategory === cat && styles.activeCategory]}
+                  style={[
+                    styles.categoryBtn,
+                    selectedCategory?._id === cat?._id && styles.activeCategory,
+                  ]}
                 >
                   <Text
                     style={[
                       styles.categoryText,
                       Body3,
-                      selectedCategory === cat && styles.activeCategoryText,
+                      selectedCategory?._id === cat?._id && styles.activeCategoryText,
                     ]}
                   >
-                    {cat}
+                    {cat?.name}
                   </Text>
                 </TouchableOpacity>
               ))}

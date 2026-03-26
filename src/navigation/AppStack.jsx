@@ -21,12 +21,12 @@ const Drawer = createDrawerNavigator();
 const renderDrawerContent = props => <CustomDrawerContent {...props} />;
 
 const AppStack = () => {
-  const isRegisterOpen = useSelector((state) => state.user.isRegisterOpen);
+  const { cashRegister } = useSelector(state => state.device);
 
   return (
     <Drawer.Navigator
-      key={isRegisterOpen ? 'register-open' : 'register-closed'}
-      initialRouteName={isRegisterOpen ? 'SaleScreen' : 'OpenRegister'}
+      key={cashRegister && !cashRegister?.is_close ? 'register-open' : 'register-closed'}
+      initialRouteName={cashRegister && !cashRegister?.is_close ? 'SaleScreen' : 'OpenRegister'}
       drawerContent={renderDrawerContent}
       screenOptions={{
         headerShown: false,

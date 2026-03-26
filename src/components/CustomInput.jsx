@@ -1,24 +1,11 @@
 import React, { useState } from 'react';
-import {
-  View,
-  Text,
-  TextInput,
-  StyleSheet,
-  TouchableOpacity,
-  Image,
-} from 'react-native';
+import { View, Text, TextInput, StyleSheet, TouchableOpacity, Image } from 'react-native';
 import { Colors } from '../utils/Colors';
 import { S, VS, MS } from '../utils/Responsive';
 import { Subtitle2, Body1 } from '../utils/fonts';
 import { ViewIcon, HideIcon } from '../assets/Images';
 
-const CustomInput = ({
-  label,
-  containerStyle,
-  secureTextEntry,
-  isPassword,
-  ...rest
-}) => {
+const CustomInput = ({ label, containerStyle, secureTextEntry, isPassword, ...rest }) => {
   const [isFocused, setIsFocused] = useState(false);
   const [isSecure, setIsSecure] = useState(secureTextEntry);
 
@@ -28,13 +15,7 @@ const CustomInput = ({
 
   return (
     <View style={[styles.container, containerStyle]}>
-      {label && (
-        <Text
-          style={[styles.label, Subtitle2, { color: Colors.primary }]}
-        >
-          {label}
-        </Text>
-      )}
+      {label && <Text style={[styles.label, Subtitle2, { color: Colors.primary }]}>{label}</Text>}
       <View style={[styles.inputContainer, isFocused && styles.inputFocused]}>
         <TextInput
           style={[styles.input, Body1]}

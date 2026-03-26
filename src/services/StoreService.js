@@ -1,24 +1,33 @@
 import ENDPOINTS from './endPoints';
 import { Fetch } from './config';
 
+// const BASE_PREFIX = '/employee-access';
+const BASE_PREFIX = ':6004/api/employee-access';
+
 export const OPEN_REGISTER = async payload => {
-  const response = await Fetch.post(`${ENDPOINTS.CASH_REGISTER.OPEN_REGISTER}`, payload);
+  const response = await Fetch.post(
+    `${BASE_PREFIX}${ENDPOINTS.CASH_REGISTER.OPEN_REGISTER}`,
+    payload,
+  );
   return response;
 };
 
 export const GET_CASH_REGISTER = async ({ device_id, employee_id, store_id }) => {
   const response = await Fetch.get(
-    `${ENDPOINTS.CASH_REGISTER.GET_CASH_REGISTER}?device_id=${device_id}&employee_id=${employee_id}&store_id=${store_id}`,
+    `${BASE_PREFIX}${ENDPOINTS.CASH_REGISTER.GET_CASH_REGISTER}?device_id=${device_id}&employee_id=${employee_id}&store_id=${store_id}`,
   );
   return response;
 };
 
 export const CLOSE_REGISTER = async payload => {
-  const response = await Fetch.post(`${ENDPOINTS.CASH_REGISTER.CLOSE_REGISTER}`, payload);
+  const response = await Fetch.post(
+    `${BASE_PREFIX}${ENDPOINTS.CASH_REGISTER.CLOSE_REGISTER}`,
+    payload,
+  );
   return response;
 };
 
 export const VERIFY_DEVICE = async payload => {
-  const response = await Fetch.put(`${ENDPOINTS.DEVICE.VERIFY_DEVICE}`, payload);
+  const response = await Fetch.put(`${BASE_PREFIX}${ENDPOINTS.DEVICE.VERIFY_DEVICE}`, payload);
   return response;
 };
