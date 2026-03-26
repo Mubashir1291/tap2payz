@@ -46,6 +46,7 @@ import KitchenInvoiceModal from '../../components/KitchenInvoiceModal';
 import QuickSaleModal from '../../components/QuickSaleModal';
 import SwipeableCartItem from '../../components/SwipeableCartItem';
 import NfcManager, { NfcTech } from 'react-native-nfc-manager';
+// import Toast from 'react-native-toast-message';
 
 const categories = [
   'All',
@@ -103,7 +104,6 @@ const SaleScreen = () => {
   const [selectedCategory, setSelectedCategory] = useState('All');
   const [cart, setCart] = useState([]);
   const [paymentType, setPaymentType] = useState(null);
-  const [searchQuery, setSearchQuery] = useState('');
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [isAllCategoriesView, setIsAllCategoriesView] = useState(false);
   const [tipAmount, setTipAmount] = useState(null);
@@ -117,12 +117,40 @@ const SaleScreen = () => {
   const [showTapCardModal, setShowTapCardModal] = useState(false);
   const [showKitchenInvoiceModal, setShowKitchenInvoiceModal] = useState(false);
   const [showQuickSaleModal, setShowQuickSaleModal] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [isLoadingMore, setIsLoadingMore] = useState(false);
+  const [productSearchQuery, setProductSearchQuery] = useState({
+    page: 1,
+    itemsPerPage: 25,
+    searchText: '',
+    getAll: 'false',
+    limited: 'false',
+    storeId: '',
+    category_id: '',
+  });
+  // const [categorySearchQuery, setCategorySearchQuery] = useState({
+  //   page: 1,
+  //   itemsPerPage: 25,
+  //   searchText: '',
+  //   getAll: 'false',
+  //   limited: 'false',
+  //   storeId: '',
+  // });
+
   const categoryScrollRef = useRef(null);
   const scrollOffset = useRef(0);
 
-  const [page, setPage] = useState(1);
-  const [isLoadingMore, setIsLoadingMore] = useState(false);
-  const ITEMS_PER_PAGE = 25; // 5 rows of 5 items
+  // const handleFetchAllCategories = () => {
+  //   try {
+  //     // const response
+  //   } catch (error) {
+  //     Toast.show({
+  //       type: 'error',
+  //       text1: 'Error fetching categories',
+  //       text2: error.message,
+  //     });
+  //   }
+  // };
 
   const filteredProducts = useMemo(() => {
     if (searchQuery.trim()) {
@@ -132,10 +160,6 @@ const SaleScreen = () => {
     return selectedCategory === 'All'
       ? dummyProducts
       : dummyProducts.filter(p => p.category === selectedCategory);
-  }, [selectedCategory, searchQuery]);
-
-  useEffect(() => {
-    setPage(1);
   }, [selectedCategory, searchQuery]);
 
   useEffect(() => {
@@ -161,15 +185,18 @@ const SaleScreen = () => {
   }, [showTransactionModal]);
 
   const displayedProducts = useMemo(() => {
-    return filteredProducts.slice(0, page * ITEMS_PER_PAGE);
-  }, [filteredProducts, page]);
+    return filteredProducts.slice(0, productSearchQuery.page * productSearchQuery.itemsPerPage);
+  }, [filteredProducts, productSearchQuery.page, productSearchQuery.itemsPerPage]);
 
   const loadMoreProducts = () => {
-    if (page * ITEMS_PER_PAGE < filteredProducts.length && !isLoadingMore) {
+    if (
+      productSearchQuery.page * productSearchQuery.itemsPerPage < filteredProducts.length &&
+      !isLoadingMore
+    ) {
       setIsLoadingMore(true);
       // Simulate network request delay (800ms)
       setTimeout(() => {
-        setPage(prev => prev + 1);
+        setProductSearchQuery(prev => ({ ...prev, page: prev.page + 1 }));
         setIsLoadingMore(false);
       }, 800);
     }
