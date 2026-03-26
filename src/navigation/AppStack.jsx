@@ -2,7 +2,6 @@ import React from 'react';
 import { createDrawerNavigator } from '@react-navigation/drawer';
 import SaleScreen from '../screens/app/SaleScreen';
 import CloseRegisterScreen from '../screens/app/CloseRegisterScreen';
-import ReturnScreen from '../screens/app/ReturnScreen';
 import SettingsScreen from '../screens/app/SettingsScreen';
 import CustomDrawerContent from '../components/CustomDrawerContent';
 import OpenRegisterScreen from '../screens/auth/OpenRegisterScreen';
@@ -17,9 +16,9 @@ import { useSelector } from 'react-redux';
 
 const Stack = createNativeStackNavigator();
 
-
-
 const Drawer = createDrawerNavigator();
+
+const renderDrawerContent = props => <CustomDrawerContent {...props} />;
 
 const AppStack = () => {
   const isRegisterOpen = useSelector((state) => state.user.isRegisterOpen);
@@ -28,7 +27,7 @@ const AppStack = () => {
     <Drawer.Navigator
       key={isRegisterOpen ? 'register-open' : 'register-closed'}
       initialRouteName={isRegisterOpen ? 'SaleScreen' : 'OpenRegister'}
-      drawerContent={(props) => <CustomDrawerContent {...props} />}
+      drawerContent={renderDrawerContent}
       screenOptions={{
         headerShown: false,
         drawerType: 'front',
@@ -50,10 +49,8 @@ const AppStack = () => {
       <Drawer.Screen name="TableManagementScreen" component={TableManagementScreen} />
       <Drawer.Screen name="AddNewTableScreen" component={AddNewTableScreen} />
 
-
       <Drawer.Screen name="SettingsScreen" component={SettingsScreen} />
       <Drawer.Screen name="ConnectedDevicesScreen" component={ConnectedDevicesScreen} />
-
     </Drawer.Navigator>
   );
 };

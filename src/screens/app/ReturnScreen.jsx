@@ -1,35 +1,11 @@
-import React, {useState, useMemo} from 'react';
-import {
-  View,
-  Text,
-  StatusBar,
-  TouchableOpacity,
-  FlatList,
-  Image,
-  TextInput,
-  ScrollView,
-} from 'react-native';
-import {useNavigation} from '@react-navigation/native';
-import {Colors} from '../../utils/Colors';
-import {S, VS, MS} from '../../utils/Responsive';
-import {
-  Caption,
-  Body2,
-  Body3,
-  Subtitle1,
-  Subtitle2,
-  H4,
-  ButtonText,
-} from '../../utils/fonts';
-import {IconSize12, IconSize20} from '../../utils/IconSizes';
-import {
-  RefreshICon,
-  ChipIcon,
-  DeleteIcon,
-  SearchIcon,
-  ImageFrameIcon,
-  PSPIcon,
-} from '../../assets/Images';
+import React, { useState, useMemo } from 'react';
+import { View, Text, StatusBar, TouchableOpacity, FlatList, Image, TextInput } from 'react-native';
+import { useNavigation } from '@react-navigation/native';
+import { Colors } from '../../utils/Colors';
+import { S } from '../../utils/Responsive';
+import { Caption, Body2, Body3, Subtitle1, Subtitle2, H4, ButtonText } from '../../utils/fonts';
+import { IconSize12, IconSize20 } from '../../utils/IconSizes';
+import { RefreshICon, ChipIcon, DeleteIcon, SearchIcon, ImageFrameIcon } from '../../assets/Images';
 
 import InvoiceModal from '../../components/InvoiceModal';
 import SwipeableCartItem from '../../components/SwipeableCartItem';
@@ -38,26 +14,36 @@ import styles from './ReturnScreenStyles';
 // Dummy past invoices for demonstration
 const dummyInvoices = {
   'INV-001': {
-    buyerInfo: {firstName: 'Michel', lastName: 'James', email: 'michelj@gmail.com', phone: '+923098487880'},
+    buyerInfo: {
+      firstName: 'Michel',
+      lastName: 'James',
+      email: 'michelj@gmail.com',
+      phone: '+923098487880',
+    },
     items: [
-      {id: 'inv1-1', name: 'Cola (25cl)', price: 16.23, qty: 2},
-      {id: 'inv1-2', name: 'Margherita Pizza', price: 85.0, qty: 1},
-      {id: 'inv1-3', name: 'Cheese Burger', price: 65.0, qty: 3},
+      { id: 'inv1-1', name: 'Cola (25cl)', price: 16.23, qty: 2 },
+      { id: 'inv1-2', name: 'Margherita Pizza', price: 85.0, qty: 1 },
+      { id: 'inv1-3', name: 'Cheese Burger', price: 65.0, qty: 3 },
     ],
   },
   'INV-002': {
-    buyerInfo: {firstName: 'Sarah', lastName: 'Wilson', email: 'sarah@gmail.com', phone: '+1234567890'},
+    buyerInfo: {
+      firstName: 'Sarah',
+      lastName: 'Wilson',
+      email: 'sarah@gmail.com',
+      phone: '+1234567890',
+    },
     items: [
-      {id: 'inv2-1', name: 'Orange Juice', price: 18.5, qty: 1},
-      {id: 'inv2-2', name: 'Pepperoni Pizza', price: 95.0, qty: 2},
-      {id: 'inv2-3', name: 'Mineral Water', price: 12.0, qty: 4},
+      { id: 'inv2-1', name: 'Orange Juice', price: 18.5, qty: 1 },
+      { id: 'inv2-2', name: 'Pepperoni Pizza', price: 95.0, qty: 2 },
+      { id: 'inv2-3', name: 'Mineral Water', price: 12.0, qty: 4 },
     ],
   },
   'INV-003': {
     buyerInfo: null,
     items: [
-      {id: 'inv3-1', name: 'Frozen Fries (1kg)', price: 40.0, qty: 1},
-      {id: 'inv3-2', name: 'Ice Cream Tub', price: 90.0, qty: 2},
+      { id: 'inv3-1', name: 'Frozen Fries (1kg)', price: 40.0, qty: 1 },
+      { id: 'inv3-2', name: 'Ice Cream Tub', price: 90.0, qty: 2 },
     ],
   },
 };
@@ -66,7 +52,7 @@ const ReturnScreen = () => {
   const navigation = useNavigation();
   const [searchQuery, setSearchQuery] = useState('');
   const [foundInvoice, setFoundInvoice] = useState(null);
-  const [invoiceNumber, setInvoiceNumber] = useState('');
+  // const [invoiceNumber, setInvoiceNumber] = useState('');
   const [returnCart, setReturnCart] = useState([]);
   const [showInvoiceModal, setShowInvoiceModal] = useState(false);
 
@@ -74,17 +60,17 @@ const ReturnScreen = () => {
     const query = searchQuery.trim().toUpperCase();
     if (dummyInvoices[query]) {
       setFoundInvoice(dummyInvoices[query]);
-      setInvoiceNumber(query);
+      // setInvoiceNumber(query);
     } else {
       setFoundInvoice(null);
-      setInvoiceNumber('');
+      // setInvoiceNumber('');
     }
   };
 
   const handleClearSearch = () => {
     setSearchQuery('');
     setFoundInvoice(null);
-    setInvoiceNumber('');
+    // setInvoiceNumber('');
     setReturnCart([]);
   };
 
@@ -95,14 +81,10 @@ const ReturnScreen = () => {
 
     if (existing) {
       if (existing.qty < maxQty) {
-        setReturnCart(
-          returnCart.map(c =>
-            c.id === item.id ? {...c, qty: c.qty + 1} : c,
-          ),
-        );
+        setReturnCart(returnCart.map(c => (c.id === item.id ? { ...c, qty: c.qty + 1 } : c)));
       }
     } else {
-      setReturnCart([...returnCart, {...item, qty: 1}]);
+      setReturnCart([...returnCart, { ...item, qty: 1 }]);
     }
   };
 
@@ -111,9 +93,7 @@ const ReturnScreen = () => {
     if (existing.qty === 1) {
       setReturnCart(returnCart.filter(c => c.id !== id));
     } else {
-      setReturnCart(
-        returnCart.map(c => (c.id === id ? {...c, qty: c.qty - 1} : c)),
-      );
+      setReturnCart(returnCart.map(c => (c.id === id ? { ...c, qty: c.qty - 1 } : c)));
     }
   };
 
@@ -126,13 +106,13 @@ const ReturnScreen = () => {
   };
 
   const returnTotal = useMemo(() => {
-    return returnCart
-      .reduce((sum, item) => sum + item.price * item.qty, 0)
-      .toFixed(2);
+    return returnCart.reduce((sum, item) => sum + item.price * item.qty, 0).toFixed(2);
   }, [returnCart]);
 
   const handleProceedReturn = () => {
-    if (returnCart.length === 0) return;
+    if (returnCart.length === 0) {
+      return;
+    }
     setShowInvoiceModal(true);
   };
 
@@ -141,14 +121,15 @@ const ReturnScreen = () => {
     setReturnCart([]);
     setFoundInvoice(null);
     setSearchQuery('');
-    setInvoiceNumber('');
+    // setInvoiceNumber('');
   };
 
-  const renderProduct = ({item}) => (
+  const renderProduct = ({ item }) => (
     <TouchableOpacity
       style={styles.productCard}
       activeOpacity={0.8}
-      onPress={() => addToReturnCart(item)}>
+      onPress={() => addToReturnCart(item)}
+    >
       <View style={styles.priceTag}>
         <Text style={[styles.priceText, Caption]}>$ {item.price}</Text>
       </View>
@@ -167,9 +148,7 @@ const ReturnScreen = () => {
         {/* Header */}
         <View style={styles.header}>
           {/* Hamburger */}
-          <TouchableOpacity
-            style={styles.hamburgerBtn}
-            onPress={() => navigation.openDrawer()}>
+          <TouchableOpacity style={styles.hamburgerBtn} onPress={() => navigation.openDrawer()}>
             <View style={styles.hamburgerLine} />
             <View style={[styles.hamburgerLine, styles.hamburgerLineShort]} />
             <View style={styles.hamburgerLine} />
@@ -177,10 +156,7 @@ const ReturnScreen = () => {
 
           {/* Search Bar */}
           <View style={styles.searchBar}>
-            <Image
-              source={SearchIcon}
-              style={[IconSize12, {marginRight: S(8)}]}
-            />
+            <Image source={SearchIcon} style={[IconSize12, { marginRight: S(8) }]} />
             <TextInput
               style={[styles.searchInput, Body3]}
               placeholder="Search Invoice Number..."
@@ -193,9 +169,7 @@ const ReturnScreen = () => {
           </View>
 
           {/* Clear Button */}
-          <TouchableOpacity
-            style={styles.clearSearchBtn}
-            onPress={handleClearSearch}>
+          <TouchableOpacity style={styles.clearSearchBtn} onPress={handleClearSearch}>
             <Text style={[styles.clearSearchText, Subtitle2]}>✕</Text>
           </TouchableOpacity>
         </View>
@@ -224,43 +198,30 @@ const ReturnScreen = () => {
         {/* Cart Header Icons */}
         <View style={styles.cartHeader}>
           <TouchableOpacity>
-            <Image
-              source={RefreshICon}
-              style={[IconSize20, styles.cartHeaderIcon]}
-            />
+            <Image source={RefreshICon} style={[IconSize20, styles.cartHeaderIcon]} />
           </TouchableOpacity>
           <TouchableOpacity>
-            <Image
-              source={ChipIcon}
-              style={[IconSize20, styles.cartHeaderIcon]}
-            />
+            <Image source={ChipIcon} style={[IconSize20, styles.cartHeaderIcon]} />
           </TouchableOpacity>
           <TouchableOpacity onPress={clearReturnCart}>
-            <Image
-              source={DeleteIcon}
-              style={[IconSize20, styles.cartHeaderIcon]}
-            />
+            <Image source={DeleteIcon} style={[IconSize20, styles.cartHeaderIcon]} />
           </TouchableOpacity>
         </View>
 
         {returnCart.length === 0 ? (
           <View style={styles.emptyCart}>
-            <Text style={[styles.emptyCartText, H4]}>
-              Add items to Return!
-            </Text>
+            <Text style={[styles.emptyCartText, H4]}>Add items to Return!</Text>
           </View>
         ) : (
           <FlatList
             data={returnCart}
             keyExtractor={item => item.id}
             showsVerticalScrollIndicator={false}
-            renderItem={({item}) => (
+            renderItem={({ item }) => (
               <SwipeableCartItem onDelete={() => deleteFromReturnCart(item.id)}>
                 <View style={styles.cartItem}>
                   <View>
-                    <Text style={[styles.cartItemName, Subtitle2]}>
-                      {item.name}
-                    </Text>
+                    <Text style={[styles.cartItemName, Subtitle2]}>{item.name}</Text>
                     <Text style={[styles.cartItemPrice, Body3]}>
                       $ {item.price} x {item.qty}
                     </Text>
@@ -269,15 +230,14 @@ const ReturnScreen = () => {
                   <View style={styles.qtyControls}>
                     <TouchableOpacity
                       onPress={() => removeFromReturnCart(item.id)}
-                      style={styles.qtyBtn}>
+                      style={styles.qtyBtn}
+                    >
                       <Text style={[styles.qtyBtnText, ButtonText]}>−</Text>
                     </TouchableOpacity>
 
                     <Text style={[styles.qtyText, Body2]}>{item.qty}</Text>
 
-                    <TouchableOpacity
-                      onPress={() => addToReturnCart(item)}
-                      style={styles.qtyBtn}>
+                    <TouchableOpacity onPress={() => addToReturnCart(item)} style={styles.qtyBtn}>
                       <Text style={[styles.qtyBtnText, ButtonText]}>+</Text>
                     </TouchableOpacity>
                   </View>
@@ -297,15 +257,11 @@ const ReturnScreen = () => {
           </View>
 
           <TouchableOpacity
-            style={[
-              styles.proceedBtn,
-              returnCart.length === 0 && styles.proceedBtnDisabled,
-            ]}
+            style={[styles.proceedBtn, returnCart.length === 0 && styles.proceedBtnDisabled]}
             onPress={handleProceedReturn}
-            disabled={returnCart.length === 0}>
-            <Text style={[styles.proceedBtnText, ButtonText]}>
-              Proceed to Return
-            </Text>
+            disabled={returnCart.length === 0}
+          >
+            <Text style={[styles.proceedBtnText, ButtonText]}>Proceed to Return</Text>
           </TouchableOpacity>
         </View>
       </View>

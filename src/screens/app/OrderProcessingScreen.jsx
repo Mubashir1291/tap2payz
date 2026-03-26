@@ -1,18 +1,16 @@
 import React, { useState, useMemo, useRef, useEffect } from 'react';
-import {
-  View,
-  Text,
-  StatusBar,
-  TouchableOpacity,
-  FlatList,
-  Image,
-  ScrollView,
-} from 'react-native';
+import { View, Text, StatusBar, TouchableOpacity, FlatList, Image, ScrollView } from 'react-native';
 import { useNavigation, useRoute } from '@react-navigation/native';
-import { Colors } from '../../utils/Colors';
-import { S, VS, MS } from '../../utils/Responsive';
-import { Subtitle1, Subtitle2, Body3, H4, ButtonText, Caption, Body2, Body1, Overline, H2, ButtonTextSmall } from '../../utils/fonts';
-import { IconSize12, IconSize16, IconSize20, IconSize24, IconSize32, IconSize40 } from '../../utils/IconSizes';
+import {
+  Subtitle1,
+  Subtitle2,
+  Body3,
+  ButtonText,
+  Overline,
+  H2,
+  ButtonTextSmall,
+} from '../../utils/fonts';
+import { IconSize12, IconSize16, IconSize20, IconSize24, IconSize40 } from '../../utils/IconSizes';
 import {
   LeftArrowIcon,
   RightArrowIcon,
@@ -64,15 +62,21 @@ const dummyProducts = [
 const OrderProcessingScreen = () => {
   const navigation = useNavigation();
   const route = useRoute();
-  const { tableNumber, orderType, isNewOrder } = route.params || { tableNumber: '7', orderType: 'Dine in', isNewOrder: false };
+  const { tableNumber, orderType, isNewOrder } = route.params || {
+    tableNumber: '7',
+    orderType: 'Dine in',
+    isNewOrder: false,
+  };
 
   const [selectedCategory, setSelectedCategory] = useState('Beverages');
   const [cart, setCart] = useState(
-    isNewOrder ? [] : [
-      { id: 'c1', name: 'Sodavand (25cl)', price: 35.00, qty: 2, note: '' },
-      { id: 'c2', name: 'Sodavand (25cl)', price: 35.00, qty: 2, note: '' },
-      { id: 'c3', name: 'Sodavand (25cl)', price: 35.00, qty: 2, note: '' },
-    ]
+    isNewOrder
+      ? []
+      : [
+          { id: 'c1', name: 'Sodavand (25cl)', price: 35.0, qty: 2, note: '' },
+          { id: 'c2', name: 'Sodavand (25cl)', price: 35.0, qty: 2, note: '' },
+          { id: 'c3', name: 'Sodavand (25cl)', price: 35.0, qty: 2, note: '' },
+        ],
   );
 
   const [tipAmount, setTipAmount] = useState(null);
@@ -100,9 +104,9 @@ const OrderProcessingScreen = () => {
       setBuyerInfo(null);
     } else {
       setCart([
-        { id: 'c1', name: 'Sodavand (25cl)', price: 35.00, qty: 2, note: '' },
-        { id: 'c2', name: 'Sodavand (25cl)', price: 35.00, qty: 2, note: '' },
-        { id: 'c3', name: 'Sodavand (25cl)', price: 35.00, qty: 2, note: '' },
+        { id: 'c1', name: 'Sodavand (25cl)', price: 35.0, qty: 2, note: '' },
+        { id: 'c2', name: 'Sodavand (25cl)', price: 35.0, qty: 2, note: '' },
+        { id: 'c3', name: 'Sodavand (25cl)', price: 35.0, qty: 2, note: '' },
       ]);
       setTipAmount(null);
       setDiscountAmount(0);
@@ -138,37 +142,40 @@ const OrderProcessingScreen = () => {
   const categoryScrollRef = useRef(null);
   const scrollOffset = useRef(0);
 
-  const addToCart = (product) => {
+  const addToCart = product => {
     setCart(prev => {
       const existing = prev.find(item => item.productId === product.id);
       if (existing) {
-        return prev.map(item => 
-          item.productId === product.id ? { ...item, qty: item.qty + 1 } : item
+        return prev.map(item =>
+          item.productId === product.id ? { ...item, qty: item.qty + 1 } : item,
         );
       }
-      return [...prev, { 
-        id: `c_${Date.now()}_${product.id}`, 
-        productId: product.id,
-        name: product.name, 
-        price: product.price, 
-        qty: 1,
-        note: '',
-      }];
+      return [
+        ...prev,
+        {
+          id: `c_${Date.now()}_${product.id}`,
+          productId: product.id,
+          name: product.name,
+          price: product.price,
+          qty: 1,
+          note: '',
+        },
+      ];
     });
   };
 
   const updateQty = (id, delta) => {
-    setCart(prev => prev.map(item => 
-      item.id === id ? { ...item, qty: Math.max(1, item.qty + delta) } : item
-    ));
+    setCart(prev =>
+      prev.map(item => (item.id === id ? { ...item, qty: Math.max(1, item.qty + delta) } : item)),
+    );
   };
 
-  const removeItem = (id) => {
+  const removeItem = id => {
     setCart(prev => prev.filter(item => item.id !== id));
   };
 
   const subtotal = useMemo(() => {
-    return cart.reduce((sum, item) => sum + (item.price * item.qty), 0);
+    return cart.reduce((sum, item) => sum + item.price * item.qty, 0);
   }, [cart]);
 
   const total = useMemo(() => {
@@ -181,14 +188,32 @@ const OrderProcessingScreen = () => {
 
   // Modals Handlers
   const handleOpenTipModal = () => setShowTipModal(true);
-  const handleAddTip = (amount) => { setTipAmount(amount); setShowTipModal(false); };
-  const handleSaveTip = (amount) => { setTipAmount(amount); setShowTipModal(false); };
-  const handleDeleteTip = () => { setTipAmount(null); setShowTipModal(false); };
+  const handleAddTip = amount => {
+    setTipAmount(amount);
+    setShowTipModal(false);
+  };
+  const handleSaveTip = amount => {
+    setTipAmount(amount);
+    setShowTipModal(false);
+  };
+  const handleDeleteTip = () => {
+    setTipAmount(null);
+    setShowTipModal(false);
+  };
 
   const handleOpenBuyerModal = () => setShowBuyerModal(true);
-  const handleAddBuyerInfo = (info) => { setBuyerInfo(info); setShowBuyerModal(false); };
-  const handleSaveBuyerInfo = (info) => { setBuyerInfo(info); setShowBuyerModal(false); };
-  const handleDeleteBuyerInfo = () => { setBuyerInfo(null); setShowBuyerModal(false); };
+  const handleAddBuyerInfo = info => {
+    setBuyerInfo(info);
+    setShowBuyerModal(false);
+  };
+  const handleSaveBuyerInfo = info => {
+    setBuyerInfo(info);
+    setShowBuyerModal(false);
+  };
+  const handleDeleteBuyerInfo = () => {
+    setBuyerInfo(null);
+    setShowBuyerModal(false);
+  };
 
   const handleQuickSale = ({ name, price }) => {
     const quickItem = {
@@ -202,7 +227,9 @@ const OrderProcessingScreen = () => {
   };
 
   const handleProcessOrder = () => {
-    if (cart.length === 0) return;
+    if (cart.length === 0) {
+      return;
+    }
     setShowProcessModal(true);
   };
 
@@ -230,25 +257,25 @@ const OrderProcessingScreen = () => {
     navigation.navigate('TableSelectionScreen', { newlyProcessedTable: tableNumber });
   };
 
-  const openNoteModal = (item) => {
+  const openNoteModal = item => {
     setSelectedCartItem(item);
     setShowNoteModal(true);
   };
 
-  const handleSaveNote = (noteText) => {
-    setCart(prev => prev.map(item => 
-      item.id === selectedCartItem.id ? { ...item, note: noteText } : item
-    ));
+  const handleSaveNote = noteText => {
+    setCart(prev =>
+      prev.map(item => (item.id === selectedCartItem.id ? { ...item, note: noteText } : item)),
+    );
     setShowNoteModal(false);
   };
 
-  const handleSaveDiscount = (code) => {
+  const handleSaveDiscount = code => {
     setDiscountCode(code);
     // Dummy logic: if code exists, apply $10 discount
     if (code.length > 0) {
-        setDiscountAmount(10);
+      setDiscountAmount(10);
     } else {
-        setDiscountAmount(0);
+      setDiscountAmount(0);
     }
   };
 
@@ -258,10 +285,10 @@ const OrderProcessingScreen = () => {
   };
 
   const renderProduct = ({ item }) => (
-    <TouchableOpacity 
-        style={styles.productCard} 
-        activeOpacity={0.7}
-        onPress={() => addToCart(item)}
+    <TouchableOpacity
+      style={styles.productCard}
+      activeOpacity={0.7}
+      onPress={() => addToCart(item)}
     >
       <View style={styles.priceTag}>
         <Text style={[styles.priceText, Overline]}>$ {item.price}</Text>
@@ -285,44 +312,44 @@ const OrderProcessingScreen = () => {
 
         {/* Category Slider */}
         <View style={styles.categoryRow}>
-            <TouchableOpacity 
-                style={styles.categoryArrow}
-                onPress={() => {
-                    const prevX = Math.max(0, scrollOffset.current - 200);
-                    categoryScrollRef.current?.scrollTo({ x: prevX, animated: true });
-                }}
-            >
-                <Image source={LeftArrowIcon} style={IconSize12} />
-            </TouchableOpacity>
-            <ScrollView 
-                ref={categoryScrollRef}
-                horizontal 
-                showsHorizontalScrollIndicator={false}
-                onScroll={(e) => {
-                    scrollOffset.current = e.nativeEvent.contentOffset.x;
-                }}
-                scrollEventThrottle={16}
-            >
-                {categories.map((cat) => (
-                    <TouchableOpacity 
-                        key={cat.name} 
-                        style={[styles.categoryBtn, selectedCategory === cat.name && styles.activeCategory]}
-                        onPress={() => setSelectedCategory(cat.name)}
-                    >
-                        <Image source={cat.icon} style={[IconSize16, styles.categoryIcon]} />
-                        <Text style={[styles.categoryText, Subtitle2]}>{cat.name}</Text>
-                    </TouchableOpacity>
-                ))}
-            </ScrollView>
-            <TouchableOpacity 
-                style={styles.categoryArrow}
-                onPress={() => {
-                    const nextX = scrollOffset.current + 200;
-                    categoryScrollRef.current?.scrollTo({ x: nextX, animated: true });
-                }}
-            >
-                <Image source={RightArrowIcon} style={IconSize12} />
-            </TouchableOpacity>
+          <TouchableOpacity
+            style={styles.categoryArrow}
+            onPress={() => {
+              const prevX = Math.max(0, scrollOffset.current - 200);
+              categoryScrollRef.current?.scrollTo({ x: prevX, animated: true });
+            }}
+          >
+            <Image source={LeftArrowIcon} style={IconSize12} />
+          </TouchableOpacity>
+          <ScrollView
+            ref={categoryScrollRef}
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            onScroll={e => {
+              scrollOffset.current = e.nativeEvent.contentOffset.x;
+            }}
+            scrollEventThrottle={16}
+          >
+            {categories.map(cat => (
+              <TouchableOpacity
+                key={cat.name}
+                style={[styles.categoryBtn, selectedCategory === cat.name && styles.activeCategory]}
+                onPress={() => setSelectedCategory(cat.name)}
+              >
+                <Image source={cat.icon} style={[IconSize16, styles.categoryIcon]} />
+                <Text style={[styles.categoryText, Subtitle2]}>{cat.name}</Text>
+              </TouchableOpacity>
+            ))}
+          </ScrollView>
+          <TouchableOpacity
+            style={styles.categoryArrow}
+            onPress={() => {
+              const nextX = scrollOffset.current + 200;
+              categoryScrollRef.current?.scrollTo({ x: nextX, animated: true });
+            }}
+          >
+            <Image source={RightArrowIcon} style={IconSize12} />
+          </TouchableOpacity>
         </View>
 
         {/* Product Grid */}
@@ -342,94 +369,90 @@ const OrderProcessingScreen = () => {
           <Text style={[styles.tableInfo, Subtitle1]}>Table #: {tableNumber}</Text>
           {orderType !== 'Take Away' && (
             <TouchableOpacity style={styles.splitBtn}>
-                <Image source={SplitIcon} style={[IconSize16, styles.splitIcon, ]} />
-                <Text style={[styles.splitText, Body3]}>Split Items</Text>
+              <Image source={SplitIcon} style={[IconSize16, styles.splitIcon]} />
+              <Text style={[styles.splitText, Body3]}>Split Items</Text>
             </TouchableOpacity>
           )}
           <Text style={[styles.cashierInfo, Body3]}>Cashier: Jane</Text>
         </View>
 
         <FlatList
-            data={cart}
-            keyExtractor={item => item.id}
-            renderItem={({ item }) => (
-                <View style={styles.cartItemContainer}>
-                    <View style={styles.cartItem}>
-                        <View style={styles.itemMainInfo}>
-                            <Text style={[styles.itemName, Subtitle2]}>{item.name}</Text>
-                            <Text style={[styles.itemPrice, Body3]}>$ {item.price.toFixed(2)}</Text>
-                            {item.note ? (
-                                <Text style={[styles.itemNote, Body3]} numberOfLines={2}>
-                                    Note: {item.note}
-                                </Text>
-                            ) : null}
-                        </View>
-                        <View style={styles.itemActions}>
-                            <TouchableOpacity style={styles.addNoteBtn} onPress={() => openNoteModal(item)}>
-                                <Text style={[styles.addNoteText, Overline]}>
-                                    {item.note ? 'Edit Note' : '+ Add Note'}
-                                </Text>
-                            </TouchableOpacity>
-                            <View style={styles.qtyRow}>
-                                <TouchableOpacity 
-                                    style={[styles.qtyBtn, item.qty > 1 && styles.qtyBtnActive]}
-                                    onPress={() => updateQty(item.id, -1)}
-                                >
-                                    <View style={{ width: S(10), height: VS(2), backgroundColor: Colors.white }} />
-                                </TouchableOpacity>
-                                <Text style={[styles.qtyText, Subtitle2]}>{item.qty.toString().padStart(2, '0')}</Text>
-                                <TouchableOpacity 
-                                    style={[styles.qtyBtn, styles.qtyBtnActive]}
-                                    onPress={() => updateQty(item.id, 1)}
-                                >
-                                    <Text style={{ color: Colors.white, fontSize: MS(18) }}>+</Text>
-                                </TouchableOpacity>
-                            </View>
-                        </View>
-                    </View>
-                    <TouchableOpacity style={styles.deleteItemBtn} onPress={() => removeItem(item.id)}>
-                        <Image source={DeleteIcon} style={[IconSize20, styles.deleteIcon]} />
-                    </TouchableOpacity>
+          data={cart}
+          keyExtractor={item => item.id}
+          renderItem={({ item }) => (
+            <View style={styles.cartItemContainer}>
+              <View style={styles.cartItem}>
+                <View style={styles.itemMainInfo}>
+                  <Text style={[styles.itemName, Subtitle2]}>{item.name}</Text>
+                  <Text style={[styles.itemPrice, Body3]}>$ {item.price.toFixed(2)}</Text>
+                  {item.note ? (
+                    <Text style={[styles.itemNote, Body3]} numberOfLines={2}>
+                      Note: {item.note}
+                    </Text>
+                  ) : null}
                 </View>
-            )}
-            showsVerticalScrollIndicator={false}
+                <View style={styles.itemActions}>
+                  <TouchableOpacity style={styles.addNoteBtn} onPress={() => openNoteModal(item)}>
+                    <Text style={[styles.addNoteText, Overline]}>
+                      {item.note ? 'Edit Note' : '+ Add Note'}
+                    </Text>
+                  </TouchableOpacity>
+                  <View style={styles.qtyRow}>
+                    <TouchableOpacity
+                      style={[styles.qtyBtn, item.qty > 1 && styles.qtyBtnActive]}
+                      onPress={() => updateQty(item.id, -1)}
+                    >
+                      <View style={styles.minusButtonBar} />
+                    </TouchableOpacity>
+                    <Text style={[styles.qtyText, Subtitle2]}>
+                      {item.qty.toString().padStart(2, '0')}
+                    </Text>
+                    <TouchableOpacity
+                      style={[styles.qtyBtn, styles.qtyBtnActive]}
+                      onPress={() => updateQty(item.id, 1)}
+                    >
+                      <Text style={styles.plusButtonText}>+</Text>
+                    </TouchableOpacity>
+                  </View>
+                </View>
+              </View>
+              <TouchableOpacity style={styles.deleteItemBtn} onPress={() => removeItem(item.id)}>
+                <Image source={DeleteIcon} style={[IconSize20, styles.deleteIcon]} />
+              </TouchableOpacity>
+            </View>
+          )}
+          showsVerticalScrollIndicator={false}
         />
 
         {/* Action Buttons */}
         <View style={styles.actionRow}>
           <TouchableOpacity style={styles.actionBtn} onPress={() => setShowDiscountModal(true)}>
-             <View style={{ position: 'relative' }}>
-                <Image source={DiscountIcon} style={[IconSize20, styles.actionIcon]} />
-                {discountCode.length > 0 && (
-                    <Image source={TickIcon} style={{ position: 'absolute', top: -VS(4), right: -S(15), width: S(10), height: VS(10), resizeMode: 'contain' }} />
-                )}
-             </View>
+            <View style={styles.relativePosition}>
+              <Image source={DiscountIcon} style={[IconSize20, styles.actionIcon]} />
+              {discountCode.length > 0 && (
+                <Image source={TickIcon} style={styles.tickIconOverlay} />
+              )}
+            </View>
             <Text style={Overline}>Discount</Text>
           </TouchableOpacity>
           <TouchableOpacity style={styles.actionBtn} onPress={handleOpenTipModal}>
-            <View style={{ position: 'relative' }}>
+            <View style={styles.relativePosition}>
               <Image source={DollarIcon} style={IconSize20} />
-              {tipAmount !== null && (
-                <Image source={TickIcon} style={{ position: 'absolute', top: -VS(4), right: -S(15), width: S(10), height: VS(10),resizeMode: 'contain'}} />
-              )}
+              {tipAmount !== null && <Image source={TickIcon} style={styles.tickIconOverlay} />}
             </View>
             <Text style={Overline}>Add TIP</Text>
           </TouchableOpacity>
           <TouchableOpacity style={styles.actionBtn} onPress={() => setShowQuickSaleModal(true)}>
-            <View style={{ position: 'relative' }}>
+            <View style={styles.relativePosition}>
               <Image source={RefreshICon} style={IconSize20} />
-              {hasQuickSale && (
-                <Image source={TickIcon} style={{ position: 'absolute', top: -VS(4), right: -S(15), width: S(10), height: VS(10),resizeMode: 'contain' }} />
-              )}
+              {hasQuickSale && <Image source={TickIcon} style={styles.tickIconOverlay} />}
             </View>
             <Text style={Overline}>Quick Sale</Text>
           </TouchableOpacity>
           <TouchableOpacity style={styles.actionBtn} onPress={handleOpenBuyerModal}>
-            <View style={{ position: 'relative' }}>
+            <View style={styles.relativePosition}>
               <Image source={BuyersIcon} style={IconSize20} />
-              {buyerInfo !== null && (
-                <Image source={TickIcon} style={{ position: 'absolute', top: -VS(4), right: -S(15), width: S(10), height: VS(10),resizeMode: 'contain' }} />
-              )}
+              {buyerInfo !== null && <Image source={TickIcon} style={styles.tickIconOverlay} />}
             </View>
             <Text style={Overline}>Buyer Details</Text>
           </TouchableOpacity>
@@ -437,47 +460,51 @@ const OrderProcessingScreen = () => {
 
         {/* Total Section */}
         <View style={styles.totalSection}>
-            {discountAmount > 0 && (
-                <View style={[styles.totalRow, { marginBottom: VS(8) }]}>
-                    <Text style={[styles.totalLabel, Subtitle2, { color: Colors.grey }]}>Discount:</Text>
-                    <Text style={[styles.totalValue, Subtitle2, { color: '#E74C3C' }]}>- $ {discountAmount.toFixed(2)}</Text>
-                </View>
-            )}
-            {tipAmount !== null && parseFloat(tipAmount) > 0 && (
-                <View style={[styles.totalRow, { marginBottom: VS(8) }]}>
-                    <Text style={[styles.totalLabel, Subtitle2, { color: Colors.grey }]}>Tip:</Text>
-                    <Text style={[styles.totalValue, Subtitle2, { color: '#4CAF50' }]}>+ $ {parseFloat(tipAmount).toFixed(2)}</Text>
-                </View>
-            )}
-            <View style={styles.totalRow}>
-                <Text style={[styles.totalLabel, H2]}>Total:</Text>
-                <Text style={[styles.totalValue, H2]}>$ {total}</Text>
+          {discountAmount > 0 && (
+            <View style={[styles.totalRow, styles.bottomMarginSmall]}>
+              <Text style={[styles.totalLabel, Subtitle2, styles.greyTextColor]}>Discount:</Text>
+              <Text style={[styles.totalValue, Subtitle2, styles.redTextColor]}>
+                - $ {discountAmount.toFixed(2)}
+              </Text>
             </View>
-
-            <View style={styles.bottomActions}>
-                <TouchableOpacity 
-                    style={[styles.processBtn, cart.length === 0 && styles.disabledBtn]} 
-                    onPress={handleProcessOrder}
-                    disabled={cart.length === 0}
-                >
-                    <Text style={[styles.processBtnText, ButtonTextSmall]}>Process Order</Text>
-                </TouchableOpacity>
-                <TouchableOpacity 
-                    style={[styles.cancelBtn, cart.length === 0 && styles.disabledBtn]} 
-                    onPress={handleCancelOrder}
-                    disabled={cart.length === 0}
-                >
-                    <Text style={[styles.cancelBtnText, ButtonTextSmall]}>Cancel Order</Text>
-                </TouchableOpacity>
+          )}
+          {tipAmount !== null && parseFloat(tipAmount) > 0 && (
+            <View style={[styles.totalRow, styles.bottomMarginSmall]}>
+              <Text style={[styles.totalLabel, Subtitle2, styles.greyTextColor]}>Tip:</Text>
+              <Text style={[styles.totalValue, Subtitle2, styles.greenTextColor]}>
+                + $ {parseFloat(tipAmount).toFixed(2)}
+              </Text>
             </View>
+          )}
+          <View style={styles.totalRow}>
+            <Text style={[styles.totalLabel, H2]}>Total:</Text>
+            <Text style={[styles.totalValue, H2]}>$ {total}</Text>
+          </View>
 
-            <TouchableOpacity 
-                style={[styles.primaryBtn, cart.length === 0 && styles.primaryBtnDisabled]} 
-                disabled={cart.length === 0}
-                onPress={() => setShowPaymentModal(true)}
+          <View style={styles.bottomActions}>
+            <TouchableOpacity
+              style={[styles.processBtn, cart.length === 0 && styles.disabledBtn]}
+              onPress={handleProcessOrder}
+              disabled={cart.length === 0}
             >
-                <Text style={[styles.primaryBtnText, ButtonText]}>Proceed to Checkout</Text>
+              <Text style={[styles.processBtnText, ButtonTextSmall]}>Process Order</Text>
             </TouchableOpacity>
+            <TouchableOpacity
+              style={[styles.cancelBtn, cart.length === 0 && styles.disabledBtn]}
+              onPress={handleCancelOrder}
+              disabled={cart.length === 0}
+            >
+              <Text style={[styles.cancelBtnText, ButtonTextSmall]}>Cancel Order</Text>
+            </TouchableOpacity>
+          </View>
+
+          <TouchableOpacity
+            style={[styles.primaryBtn, cart.length === 0 && styles.primaryBtnDisabled]}
+            disabled={cart.length === 0}
+            onPress={() => setShowPaymentModal(true)}
+          >
+            <Text style={[styles.primaryBtnText, ButtonText]}>Proceed to Checkout</Text>
+          </TouchableOpacity>
         </View>
       </View>
 
@@ -509,7 +536,7 @@ const OrderProcessingScreen = () => {
 
       <ConfirmationModal
         visible={showCancelModal}
-        icon={CancelOrderIcon }
+        icon={CancelOrderIcon}
         iconStyle={IconSize40}
         title="Cancel Order!"
         subtitle="Are you sure you want to Cancel this order?"
@@ -547,7 +574,7 @@ const OrderProcessingScreen = () => {
         visible={showPaymentModal}
         totalAmount={parseFloat(total)}
         currency="$"
-        onProceed={async (data) => {
+        onProceed={async data => {
           setShowPaymentModal(false);
           if (data.method === 'Cash') {
             setShowSuccessModal(true);
@@ -556,13 +583,12 @@ const OrderProcessingScreen = () => {
             try {
               await NfcManager.start();
               await NfcManager.requestTechnology(NfcTech.Ndef); // Use NfcTech.IsoDep if you are reading standard EMV Credit Cards
-              const tag = await NfcManager.getTag();
-              console.log('Card tapped:', tag);
-              
+              // const tag = await NfcManager.getTag();
+              // console.log('Card tapped:', tag);
+
               setShowTapCardModal(false);
               setShowTransactionModal(true);
-            } catch (ex) {
-              console.log('NFC Error or Cancelled:', ex);
+            } catch {
               setShowTapCardModal(false);
             } finally {
               NfcManager.cancelTechnologyRequest();
@@ -597,7 +623,7 @@ const OrderProcessingScreen = () => {
         visible={showTransactionModal}
         onClose={() => setShowTransactionModal(false)}
       />
-      
+
       <TapCardModal visible={showTapCardModal} />
     </View>
   );

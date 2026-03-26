@@ -1,15 +1,8 @@
-import React, {useState, useEffect} from 'react';
-import {
-  View,
-  Text,
-  Modal,
-  TouchableOpacity,
-  TextInput,
-  StyleSheet,
-} from 'react-native';
-import {Colors} from '../utils/Colors';
-import {S, VS, MS} from '../utils/Responsive';
-import {H4, Body2, Body3, Subtitle2, ButtonText} from '../utils/fonts';
+import React, { useState, useEffect } from 'react';
+import { View, Text, Modal, TouchableOpacity, TextInput, StyleSheet } from 'react-native';
+import { Colors } from '../utils/Colors';
+import { S, VS, MS } from '../utils/Responsive';
+import { H4, Body2, Subtitle2, ButtonText } from '../utils/fonts';
 
 const TIP_OPTIONS = [5.0, 10.0, 15.0];
 
@@ -85,11 +78,7 @@ const TipModal = ({
   };
 
   return (
-    <Modal
-      animationType="fade"
-      transparent={true}
-      visible={visible}
-      onRequestClose={onClose}>
+    <Modal animationType="fade" transparent={true} visible={visible} onRequestClose={onClose}>
       <View style={styles.overlay}>
         <View style={styles.container}>
           {/* Close Button */}
@@ -104,26 +93,18 @@ const TipModal = ({
 
           {/* Select your Tip */}
           <View style={styles.sectionContainer}>
-            <Text style={[styles.sectionLabel, Subtitle2]}>
-              Select your Tip:
-            </Text>
+            <Text style={[styles.sectionLabel, Subtitle2]}>Select your Tip:</Text>
             <View style={styles.presetRow}>
               {TIP_OPTIONS.map(amount => (
                 <TouchableOpacity
                   key={amount}
-                  style={[
-                    styles.presetBtn,
-                    selectedPreset === amount && styles.presetBtnActive,
-                  ]}
-                  onPress={() => handlePresetSelect(amount)}>
+                  style={[styles.presetBtn, selectedPreset === amount && styles.presetBtnActive]}
+                  onPress={() => handlePresetSelect(amount)}
+                >
                   <View style={styles.radioOuter}>
-                    {selectedPreset === amount && (
-                      <View style={styles.radioInner} />
-                    )}
+                    {selectedPreset === amount && <View style={styles.radioInner} />}
                   </View>
-                  <Text style={[styles.presetText, Body2]}>
-                    CAD {amount.toFixed(2)}
-                  </Text>
+                  <Text style={[styles.presetText, Body2]}>CAD {amount.toFixed(2)}</Text>
                 </TouchableOpacity>
               ))}
             </View>
@@ -131,9 +112,7 @@ const TipModal = ({
 
           {/* Custom Tip Input */}
           <View style={styles.sectionContainer}>
-            <Text style={[styles.sectionLabel, Subtitle2]}>
-              Enter your Tip
-            </Text>
+            <Text style={[styles.sectionLabel, Subtitle2]}>Enter your Tip</Text>
             <TextInput
               style={[styles.tipInput, Body2]}
               placeholder="eg: CAD 0.00"
@@ -147,28 +126,16 @@ const TipModal = ({
           {/* Action Buttons */}
           {isEditMode ? (
             <View style={styles.editButtonRow}>
-              <TouchableOpacity
-                style={styles.deleteBtn}
-                onPress={handleDeleteTip}>
-                <Text style={[styles.deleteBtnText, ButtonText]}>
-                  Delete Tip
-                </Text>
+              <TouchableOpacity style={styles.deleteBtn} onPress={handleDeleteTip}>
+                <Text style={[styles.deleteBtnText, ButtonText]}>Delete Tip</Text>
               </TouchableOpacity>
-              <TouchableOpacity
-                style={styles.saveBtn}
-                onPress={handleSaveTip}>
-                <Text style={[styles.saveBtnText, ButtonText]}>
-                  Save Changes →
-                </Text>
+              <TouchableOpacity style={styles.saveBtn} onPress={handleSaveTip}>
+                <Text style={[styles.saveBtnText, ButtonText]}>Save Changes →</Text>
               </TouchableOpacity>
             </View>
           ) : (
-            <TouchableOpacity
-              style={styles.addTipBtn}
-              onPress={handleAddTip}>
-              <Text style={[styles.addTipBtnText, ButtonText]}>
-                Add Tip →
-              </Text>
+            <TouchableOpacity style={styles.addTipBtn} onPress={handleAddTip}>
+              <Text style={[styles.addTipBtnText, ButtonText]}>Add Tip →</Text>
             </TouchableOpacity>
           )}
         </View>

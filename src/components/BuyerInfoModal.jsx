@@ -1,15 +1,8 @@
-import React, {useState, useEffect} from 'react';
-import {
-  View,
-  Text,
-  Modal,
-  TouchableOpacity,
-  TextInput,
-  StyleSheet,
-} from 'react-native';
-import {Colors} from '../utils/Colors';
-import {S, VS, MS} from '../utils/Responsive';
-import {H4, Body2, Subtitle2, ButtonText} from '../utils/fonts';
+import React, { useState, useEffect } from 'react';
+import { View, Text, Modal, TouchableOpacity, TextInput, StyleSheet } from 'react-native';
+import { Colors } from '../utils/Colors';
+import { S, VS, MS } from '../utils/Responsive';
+import { H4, Body2, Subtitle2, ButtonText } from '../utils/fonts';
 
 const BuyerInfoModal = ({
   visible = false,
@@ -74,11 +67,7 @@ const BuyerInfoModal = ({
   };
 
   return (
-    <Modal
-      animationType="fade"
-      transparent={true}
-      visible={visible}
-      onRequestClose={onClose}>
+    <Modal animationType="fade" transparent={true} visible={visible} onRequestClose={onClose}>
       <View style={styles.overlay}>
         <View style={styles.container}>
           {/* Close Button */}
@@ -94,9 +83,7 @@ const BuyerInfoModal = ({
           {/* First Name & Last Name Row */}
           <View style={styles.inputRow}>
             <View style={styles.inputHalf}>
-              <Text style={[styles.inputLabel, Subtitle2]}>
-                Buyer's First Name
-              </Text>
+              <Text style={[styles.inputLabel, Subtitle2]}>Buyer's First Name</Text>
               <TextInput
                 style={[styles.input, Body2]}
                 placeholder="First Name"
@@ -106,9 +93,7 @@ const BuyerInfoModal = ({
               />
             </View>
             <View style={styles.inputHalf}>
-              <Text style={[styles.inputLabel, Subtitle2]}>
-                Buyer's Last Name
-              </Text>
+              <Text style={[styles.inputLabel, Subtitle2]}>Buyer's Last Name</Text>
               <TextInput
                 style={[styles.input, Body2]}
                 placeholder="Last Name"
@@ -122,9 +107,7 @@ const BuyerInfoModal = ({
           {/* Email & Phone Row */}
           <View style={styles.inputRow}>
             <View style={styles.inputHalf}>
-              <Text style={[styles.inputLabel, Subtitle2]}>
-                Buyer's Email
-              </Text>
+              <Text style={[styles.inputLabel, Subtitle2]}>Buyer's Email</Text>
               <TextInput
                 style={[styles.input, Body2]}
                 placeholder="email@example.com"
@@ -135,9 +118,7 @@ const BuyerInfoModal = ({
               />
             </View>
             <View style={styles.inputHalf}>
-              <Text style={[styles.inputLabel, Subtitle2]}>
-                Buyer's Phone
-              </Text>
+              <Text style={[styles.inputLabel, Subtitle2]}>Buyer's Phone</Text>
               <TextInput
                 style={[styles.input, Body2]}
                 placeholder="+1234567890"
@@ -152,28 +133,16 @@ const BuyerInfoModal = ({
           {/* Action Buttons */}
           {isEditMode ? (
             <View style={styles.editButtonRow}>
-              <TouchableOpacity
-                style={styles.deleteBtn}
-                onPress={handleDeleteInfo}>
-                <Text style={[styles.deleteBtnText, ButtonText]}>
-                  Delete Info
-                </Text>
+              <TouchableOpacity style={styles.deleteBtn} onPress={handleDeleteInfo}>
+                <Text style={[styles.deleteBtnText, ButtonText]}>Delete Info</Text>
               </TouchableOpacity>
-              <TouchableOpacity
-                style={styles.saveBtn}
-                onPress={handleSaveInfo}>
-                <Text style={[styles.saveBtnText, ButtonText]}>
-                  Save Changes →
-                </Text>
+              <TouchableOpacity style={styles.saveBtn} onPress={handleSaveInfo}>
+                <Text style={[styles.saveBtnText, ButtonText]}>Save Changes →</Text>
               </TouchableOpacity>
             </View>
           ) : (
-            <TouchableOpacity
-              style={styles.addInfoBtn}
-              onPress={handleAddInfo}>
-              <Text style={[styles.addInfoBtnText, ButtonText]}>
-                Add Info →
-              </Text>
+            <TouchableOpacity style={styles.addInfoBtn} onPress={handleAddInfo}>
+              <Text style={[styles.addInfoBtnText, ButtonText]}>Add Info →</Text>
             </TouchableOpacity>
           )}
         </View>

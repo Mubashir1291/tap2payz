@@ -1,16 +1,16 @@
 import React, { useState, useMemo } from 'react';
 import { View, Text, TouchableOpacity, ScrollView, TextInput, Image } from 'react-native';
 import { Colors } from '../../utils/Colors';
-import { S, VS, MS } from '../../utils/Responsive';
-import { Subtitle2, Body3, Caption, H1, Subtitle1 } from '../../utils/fonts';
-import { IconSize12, IconSize20, IconSize24, IconSize40 } from '../../utils/IconSizes';
-import { 
-  SearchIcon, 
-  LeftArrowIcon, 
+import { Subtitle2, Body3, Caption, H1 } from '../../utils/fonts';
+import { IconSize12, IconSize24, IconSize40 } from '../../utils/IconSizes';
+import {
+  SearchIcon,
+  LeftArrowIcon,
   RightArrowIcon,
   DeleteCircleIcon,
   EditCircleIcon,
-  LockCircleIcon
+  LockCircleIcon,
+  WarningIcon,
 } from '../../assets/Images';
 import styles from './EmployeeManagementStyles';
 import CreateEmployeeModal from '../../components/CreateEmployeeModal';
@@ -18,17 +18,64 @@ import EditEmployeeModal from '../../components/EditEmployeeModal';
 import SuccessModal from '../../components/SuccessModal';
 import SortModal from '../../components/SortModal';
 import ConfirmationModal from '../../components/ConfirmationModal';
-import {WarningIcon} from '../../assets/Images';
 
 const dummyData = [
-  { id: '25312152', name: 'Michel Gerdes', email: 'michelgerdes@gmail.com', sales: '$5,956.00', tips: '$520.00' },
-  { id: '25312153', name: 'John Peterson', email: 'john.peterson@gmail.com', sales: '$4,120.00', tips: '$310.00' },
-  { id: '25312154', name: 'Emma Wilson', email: 'emmawilson@gmail.com', sales: '$6,540.00', tips: '$640.00' },
-  { id: '25312155', name: 'David Miller', email: 'davidmiller@gmail.com', sales: '$3,890.00', tips: '$250.00' },
-  { id: '25312156', name: 'Sophia Anderson', email: 'sophia.anderson@gmail.com', sales: '$7,120.00', tips: '$720.00' },
-  { id: '25312157', name: 'Liam Johnson', email: 'liamjohnson@gmail.com', sales: '$2,980.00', tips: '$180.00' },
-  { id: '25312158', name: 'Olivia Brown', email: 'oliviabrown@gmail.com', sales: '$5,430.00', tips: '$410.00' },
-  { id: '25312159', name: 'Noah Davis', email: 'noahdavis@gmail.com', sales: '$6,010.00', tips: '$505.00' },
+  {
+    id: '25312152',
+    name: 'Michel Gerdes',
+    email: 'michelgerdes@gmail.com',
+    sales: '$5,956.00',
+    tips: '$520.00',
+  },
+  {
+    id: '25312153',
+    name: 'John Peterson',
+    email: 'john.peterson@gmail.com',
+    sales: '$4,120.00',
+    tips: '$310.00',
+  },
+  {
+    id: '25312154',
+    name: 'Emma Wilson',
+    email: 'emmawilson@gmail.com',
+    sales: '$6,540.00',
+    tips: '$640.00',
+  },
+  {
+    id: '25312155',
+    name: 'David Miller',
+    email: 'davidmiller@gmail.com',
+    sales: '$3,890.00',
+    tips: '$250.00',
+  },
+  {
+    id: '25312156',
+    name: 'Sophia Anderson',
+    email: 'sophia.anderson@gmail.com',
+    sales: '$7,120.00',
+    tips: '$720.00',
+  },
+  {
+    id: '25312157',
+    name: 'Liam Johnson',
+    email: 'liamjohnson@gmail.com',
+    sales: '$2,980.00',
+    tips: '$180.00',
+  },
+  {
+    id: '25312158',
+    name: 'Olivia Brown',
+    email: 'oliviabrown@gmail.com',
+    sales: '$5,430.00',
+    tips: '$410.00',
+  },
+  {
+    id: '25312159',
+    name: 'Noah Davis',
+    email: 'noahdavis@gmail.com',
+    sales: '$6,010.00',
+    tips: '$505.00',
+  },
 ];
 
 const EmployeeManagement = () => {
@@ -48,39 +95,36 @@ const EmployeeManagement = () => {
     } else if (sortType === 'z-a') {
       data.sort((a, b) => b.name.localeCompare(a.name));
     }
-    
+
     // Optionally also filter by searchQuery
     if (searchQuery.trim() !== '') {
       data = data.filter(item => item.name.toLowerCase().includes(searchQuery.toLowerCase()));
     }
-    
+
     return data;
   }, [sortType, searchQuery]);
 
-  const handleCreate = (data) => {
-    console.log("Create employee:", data);
+  const handleCreate = () => {
     setShowCreateModal(false);
   };
 
-  const handleEdit = (data) => {
-    console.log("Edit employee:", data);
+  const handleEdit = () => {
     setShowEditModal(false);
   };
 
-  const handleDeleteClick = (emp) => {
+  const handleDeleteClick = emp => {
     setSelectedEmployee(emp);
     setShowDeleteModal(true);
   };
 
   const confirmDelete = () => {
-    console.log("Deleted employee:", selectedEmployee);
     setShowDeleteModal(false);
     setTimeout(() => {
       setShowSuccessModal(true);
     }, 500);
   };
 
-  const handleSortSelect = (type) => {
+  const handleSortSelect = type => {
     setSortType(type);
     setShowSortModal(false);
   };
@@ -121,7 +165,7 @@ const EmployeeManagement = () => {
           <Text style={[styles.colEmail, styles.headerText, Subtitle2]}>Email Address</Text>
           <Text style={[styles.colSales, styles.headerText, Subtitle2]}>Sales</Text>
           <Text style={[styles.colTips, styles.headerText, Subtitle2]}>Tips</Text>
-          <Text style={[styles.colAction, styles.headerText, Subtitle2, { justifyContent: 'center' }]}>Actions</Text>
+          <Text style={[styles.colAction, styles.headerText, Subtitle2]}>Actions</Text>
         </View>
 
         {/* Table Content */}
@@ -129,18 +173,23 @@ const EmployeeManagement = () => {
           {sortedData.map((item, index) => (
             <View key={index} style={styles.tableRow}>
               <Text style={[styles.colId, styles.rowText, Body3]}>{item.id}</Text>
-              
+
               <View style={styles.colName}>
                 <View style={[styles.avatar, { backgroundColor: Colors.lightGrey }]} />
                 <Text style={[styles.rowText, Body3]}>{item.name}</Text>
               </View>
-              
+
               <Text style={[styles.colEmail, styles.rowText, Body3]}>{item.email}</Text>
               <Text style={[styles.colSales, styles.rowText, Body3]}>{item.sales}</Text>
               <Text style={[styles.colTips, styles.rowText, Body3]}>{item.tips}</Text>
-              
+
               <View style={styles.colAction}>
-                <TouchableOpacity onPress={() => { setSelectedEmployee(item); setShowEditModal(true); }}>
+                <TouchableOpacity
+                  onPress={() => {
+                    setSelectedEmployee(item);
+                    setShowEditModal(true);
+                  }}
+                >
                   <Image source={EditCircleIcon} style={[IconSize24]} />
                 </TouchableOpacity>
                 <TouchableOpacity>
@@ -168,13 +217,13 @@ const EmployeeManagement = () => {
       </View>
 
       {/* Modals */}
-      <CreateEmployeeModal 
-        visible={showCreateModal} 
+      <CreateEmployeeModal
+        visible={showCreateModal}
         onClose={() => setShowCreateModal(false)}
         onCreate={handleCreate}
       />
-      <EditEmployeeModal 
-        visible={showEditModal} 
+      <EditEmployeeModal
+        visible={showEditModal}
         onClose={() => setShowEditModal(false)}
         onSave={handleEdit}
         employeeData={selectedEmployee}
@@ -190,8 +239,8 @@ const EmployeeManagement = () => {
         onConfirm={confirmDelete}
         onCancel={() => setShowDeleteModal(false)}
       />
-      <SuccessModal 
-        visible={showSuccessModal} 
+      <SuccessModal
+        visible={showSuccessModal}
         onClose={() => setShowSuccessModal(false)}
         message="Merchant Deleted Successfully!"
       />

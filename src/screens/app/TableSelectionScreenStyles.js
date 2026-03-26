@@ -138,15 +138,15 @@ const styles = StyleSheet.create({
     position: 'absolute',
     width: '30%',
     height: '5%', // Thinner width
- borderTopEndRadius: MS(5),
- borderTopStartRadius: MS(5),
+    borderTopEndRadius: MS(5),
+    borderTopStartRadius: MS(5),
   },
   chairBottom: {
     position: 'absolute',
     width: '30%',
     height: '5%', // Thinner width
- borderBottomEndRadius: MS(5),
- borderBottomStartRadius: MS(5),
+    borderBottomEndRadius: MS(5),
+    borderBottomStartRadius: MS(5),
   },
   chairLeft: {
     position: 'absolute',
@@ -154,8 +154,6 @@ const styles = StyleSheet.create({
     height: '30%',
     borderTopLeftRadius: MS(5),
     borderBottomLeftRadius: MS(5),
-  
-   
   },
   chairRight: {
     position: 'absolute',
@@ -206,7 +204,7 @@ const styles = StyleSheet.create({
     color: '#555',
     fontSize: MS(8),
   },
-  
+
   // ─── Right Cart Panel ───
   cartPanel: {
     flex: 0.32,
@@ -223,7 +221,7 @@ const styles = StyleSheet.create({
   cartHeaderText: {
     color: '#333',
   },
-  
+
   cartContent: {
     flex: 1,
   },
@@ -252,7 +250,7 @@ const styles = StyleSheet.create({
     marginHorizontal: S(4),
   },
   actionIcon: {
-color: Colors.grey,
+    color: Colors.grey,
     marginBottom: VS(4),
   },
   actionLabelText: {
@@ -281,7 +279,7 @@ color: Colors.grey,
     fontSize: MS(20),
     fontWeight: 'bold',
   },
-  
+
   bottomButtonGroup: {
     flexDirection: 'row',
     justifyContent: 'space-between',
@@ -311,8 +309,7 @@ color: Colors.grey,
   },
 
   // ─── Checkout Section ───
-  checkoutSection: {
-  },
+  checkoutSection: {},
   checkoutBtn: {
     height: VS(45),
     borderRadius: MS(8),
@@ -322,7 +319,7 @@ color: Colors.grey,
   },
   checkoutBtnText: {
     color: '#777',
-    ...ButtonText
+    ...ButtonText,
   },
 
   // ─── Categories (Take Away) ───
@@ -398,6 +395,149 @@ color: Colors.grey,
   productName: {
     color: Colors.black,
     textAlign: 'center',
+  },
+
+  // INLINE STYLE REPLACEMENTS
+  chairTopPositioning: {
+    top: '5%',
+    left: '35%',
+    // backgroundColor is dynamic: chairColor
+  },
+  chairBottomPositioning: {
+    bottom: '5%',
+    left: '35%',
+    // backgroundColor is dynamic: chairColor
+  },
+  chairLeftPositioning: {
+    left: '5%',
+    top: '35%',
+    // backgroundColor is dynamic: chairColor
+  },
+  chairRightPositioning: {
+    right: '5%',
+    top: '35%',
+    // backgroundColor is dynamic: chairColor
+  },
+  tableCoreDynamic: {
+    // backgroundColor is dynamic: coreColor
+  },
+  greyOverlineText: {
+    color: Colors.grey,
+    fontFamily: 'Overline',
+  },
+  processingStatusColor: {
+    backgroundColor: '#C8933A',
+  },
+  modifiedStatusColor: {
+    backgroundColor: '#8B5A2B',
+  },
+  darkBlueTint: {
+    tintColor: '#2b3474',
+  },
+  cartItemCard: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: VS(12),
+    backgroundColor: '#F2F5FF',
+    borderRadius: MS(8),
+    padding: MS(12),
+  },
+  blackTextColor: {
+    color: Colors.black,
+  },
+  greyItalicNote: {
+    color: Colors.grey,
+    fontStyle: 'italic',
+    marginTop: VS(2),
+  },
+  alignFlexEnd: {
+    alignItems: 'flex-end',
+  },
+  noteButtonStyle: {
+    marginBottom: VS(4),
+    backgroundColor: Colors.white,
+    paddingHorizontal: S(8),
+    paddingVertical: VS(2),
+    borderRadius: MS(10),
+  },
+  rowCentered: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  qtyMinusButton: {
+    width: S(24),
+    height: S(24),
+    borderRadius: MS(12),
+    backgroundColor: Colors.grey,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  qtyMinusButtonActive: {
+    backgroundColor: '#3E468A',
+  },
+  qtyPlusButton: {
+    width: S(24),
+    height: S(24),
+    borderRadius: MS(12),
+    backgroundColor: '#3E468A',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  minusButtonBar: {
+    width: S(10),
+    height: VS(2),
+    backgroundColor: Colors.white,
+  },
+  qtyTextStyle: {
+    marginHorizontal: S(8),
+    color: Colors.black,
+  },
+  plusButtonText: {
+    color: Colors.white,
+    fontSize: MS(18),
+  },
+  leftMarginSmall: {
+    marginLeft: S(8),
+  },
+  deleteButtonIcon: {
+    width: S(20),
+    height: VS(20),
+    tintColor: '#E74C3C',
+  },
+  relativePosition: {
+    position: 'relative',
+  },
+  tickIconSmallOverlay: {
+    position: 'absolute',
+    top: -VS(4),
+    right: -S(15),
+    width: S(8),
+    height: VS(8),
+    resizeMode: 'contain',
+  },
+  bottomMarginSmall: {
+    marginBottom: VS(8),
+  },
+  redTextColor: {
+    color: '#E74C3C',
+  },
+  greenTextColor: {
+    color: '#4CAF50',
+  },
+  halfOpacity: {
+    opacity: 0.5,
+  },
+  darkBlueBg: {
+    backgroundColor: '#3E468A',
+  },
+  whiteTextColor: {
+    color: Colors.white,
+  },
+  flexFull: {
+    flex: 1,
+  },
+  greyTextColor: {
+    color: Colors.grey,
   },
 });
 

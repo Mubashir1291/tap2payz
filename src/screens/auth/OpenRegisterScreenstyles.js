@@ -243,8 +243,7 @@ const styles = StyleSheet.create({
     color: Colors.grey,
     marginBottom: VS(2),
   },
-  remainingValue: {
-  },
+  remainingValue: {},
   matchedText: {
     color: '#2ECC71',
   },

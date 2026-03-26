@@ -1,12 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import {
-  View,
-  Text,
-  Modal,
-  StyleSheet,
-  TouchableOpacity,
-  TextInput,
-} from 'react-native';
+import { View, Text, Modal, StyleSheet, TouchableOpacity, TextInput } from 'react-native';
 import { Colors } from '../utils/Colors';
 import { S, VS, MS } from '../utils/Responsive';
 import { H3, Subtitle1, ButtonText, Body3 } from '../utils/fonts';
@@ -27,12 +20,7 @@ const EditTableModal = ({ visible, onClose, onSave, tableData }) => {
   };
 
   return (
-    <Modal
-      visible={visible}
-      transparent={true}
-      animationType="fade"
-      onRequestClose={onClose}
-    >
+    <Modal visible={visible} transparent={true} animationType="fade" onRequestClose={onClose}>
       <View style={styles.modalOverlay}>
         <View style={styles.modalContent}>
           <TouchableOpacity style={styles.closeBtn} onPress={onClose}>

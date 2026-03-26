@@ -1,12 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import {
-  View,
-  Text,
-  Modal,
-  StyleSheet,
-  TouchableOpacity,
-  TextInput,
-} from 'react-native';
+import { View, Text, Modal, StyleSheet, TouchableOpacity, TextInput } from 'react-native';
 import { Colors } from '../utils/Colors';
 import { S, VS, MS } from '../utils/Responsive';
 import { H3, Body1, ButtonText, Subtitle2 } from '../utils/fonts';
@@ -26,19 +19,15 @@ const DiscountModal = ({ visible, onClose, onSave, onDelete, initialDiscountCode
   const isEdit = initialDiscountCode.length > 0;
 
   return (
-    <Modal
-      visible={visible}
-      transparent={true}
-      animationType="fade"
-      onRequestClose={onClose}>
+    <Modal visible={visible} transparent={true} animationType="fade" onRequestClose={onClose}>
       <View style={styles.modalOverlay}>
         <View style={styles.modalContent}>
           <TouchableOpacity style={styles.closeBtn} onPress={onClose}>
             <Text style={[styles.closeText, Subtitle2]}>✕</Text>
           </TouchableOpacity>
-          
+
           <Text style={[styles.title, H3]}>{isEdit ? 'Edit Discount' : 'Add Discount'}</Text>
-          
+
           <View style={styles.inputContainer}>
             <Text style={[styles.inputLabel, Body1]}>Add Discount Code</Text>
             <TextInput
@@ -49,22 +38,22 @@ const DiscountModal = ({ visible, onClose, onSave, onDelete, initialDiscountCode
               onChangeText={setCode}
             />
           </View>
-          
+
           <View style={styles.btnRow}>
             {isEdit && (
-              <TouchableOpacity 
-                style={styles.deleteBtn} 
+              <TouchableOpacity
+                style={styles.deleteBtn}
                 onPress={() => {
-                    onDelete();
-                    onClose();
+                  onDelete();
+                  onClose();
                 }}
                 activeOpacity={0.8}
               >
                 <Text style={[styles.deleteText, ButtonText]}>Delete Discount</Text>
               </TouchableOpacity>
             )}
-            <TouchableOpacity 
-              style={[styles.saveBtn, isEdit && { width: '48%' }]} 
+            <TouchableOpacity
+              style={[styles.saveBtn, isEdit && { ...styles.saveBtnEditStyle }]}
               onPress={handleSave}
               activeOpacity={0.8}
             >
@@ -142,6 +131,9 @@ const styles = StyleSheet.create({
     borderRadius: MS(12),
     justifyContent: 'center',
     alignItems: 'center',
+  },
+  saveBtnEditStyle: {
+    width: '48%',
   },
   saveBtnText: {
     color: '#3E468A',

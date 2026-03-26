@@ -47,6 +47,9 @@ const styles = StyleSheet.create({
     width: S(200),
     marginRight: S(16),
   },
+  searchIconTint: {
+    tintColor: '#666',
+  },
   searchInput: {
     flex: 1,
     color: '#333',
@@ -125,7 +128,7 @@ const styles = StyleSheet.create({
     color: '#555',
     textAlign: 'center',
   },
-  
+
   // ─── Action Button ───
   viewInvoiceBtn: {
     backgroundColor: '#E6E9F5',

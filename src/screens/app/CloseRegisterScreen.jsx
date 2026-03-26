@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, { useState } from 'react';
 import {
   View,
   Text,
@@ -7,26 +7,26 @@ import {
   StyleSheet,
   ActivityIndicator,
 } from 'react-native';
-import {useNavigation} from '@react-navigation/native';
-import {useSelector} from 'react-redux';
-import {Colors} from '../../utils/Colors';
-import {S, VS, MS} from '../../utils/Responsive';
-import {H3, H4, Body2, Subtitle1, Subtitle2, ButtonText} from '../../utils/fonts';
-import {store} from '../../redux/store';
-import {setIsRegisterOpen} from '../../redux/Reducers/userReducer';
-import {CLOSE_REGISTER} from '../../services/AppServices';
+import { useNavigation } from '@react-navigation/native';
+import { useSelector } from 'react-redux';
+import { Colors } from '../../utils/Colors';
+import { S, VS, MS } from '../../utils/Responsive';
+import { H3, H4, Body2, Subtitle1, Subtitle2, ButtonText } from '../../utils/fonts';
+import { store } from '../../redux/store';
+import { setIsRegisterOpen } from '../../redux/Reducers/userReducer';
+import { CLOSE_REGISTER } from '../../services/AppServices';
 import Toast from 'react-native-toast-message';
 
 const summaryData = [
-  {label: 'Opening Amount', value: '12,500'},
-  {label: 'Sales', value: '6,250'},
-  {label: 'Online Sales', value: '6,250'},
-  {label: 'Return', value: '0,00'},
+  { label: 'Opening Amount', value: '12,500' },
+  { label: 'Sales', value: '6,250' },
+  { label: 'Online Sales', value: '6,250' },
+  { label: 'Return', value: '0,00' },
 ];
 
 const CloseRegisterScreen = () => {
   const navigation = useNavigation();
-  const {deviceId} = useSelector(state => state.device);
+  const { deviceId } = useSelector(state => state.device);
   const [cashOutAmount, setCashOutAmount] = useState('');
   const [isLoading, setIsLoading] = useState(false);
 
@@ -39,7 +39,9 @@ const CloseRegisterScreen = () => {
   };
 
   const formattedAmount = () => {
-    if (!cashOutAmount) return '0';
+    if (!cashOutAmount) {
+      return '0';
+    }
     return Number(cashOutAmount).toLocaleString();
   };
 
@@ -113,9 +115,7 @@ const CloseRegisterScreen = () => {
 
         {/* Closing Amount */}
         <View style={styles.closingRow}>
-          <Text style={[styles.closingLabel, Subtitle2]}>
-            Closing amount with cash register
-          </Text>
+          <Text style={[styles.closingLabel, Subtitle2]}>Closing amount with cash register</Text>
           <Text style={[styles.closingValue, Subtitle1]}>12,500</Text>
         </View>
       </View>
@@ -126,27 +126,22 @@ const CloseRegisterScreen = () => {
           {/* Cash Out Header */}
           <View style={styles.cashOutHeader}>
             <Text style={[styles.cashOutLabel, Subtitle1]}>Cash Out</Text>
-            <Text style={[styles.cashOutAmount, H3]}>
-              CAD {formattedAmount()}
-            </Text>
+            <Text style={[styles.cashOutAmount, H3]}>CAD {formattedAmount()}</Text>
           </View>
 
           {/* Number Pad */}
           <View style={styles.numpadGrid}>
-            {['1', '2', '3', '4', '5', '6', '7', '8', '9', '0', '00'].map(
-              num => (
-                <TouchableOpacity
-                  key={num}
-                  style={styles.numpadBtn}
-                  onPress={() => handleNumPress(num)}>
-                  <Text style={[styles.numpadText, Subtitle1]}>{num}</Text>
-                </TouchableOpacity>
-              ),
-            )}
+            {['1', '2', '3', '4', '5', '6', '7', '8', '9', '0', '00'].map(num => (
+              <TouchableOpacity
+                key={num}
+                style={styles.numpadBtn}
+                onPress={() => handleNumPress(num)}
+              >
+                <Text style={[styles.numpadText, Subtitle1]}>{num}</Text>
+              </TouchableOpacity>
+            ))}
             {/* Backspace */}
-            <TouchableOpacity
-              style={styles.numpadBtn}
-              onPress={handleBackspace}>
+            <TouchableOpacity style={styles.numpadBtn} onPress={handleBackspace}>
               <Text style={[styles.numpadText, Subtitle1]}>⌫</Text>
             </TouchableOpacity>
           </View>
@@ -154,7 +149,7 @@ const CloseRegisterScreen = () => {
 
         {/* Close Register Button */}
         <TouchableOpacity
-          style={[styles.closeRegisterBtn, isLoading && {opacity: 0.7}]}
+          style={[styles.closeRegisterBtn, isLoading && { opacity: 0.7 }]}
           onPress={handleCloseRegister}
           disabled={isLoading}>
           {isLoading ? (
@@ -166,7 +161,7 @@ const CloseRegisterScreen = () => {
           )}
         </TouchableOpacity>
       </View>
-    </View>
+    </View >
   );
 };
 

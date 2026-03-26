@@ -1,12 +1,5 @@
 import React from 'react';
-import {
-  View,
-  Text,
-  Modal,
-  StyleSheet,
-  TouchableOpacity,
-  Image,
-} from 'react-native';
+import { View, Text, Modal, StyleSheet, TouchableOpacity, Image } from 'react-native';
 import { Colors } from '../utils/Colors';
 import { S, VS, MS } from '../utils/Responsive';
 import { H3, Body1, ButtonText } from '../utils/fonts';
@@ -14,25 +7,21 @@ import { ApprovedIcon } from '../assets/Images';
 
 const ProcessOrderModal = ({ visible, onClose, orderNumber = '1254632', onPrintBill }) => {
   return (
-    <Modal
-      visible={visible}
-      transparent={true}
-      animationType="fade"
-      onRequestClose={onClose}>
+    <Modal visible={visible} transparent={true} animationType="fade" onRequestClose={onClose}>
       <View style={styles.modalOverlay}>
         <View style={styles.modalContent}>
           <TouchableOpacity style={styles.closeBtn} onPress={onClose}>
             <Text style={styles.closeText}>✕</Text>
           </TouchableOpacity>
-          
+
           <Image source={ApprovedIcon} style={styles.icon} />
-          
+
           <Text style={[styles.title, H3]}>Order Processing!</Text>
-          
+
           <Text style={[styles.message, Body1]}>
             Your order #{orderNumber} and it's currently being prepared in the kitchen.
           </Text>
-          
+
           <TouchableOpacity style={styles.printBtn} onPress={onPrintBill}>
             <Text style={[styles.printBtnText, ButtonText]}>Print bill</Text>
           </TouchableOpacity>

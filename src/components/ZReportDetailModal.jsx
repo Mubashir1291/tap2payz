@@ -1,44 +1,33 @@
 import React from 'react';
-import {
-  View,
-  Text,
-  Modal,
-  TouchableOpacity,
-  ScrollView,
-  StyleSheet,
-  Image,
-} from 'react-native';
-import {Colors} from '../utils/Colors';
-import {S, VS, MS} from '../utils/Responsive';
-import {H4, Body2, Body3, Subtitle1, Subtitle2, Caption} from '../utils/fonts';
-import {PrinterIcon} from '../assets/Images';
+import { View, Text, Modal, TouchableOpacity, ScrollView, StyleSheet, Image } from 'react-native';
+import { Colors } from '../utils/Colors';
+import { S, VS, MS } from '../utils/Responsive';
+import { H4, Body3, Subtitle1, Subtitle2 } from '../utils/fonts';
+import { PrinterIcon } from '../assets/Images';
 
-const ZReportDetailModal = ({
-  visible = false,
-  reportData = null,
-  onClose,
-}) => {
-  if (!reportData) return null;
+const ZReportDetailModal = ({ visible = false, reportData = null, onClose }) => {
+  if (!reportData) {
+    return null;
+  }
 
   return (
-    <Modal
-      animationType="fade"
-      transparent={true}
-      visible={visible}
-      onRequestClose={onClose}>
+    <Modal animationType="fade" transparent={true} visible={visible} onRequestClose={onClose}>
       <View style={styles.overlay}>
         <View style={styles.modalContent}>
           {/* Close Button */}
           <TouchableOpacity style={styles.closeBtn} onPress={onClose}>
-             <Text style={[styles.closeBtnText, Subtitle2]}>✕</Text>
+            <Text style={[styles.closeBtnText, Subtitle2]}>✕</Text>
           </TouchableOpacity>
-          <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.receiptScrollContent}>
+          <ScrollView
+            showsVerticalScrollIndicator={false}
+            contentContainerStyle={styles.receiptScrollContent}
+          >
             <Text style={[styles.title, H4]}>Z - Report</Text>
-            
+
             <View style={styles.logoContainer}>
-               <View style={styles.logoPlaceholder}>
-                 <Text style={[styles.logoText, H4]}>TL</Text>
-               </View>
+              <View style={styles.logoPlaceholder}>
+                <Text style={[styles.logoText, H4]}>TL</Text>
+              </View>
             </View>
 
             {/* Store Information */}
@@ -126,23 +115,23 @@ const ZReportDetailModal = ({
 
             {/* Total */}
             <View style={styles.section}>
-               <View style={styles.row}>
-                 <Text style={[styles.totalLabel, Subtitle1]}>Total</Text>
-                 <Text style={[styles.totalValue, Subtitle1]}>$12,000</Text>
-               </View>
+              <View style={styles.row}>
+                <Text style={[styles.totalLabel, Subtitle1]}>Total</Text>
+                <Text style={[styles.totalValue, Subtitle1]}>$12,000</Text>
+              </View>
             </View>
           </ScrollView>
 
           {/* Action Buttons */}
           <View style={styles.actionButtonsContainer}>
             <TouchableOpacity style={styles.printBtn}>
-               <Text style={[styles.btnText, Subtitle2, {color: Colors.white}]}>Print</Text>
-               <Image source={PrinterIcon} style={[styles.btnIcon, {tintColor: Colors.white}]} />
+              <Text style={[styles.btnText, Subtitle2, { color: Colors.white }]}>Print</Text>
+              <Image source={PrinterIcon} style={[styles.btnIcon, { tintColor: Colors.white }]} />
             </TouchableOpacity>
-            
+
             <TouchableOpacity style={styles.downloadBtn}>
-               <Text style={[styles.btnText, Subtitle2, {color: '#16192C'}]}>Download</Text>
-               <Text style={{marginLeft: S(4), color: '#16192C', fontSize: MS(16)}}>➤</Text>
+              <Text style={[styles.btnText, Subtitle2, { ...styles.downloadText }]}>Download</Text>
+              <Text style={styles.downloadBtnText}>➤</Text>
             </TouchableOpacity>
           </View>
         </View>
@@ -263,6 +252,14 @@ const styles = StyleSheet.create({
     backgroundColor: '#BECDFF',
     paddingVertical: VS(14),
     borderRadius: MS(8),
+  },
+  downloadText: {
+    color: '#16192C',
+  },
+  downloadBtnText: {
+    marginLeft: S(4),
+    color: '#16192C',
+    fontSize: MS(16),
   },
   btnText: {
     marginRight: S(8),

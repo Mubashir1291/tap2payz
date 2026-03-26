@@ -1,21 +1,10 @@
-import React, {useState, useEffect} from 'react';
-import {
-  View,
-  Text,
-  Modal,
-  TouchableOpacity,
-  TextInput,
-  StyleSheet,
-} from 'react-native';
-import {Colors} from '../utils/Colors';
-import {S, VS, MS} from '../utils/Responsive';
-import {H4, Body2, Body3, Subtitle2, ButtonText} from '../utils/fonts';
+import React, { useState, useEffect } from 'react';
+import { View, Text, Modal, TouchableOpacity, TextInput, StyleSheet } from 'react-native';
+import { Colors } from '../utils/Colors';
+import { S, VS, MS } from '../utils/Responsive';
+import { H4, Body2, Body3, Subtitle2, ButtonText } from '../utils/fonts';
 
-const QuickSaleModal = ({
-  visible = false,
-  onAddSale,
-  onClose,
-}) => {
+const QuickSaleModal = ({ visible = false, onAddSale, onClose }) => {
   const [productName, setProductName] = useState('');
   const [amount, setAmount] = useState('');
 
@@ -37,11 +26,7 @@ const QuickSaleModal = ({
   };
 
   return (
-    <Modal
-      animationType="fade"
-      transparent={true}
-      visible={visible}
-      onRequestClose={onClose}>
+    <Modal animationType="fade" transparent={true} visible={visible} onRequestClose={onClose}>
       <View style={styles.overlay}>
         <View style={styles.container}>
           {/* Close Button */}

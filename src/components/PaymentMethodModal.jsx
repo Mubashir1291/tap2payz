@@ -1,17 +1,9 @@
-import React, {useState, useEffect} from 'react';
-import {
-  View,
-  Text,
-  Modal,
-  StyleSheet,
-  TouchableOpacity,
-  TextInput,
-  Image,
-} from 'react-native';
-import {Colors} from '../utils/Colors';
-import {S, VS, MS} from '../utils/Responsive';
-import {H2, H3, H4, Body1, Body2, Subtitle1, Subtitle2, ButtonText} from '../utils/fonts';
-import {CashIcon, CardIcon} from '../assets/Images';
+import React, { useState, useEffect } from 'react';
+import { View, Text, Modal, StyleSheet, TouchableOpacity, TextInput, Image } from 'react-native';
+import { Colors } from '../utils/Colors';
+import { S, VS, MS } from '../utils/Responsive';
+import { H2, H3, H4, Body1, Subtitle1, Subtitle2, ButtonText } from '../utils/fonts';
+import { CashIcon, CardIcon } from '../assets/Images';
 
 const PaymentMethodModal = ({
   visible = false,
@@ -38,17 +30,13 @@ const PaymentMethodModal = ({
       onProceed({
         method: paymentMethod,
         amount: parsedAmount,
-        change: change,
+        change,
       });
     }
   };
 
   return (
-    <Modal
-      animationType="fade"
-      transparent={true}
-      visible={visible}
-      onRequestClose={onClose}>
+    <Modal animationType="fade" transparent={true} visible={visible} onRequestClose={onClose}>
       <View style={styles.overlay}>
         <View style={styles.container}>
           {/* Close Button */}
@@ -62,33 +50,35 @@ const PaymentMethodModal = ({
           {/* Header Row: Total and Options */}
           <View style={styles.headerRow}>
             <View style={styles.totalContainer}>
-              <Text style={[styles.totalLabel, H4]}>Total: {currency} {totalAmount.toFixed(2)}</Text>
+              <Text style={[styles.totalLabel, H4]}>
+                Total: {currency} {totalAmount.toFixed(2)}
+              </Text>
             </View>
-            
+
             <View style={styles.optionsContainer}>
-              <TouchableOpacity 
+              <TouchableOpacity
                 style={[styles.optionBtn, paymentMethod === 'Cash' && styles.optionBtnActive]}
                 onPress={() => setPaymentMethod('Cash')}
               >
                 <View style={styles.optionContent}>
-                   <Image source={CashIcon} style={styles.optionIcon} />
-                   <Text style={[styles.optionText, Subtitle2]}>Cash</Text>
-                   <View style={styles.radioOuter}>
-                      {paymentMethod === 'Cash' && <View style={styles.radioInner} />}
-                   </View>
+                  <Image source={CashIcon} style={styles.optionIcon} />
+                  <Text style={[styles.optionText, Subtitle2]}>Cash</Text>
+                  <View style={styles.radioOuter}>
+                    {paymentMethod === 'Cash' && <View style={styles.radioInner} />}
+                  </View>
                 </View>
               </TouchableOpacity>
 
-              <TouchableOpacity 
+              <TouchableOpacity
                 style={[styles.optionBtn, paymentMethod === 'Card' && styles.optionBtnActive]}
                 onPress={() => setPaymentMethod('Card')}
               >
                 <View style={styles.optionContent}>
-                   <Image source={CardIcon} style={styles.optionIcon} />
-                   <Text style={[styles.optionText, Subtitle2]}>Card</Text>
-                   <View style={styles.radioOuter}>
-                      {paymentMethod === 'Card' && <View style={styles.radioInner} />}
-                   </View>
+                  <Image source={CardIcon} style={styles.optionIcon} />
+                  <Text style={[styles.optionText, Subtitle2]}>Card</Text>
+                  <View style={styles.radioOuter}>
+                    {paymentMethod === 'Card' && <View style={styles.radioInner} />}
+                  </View>
                 </View>
               </TouchableOpacity>
             </View>
@@ -113,11 +103,17 @@ const PaymentMethodModal = ({
           {/* Change Section */}
           <View style={styles.changeSection}>
             <Text style={[styles.sectionLabel, Subtitle1]}>Change:</Text>
-            <Text style={[styles.changeValue, H2]}>{currency}{change}</Text>
+            <Text style={[styles.changeValue, H2]}>
+              {currency}
+              {change}
+            </Text>
           </View>
 
           {/* Proceed Button */}
-          <TouchableOpacity style={[styles.proceedBtn, paymentMethod === 'Card' && styles.proceedBtnDisabled]} onPress={handleProceed}>
+          <TouchableOpacity
+            style={[styles.proceedBtn, paymentMethod === 'Card' && styles.proceedBtnDisabled]}
+            onPress={handleProceed}
+          >
             <Text style={[styles.proceedBtnText, ButtonText]}>Proceed</Text>
           </TouchableOpacity>
         </View>

@@ -1,12 +1,21 @@
 import { StyleSheet } from 'react-native';
 import { Colors } from '../../utils/Colors';
 import { S, VS, MS } from '../../utils/Responsive';
-import { Body2, Overline } from '../../utils/fonts';
+import { Overline } from '../../utils/fonts';
 
 export default StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#3E468A',
+  },
+  flex1: {
+    flex: 1,
+  },
+  flexGrow1: {
+    flexGrow: 1,
+  },
+  whiteTint: {
+    tintColor: Colors.white,
   },
   header: {
     flexDirection: 'row',
@@ -69,12 +78,20 @@ export default StyleSheet.create({
     borderTopEndRadius: MS(5),
     borderTopStartRadius: MS(5),
   },
+  chairTopPosition: {
+    top: '5%',
+    left: '31.5%',
+  },
   chairBottom: {
     position: 'absolute',
     width: '37%',
     height: '6%',
     borderBottomEndRadius: MS(5),
     borderBottomStartRadius: MS(5),
+  },
+  chairBottomPosition: {
+    bottom: '5%',
+    left: '31.5%',
   },
   chairLeft: {
     position: 'absolute',
@@ -83,12 +100,26 @@ export default StyleSheet.create({
     borderTopLeftRadius: MS(5),
     borderBottomLeftRadius: MS(5),
   },
+  chairLeftPosition: {
+    left: '5%',
+    top: '31.5%',
+  },
   chairRight: {
     position: 'absolute',
     width: '6%',
     height: '37%',
     borderTopRightRadius: MS(5),
     borderBottomRightRadius: MS(5),
+  },
+  chairRightPosition: {
+    right: '5%',
+    top: '31.5%',
+  },
+  chairBase: {
+    backgroundColor: '#E7E7E7',
+  },
+  chairHighlight: {
+    backgroundColor: '#A4B4FF',
   },
   tableCore: {
     position: 'absolute',
@@ -100,6 +131,15 @@ export default StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     zIndex: 2,
+  },
+  tableCoreBaseState: {
+    backgroundColor: '#E7E7E7',
+  },
+  tableCoreAcquiredState: {
+    backgroundColor: '#3E468A',
+  },
+  tableCoreSelectedState: {
+    backgroundColor: '#A4B4FF',
   },
   selectedTableCore: {
     backgroundColor: '#A4B4FF',
@@ -128,11 +168,14 @@ export default StyleSheet.create({
     fontSize: MS(12), // Reduced from Subtitle2 (14)
     fontWeight: '600',
   },
+  controlLabelWithMargin: {
+    marginTop: VS(12),
+  },
   areaRow: {
     flexDirection: 'row',
     flexWrap: 'wrap',
     gap: MS(8),
-    justifyContent:'space-between'
+    justifyContent: 'space-between',
   },
   areaBtn: {
     paddingHorizontal: S(10), // Reduced from 12
@@ -167,7 +210,29 @@ export default StyleSheet.create({
     borderRadius: MS(15),
     padding: MS(20),
     position: 'relative',
-    backgroundColor: '#E7E7E7'
+    backgroundColor: '#E7E7E7',
+  },
+  visualizationContainerActive: {
+    zIndex: 100,
+  },
+  topSectionTapOverlay: {
+    position: 'absolute',
+    top: 0,
+    bottom: 0,
+    left: 0,
+    right: 0,
+    zIndex: 90,
+    backgroundColor: 'transparent',
+  },
+  visualizationTapOverlay: {
+    position: 'absolute',
+    top: 0,
+    bottom: 0,
+    left: 0,
+    right: 0,
+    zIndex: 50,
+    borderRadius: MS(15),
+    backgroundColor: 'transparent',
   },
   visualizationHeader: {
     alignItems: 'flex-end',
@@ -182,10 +247,16 @@ export default StyleSheet.create({
     fontWeight: 'bold',
     color: '#333',
   },
+  vizTableTextSmall: {
+    fontSize: MS(10),
+  },
   vizSeatText: {
     fontSize: MS(10),
     color: '#333',
     marginTop: VS(2),
+  },
+  vizSeatTextSmall: {
+    fontSize: MS(8),
   },
   emptyStateContainer: {
     flex: 1,
@@ -213,10 +284,28 @@ export default StyleSheet.create({
     borderRadius: MS(10),
     marginBottom: VS(10),
   },
+  addTableBtnEnabled: {
+    backgroundColor: '#3E468A',
+  },
   addTableBtnText: {
     color: Colors.black,
   },
-  
+  addTableBtnTextEnabled: {
+    color: Colors.white,
+  },
+  addedTableWrapper: {
+    width: S(80),
+    marginRight: S(15),
+    marginBottom: VS(15),
+  },
+  addedTableWrapperActive: {
+    zIndex: 100,
+  },
+  emptyTableIcon: {
+    tintColor: '#CCCCCC',
+    marginBottom: VS(10),
+  },
+
   // Action Overlay Styles
   actionOverlayContainer: {
     position: 'absolute',
@@ -236,7 +325,7 @@ export default StyleSheet.create({
     paddingHorizontal: S(2),
     backgroundColor: Colors.white,
     elevation: 8,
-    shadowColor: "#000",
+    shadowColor: '#000',
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.3,
     shadowRadius: 6,
@@ -284,7 +373,7 @@ export default StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
-  
+
   // Modal Styles
   modalOverlay: {
     flex: 1,

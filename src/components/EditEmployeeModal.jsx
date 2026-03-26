@@ -1,20 +1,12 @@
-import React, {useState, useEffect} from 'react';
-import {
-  View,
-  Text,
-  Modal,
-  StyleSheet,
-  TouchableOpacity,
-  TextInput,
-  Image,
-} from 'react-native';
-import {Colors} from '../utils/Colors';
-import {S, VS, MS} from '../utils/Responsive';
-import {H2, Body2, Subtitle2} from '../utils/fonts';
-import {CameraIcon} from '../assets/Images';
-import {IconSize16} from '../utils/IconSizes';
+import React, { useState, useEffect } from 'react';
+import { View, Text, Modal, StyleSheet, TouchableOpacity, TextInput, Image } from 'react-native';
+import { Colors } from '../utils/Colors';
+import { S, VS, MS } from '../utils/Responsive';
+import { H2, Body2, Subtitle2 } from '../utils/fonts';
+import { CameraIcon } from '../assets/Images';
+import { IconSize16 } from '../utils/IconSizes';
 
-const EditEmployeeModal = ({visible, onClose, onSave, employeeData}) => {
+const EditEmployeeModal = ({ visible, onClose, onSave, employeeData }) => {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
 
@@ -27,16 +19,12 @@ const EditEmployeeModal = ({visible, onClose, onSave, employeeData}) => {
 
   const handleSave = () => {
     if (name && email) {
-      onSave({...employeeData, name, email});
+      onSave({ ...employeeData, name, email });
     }
   };
 
   return (
-    <Modal
-      visible={visible}
-      transparent={true}
-      animationType="fade"
-      onRequestClose={onClose}>
+    <Modal visible={visible} transparent={true} animationType="fade" onRequestClose={onClose}>
       <View style={styles.modalOverlay}>
         <View style={styles.modalContent}>
           {/* Close Button */}
@@ -51,7 +39,7 @@ const EditEmployeeModal = ({visible, onClose, onSave, employeeData}) => {
           <View style={styles.avatarContainer}>
             <View style={styles.avatarPlaceholder} />
             <TouchableOpacity style={styles.cameraBtn}>
-              <Image source={CameraIcon} style={[IconSize16, {tintColor: '#3B4B8A'}]} />
+              <Image source={CameraIcon} style={[IconSize16, { ...styles.cameraBtnImage }]} />
             </TouchableOpacity>
           </View>
 
@@ -84,7 +72,8 @@ const EditEmployeeModal = ({visible, onClose, onSave, employeeData}) => {
           <TouchableOpacity
             style={[styles.submitBtn, (!name || !email) && styles.submitBtnDisabled]}
             onPress={handleSave}
-            disabled={!name || !email}>
+            disabled={!name || !email}
+          >
             <Text style={[styles.submitBtnText, Subtitle2]}>Save Changes</Text>
           </TouchableOpacity>
         </View>
@@ -148,6 +137,9 @@ const styles = StyleSheet.create({
     borderRadius: MS(15),
     borderWidth: 1,
     borderColor: '#E6EAFA',
+  },
+  cameraBtnImage: {
+    tintColor: '#3B4B8A',
   },
   formRow: {
     flexDirection: 'row',

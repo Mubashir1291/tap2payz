@@ -1,0 +1,16 @@
+node_modules/
+android/build/
+android/app/build/
+ios/build/
+coverage/
+package-lock.json
+*.png
+*.jpg
+*.jpeg
+*.gif
+*.webp
+*.ttf
+*.otf
+*.woff
+*.woff2
+*.json

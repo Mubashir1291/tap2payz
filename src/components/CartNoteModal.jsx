@@ -1,12 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import {
-  View,
-  Text,
-  Modal,
-  StyleSheet,
-  TouchableOpacity,
-  TextInput,
-} from 'react-native';
+import { View, Text, Modal, StyleSheet, TouchableOpacity, TextInput } from 'react-native';
 import { Colors } from '../utils/Colors';
 import { S, VS, MS } from '../utils/Responsive';
 import { H3, Body1, ButtonText, Subtitle2 } from '../utils/fonts';
@@ -26,19 +19,15 @@ const CartNoteModal = ({ visible, onClose, onSave, initialNote = '' }) => {
   const isEdit = initialNote.length > 0;
 
   return (
-    <Modal
-      visible={visible}
-      transparent={true}
-      animationType="fade"
-      onRequestClose={onClose}>
+    <Modal visible={visible} transparent={true} animationType="fade" onRequestClose={onClose}>
       <View style={styles.modalOverlay}>
         <View style={styles.modalContent}>
           <TouchableOpacity style={styles.closeBtn} onPress={onClose}>
             <Text style={[styles.closeText, Subtitle2]}>✕</Text>
           </TouchableOpacity>
-          
+
           <Text style={[styles.title, H3]}>{isEdit ? 'Edit Note' : 'Add Note'}</Text>
-          
+
           <View style={styles.inputContainer}>
             <Text style={[styles.inputLabel, Body1]}>Note</Text>
             <TextInput
@@ -51,12 +40,8 @@ const CartNoteModal = ({ visible, onClose, onSave, initialNote = '' }) => {
               textAlignVertical="top"
             />
           </View>
-          
-          <TouchableOpacity 
-            style={styles.saveBtn} 
-            onPress={handleSave}
-            activeOpacity={0.8}
-          >
+
+          <TouchableOpacity style={styles.saveBtn} onPress={handleSave} activeOpacity={0.8}>
             <Text style={[styles.saveBtnText, ButtonText]}>
               {isEdit ? 'Save Changes' : 'Add Note'}
             </Text>

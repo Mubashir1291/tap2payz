@@ -1,6 +1,6 @@
-import {StyleSheet} from 'react-native';
-import {Colors} from '../../utils/Colors';
-import {S, VS, MS} from '../../utils/Responsive';
+import { StyleSheet } from 'react-native';
+import { Colors } from '../../utils/Colors';
+import { S, VS, MS } from '../../utils/Responsive';
 
 const styles = StyleSheet.create({
   root: {
@@ -191,6 +191,40 @@ const styles = StyleSheet.create({
   },
   pieLegendPercent: {
     color: Colors.black,
+  },
+
+  // INLINE STYLE REPLACEMENTS
+  tabIconStyle: {
+    marginRight: S(6),
+    // tintColor is conditional: activeTab === index ? Colors.white : Colors.black
+  },
+  lightGreenBg: {
+    backgroundColor: '#E8F5E9',
+  },
+  lightPurpleBg: {
+    backgroundColor: '#F3E5F5',
+  },
+  lightBlueLegendDot: {
+    backgroundColor: '#A8C8F0',
+  },
+  darkBlueLegendDot: {
+    backgroundColor: '#3B4B8A',
+  },
+  flexFull: {
+    flex: 1,
+  },
+  dynamicColorLegendDot: {
+    // backgroundColor is dynamic: item.color
+  },
+  greenPercentText: {
+    color: '#4CAF50',
+  },
+  redPercentText: {
+    color: '#E74C3C',
+  },
+  rowCentered: {
+    flexDirection: 'row',
+    alignItems: 'center',
   },
 });
 

@@ -1,8 +1,6 @@
 import React, { useState, useMemo } from 'react';
 import { View, Text, TouchableOpacity, ScrollView, TextInput, Image } from 'react-native';
-import { Colors } from '../../utils/Colors';
-import { S, VS, MS } from '../../utils/Responsive';
-import { Subtitle2, Body3, Caption, H1, H2 } from '../../utils/fonts';
+import { Subtitle2, Body3, Caption, H2 } from '../../utils/fonts';
 import { IconSize12 } from '../../utils/IconSizes';
 import { SearchIcon, LeftArrowIcon, RightArrowIcon, ExportIcon } from '../../assets/Images';
 import styles from './ZReportStyles';
@@ -26,15 +24,16 @@ const ZReport = () => {
   const filteredData = useMemo(() => {
     let data = [...dummyData];
     if (searchQuery.trim() !== '') {
-      data = data.filter(item => 
-        item.opener.toLowerCase().includes(searchQuery.toLowerCase()) || 
-        item.closer.toLowerCase().includes(searchQuery.toLowerCase())
+      data = data.filter(
+        item =>
+          item.opener.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          item.closer.toLowerCase().includes(searchQuery.toLowerCase()),
       );
     }
     return data;
   }, [searchQuery]);
 
-  const handleView = (report) => {
+  const handleView = report => {
     setSelectedReport(report);
     setShowDetailModal(true);
   };
@@ -57,7 +56,7 @@ const ZReport = () => {
           </View>
 
           <TouchableOpacity style={styles.exportBtn}>
-            <Image source={ExportIcon} style={[IconSize12, { tintColor: '#3B4B8A' }]} />
+            <Image source={ExportIcon} style={[IconSize12, styles.exportIconTint]} />
             <Text style={[styles.exportBtnText, Caption]}>Export</Text>
           </TouchableOpacity>
         </View>
@@ -87,19 +86,19 @@ const ZReport = () => {
             <View key={index} style={styles.tableRow}>
               <Text style={[styles.colOpenedAt, styles.rowText, Body3]}>{item.openedAt}</Text>
               <Text style={[styles.colClosedAt, styles.rowText, Body3]}>{item.closedAt}</Text>
-              
+
               <View style={[styles.colEmployees, styles.employeeTextContainer]}>
                 <Text style={[styles.rowText, Body3]}>Opener: {item.opener}</Text>
                 <Text style={[styles.rowText, Body3]}>Closer: {item.closer}</Text>
               </View>
-              
+
               <View style={styles.colOpenAmount}>
                 <Text style={[styles.rowText, Body3]}>{item.openAmount}</Text>
               </View>
               <View style={styles.colCloseAmount}>
                 <Text style={[styles.rowText, Body3]}>{item.closeAmount}</Text>
               </View>
-              
+
               <View style={styles.colAction}>
                 <TouchableOpacity style={styles.viewBtn} onPress={() => handleView(item)}>
                   <Text style={[styles.viewBtnText, Caption]}>View</Text>
@@ -123,7 +122,7 @@ const ZReport = () => {
       </View>
 
       {/* Detail Modal */}
-      <ZReportDetailModal 
+      <ZReportDetailModal
         visible={showDetailModal}
         onClose={() => setShowDetailModal(false)}
         reportData={selectedReport}

@@ -1,27 +1,12 @@
 import React from 'react';
-import {
-  View,
-  Text,
-  Modal,
-  TouchableOpacity,
-  StyleSheet,
-} from 'react-native';
-import {Colors} from '../utils/Colors';
-import {S, VS, MS} from '../utils/Responsive';
-import {H4, Body3, Subtitle1, Subtitle2, ButtonText} from '../utils/fonts';
+import { View, Text, Modal, TouchableOpacity, StyleSheet } from 'react-native';
+import { Colors } from '../utils/Colors';
+import { S, VS, MS } from '../utils/Responsive';
+import { H4, Subtitle1, Subtitle2, ButtonText } from '../utils/fonts';
 
-const RefundAmountModal = ({
-  visible = false,
-  totalAmount = 0,
-  onProceed,
-  onClose,
-}) => {
+const RefundAmountModal = ({ visible = false, totalAmount = 0, onProceed, onClose }) => {
   return (
-    <Modal
-      animationType="fade"
-      transparent={true}
-      visible={visible}
-      onRequestClose={onClose}>
+    <Modal animationType="fade" transparent={true} visible={visible} onRequestClose={onClose}>
       <View style={styles.overlay}>
         <View style={styles.container}>
           {/* Close Button */}
@@ -37,9 +22,7 @@ const RefundAmountModal = ({
           {/* Total Amount */}
           <View style={styles.totalRow}>
             <Text style={[styles.totalLabel, Subtitle1]}>Total Amount:</Text>
-            <Text style={[styles.totalValue, H4]}>
-              $-{totalAmount.toFixed(2)}
-            </Text>
+            <Text style={[styles.totalValue, H4]}>$-{totalAmount.toFixed(2)}</Text>
           </View>
 
           {/* Proceed Button */}

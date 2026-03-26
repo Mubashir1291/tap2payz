@@ -1,22 +1,10 @@
-import React, {useState, useEffect} from 'react';
-import {
-  View,
-  Text,
-  Modal,
-  TouchableOpacity,
-  TextInput,
-  StyleSheet,
-} from 'react-native';
-import {Colors} from '../utils/Colors';
-import {S, VS, MS} from '../utils/Responsive';
-import {H4, Body2, Subtitle1, Subtitle2, ButtonText} from '../utils/fonts';
+import React, { useState, useEffect } from 'react';
+import { View, Text, Modal, TouchableOpacity, TextInput, StyleSheet } from 'react-native';
+import { Colors } from '../utils/Colors';
+import { S, VS, MS } from '../utils/Responsive';
+import { H4, Body2, Subtitle1, Subtitle2, ButtonText } from '../utils/fonts';
 
-const CashPayModal = ({
-  visible = false,
-  totalAmount = 0,
-  onProceed,
-  onClose,
-}) => {
+const CashPayModal = ({ visible = false, totalAmount = 0, onProceed, onClose }) => {
   const [enteredAmount, setEnteredAmount] = useState('');
 
   useEffect(() => {
@@ -35,11 +23,7 @@ const CashPayModal = ({
   };
 
   return (
-    <Modal
-      animationType="fade"
-      transparent={true}
-      visible={visible}
-      onRequestClose={onClose}>
+    <Modal animationType="fade" transparent={true} visible={visible} onRequestClose={onClose}>
       <View style={styles.overlay}>
         <View style={styles.container}>
           {/* Close Button */}

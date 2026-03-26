@@ -1,17 +1,9 @@
 import React from 'react';
-import {
-  View,
-  Text,
-  Modal,
-  TouchableOpacity,
-  Image,
-  ScrollView,
-  StyleSheet,
-} from 'react-native';
-import {Colors} from '../utils/Colors';
-import {S, VS, MS} from '../utils/Responsive';
-import {H4, H3, Body2, Subtitle1, Subtitle2, ButtonText} from '../utils/fonts';
-import {PSPIcon, PrinterIcon} from '../assets/Images';
+import { View, Text, Modal, TouchableOpacity, Image, ScrollView, StyleSheet } from 'react-native';
+import { Colors } from '../utils/Colors';
+import { S, VS, MS } from '../utils/Responsive';
+import { H3, Body2, Subtitle1, Subtitle2, ButtonText } from '../utils/fonts';
+import { PSPIcon, PrinterIcon } from '../assets/Images';
 
 const InvoiceModal = ({
   visible = false,
@@ -24,11 +16,7 @@ const InvoiceModal = ({
   onClose,
 }) => {
   return (
-    <Modal
-      animationType="fade"
-      transparent={true}
-      visible={visible}
-      onRequestClose={onClose}>
+    <Modal animationType="fade" transparent={true} visible={visible} onRequestClose={onClose}>
       <View style={styles.overlay}>
         <View style={styles.container}>
           {/* Close Button */}
@@ -38,7 +26,8 @@ const InvoiceModal = ({
 
           <ScrollView
             showsVerticalScrollIndicator={false}
-            contentContainerStyle={styles.scrollContent}>
+            contentContainerStyle={styles.scrollContent}
+          >
             {/* Title */}
             <Text style={[styles.mainTitle, H3]}>Transaction Successful!</Text>
 
@@ -95,12 +84,12 @@ const InvoiceModal = ({
                 {discountAmount > 0 && (
                   <View style={styles.infoRow}>
                     <Text style={[styles.infoLabel, Body2]}>Discount</Text>
-                    <Text style={[styles.infoValue, {color: '#E74C3C'}, Subtitle2]}>
+                    <Text style={[styles.infoValue, { ...styles.infoValueText }, Subtitle2]}>
                       -${discountAmount.toFixed(2)}
                     </Text>
                   </View>
                 )}
-            {tipAmount !== null && parseFloat(tipAmount) > 0 && (
+                {tipAmount !== null && parseFloat(tipAmount) > 0 && (
                   <View style={styles.infoRow}>
                     <Text style={[styles.infoLabel, Body2]}>Tip</Text>
                     <Text style={[styles.infoValue, Subtitle2]}>
@@ -108,20 +97,19 @@ const InvoiceModal = ({
                     </Text>
                   </View>
                 )}
-                
+
                 {/* Solid Divider */}
-                <View style={[styles.solidDivider, {marginTop: VS(8)}]} />
+                <View style={[styles.solidDivider, { marginTop: VS(8) }]} />
 
                 {/* Total */}
                 <View style={styles.totalRow}>
                   <Text style={[styles.totalLabel, Subtitle1]}>Total</Text>
-                  <Text style={[styles.totalValue, {color: Colors.primary}, Subtitle1]}>
+                  <Text style={[styles.totalValue, { color: Colors.primary }, Subtitle1]}>
                     ${totalAmount.toFixed(2)}
                   </Text>
                 </View>
               </View>
             </View>
-
           </ScrollView>
 
           {/* Print Receipt Button */}
@@ -200,6 +188,9 @@ const styles = StyleSheet.create({
   },
   infoValue: {
     color: Colors.black,
+  },
+  infoValueText: {
+    color: "#E74C3C'",
   },
   dashedDivider: {
     borderBottomWidth: 1.5,

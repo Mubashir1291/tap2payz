@@ -8,21 +8,14 @@ import {
   ActivityIndicator,
   StyleSheet,
 } from 'react-native';
-import {Colors} from '../utils/Colors';
-import {S, VS, MS} from '../utils/Responsive';
-import {H4, Body2, Subtitle2} from '../utils/fonts';
-import {CardpaymentIcon} from '../assets/Images';
+import { Colors } from '../utils/Colors';
+import { S, VS, MS } from '../utils/Responsive';
+import { H4, Body2, Subtitle2 } from '../utils/fonts';
+import { CardpaymentIcon } from '../assets/Images';
 
-const TransactionProcessModal = ({
-  visible = false,
-  onClose,
-}) => {
+const TransactionProcessModal = ({ visible = false, onClose }) => {
   return (
-    <Modal
-      animationType="fade"
-      transparent={true}
-      visible={visible}
-      onRequestClose={onClose}>
+    <Modal animationType="fade" transparent={true} visible={visible} onRequestClose={onClose}>
       <View style={styles.overlay}>
         <View style={styles.container}>
           {/* Close Button */}
@@ -42,11 +35,7 @@ const TransactionProcessModal = ({
           </Text>
 
           {/* Loading Spinner */}
-          <ActivityIndicator
-            size="large"
-            color="#00BFFF"
-            style={styles.loader}
-          />
+          <ActivityIndicator size="large" color="#00BFFF" style={styles.loader} />
         </View>
       </View>
     </Modal>

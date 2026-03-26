@@ -1,15 +1,8 @@
 import React from 'react';
-import {
-  View,
-  Text,
-  Modal,
-  TouchableOpacity,
-  Image,
-  StyleSheet,
-} from 'react-native';
+import { View, Text, Modal, TouchableOpacity, Image, StyleSheet } from 'react-native';
 import { Colors } from '../utils/Colors';
 import { S, VS, MS } from '../utils/Responsive';
-import { H4, Body3, Subtitle2, ButtonText, Body1, H2, H3 } from '../utils/fonts';
+import { H4, Body3, Subtitle2, ButtonText, Body1 } from '../utils/fonts';
 
 const ConfirmationModal = ({
   visible = false,
@@ -48,7 +41,13 @@ const ConfirmationModal = ({
             ]}
             onPress={onConfirm}
           >
-            <Text style={[styles.confirmButtonText, ButtonText, confirmTextColor && { color: confirmTextColor }]}>
+            <Text
+              style={[
+                styles.confirmButtonText,
+                ButtonText,
+                confirmTextColor && { color: confirmTextColor },
+              ]}
+            >
               {confirmText}
             </Text>
           </TouchableOpacity>
