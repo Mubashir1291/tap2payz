@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useCallback } from 'react';
 import { View, StatusBar, TouchableOpacity, Modal, Text, Image, TextInput } from 'react-native';
 import { Colors } from '../../utils/Colors';
 import { WarningIcon } from '../../assets/Images';
@@ -17,12 +17,12 @@ import {
 } from '../../utils/fonts';
 import styles from './OpenRegisterScreenstyles';
 import { store } from '../../redux/store';
-import { setIsLogin, setIsRegisterOpen } from '../../redux/Reducers/userReducer';
 import { OPEN_REGISTER, GET_CASH_REGISTER } from '../../services/StoreService';
 import Toast from 'react-native-toast-message';
 import { useSelector } from 'react-redux';
 import { setCashRegisterData } from '../../redux/Reducers/deviceReducer';
-
+import { navigate } from '../../navigation/NavigationRef';
+import { useFocusEffect } from '@react-navigation/native';
 
 const numpadKeys = [
   ['1', '2', '3'],
@@ -49,8 +49,6 @@ const DENOMINATIONS = {
 };
 
 const OpenRegisterScreen = ({ navigation }) => {
-  const isRegisterOpen = useSelector((state) => state.user.isRegisterOpen);
-  const [showCashIn, setShowCashIn] = useState(true);
   const { deviceId, cashRegister } = useSelector(state => state.device);
   const { userData, store_id } = useSelector(state => state.user);
 
@@ -60,12 +58,6 @@ const OpenRegisterScreen = ({ navigation }) => {
   const [currencyCounts, setCurrencyCounts] = useState({});
   const [showError, setShowError] = useState(false);
 
-  // If register is already open, skip directly to SaleScreen
-  useEffect(() => {
-    if (isRegisterOpen) {
-      navigation.replace('SaleScreen');
-    }
-  }, [isRegisterOpen]);
   const handleGetCashRegister = useCallback(async () => {
     try {
       const query = {
@@ -75,6 +67,10 @@ const OpenRegisterScreen = ({ navigation }) => {
       };
       const response = await GET_CASH_REGISTER(query);
       store.dispatch(setCashRegisterData(response?.cashRegister));
+
+      if (!response?.cashRegister?.is_close) {
+        navigate('SaleScreen');
+      }
     } catch (error) {
       Toast.show({
         type: 'error',
@@ -84,9 +80,11 @@ const OpenRegisterScreen = ({ navigation }) => {
     }
   }, [deviceId, userData, store_id]);
 
-  useEffect(() => {
-    handleGetCashRegister();
-  }, [handleGetCashRegister]);
+  useFocusEffect(
+    useCallback(() => {
+      handleGetCashRegister();
+    }, [handleGetCashRegister]),
+  );
 
   // Logic for Numpad
   const handleKeyPress = key => {
@@ -159,26 +157,15 @@ const OpenRegisterScreen = ({ navigation }) => {
       const response = await OPEN_REGISTER(payload);
 
       setIsModalVisible(false);
-      // store.dispatch(setIsLogin(true)); // User is already logged in now that OpenRegister is in AppStack
-      store.dispatch(setIsRegisterOpen(true));
-      navigation.navigate('SaleScreen');
+
+      navigate('SaleScreen');
 
       store.dispatch(setCashRegisterData(response?.newCashRegister));
     } catch (error) {
-      console.log("Error inside handleConfirm OpenRegister: ", error);
-      const errorMsg = error?.message || String(error);
-
-      // If register is already open on backend, sync local state and go to SaleScreen
-      if (errorMsg.toLowerCase().includes('already opened')) {
-        setIsModalVisible(false);
-        store.dispatch(setIsRegisterOpen(true));
-        return;
-      }
-
       Toast.show({
         type: 'error',
         text1: 'Error opening register',
-        text2: errorMsg,
+        text2: error?.message || 'Something went wrong. Please try again.',
       });
     }
   };

@@ -13,7 +13,7 @@ import { Colors } from '../../utils/Colors';
 import { S, VS, MS } from '../../utils/Responsive';
 import { H3, H4, Body2, Subtitle1, Subtitle2, ButtonText } from '../../utils/fonts';
 import { store } from '../../redux/store';
-import { setIsRegisterOpen } from '../../redux/Reducers/userReducer';
+// import { setCashRegisterData } from '../../redux/Reducers/deviceReducer';
 import { CLOSE_REGISTER } from '../../services/AppServices';
 import Toast from 'react-native-toast-message';
 
@@ -65,10 +65,9 @@ const CloseRegisterScreen = () => {
         store_id,
       };
 
-      const res = await CLOSE_REGISTER(payload);
-      console.log('CLOSE_REGISTER response:', res);
+      await CLOSE_REGISTER(payload);
 
-      store.dispatch(setIsRegisterOpen(false));
+      // store.dispatch(setIsRegisterOpen(false));
 
       Toast.show({
         type: 'success',
@@ -77,11 +76,10 @@ const CloseRegisterScreen = () => {
 
       navigation.navigate('SaleScreen');
     } catch (error) {
-      console.log('Error closing register:', error);
       Toast.show({
         type: 'error',
         text1: 'Error closing register',
-        text2: error?.message || String(error),
+        text2: error?.message || 'Something went wrong. Please try again.',
       });
     } finally {
       setIsLoading(false);
@@ -151,17 +149,16 @@ const CloseRegisterScreen = () => {
         <TouchableOpacity
           style={[styles.closeRegisterBtn, isLoading && { opacity: 0.7 }]}
           onPress={handleCloseRegister}
-          disabled={isLoading}>
+          disabled={isLoading}
+        >
           {isLoading ? (
             <ActivityIndicator color={Colors.black} />
           ) : (
-            <Text style={[styles.closeRegisterText, ButtonText]}>
-              Close Register →
-            </Text>
+            <Text style={[styles.closeRegisterText, ButtonText]}>Close Register →</Text>
           )}
         </TouchableOpacity>
       </View>
-    </View >
+    </View>
   );
 };
 
