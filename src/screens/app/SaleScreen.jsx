@@ -29,6 +29,7 @@ import SaleCartPanel from '../../components/SaleCartPanel';
 import Toast from 'react-native-toast-message';
 import { GET_ALL_CATEGORIES, GET_ALL_PRODUCTS_WITH_INVENTORY } from '../../services/ProductService';
 import { useSelector } from 'react-redux';
+import { Get_Inventory_Status } from '../../services/Transaction';
 
 const SaleScreen = () => {
   const navigation = useNavigation();
@@ -64,6 +65,37 @@ const SaleScreen = () => {
 
   const categoryScrollRef = useRef(null);
   const scrollOffset = useRef(0);
+
+  const handleGetInventoryStatus = async () => {
+    try {
+      // Prepare products from cart
+      const products = cartItems.map(item => ({
+        pid: item.id,
+        quantity: item.qty,
+      }));
+
+      // Prepare payload
+      const payload = {
+        transactionType: 'SALE',
+        products,
+        sale_store: storeID,
+        deviceID: deviceid,
+      };
+
+      console.log('Payload:', payload);
+
+      // Call API
+      const response = await Get_Inventory_Status(payload);
+
+      console.log(response, 'Get inventory status response');
+    } catch (error) {
+      Toast.show({
+        type: 'error',
+        text1: 'Error fetching inventory status',
+        text2: error.message,
+      });
+    }
+  };
 
   const handleFetchAllCategories = async query => {
     try {

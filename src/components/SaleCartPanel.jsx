@@ -28,6 +28,8 @@ import TapCardModal from './TapCardModal';
 import KitchenInvoiceModal from './KitchenInvoiceModal';
 import QuickSaleModal from './QuickSaleModal';
 import NfcManager, { NfcTech } from 'react-native-nfc-manager';
+import { Create_Transaction } from '../services/Transaction';
+import { useSelector, useDispatch } from 'react-redux';
 
 const SaleCartPanel = ({ cart, setCart, onAddToCart }) => {
   const [paymentType, setPaymentType] = useState(null);
@@ -43,6 +45,46 @@ const SaleCartPanel = ({ cart, setCart, onAddToCart }) => {
   const [showTapCardModal, setShowTapCardModal] = useState(false);
   const [showKitchenInvoiceModal, setShowKitchenInvoiceModal] = useState(false);
   const [showQuickSaleModal, setShowQuickSaleModal] = useState(false);
+
+  const dispatch = useDispatch();
+  const { deviceId } = useSelector(state => state.device);
+  const { store_id } = useSelector(state => state.user);
+
+  const buildTransactionPayload = () => {
+    const subtotal = cart.reduce((sum, item) => sum + item.price * item.qty, 0);
+
+    return {
+      nr: '',
+      transID: '',
+      transType: paymentType === 'cash' ? 'CASH' : 'CARD',
+      transAmntIn: subtotal + (parseFloat(tipAmount) || 0),
+      transAmntEx: subtotal,
+      vat: 0,
+      tipAmount: parseFloat(tipAmount) || 0,
+      referenceNumber: '',
+      transaction_uuid: `${Date.now()}`,
+      deviceID: deviceId,
+      storeID: store_id,
+      discountAmount: 0,
+      discountCode: '',
+      discountPercentage: 0,
+      status: 'Completed',
+    };
+  };
+
+  const handleCashProceed = async () => {
+    try {
+      const payload = buildTransactionPayload();
+
+      const res = await Create_Transaction(payload);
+      console.log(res, 'Transaction Success');
+
+      setShowCashPayModal(false);
+      setShowTransactionModal(true);
+    } catch (error) {
+      console.log(error, 'Transaction Error');
+    }
+  };
 
   useEffect(() => {
     let timer;
@@ -156,11 +198,6 @@ const SaleCartPanel = ({ cart, setCart, onAddToCart }) => {
         NfcManager.cancelTechnologyRequest();
       }
     }
-  };
-
-  const handleCashProceed = () => {
-    setShowCashPayModal(false);
-    setShowInvoiceModal(true);
   };
 
   const handlePrintReceipt = () => {

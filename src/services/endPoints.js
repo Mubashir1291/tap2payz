@@ -17,6 +17,7 @@ const ENDPOINTS = {
   },
   TRANSACTION: {
     CREATE_TRANSACTION: '/create-transaction',
+    GET_INVENTORY: '/get-inventory-status',
   },
 };
 
