@@ -70,7 +70,7 @@ const OpenRegisterScreen = ({ navigation }) => {
 
       store.dispatch(setCashRegisterData(response?.cashRegister));
 
-      if (!response?.cashRegister?.is_close) {
+      if (response?.cashRegister && !response?.cashRegister?.is_close) {
         navigate('SaleScreen');
       }
     } catch (error) {
