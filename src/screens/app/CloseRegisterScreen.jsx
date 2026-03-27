@@ -65,10 +65,7 @@ const CloseRegisterScreen = () => {
         store_id,
       };
 
-      const response = await CLOSE_REGISTER(payload);
-      console.log(response, 'close register response');
-
-      // store.dispatch(setIsRegisterOpen(false));
+      await CLOSE_REGISTER(payload);
 
       Toast.show({
         type: 'success',

@@ -93,7 +93,6 @@ const SaleScreen = () => {
   const handleFetchAllCategories = async query => {
     try {
       const response = await GET_ALL_CATEGORIES(query);
-      console.log(response, 'Get all category response');
 
       setCategories(response?.items);
       setCategoriesData(response);
@@ -109,8 +108,6 @@ const SaleScreen = () => {
   const handleFetchAllProducts = async query => {
     try {
       const response = await GET_ALL_PRODUCTS_WITH_INVENTORY(query);
-      console.log(response, 'Get all product with inventory response');
-
       setProducts(response?.items);
       setProductsData(response);
     } catch (error) {

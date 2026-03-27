@@ -9,4 +9,4 @@ const URLS = {
   },
 };
 
-export default URLS.LIVE;
+export default URLS.LOCAL;

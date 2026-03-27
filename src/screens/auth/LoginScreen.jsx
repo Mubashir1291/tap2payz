@@ -58,13 +58,10 @@ const LoginScreen = () => {
     try {
       const response = await LOGIN_ACCOUNT(payload);
 
-      console.log(response, 'here the login response');
-
       store.dispatch(setAccessToken(response.token));
 
       // Hit ME API right after login
       const meResponse = await ME();
-      console.log(meResponse, 'me response');
 
       const employeeData = meResponse?.employee;
 
@@ -120,7 +117,6 @@ const LoginScreen = () => {
       };
 
       const response = await VERIFY_DEVICE(payload);
-      console.log(response, 'verify device response');
 
       store.dispatch(setDeviceId(response?.device?._id));
       store.dispatch(setIsDeviceRegistered(true));
@@ -275,7 +271,9 @@ const LoginScreen = () => {
                 style={styles.hiddenInput}
                 value={deviceIdInput}
                 onChangeText={text => {
-                  if (text.length <= DEVICE_ID_LENGTH) setDeviceIdInput(text);
+                  if (text.length <= DEVICE_ID_LENGTH) {
+                    setDeviceIdInput(text);
+                  }
                 }}
                 autoCapitalize="characters"
                 autoCorrect={false}
