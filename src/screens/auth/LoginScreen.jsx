@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import {
   View,
   Text,
@@ -36,6 +36,8 @@ const validationSchema = Yup.object().shape({
   password: Yup.string().required('Password is required'),
 });
 
+const DEVICE_ID_LENGTH = 6;
+
 const LoginScreen = () => {
   const { isDeviceRegistered, deviceId: savedDeviceId } = useSelector(state => state.device);
   const { store_id } = useSelector(state => state.user);
@@ -43,6 +45,7 @@ const LoginScreen = () => {
   const [showDeviceModal, setShowDeviceModal] = useState(false);
   const [deviceIdInput, setDeviceIdInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const inputRef = useRef(null);
 
   const handleLogin = async values => {
     setIsLoading(true);
@@ -55,10 +58,14 @@ const LoginScreen = () => {
     try {
       const response = await LOGIN_ACCOUNT(payload);
 
+      console.log(response, 'here the login response');
+
       store.dispatch(setAccessToken(response.token));
 
       // Hit ME API right after login
       const meResponse = await ME();
+      console.log(meResponse, 'me response');
+
       const employeeData = meResponse?.employee;
 
       const employeeStore =
@@ -113,6 +120,7 @@ const LoginScreen = () => {
       };
 
       const response = await VERIFY_DEVICE(payload);
+      console.log(response, 'verify device response');
 
       store.dispatch(setDeviceId(response?.device?._id));
       store.dispatch(setIsDeviceRegistered(true));
@@ -249,15 +257,32 @@ const LoginScreen = () => {
               Enter the device ID to link this terminal
             </Text>
 
-            <TextInput
-              style={styles.deviceInput}
-              placeholder="Enter device ID"
-              placeholderTextColor={Colors.grey}
-              value={deviceIdInput}
-              onChangeText={setDeviceIdInput}
-              autoCapitalize="none"
-              autoCorrect={false}
-            />
+            <TouchableOpacity
+              activeOpacity={1}
+              style={styles.otpContainer}
+              onPress={() => inputRef.current?.focus()}
+            >
+              {[...Array(DEVICE_ID_LENGTH)].map((_, index) => (
+                <View
+                  key={index}
+                  style={[styles.otpBox, deviceIdInput.length === index && styles.otpBoxActive]}
+                >
+                  <Text style={styles.otpText}>{deviceIdInput[index] || ''}</Text>
+                </View>
+              ))}
+              <TextInput
+                ref={inputRef}
+                style={styles.hiddenInput}
+                value={deviceIdInput}
+                onChangeText={text => {
+                  if (text.length <= DEVICE_ID_LENGTH) setDeviceIdInput(text);
+                }}
+                autoCapitalize="characters"
+                autoCorrect={false}
+                maxLength={DEVICE_ID_LENGTH}
+                keyboardType="numeric"
+              />
+            </TouchableOpacity>
 
             <TouchableOpacity
               style={styles.deviceSubmitBtn}
@@ -376,17 +401,35 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     marginBottom: VS(24),
   },
-  deviceInput: {
+  otpContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
     width: '100%',
+    marginBottom: VS(24),
+    position: 'relative',
+  },
+  otpBox: {
+    width: S(45),
     height: VS(52),
     borderWidth: 1.5,
-    borderColor: Colors.primary,
+    borderColor: Colors.lightGrey,
     borderRadius: MS(12),
-    paddingHorizontal: S(16),
-    fontSize: MS(16),
-    color: Colors.black,
+    justifyContent: 'center',
+    alignItems: 'center',
     backgroundColor: Colors.inputBg,
-    marginBottom: VS(20),
+  },
+  otpBoxActive: {
+    borderColor: Colors.primary,
+  },
+  otpText: {
+    fontSize: MS(20),
+    color: Colors.black,
+  },
+  hiddenInput: {
+    position: 'absolute',
+    width: '100%',
+    height: '100%',
+    opacity: 0,
   },
   deviceSubmitBtn: {
     width: '100%',

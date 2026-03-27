@@ -14,7 +14,7 @@ import { S, VS, MS } from '../../utils/Responsive';
 import { H3, H4, Body2, Subtitle1, Subtitle2, ButtonText } from '../../utils/fonts';
 import { store } from '../../redux/store';
 // import { setCashRegisterData } from '../../redux/Reducers/deviceReducer';
-import { CLOSE_REGISTER } from '../../services/AppServices';
+import { CLOSE_REGISTER } from '../../services/StoreService';
 import Toast from 'react-native-toast-message';
 
 const summaryData = [
@@ -65,7 +65,8 @@ const CloseRegisterScreen = () => {
         store_id,
       };
 
-      await CLOSE_REGISTER(payload);
+      const response = await CLOSE_REGISTER(payload);
+      console.log(response, 'close register response');
 
       // store.dispatch(setIsRegisterOpen(false));
 

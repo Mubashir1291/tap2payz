@@ -14,25 +14,16 @@ import {
 import { useNavigation } from '@react-navigation/native';
 import { Colors } from '../../utils/Colors';
 import { S, VS } from '../../utils/Responsive';
-import { Caption, Body2, Body3, Subtitle1, Subtitle2, H4, ButtonText } from '../../utils/fonts';
-import { IconSize12, IconSize40, IconSize20, IconSize24 } from '../../utils/IconSizes';
+import { Caption, Body3, Subtitle1, Subtitle2 } from '../../utils/fonts';
+import { IconSize12, IconSize40, IconSize20 } from '../../utils/IconSizes';
 import {
   CategoriesIcon,
-  CashIcon,
-  CardIcon,
-  DeleteIcon,
-  RefreshICon,
-  ChipIcon,
-  DiscountIcon,
-  DollarIcon,
-  BuyersIcon,
   ImageFrameIcon,
   LeftArrowIcon,
   RightArrowIcon,
   WarningIcon,
   SearchIcon,
   ListIcon,
-  TickIcon,
 } from '../../assets/Images';
 import styles from './SaleScreenStyles';
 import ConfirmationModal from '../../components/ConfirmationModal';
@@ -45,7 +36,7 @@ import InvoiceModal from '../../components/InvoiceModal';
 import TapCardModal from '../../components/TapCardModal';
 import KitchenInvoiceModal from '../../components/KitchenInvoiceModal';
 import QuickSaleModal from '../../components/QuickSaleModal';
-import SwipeableCartItem from '../../components/SwipeableCartItem';
+import SaleCartPanel from '../../components/SaleCartPanel';
 import NfcManager, { NfcTech } from 'react-native-nfc-manager';
 import Toast from 'react-native-toast-message';
 import { GET_ALL_CATEGORIES, GET_ALL_PRODUCTS_WITH_INVENTORY } from '../../services/ProductService';
@@ -102,6 +93,8 @@ const SaleScreen = () => {
   const handleFetchAllCategories = async query => {
     try {
       const response = await GET_ALL_CATEGORIES(query);
+      console.log(response, 'Get all category response');
+
       setCategories(response?.items);
       setCategoriesData(response);
     } catch (error) {
@@ -116,6 +109,8 @@ const SaleScreen = () => {
   const handleFetchAllProducts = async query => {
     try {
       const response = await GET_ALL_PRODUCTS_WITH_INVENTORY(query);
+      console.log(response, 'Get all product with inventory response');
+
       setProducts(response?.items);
       setProductsData(response);
     } catch (error) {
@@ -469,116 +464,23 @@ const SaleScreen = () => {
       </View>
 
       {/* ───── RIGHT CART PANEL ───── */}
-      <View style={styles.cartPanel}>
-        {/* Cart Header Icons */}
-        <View style={styles.cartHeader}>
-          <TouchableOpacity onPress={() => setShowKitchenInvoiceModal(true)}>
-            <Image source={RefreshICon} style={[IconSize20, styles.cartHeaderIcon]} />
-          </TouchableOpacity>
-          <TouchableOpacity>
-            <Image source={ChipIcon} style={[IconSize20, styles.cartHeaderIcon]} />
-          </TouchableOpacity>
-          <TouchableOpacity onPress={HandleDeleteCart}>
-            <Image source={DeleteIcon} style={[IconSize20, styles.cartHeaderIcon]} />
-          </TouchableOpacity>
-        </View>
-
-        {cart.length === 0 ? (
-          <View style={styles.emptyCart}>
-            <Text style={[styles.emptyCartText, H4]}>Shopping Cart is empty!</Text>
-          </View>
-        ) : (
-          <FlatList
-            data={cart}
-            keyExtractor={item => item.id}
-            showsVerticalScrollIndicator={false}
-            renderItem={({ item }) => (
-              <SwipeableCartItem onDelete={() => deleteFromCart(item.id)}>
-                <View style={styles.cartItem}>
-                  <View>
-                    <Text style={[styles.cartItemName, Subtitle2]}>{item.name}</Text>
-                    <Text style={[styles.cartItemPrice, Body3]}>
-                      $ {item.price} x {item.qty}
-                    </Text>
-                  </View>
-
-                  <View style={styles.qtyControls}>
-                    <TouchableOpacity onPress={() => removeFromCart(item.id)} style={styles.qtyBtn}>
-                      <Text style={[styles.qtyBtnText, ButtonText]}>−</Text>
-                    </TouchableOpacity>
-
-                    <Text style={[styles.qtyText, Body2]}>{item.qty}</Text>
-
-                    <TouchableOpacity onPress={() => addToCart(item)} style={styles.qtyBtn}>
-                      <Text style={[styles.qtyBtnText, ButtonText]}>+</Text>
-                    </TouchableOpacity>
-                  </View>
-                </View>
-              </SwipeableCartItem>
-            )}
-          />
-        )}
-
-        {/* Action Buttons */}
-        <View style={styles.actionRow}>
-          <TouchableOpacity style={styles.actionBtn} onPress={() => setShowQuickSaleModal(true)}>
-            <Image source={DiscountIcon} style={[IconSize12, styles.actionIcon]} />
-            <Text style={[styles.actionLabelText, Caption]}>Quick Sale</Text>
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.actionBtn} onPress={handleOpenTipModal}>
-            <View style={styles.tipIconContainer}>
-              <Image source={DollarIcon} style={[IconSize12, styles.actionIcon]} />
-              {tipAmount !== null && <Image source={TickIcon} style={styles.tickIcon} />}
-            </View>
-            <Text style={[styles.actionLabelText, Caption]}>Add TIP</Text>
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.actionBtn} onPress={handleOpenBuyerModal}>
-            <View style={styles.tipIconContainer}>
-              <Image source={BuyersIcon} style={[IconSize12, styles.actionIcon]} />
-              {buyerInfo !== null && <Image source={TickIcon} style={styles.tickIcon} />}
-            </View>
-            <Text style={[styles.actionLabelText, Caption]}>Buyer Details</Text>
-          </TouchableOpacity>
-        </View>
-
-        {/* Total Section */}
-        <View style={styles.totalSection}>
-          {tipAmount !== null && parseFloat(tipAmount) > 0 && (
-            <View style={[styles.totalRow, styles.tipRowMargin]}>
-              <Text style={[styles.totalLabel, Subtitle2, styles.tipLabelColor]}>Tip:</Text>
-              <Text style={[styles.totalAmount, Subtitle2, styles.tipAmountColor]}>
-                + CAD {parseFloat(tipAmount).toFixed(2)}
-              </Text>
-            </View>
-          )}
-          <View style={styles.totalRow}>
-            <Text style={[styles.totalLabel, Subtitle1]}>Total</Text>
-            <Text style={[styles.totalAmount, H4]}>CAD {total}</Text>
-          </View>
-
-          <View style={styles.paymentRow}>
-            <TouchableOpacity
-              style={[styles.paymentBtn, paymentType === 'cash' && styles.activePayment]}
-              onPress={() => setPaymentType('cash')}
-            >
-              <Image source={CashIcon} style={[IconSize24, styles.paymentIcon]} />
-              <Text style={[styles.paymentBtnText, Subtitle2]}>Cash Pay</Text>
-            </TouchableOpacity>
-
-            <TouchableOpacity
-              style={[styles.paymentBtn, paymentType === 'card' && styles.activePayment]}
-              onPress={() => setPaymentType('card')}
-            >
-              <Image source={CardIcon} style={[IconSize24, styles.paymentIcon]} />
-              <Text style={[styles.paymentBtnText, Subtitle2]}>Card Pay</Text>
-            </TouchableOpacity>
-          </View>
-
-          <TouchableOpacity style={styles.placeOrderBtn} onPress={handlePlaceOrder}>
-            <Text style={[styles.placeOrderText, ButtonText]}>Place Order</Text>
-          </TouchableOpacity>
-        </View>
-      </View>
+      <SaleCartPanel
+        cart={cart}
+        tipAmount={tipAmount}
+        buyerInfo={buyerInfo}
+        total={total}
+        paymentType={paymentType}
+        onAddToCart={addToCart}
+        onRemoveFromCart={removeFromCart}
+        onDeleteFromCart={deleteFromCart}
+        onClearCart={HandleDeleteCart}
+        onOpenTipModal={handleOpenTipModal}
+        onOpenBuyerModal={handleOpenBuyerModal}
+        onOpenQuickSaleModal={() => setShowQuickSaleModal(true)}
+        onOpenKitchenInvoiceModal={() => setShowKitchenInvoiceModal(true)}
+        onSetPaymentType={setPaymentType}
+        onPlaceOrder={handlePlaceOrder}
+      />
 
       <ConfirmationModal
         visible={showDeleteModal}

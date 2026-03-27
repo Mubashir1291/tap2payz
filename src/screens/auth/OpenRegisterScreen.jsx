@@ -66,6 +66,8 @@ const OpenRegisterScreen = ({ navigation }) => {
         store_id,
       };
       const response = await GET_CASH_REGISTER(query);
+      console.log(response, 'get cash register response');
+
       store.dispatch(setCashRegisterData(response?.cashRegister));
 
       if (!response?.cashRegister?.is_close) {
@@ -155,6 +157,7 @@ const OpenRegisterScreen = ({ navigation }) => {
       };
 
       const response = await OPEN_REGISTER(payload);
+      console.log(response, 'open register response');
 
       setIsModalVisible(false);
 
