@@ -1,4 +1,3 @@
-/* eslint-disable unused-imports/no-unused-vars */
 import React, { useState, useMemo, useRef, useEffect } from 'react';
 import {
   View,
@@ -15,7 +14,7 @@ import { useNavigation } from '@react-navigation/native';
 import { Colors } from '../../utils/Colors';
 import { S, VS } from '../../utils/Responsive';
 import { Caption, Body3, Subtitle1, Subtitle2 } from '../../utils/fonts';
-import { IconSize12, IconSize40, IconSize20 } from '../../utils/IconSizes';
+import { IconSize12, IconSize40 } from '../../utils/IconSizes';
 import {
   CategoriesIcon,
   ImageFrameIcon,
@@ -23,7 +22,6 @@ import {
   RightArrowIcon,
   WarningIcon,
   SearchIcon,
-  ListIcon,
 } from '../../assets/Images';
 import styles from './SaleScreenStyles';
 import ConfirmationModal from '../../components/ConfirmationModal';
@@ -41,6 +39,7 @@ import NfcManager, { NfcTech } from 'react-native-nfc-manager';
 import Toast from 'react-native-toast-message';
 import { GET_ALL_CATEGORIES, GET_ALL_PRODUCTS_WITH_INVENTORY } from '../../services/ProductService';
 import { useSelector } from 'react-redux';
+import useDebounce from '../../utils/useDebounce';
 
 const SaleScreen = () => {
   const navigation = useNavigation();
@@ -73,6 +72,7 @@ const SaleScreen = () => {
     category_id: '',
   });
   const [products, setProducts] = useState([]);
+  // eslint-disable-next-line unused-imports/no-unused-vars
   const [productsData, setProductsData] = useState(null);
 
   const [categorySearchQuery, setCategorySearchQuery] = useState({
@@ -89,6 +89,7 @@ const SaleScreen = () => {
 
   const categoryScrollRef = useRef(null);
   const scrollOffset = useRef(0);
+  const debouncedValue = useDebounce(searchQuery, 500);
 
   const handleFetchAllCategories = async query => {
     try {
@@ -309,6 +310,37 @@ const SaleScreen = () => {
     }));
   }, [products]);
 
+  const handleFilterByCategory = cat => {
+    if (cat?._id === selectedCategory?._id) {
+      setSelectedCategory(null);
+      setProductSearchQuery(prev => ({ ...prev, category_id: '' }));
+    } else {
+      setSelectedCategory(cat);
+      setProductSearchQuery(prev => ({ ...prev, category_id: cat?._id }));
+    }
+  };
+
+  const handleSearchTextChange = text => {
+    setSearchQuery(text);
+  };
+
+  useEffect(() => {
+    if (isAllCategoriesView) {
+      setCategorySearchQuery(prev => ({
+        ...prev,
+        searchText: debouncedValue,
+        page: 1,
+      }));
+    } else {
+      setProductSearchQuery(prev => ({
+        ...prev,
+        searchText: debouncedValue,
+        page: 1,
+      }));
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [debouncedValue]);
+
   return (
     <View style={styles.root}>
       <StatusBar backgroundColor={Colors.primary} barStyle="light-content" />
@@ -331,28 +363,25 @@ const SaleScreen = () => {
               placeholder="Search..."
               placeholderTextColor={'#999'}
               value={searchQuery}
-              onChangeText={setSearchQuery}
+              onChangeText={handleSearchTextChange}
             />
           </View>
 
           {/* All Categories */}
           <TouchableOpacity
             style={styles.allCategoryBtn}
-            onPress={() => setIsAllCategoriesView(!isAllCategoriesView)}
-          >
-            <Image source={CategoriesIcon} style={[IconSize12, styles.categoryIcon]} />
-            <Text style={[styles.allCategoryText, Subtitle2]}>All Categories</Text>
-          </TouchableOpacity>
-
-          {/* Grid/List Toggle */}
-          <TouchableOpacity
-            style={styles.viewToggle}
             onPress={() => {
-              setSelectedCategory('All');
-              setIsAllCategoriesView(false);
+              setIsAllCategoriesView(!isAllCategoriesView);
+              setSelectedCategory(null);
+              setSearchQuery('');
+              setProductSearchQuery(prev => ({ ...prev, category_id: '' }));
+              setCategorySearchQuery(prev => ({ ...prev, searchText: '' }));
             }}
           >
-            <Image source={ListIcon} style={[IconSize20, styles.viewToggleIcon]} />
+            <Image source={CategoriesIcon} style={[IconSize12, styles.categoryIcon]} />
+            <Text style={[styles.allCategoryText, Subtitle2]}>
+              All {isAllCategoriesView ? 'Products' : 'Categories'}
+            </Text>
           </TouchableOpacity>
         </View>
 
@@ -360,7 +389,7 @@ const SaleScreen = () => {
         {isAllCategoriesView ? (
           <View style={{ marginBottom: VS(16), paddingHorizontal: S(6) }}>
             <Text style={[Subtitle1, { color: Colors.black }]}>
-              Total Categories: {categories.length - 1}
+              Total Categories: {categoriesData?.totalItems}
             </Text>
           </View>
         ) : (
@@ -387,7 +416,7 @@ const SaleScreen = () => {
               {categoriesItems?.map((cat, index) => (
                 <TouchableOpacity
                   key={index}
-                  onPress={() => setSelectedCategory(cat)}
+                  onPress={() => handleFilterByCategory(cat)}
                   style={[
                     styles.categoryBtn,
                     selectedCategory?._id === cat?._id && styles.activeCategory,
@@ -418,26 +447,34 @@ const SaleScreen = () => {
           </View>
         )}
 
-        {/* Product Grid */}
+        {/* Grid View */}
         {isAllCategoriesView ? (
           <FlatList
-            data={categories.filter(c => c !== 'All')}
-            keyExtractor={item => item}
+            data={categoriesItems}
+            keyExtractor={item => item?._id}
             renderItem={({ item }) => (
               <TouchableOpacity
                 style={styles.categoryGridCard}
                 activeOpacity={0.5}
                 onPress={() => {
-                  setSelectedCategory(item);
+                  handleFilterByCategory(item);
                   setIsAllCategoriesView(false);
                 }}
               >
-                <Text style={[styles.categoryGridText, Subtitle2]}>{item}</Text>
+                <Text style={[styles.categoryGridText, Subtitle2]}>{item?.name}</Text>
               </TouchableOpacity>
             )}
             numColumns={5}
             showsVerticalScrollIndicator={false}
             contentContainerStyle={styles.productListContent}
+            // onEndReached={loadMoreProducts}
+            // ListFooterComponent={
+            //   isLoadingMore ? (
+            //     <View style={styles.listFooterLoadingView}>
+            //       <ActivityIndicator size="large" color={Colors.primary} />
+            //     </View>
+            //   ) : null
+            // }
           />
         ) : (
           <FlatList

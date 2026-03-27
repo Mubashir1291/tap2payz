@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useCallback } from 'react';
 import {
   View,
   Text,
@@ -7,28 +7,50 @@ import {
   StyleSheet,
   ActivityIndicator,
 } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import { useSelector } from 'react-redux';
 import { Colors } from '../../utils/Colors';
 import { S, VS, MS } from '../../utils/Responsive';
-import { H3, H4, Body2, Subtitle1, Subtitle2, ButtonText } from '../../utils/fonts';
+import { H3, H4, Body2, Subtitle1, ButtonText } from '../../utils/fonts';
 import { store } from '../../redux/store';
-// import { setCashRegisterData } from '../../redux/Reducers/deviceReducer';
-import { CLOSE_REGISTER } from '../../services/StoreService';
+import { setCashRegisterData } from '../../redux/Reducers/deviceReducer';
+import { logout } from '../../redux/Reducers/userReducer';
+import { CLOSE_REGISTER, GET_CASH_REGISTER } from '../../services/StoreService';
 import Toast from 'react-native-toast-message';
-
-const summaryData = [
-  { label: 'Opening Amount', value: '12,500' },
-  { label: 'Sales', value: '6,250' },
-  { label: 'Online Sales', value: '6,250' },
-  { label: 'Return', value: '0,00' },
-];
 
 const CloseRegisterScreen = () => {
   const navigation = useNavigation();
   const { deviceId } = useSelector(state => state.device);
+  const { userData, store_id } = useSelector(state => state.user);
+
   const [cashOutAmount, setCashOutAmount] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [state, setState] = useState(null);
+
+  const handleGetCashRegister = useCallback(async () => {
+    try {
+      const query = {
+        device_id: deviceId,
+        employee_id: userData?._id,
+        store_id,
+      };
+      const response = await GET_CASH_REGISTER(query);
+
+      setState(response?.cashRegister);
+    } catch (error) {
+      Toast.show({
+        type: 'error',
+        text1: 'Error fetching cash register',
+        text2: error?.message || String(error),
+      });
+    }
+  }, [deviceId, userData, store_id]);
+
+  useFocusEffect(
+    useCallback(() => {
+      handleGetCashRegister();
+    }, [handleGetCashRegister]),
+  );
 
   const handleNumPress = num => {
     setCashOutAmount(prev => prev + num);
@@ -48,24 +70,16 @@ const CloseRegisterScreen = () => {
   const handleCloseRegister = async () => {
     setIsLoading(true);
     try {
-      const userState = store.getState()?.user || {};
-      const userData = userState?.userData?.data || userState?.userData || {};
-      const employeeData = userData?.employee || {};
-
-      const employee_id = employeeData?._id || '';
-      const store_id =
-        employeeData?.store_id && employeeData.store_id.length > 0
-          ? employeeData.store_id[0]._id
-          : '';
-
       const payload = {
         cash_out: parseFloat(cashOutAmount) || 0,
-        device_id: deviceId || '',
-        employee_id,
+        device_id: deviceId,
+        employee_id: userData?._id,
         store_id,
       };
 
       await CLOSE_REGISTER(payload);
+      store.dispatch(setCashRegisterData(null));
+      store.dispatch(logout());
 
       Toast.show({
         type: 'success',
@@ -93,26 +107,34 @@ const CloseRegisterScreen = () => {
         {/* Welcome */}
         <View style={styles.welcomeSection}>
           <Text style={[styles.welcomeLabel, Body2]}>Welcome!</Text>
-          <Text style={[styles.userName, H4]}>John Duo.</Text>
+          <Text style={[styles.userName, H4]}>{userData?.employee_name}</Text>
         </View>
 
         <View style={styles.divider} />
 
-        {/* Summary Rows */}
-        {summaryData.map((item, index) => (
-          <View key={index}>
-            <View style={styles.summaryRow}>
-              <Text style={[styles.summaryLabel, Subtitle1]}>{item.label}</Text>
-              <Text style={[styles.summaryValue, Subtitle1]}>{item.value}</Text>
-            </View>
-            <View style={styles.divider} />
-          </View>
-        ))}
+        <View style={styles.summaryRow}>
+          <Text style={[styles.summaryLabel, Subtitle1]}>Opening Amount</Text>
+          <Text style={[styles.summaryValue, Subtitle1]}>
+            {state?.opening_amount?.amount?.toFixed(2)}
+          </Text>
+        </View>
+        <View style={styles.divider} />
 
-        {/* Closing Amount */}
-        <View style={styles.closingRow}>
-          <Text style={[styles.closingLabel, Subtitle2]}>Closing amount with cash register</Text>
-          <Text style={[styles.closingValue, Subtitle1]}>12,500</Text>
+        <View style={styles.summaryRow}>
+          <Text style={[styles.summaryLabel, Subtitle1]}>Sales</Text>
+          <Text style={[styles.summaryValue, Subtitle1]}>{state?.totalSales?.toFixed(2)}</Text>
+        </View>
+        <View style={styles.divider} />
+
+        <View style={styles.summaryRow}>
+          <Text style={[styles.summaryLabel, Subtitle1]}>Online Sales</Text>
+          <Text style={[styles.summaryValue, Subtitle1]}>{state?.onlineSales?.toFixed(2)}</Text>
+        </View>
+        <View style={styles.divider} />
+
+        <View style={styles.summaryRow}>
+          <Text style={[styles.summaryLabel, Subtitle1]}>Return</Text>
+          <Text style={[styles.summaryValue, Subtitle1]}>{state?.totalReturns?.toFixed(2)}</Text>
         </View>
       </View>
 

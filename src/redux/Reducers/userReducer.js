@@ -25,6 +25,7 @@ export const userReducer = createSlice({
       state.isLogin = false;
       state.accessToken = null;
       state.store_id = null;
+      state.userData = null;
     },
   },
 });
