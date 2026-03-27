@@ -180,6 +180,9 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     minWidth: S(100),
   },
+  outOfStockCard: {
+    backgroundColor: '#F8D7DA',
+  },
   priceTag: {
     alignSelf: 'flex-end',
     marginBottom: VS(4),

@@ -17,6 +17,7 @@ import {
 } from '../assets/Images';
 import { store } from '../redux/store';
 import PassKeyModal from './PassKeyModal';
+import { useSelector } from 'react-redux';
 
 const drawerItems = [
   { label: 'Sale', icon: DiscountIcon, route: 'SaleScreen' },
@@ -31,10 +32,28 @@ const drawerItems = [
 const CustomDrawerContent = ({ navigation, state }) => {
   const activeRoute = state?.routes?.[state.index]?.name;
   const [showPasskey, setShowPasskey] = useState(false);
+  const { userData } = useSelector(_ => _.user);
 
   const handleLogout = () => {
     store.dispatch(logout(true));
   };
+
+  function getInitials(name) {
+    if (!name) {
+      return '';
+    }
+
+    const parts = name.trim().split(' ');
+
+    if (parts.length === 1) {
+      return parts[0][0].toUpperCase();
+    }
+
+    const first = parts[0][0];
+    const last = parts[parts.length - 1][0];
+
+    return (first + last).toUpperCase();
+  }
 
   return (
     <View style={styles.container}>
@@ -49,11 +68,11 @@ const CustomDrawerContent = ({ navigation, state }) => {
       {/* User Profile */}
       <View style={styles.profileSection}>
         <View style={styles.avatar}>
-          <Text style={[styles.avatarText, H2]}>JD</Text>
+          <Text style={[styles.avatarText, H2]}>{getInitials(userData?.employee_name)}</Text>
         </View>
         <View style={styles.profileText}>
           <Text style={[styles.welcomeText, H2]}>Welcome!</Text>
-          <Text style={[styles.userName, Body2]}>John Duo</Text>
+          <Text style={[styles.userName, Body2]}>{userData?.employee_name}</Text>
         </View>
       </View>
 
@@ -108,6 +127,7 @@ const CustomDrawerContent = ({ navigation, state }) => {
         <Text style={[styles.logoutText, Subtitle1]}>Logout</Text>
       </TouchableOpacity>
 
+      {/* /verify-employee endpoint will be used here */}
       <PassKeyModal
         visible={showPasskey}
         onProceed={() => {

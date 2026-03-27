@@ -104,10 +104,10 @@ const SaleScreen = () => {
   }, [productSearchQuery]);
 
   const addToCart = item => {
-    const existing = cart.find(c => c.id === item.id);
+    const existing = cart.find(c => c._id === item._id);
 
     if (existing) {
-      setCart(cart.map(c => (c.id === item.id ? { ...c, qty: c.qty + 1 } : c)));
+      setCart(cart.map(c => (c._id === item._id ? { ...c, qty: c.qty + 1 } : c)));
     } else {
       setCart([...cart, { ...item, qty: 1 }]);
     }
@@ -115,12 +115,22 @@ const SaleScreen = () => {
 
   const renderProduct = ({ item }) => (
     <TouchableOpacity
-      style={styles.productCard}
+      style={[styles.productCard, item.quantitySold >= item.quantity && styles.outOfStockCard]}
       activeOpacity={0.5}
-      onPress={() => addToCart(item)}
+      onPress={() => {
+        if (item.quantitySold >= item.quantity) {
+          Toast.show({
+            type: 'error',
+            text1: 'Out of Stock',
+            text2: `${item.product_name} is currently out of stock.`,
+          });
+        } else {
+          addToCart(item);
+        }
+      }}
     >
       <View style={styles.priceTag}>
-        <Text style={[styles.priceText, Caption]}>$ {item.price}</Text>
+        <Text style={[styles.priceText, Caption]}>${item.price}</Text>
       </View>
       <Image source={ImageFrameIcon} style={styles.productImage} />
       <Text style={[styles.productName, Subtitle2]}>{item.name}</Text>

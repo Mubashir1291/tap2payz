@@ -67,7 +67,7 @@ const OpenRegisterScreen = ({ navigation }) => {
       };
       const response = await GET_CASH_REGISTER(query);
 
-      store.dispatch(setCashRegisterData(response?.cashRegister));
+      store.dispatch(setCashRegisterData(response?.cashRegister ?? response?.closedRegister));
 
       if (response?.cashRegister && !response?.cashRegister?.is_close) {
         navigate('SaleScreen');
