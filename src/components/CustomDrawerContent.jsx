@@ -79,15 +79,24 @@ const CustomDrawerContent = ({ navigation, state }) => {
       {/* Menu Items */}
       <ScrollView style={styles.menuList} showsVerticalScrollIndicator={false}>
         {drawerItems.map((item, index) => {
-          const isActive = item.route === activeRoute;
+          // Settings tab is active if current route is SettingsScreen
+          const isSettingsTab = item.label === 'Settings';
+          const isSettingsActive = activeRoute === 'SettingsScreen';
+          const isActive = isSettingsTab ? isSettingsActive : item.route === activeRoute;
+          const isDisabled = isSettingsTab && isSettingsActive;
           return (
             <TouchableOpacity
               key={index}
-              style={[styles.menuItem, isActive && styles.activeMenuItem]}
-              activeOpacity={0.7}
+              style={[
+                styles.menuItem,
+                isActive && styles.activeMenuItem,
+                isDisabled && { opacity: 0.5 },
+              ]}
+              activeOpacity={isDisabled ? 1 : 0.7}
+              disabled={isDisabled}
               onPress={() => {
-                if (item.label === 'Settings') {
-                  setShowPasskey(true);
+                if (isSettingsTab) {
+                  if (!isSettingsActive) setShowPasskey(true);
                 } else if (item.route) {
                   navigation.navigate(item.route);
                   navigation.closeDrawer();
@@ -127,15 +136,10 @@ const CustomDrawerContent = ({ navigation, state }) => {
         <Text style={[styles.logoutText, Subtitle1]}>Logout</Text>
       </TouchableOpacity>
 
-      {/* /verify-employee endpoint will be used here */}
       <PassKeyModal
         visible={showPasskey}
-        onProceed={() => {
-          setShowPasskey(false);
-          navigation.navigate('SettingsScreen');
-          navigation.closeDrawer();
-        }}
         onClose={() => setShowPasskey(false)}
+        navigation={navigation}
       />
     </View>
   );

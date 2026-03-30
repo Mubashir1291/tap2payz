@@ -31,3 +31,11 @@ export const VERIFY_DEVICE = async payload => {
   const response = await Fetch.put(`${BASE_PREFIX}${ENDPOINTS.DEVICE.VERIFY_DEVICE}`, payload);
   return response;
 };
+
+export const VERIFY_STORE_PASSKEY = async (id, payload) => {
+  const response = await Fetch.post(
+    `${BASE_PREFIX}/auth${ENDPOINTS.AUTH.VERIFY_STORE_PASSKEY}/${id}`,
+    payload,
+  );
+  return response;
+};
