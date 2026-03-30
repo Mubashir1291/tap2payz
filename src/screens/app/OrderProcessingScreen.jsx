@@ -143,11 +143,14 @@ const OrderProcessingScreen = () => {
   const scrollOffset = useRef(0);
 
   const addToCart = product => {
+    const prodId = product._id || product.id || product.productId;
     setCart(prev => {
       const existing = prev.find(item => item.productId === product.id);
+      // const existing = prev.find(item => item.productId === prodId);
       if (existing) {
-        return prev.map(item =>
-          item.productId === product.id ? { ...item, qty: item.qty + 1 } : item,
+        return prev.map(
+          item => (item.productId === product.id ? { ...item, qty: item.qty + 1 } : item),
+          item.productId === prodId ? { ...item, qty: item.qty + 1 } : item,
         );
       }
       return [
@@ -155,6 +158,8 @@ const OrderProcessingScreen = () => {
         {
           id: `c_${Date.now()}_${product.id}`,
           productId: product.id,
+          id: `c_${Date.now()}_${prodId}`,
+          productId: prodId,
           name: product.name,
           price: product.price,
           qty: 1,

@@ -28,7 +28,7 @@ import TapCardModal from './TapCardModal';
 import KitchenInvoiceModal from './KitchenInvoiceModal';
 import QuickSaleModal from './QuickSaleModal';
 import NfcManager, { NfcTech } from 'react-native-nfc-manager';
-import { CREATE_TRANSACTION } from '../services/Transaction';
+import { CREATE_TRANSACTION, GET_INVENTORY_STATUS } from '../services/Transaction';
 import { useSelector } from 'react-redux';
 
 const SaleCartPanel = ({ cart, setCart, onAddToCart }) => {
@@ -53,21 +53,23 @@ const SaleCartPanel = ({ cart, setCart, onAddToCart }) => {
     const subtotal = cart.reduce((sum, item) => sum + item.price * item.qty, 0);
 
     return {
-      nr: '',
-      transID: '',
-      transType: paymentType === 'cash' ? 'CASH' : 'CARD',
-      transAmntIn: subtotal + (parseFloat(tipAmount) || 0),
-      transAmntEx: subtotal,
-      vat: 0,
-      tipAmount: parseFloat(tipAmount) || 0,
-      referenceNumber: '',
-      transaction_uuid: `${Date.now()}`,
-      deviceID: deviceId,
-      storeID: store_id,
-      discountAmount: 0,
-      discountCode: '',
-      discountPercentage: 0,
-      status: 'Completed',
+      transaction: {
+        nr: '',
+        transID: '',
+        transType: paymentType === 'cash' ? 'CASH' : 'CARD',
+        transAmntIn: subtotal + (parseFloat(tipAmount) || 0),
+        transAmntEx: subtotal,
+        vat: 0,
+        tipAmount: parseFloat(tipAmount) || 0,
+        referenceNumber: '',
+        transaction_uuid: `${Date.now()}`,
+        deviceID: deviceId,
+        storeID: store_id,
+        discountAmount: 0,
+        discountCode: '',
+        discountPercentage: 0,
+        status: 'Completed',
+      },
     };
   };
 
@@ -75,12 +77,46 @@ const SaleCartPanel = ({ cart, setCart, onAddToCart }) => {
     try {
       const payload = buildTransactionPayload();
 
-      await CREATE_TRANSACTION(payload);
+      const response = await CREATE_TRANSACTION(payload);
+      console.log(response, ' Cash process');
 
       setShowCashPayModal(false);
       setShowTransactionModal(true);
     } catch {
-      // console.log(error, 'Transaction Error');
+      console.log(error, 'Transaction Error');
+    }
+  };
+
+  const handleGetInventoryStatus = async () => {
+    try {
+      const products = cart.map(item => {
+        if (item.id && item.id.startsWith('quick_')) {
+          return {
+            quickSale: true,
+            product_name: item.name,
+            quantity: item.qty,
+            price: item.price,
+          };
+        }
+        return {
+          pid: item._id || item.productId || item.id,
+          quantity: item.qty,
+        };
+      });
+
+      const payload = {
+        transactionType: 'SALE',
+        products: products,
+        sale_store: store_id,
+        deviceID: deviceId,
+      };
+      // console.log(payload, 'payloaddddddddddddd');
+      const response = await GET_INVENTORY_STATUS(payload);
+      console.log(response, 'Inventory Status');
+      return true; // Successfully verified
+    } catch (error) {
+      console.log(error, 'Inventory Status Error');
+      return false; // Stop the flow if inventory check fails
     }
   };
 
@@ -107,22 +143,29 @@ const SaleCartPanel = ({ cart, setCart, onAddToCart }) => {
   }, [showTransactionModal]);
 
   const onRemoveFromCart = id => {
-    const existing = cart.find(c => c.id === id);
+    const existing = cart.find(c => (c.id || c._id) === id);
     if (existing.qty === 1) {
-      setCart(cart.filter(c => c.id !== id));
+      setCart(cart.filter(c => (c.id || c._id) !== id));
     } else {
-      setCart(cart.map(c => (c.id === id ? { ...c, qty: c.qty - 1 } : c)));
+      setCart(cart.map(c => ((c.id || c._id) === id ? { ...c, qty: c.qty - 1 } : c)));
     }
   };
 
   const onDeleteFromCart = id => {
-    setCart(cart.filter(c => c.id !== id));
+    setCart(cart.filter(c => (c.id || c._id) !== id));
   };
 
   const total = useMemo(() => {
     const subtotal = cart.reduce((sum, item) => sum + item.price * item.qty, 0);
     return (subtotal + (parseFloat(tipAmount) || 0)).toFixed(2);
   }, [cart, tipAmount]);
+
+  const hasQuickSale = useMemo(() => {
+    return cart.some(
+      item =>
+        item.id?.toString().startsWith('quick_') || item.productId?.toString().startsWith('quick_'),
+    );
+  }, [cart]);
 
   const handleClearCart = () => {
     if (cart.length === 0) {
@@ -180,6 +223,13 @@ const SaleCartPanel = ({ cart, setCart, onAddToCart }) => {
     if (cart.length === 0) {
       return;
     }
+
+    // Check inventory status before proceeding
+    const isInventoryAvailable = await handleGetInventoryStatus();
+    if (!isInventoryAvailable) {
+      return; // Halts the order if inventory status check fails
+    }
+
     if (paymentType === 'cash') {
       setShowCashPayModal(true);
     } else if (paymentType === 'card') {
@@ -238,10 +288,10 @@ const SaleCartPanel = ({ cart, setCart, onAddToCart }) => {
       ) : (
         <FlatList
           data={cart}
-          keyExtractor={item => item.id}
+          keyExtractor={(item, index) => item.id || item._id || index.toString()}
           showsVerticalScrollIndicator={false}
           renderItem={({ item }) => (
-            <SwipeableCartItem onDelete={() => onDeleteFromCart(item.id)}>
+            <SwipeableCartItem onDelete={() => onDeleteFromCart(item.id || item._id)}>
               <View style={styles.cartItem}>
                 <View>
                   <Text style={[styles.cartItemName, Subtitle2]}>{item.name}</Text>
@@ -251,7 +301,10 @@ const SaleCartPanel = ({ cart, setCart, onAddToCart }) => {
                 </View>
 
                 <View style={styles.qtyControls}>
-                  <TouchableOpacity onPress={() => onRemoveFromCart(item.id)} style={styles.qtyBtn}>
+                  <TouchableOpacity
+                    onPress={() => onRemoveFromCart(item.id || item._id)}
+                    style={styles.qtyBtn}
+                  >
                     <Text style={[styles.qtyBtnText, ButtonText]}>−</Text>
                   </TouchableOpacity>
 
@@ -270,7 +323,10 @@ const SaleCartPanel = ({ cart, setCart, onAddToCart }) => {
       {/* Action Buttons */}
       <View style={styles.actionRow}>
         <TouchableOpacity style={styles.actionBtn} onPress={() => setShowQuickSaleModal(true)}>
-          <Image source={DiscountIcon} style={[IconSize12, styles.actionIcon]} />
+          <View style={styles.tipIconContainer}>
+            <Image source={DiscountIcon} style={[IconSize12, styles.actionIcon]} />
+            {hasQuickSale && <Image source={TickIcon} style={styles.tickIcon} />}
+          </View>
           <Text style={[styles.actionLabelText, Caption]}>Quick Sale</Text>
         </TouchableOpacity>
         <TouchableOpacity style={styles.actionBtn} onPress={handleOpenTipModal}>

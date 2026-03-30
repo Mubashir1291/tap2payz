@@ -104,10 +104,13 @@ const SaleScreen = () => {
   }, [productSearchQuery]);
 
   const addToCart = item => {
-    const existing = cart.find(c => c._id === item._id);
+    const itemId = item._id || item.id || item.productId;
+    const existing = cart.find(c => (c._id || c.id || c.productId) === itemId);
 
     if (existing) {
-      setCart(cart.map(c => (c._id === item._id ? { ...c, qty: c.qty + 1 } : c)));
+      setCart(
+        cart.map(c => ((c._id || c.id || c.productId) === itemId ? { ...c, qty: c.qty + 1 } : c)),
+      );
     } else {
       setCart([...cart, { ...item, qty: 1 }]);
     }

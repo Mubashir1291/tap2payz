@@ -3,6 +3,8 @@ import { View, Text, Modal, TouchableOpacity, TextInput, StyleSheet } from 'reac
 import { Colors } from '../utils/Colors';
 import { S, VS, MS } from '../utils/Responsive';
 import { H4, Body2, Subtitle2, ButtonText } from '../utils/fonts';
+import { ADD_BUYER } from '../services/Buyers';
+import Toast from 'react-native-toast-message';
 
 const BuyerInfoModal = ({
   visible = false,
@@ -63,6 +65,44 @@ const BuyerInfoModal = ({
   const handleDeleteInfo = () => {
     if (onDeleteInfo) {
       onDeleteInfo();
+    }
+  };
+
+  const handleBuyerInfo = async () => {
+    try {
+      const response = await ADD_BUYER({
+        firstName,
+        lastName,
+        email,
+        phone,
+      });
+
+      console.log(response, 'buyer info');
+
+      if (response.success) {
+        const buyerData = getBuyerInfo();
+        onAddInfo(buyerData);
+
+        Toast.show({
+          type: 'success',
+          text1: 'Success',
+          text2: 'Buyer information added successfully',
+        });
+      } else {
+        Toast.show({
+          type: 'error',
+          text1: 'Failed',
+          text2: response.message || 'Failed to add buyer',
+        });
+      }
+    } catch (error) {
+      console.error('Error adding buyer:', error);
+
+      Toast.show({
+        type: 'error',
+        text1: 'Error',
+        text2: error.message || 'Something went wrong',
+      });
     }
   };
 
@@ -141,7 +181,7 @@ const BuyerInfoModal = ({
               </TouchableOpacity>
             </View>
           ) : (
-            <TouchableOpacity style={styles.addInfoBtn} onPress={handleAddInfo}>
+            <TouchableOpacity style={styles.addInfoBtn} onPress={handleBuyerInfo}>
               <Text style={[styles.addInfoBtnText, ButtonText]}>Add Info →</Text>
             </TouchableOpacity>
           )}
