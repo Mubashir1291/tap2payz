@@ -8,7 +8,7 @@ import {
   Image,
   TextInput,
   ScrollView,
-  // ActivityIndicator,
+  ActivityIndicator,
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { Colors } from '../../utils/Colors';
@@ -49,6 +49,7 @@ const SaleScreen = () => {
   const [products, setProducts] = useState([]);
   // eslint-disable-next-line unused-imports/no-unused-vars
   const [productsData, setProductsData] = useState(null);
+  const [isLoadingMoreProducts, setIsLoadingMoreProducts] = useState(false);
 
   const [categorySearchQuery, setCategorySearchQuery] = useState({
     page: 1,
@@ -60,17 +61,25 @@ const SaleScreen = () => {
   });
   const [categories, setCategories] = useState([]);
   const [categoriesData, setCategoriesData] = useState(null);
+  const [isLoadingMoreCategories, setIsLoadingMoreCategories] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState(null);
 
   const categoryScrollRef = useRef(null);
   const scrollOffset = useRef(0);
   const debouncedValue = useDebounce(searchQuery, 500);
 
-  const handleFetchAllCategories = async query => {
+  const handleFetchAllCategories = async (query, loadMore = false) => {
+    if (loadMore) {
+      setIsLoadingMoreCategories(true);
+    }
     try {
       const response = await GET_ALL_CATEGORIES(query);
 
-      setCategories(response?.items);
+      if (loadMore) {
+        setCategories(prev => [...prev, ...(response?.items || [])]);
+      } else {
+        setCategories(response?.items || []);
+      }
       setCategoriesData(response);
     } catch (error) {
       Toast.show({
@@ -78,13 +87,24 @@ const SaleScreen = () => {
         text1: 'Error fetching categories',
         text2: error.message,
       });
+    } finally {
+      if (loadMore) {
+        setIsLoadingMoreCategories(false);
+      }
     }
   };
 
-  const handleFetchAllProducts = async query => {
+  const handleFetchAllProducts = async (query, loadMore = false) => {
+    if (loadMore) {
+      setIsLoadingMoreProducts(true);
+    }
     try {
       const response = await GET_ALL_PRODUCTS_WITH_INVENTORY(query);
-      setProducts(response?.items);
+      if (loadMore) {
+        setProducts(prev => [...prev, ...(response?.items || [])]);
+      } else {
+        setProducts(response?.items || []);
+      }
       setProductsData(response);
     } catch (error) {
       Toast.show({
@@ -92,15 +112,19 @@ const SaleScreen = () => {
         text1: 'Error fetching products',
         text2: error.message,
       });
+    } finally {
+      if (loadMore) {
+        setIsLoadingMoreProducts(false);
+      }
     }
   };
 
   useEffect(() => {
-    handleFetchAllCategories(categorySearchQuery);
+    handleFetchAllCategories(categorySearchQuery, categorySearchQuery.page > 1);
   }, [categorySearchQuery]);
 
   useEffect(() => {
-    handleFetchAllProducts(productSearchQuery);
+    handleFetchAllProducts(productSearchQuery, productSearchQuery.page > 1);
   }, [productSearchQuery]);
 
   const addToCart = item => {
@@ -161,10 +185,10 @@ const SaleScreen = () => {
   const handleFilterByCategory = cat => {
     if (cat?._id === selectedCategory?._id) {
       setSelectedCategory(null);
-      setProductSearchQuery(prev => ({ ...prev, category_id: '' }));
+      setProductSearchQuery(prev => ({ ...prev, category_id: '', page: 1 }));
     } else {
       setSelectedCategory(cat);
-      setProductSearchQuery(prev => ({ ...prev, category_id: cat?._id }));
+      setProductSearchQuery(prev => ({ ...prev, category_id: cat?._id, page: 1 }));
     }
   };
 
@@ -188,6 +212,28 @@ const SaleScreen = () => {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [debouncedValue]);
+
+  const loadMoreProducts = () => {
+    if (
+      isLoadingMoreProducts ||
+      !productsData ||
+      productSearchQuery.page >= productsData.totalPages
+    ) {
+      return;
+    }
+    setProductSearchQuery(prev => ({ ...prev, page: prev.page + 1 }));
+  };
+
+  const loadMoreCategories = () => {
+    if (
+      isLoadingMoreCategories ||
+      !categoriesData ||
+      categorySearchQuery.page >= categoriesData.totalPages
+    ) {
+      return;
+    }
+    setCategorySearchQuery(prev => ({ ...prev, page: prev.page + 1 }));
+  };
 
   return (
     <View style={styles.root}>
@@ -222,8 +268,13 @@ const SaleScreen = () => {
               setIsAllCategoriesView(!isAllCategoriesView);
               setSelectedCategory(null);
               setSearchQuery('');
-              setProductSearchQuery(prev => ({ ...prev, category_id: '' }));
-              setCategorySearchQuery(prev => ({ ...prev, searchText: '' }));
+              setProductSearchQuery(prev => ({
+                ...prev,
+                category_id: '',
+                page: 1,
+                searchText: '',
+              }));
+              setCategorySearchQuery(prev => ({ ...prev, searchText: '', page: 1 }));
             }}
           >
             <Image source={CategoriesIcon} style={[IconSize12, styles.categoryIcon]} />
@@ -315,14 +366,15 @@ const SaleScreen = () => {
             numColumns={5}
             showsVerticalScrollIndicator={false}
             contentContainerStyle={styles.productListContent}
-            // onEndReached={loadMoreProducts}
-            // ListFooterComponent={
-            //   isLoadingMore ? (
-            //     <View style={styles.listFooterLoadingView}>
-            //       <ActivityIndicator size="large" color={Colors.primary} />
-            //     </View>
-            //   ) : null
-            // }
+            onEndReached={loadMoreCategories}
+            onEndReachedThreshold={0.5}
+            ListFooterComponent={
+              isLoadingMoreCategories ? (
+                <View style={{ padding: 20 }}>
+                  <ActivityIndicator size="large" color={Colors.primary} />
+                </View>
+              ) : null
+            }
           />
         ) : (
           <FlatList
@@ -332,15 +384,15 @@ const SaleScreen = () => {
             numColumns={5}
             showsVerticalScrollIndicator={false}
             contentContainerStyle={styles.productListContent}
-            // onEndReached={loadMoreProducts}
+            onEndReached={loadMoreProducts}
             onEndReachedThreshold={0.5}
-            // ListFooterComponent={
-            //   isLoadingMore ? (
-            //     <View style={styles.listFooterLoadingView}>
-            //       <ActivityIndicator size="large" color={Colors.primary} />
-            //     </View>
-            //   ) : null
-            // }
+            ListFooterComponent={
+              isLoadingMoreProducts ? (
+                <View style={{ padding: 20 }}>
+                  <ActivityIndicator size="large" color={Colors.primary} />
+                </View>
+              ) : null
+            }
           />
         )}
       </View>
