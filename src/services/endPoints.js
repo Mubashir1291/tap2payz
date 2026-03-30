@@ -2,6 +2,7 @@ const ENDPOINTS = {
   AUTH: {
     LOGIN: '/login',
     ME: '/me',
+    VERIFY_STORE_PASSKEY: '/verify-employee',
   },
   CASH_REGISTER: {
     OPEN_REGISTER: '/create-cash-register',

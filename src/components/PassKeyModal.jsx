@@ -3,10 +3,14 @@ import { View, Text, Modal, TouchableOpacity, TextInput, StyleSheet } from 'reac
 import { Colors } from '../utils/Colors';
 import { S, VS, MS } from '../utils/Responsive';
 import { H4, Subtitle2, ButtonText } from '../utils/fonts';
+import Toast from 'react-native-toast-message';
+import { VERIFY_STORE_PASSKEY } from '../services/StoreService';
+import { useSelector } from 'react-redux';
 
-const PassKeyModal = ({ visible = false, onProceed, onClose }) => {
+const PassKeyModal = ({ visible = false, onClose, navigation }) => {
   const [digits, setDigits] = useState(['', '', '', '', '']);
   const inputRefs = useRef([]);
+  const { store_id } = useSelector(state => state.user);
 
   useEffect(() => {
     if (visible) {
@@ -33,10 +37,19 @@ const PassKeyModal = ({ visible = false, onProceed, onClose }) => {
     }
   };
 
-  const handleProceed = () => {
+  const handleProceed = async () => {
     const passkey = digits.join('');
-    if (passkey.length === 5 && onProceed) {
-      onProceed(passkey);
+    if (passkey.length === 5) {
+      await VERIFY_STORE_PASSKEY(store_id, { passkey });
+      onClose();
+      navigation.navigate('SettingsScreen');
+      navigation.closeDrawer();
+    } else {
+      Toast.show({
+        type: 'error',
+        text1: 'Invalid Passkey',
+        text2: 'Please enter a 5-digit passkey.',
+      });
     }
   };
 

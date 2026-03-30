@@ -127,15 +127,10 @@ const CustomDrawerContent = ({ navigation, state }) => {
         <Text style={[styles.logoutText, Subtitle1]}>Logout</Text>
       </TouchableOpacity>
 
-      {/* /verify-employee endpoint will be used here */}
       <PassKeyModal
         visible={showPasskey}
-        onProceed={() => {
-          setShowPasskey(false);
-          navigation.navigate('SettingsScreen');
-          navigation.closeDrawer();
-        }}
         onClose={() => setShowPasskey(false)}
+        navigation={navigation}
       />
     </View>
   );
