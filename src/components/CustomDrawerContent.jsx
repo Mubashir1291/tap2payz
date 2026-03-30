@@ -3,7 +3,7 @@ import { View, Text, StyleSheet, TouchableOpacity, Image, ScrollView } from 'rea
 import { Colors } from '../utils/Colors';
 import { S, VS, MS } from '../utils/Responsive';
 import { logout } from '../redux/Reducers/userReducer';
-import { H1, H2, Body2, Subtitle1 } from '../utils/fonts';
+import { H1, H2, Body2, Subtitle1, H3 } from '../utils/fonts';
 import { IconSize16 } from '../utils/IconSizes';
 import {
   DiscountIcon,
@@ -71,7 +71,7 @@ const CustomDrawerContent = ({ navigation, state }) => {
           <Text style={[styles.avatarText, H2]}>{getInitials(userData?.employee_name)}</Text>
         </View>
         <View style={styles.profileText}>
-          <Text style={[styles.welcomeText, H2]}>Welcome!</Text>
+          <Text style={[styles.welcomeText, H3]}>Welcome!</Text>
           <Text style={[styles.userName, Body2]}>{userData?.employee_name}</Text>
         </View>
       </View>

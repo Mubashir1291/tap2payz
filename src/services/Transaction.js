@@ -16,3 +16,14 @@ export const GET_INVENTORY_STATUS = payload => {
   );
   return response;
 };
+export const GET_TRANSACTION_DETAIL = ({ id, store_id }) => {
+  const response = Fetch.get(
+    `${BASE_PREFIX}${ENDPOINTS.TRANSACTION.GET_TRANSACTION_DETAIL}/${id}/${store_id}`,
+  );
+  return response;
+};
+
+export const VERIFY_DEVICE = payload => {
+  const response = Fetch.put(`${BASE_PREFIX}${ENDPOINTS.DEVICE.VERIFY_DEVICE}`, payload);
+  return response;
+};
