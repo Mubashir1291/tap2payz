@@ -16,7 +16,7 @@ import styles from './EmployeeManagementStyles';
 import CreateEmployeeModal from '../../components/CreateEmployeeModal';
 import EditEmployeeModal from '../../components/EditEmployeeModal';
 import SuccessModal from '../../components/SuccessModal';
-import SortModal from '../../components/SortModal';
+import SortModal, { applySort } from '../../components/SortModal';
 import ConfirmationModal from '../../components/ConfirmationModal';
 
 const dummyData = [
@@ -90,18 +90,13 @@ const EmployeeManagement = () => {
 
   const sortedData = useMemo(() => {
     let data = [...dummyData];
-    if (sortType === 'a-z' || sortType === 'name') {
-      data.sort((a, b) => a.name.localeCompare(b.name));
-    } else if (sortType === 'z-a') {
-      data.sort((a, b) => b.name.localeCompare(a.name));
-    }
 
     // Optionally also filter by searchQuery
     if (searchQuery.trim() !== '') {
       data = data.filter(item => item.name.toLowerCase().includes(searchQuery.toLowerCase()));
     }
 
-    return data;
+    return applySort(data, sortType, item => item.name);
   }, [sortType, searchQuery]);
 
   const handleCreate = () => {

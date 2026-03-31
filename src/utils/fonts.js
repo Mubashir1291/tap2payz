@@ -18,6 +18,7 @@ export const Body3 = { fontSize: MS(13), fontFamily: 'Outfit-Regular' }; // Ofte
 // Small Text
 export const Caption = { fontSize: MS(12), fontFamily: 'Outfit-Regular' }; // Small hints, timestamps
 export const Overline = { fontSize: MS(10), fontFamily: 'Outfit-Regular' }; // Tiny labels
+export const Overline2 = { fontSize: MS(8), fontFamily: 'Outfit-Regular' }; // Tiny labels
 
 // UI Elements
 export const ButtonText = { fontSize: MS(16), fontFamily: 'Outfit-SemiBold' };

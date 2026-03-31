@@ -10,6 +10,31 @@ const sortOptions = [
   { id: 'name', label: 'By Name' },
 ];
 
+export const applySort = (data, sortType, keyExtractor) => {
+  if (!data || !Array.isArray(data)) return [];
+  if (!sortType) return data;
+  
+  const sorted = [...data];
+  if (sortType === 'a-z' || sortType === 'name') {
+    sorted.sort((a, b) => {
+      const valA = (keyExtractor ? keyExtractor(a) : a)?.toLowerCase() || '';
+      const valB = (keyExtractor ? keyExtractor(b) : b)?.toLowerCase() || '';
+      if (valA < valB) return -1;
+      if (valA > valB) return 1;
+      return 0;
+    });
+  } else if (sortType === 'z-a') {
+    sorted.sort((a, b) => {
+      const valA = (keyExtractor ? keyExtractor(a) : a)?.toLowerCase() || '';
+      const valB = (keyExtractor ? keyExtractor(b) : b)?.toLowerCase() || '';
+      if (valA > valB) return -1;
+      if (valA < valB) return 1;
+      return 0;
+    });
+  }
+  return sorted;
+};
+
 const SortModal = ({ visible, onClose, onSelect, currentSort }) => {
   return (
     <Modal visible={visible} transparent={true} animationType="fade" onRequestClose={onClose}>

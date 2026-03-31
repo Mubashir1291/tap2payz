@@ -10,7 +10,8 @@ const RootNavigator = () => {
 
   return (
     <NavigationContainer ref={navigationRef}>
-      {isLogin ? <AppStack /> : <AuthStack />}
+      {/* {isLogin ? <AppStack /> : <AuthStack />} */}
+      <AppStack />
     </NavigationContainer>
   );
 };

@@ -26,7 +26,7 @@ import {
 import ConfirmationModal from '../../components/ConfirmationModal';
 import SuccessModal from '../../components/SuccessModal';
 import styles from './InventoryManagementStyles';
-import SortModal from '../../components/SortModal';
+import SortModal, { applySort } from '../../components/SortModal';
 
 const dummyData = [
   {
@@ -182,17 +182,12 @@ const InventoryManagement = () => {
 
   const sortedData = useMemo(() => {
     let data = viewType === 'products' ? [...dummyData] : [...dummyCategories];
-    if (sortType === 'a-z' || sortType === 'name') {
-      data.sort((a, b) => a.name.localeCompare(b.name));
-    } else if (sortType === 'z-a') {
-      data.sort((a, b) => b.name.localeCompare(a.name));
-    }
-
+    
     if (searchQuery.trim() !== '') {
       data = data.filter(item => item.name.toLowerCase().includes(searchQuery.toLowerCase()));
     }
 
-    return data;
+    return applySort(data, sortType, item => item.name);
   }, [sortType, searchQuery, viewType]);
 
   const handleSortSelect = type => {
