@@ -19,7 +19,7 @@ import SortModal, { applySort } from '../../components/SortModal';
 const dummyData = [
   {
     id: '01',
-    amount: '€5,956',
+    amount: '$5,956',
     paymentType: 'Card',
     status: 'Approved',
     details: {
@@ -27,22 +27,22 @@ const dummyData = [
       customer: 'Michel Gerdes',
       transactionType: 'Sale',
       dateTime: 'YY/MM/DD - TT:MM)',
-      totalAmount: '€5,956.00',
+      totalAmount: '$5,956.00',
       orderNumber: 'Order #432',
       status: 'Approved',
       items: [
-        { qt: '01', name: 'Fish and chips', sku: '2152462', price: '€ 17.50' },
-        { qt: '02', name: 'lemonade', sku: '2152462', price: '€ 17.50' },
-        { qt: '03', name: 'water', sku: '2152462', price: '€ 17.50' },
-        { qt: '04', name: 'Snacks', sku: '2152462', price: '€ 17.50' },
-        { qt: '05', name: 'Fish and chips', sku: '2152462', price: '€ 17.50' },
+        { qt: '01', name: 'Fish and chips', sku: '2152462', price: '$ 17.50' },
+        { qt: '02', name: 'lemonade', sku: '2152462', price: '$ 17.50' },
+        { qt: '03', name: 'water', sku: '2152462', price: '$ 17.50' },
+        { qt: '04', name: 'Snacks', sku: '2152462', price: '$ 17.50' },
+        { qt: '05', name: 'Fish and chips', sku: '2152462', price: '$ 17.50' },
       ],
-      subtotal: '€ 44.25',
+      subtotal: '$ 44.25',
     },
   },
   {
     id: '02',
-    amount: '€5,956',
+    amount: '$5,956',
     paymentType: 'Cash',
     status: 'Approved',
     details: {
@@ -50,67 +50,67 @@ const dummyData = [
       customer: 'John Doe',
       transactionType: 'Sale',
       dateTime: 'YY/MM/DD - TT:MM)',
-      totalAmount: '€5,956.00',
+      totalAmount: '$5,956.00',
       orderNumber: 'Order #433',
       status: 'Approved',
       items: [
-        { qt: '01', name: 'Burger', sku: '2152463', price: '€ 10.00' },
+        { qt: '01', name: 'Burger', sku: '2152463', price: '$ 10.00' },
       ],
-      subtotal: '€ 10.00',
+      subtotal: '$ 10.00',
     },
   },
   {
     id: '03',
-    amount: '€5,956',
+    amount: '$5,956',
     paymentType: 'Cash',
     status: 'Decline',
     details: null,
   },
   {
     id: '04',
-    amount: '€5,956',
+    amount: '$5,956',
     paymentType: 'Card',
     status: 'Approved',
     details: null,
   },
   {
     id: '05',
-    amount: '€5,956',
+    amount: '$5,956',
     paymentType: 'Cash',
     status: 'Approved',
     details: null,
   },
   {
     id: '06',
-    amount: '€5,956',
+    amount: '$5,956',
     paymentType: 'Card',
     status: 'Approved',
     details: null,
   },
   {
     id: '07',
-    amount: '€5,956',
+    amount: '$5,956',
     paymentType: 'Cash',
     status: 'Decline',
     details: null,
   },
   {
     id: '08',
-    amount: '€5,956',
+    amount: '$5,956',
     paymentType: 'Cash',
     status: 'Decline',
     details: null,
   },
   {
     id: '09',
-    amount: '€5,956',
+    amount: '$5,956',
     paymentType: 'Card',
     status: 'Approved',
     details: null,
   },
   {
     id: '10',
-    amount: '€5,956',
+    amount: '$5,956',
     paymentType: 'Card',
     status: 'Decline',
     details: null,
@@ -142,7 +142,7 @@ const TransactionReportScreen = () => {
 
   const processedOrderItems = useMemo(() => {
     if (!selectedItem?.details?.items) return [];
-    
+
     return applySort(selectedItem.details.items, currentFilter, item => item.name);
   }, [selectedItem, currentFilter]);
 
@@ -306,7 +306,7 @@ const TransactionReportScreen = () => {
         </View>
       </View>
 
-      <SortModal 
+      <SortModal
         visible={showSortModal}
         onClose={() => setShowSortModal(false)}
         onSelect={(val) => setCurrentFilter(val)}

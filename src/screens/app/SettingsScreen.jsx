@@ -24,6 +24,7 @@ import EmployeeManagement from './EmployeeManagement';
 import ZReport from './ZReport';
 import XReport from './XReport';
 import InventoryManagement from './InventoryManagement';
+import TransactionReportScreen from './TransactionReportScreen';
 
 const tabs = [
   { label: 'Reports Overview', icon: OverviewIcon },
@@ -168,6 +169,8 @@ const SettingsScreen = () => {
         <EmployeeManagement />
       ) : activeTab === 2 ? (
         <ZReport />
+      ) : activeTab === 1 ? (
+        <TransactionReportScreen />
       ) : activeTab === 3 ? (
         <XReport isActive={activeTab === 3} />
       ) : (
