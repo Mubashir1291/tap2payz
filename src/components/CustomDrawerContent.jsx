@@ -18,6 +18,7 @@ import {
 import { store } from '../redux/store';
 import PassKeyModal from './PassKeyModal';
 import { useSelector } from 'react-redux';
+import { LOGOUT } from '../services/AuthService';
 
 const drawerItems = [
   { label: 'Sale', icon: DiscountIcon, route: 'SaleScreen' },
@@ -35,6 +36,8 @@ const CustomDrawerContent = ({ navigation, state }) => {
   const { userData } = useSelector(_ => _.user);
 
   const handleLogout = () => {
+    const response = LOGOUT();
+    console.log(response, 'logout');
     store.dispatch(logout(true));
   };
 

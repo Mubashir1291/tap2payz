@@ -3,6 +3,7 @@ const ENDPOINTS = {
     LOGIN: '/login',
     ME: '/me',
     VERIFY_STORE_PASSKEY: '/verify-employee',
+    LOGOUT: '/logout',
   },
   CASH_REGISTER: {
     OPEN_REGISTER: '/create-cash-register',
@@ -15,6 +16,9 @@ const ENDPOINTS = {
   PRODUCTS: {
     GET_ALL_PRODUCTS_WITH_INVENTORY: '/get-all-products-with-inventory',
     GET_ALL_CATEGORIES: '/get-all-categories',
+    CREATE_PRODUCT: '/product/create-product',
+    UPDATE_PRODUCT: '/product/update-product',
+    DELETE_PRODUCT: '/product/delete-product',
   },
   TRANSACTION: {
     CREATE_TRANSACTION: '/create-transaction',

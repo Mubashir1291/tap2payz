@@ -25,6 +25,7 @@ import ZReport from './ZReport';
 import XReport from './XReport';
 import InventoryManagement from './InventoryManagement';
 import TransactionReportScreen from './TransactionReportScreen';
+import { GET_ALL_PRODUCTS_WITH_INVENTORY } from '../../services/ProductService';
 
 const tabs = [
   { label: 'Reports Overview', icon: OverviewIcon },
@@ -130,6 +131,15 @@ const SettingsScreen = () => {
 
   const pieContainerImage = () => <Image source={CartIcon} style={IconSize20} />;
 
+  const handleGetProducts = async query => {
+    try {
+      const response = await GET_ALL_PRODUCTS_WITH_INVENTORY(query);
+      console.log('Products with Inventory:', response);
+    } catch (error) {
+      console.error('Error fetching products with inventory:', error);
+    }
+  };
+
   return (
     <View style={styles.root}>
       <StatusBar backgroundColor={Colors.primary} barStyle="light-content" />
@@ -152,7 +162,13 @@ const SettingsScreen = () => {
             <TouchableOpacity
               key={index}
               style={[styles.tab, styles.rowCentered, activeTab === index && styles.activeTab]}
-              onPress={() => setActiveTab(index)}
+              onPress={() => {
+                setActiveTab(index);
+                if (index === 5) {
+                  // Index 5 corresponds to 'Inventory Management'
+                  handleGetProducts();
+                }
+              }}
             >
               <Image source={tab.icon} style={[IconSize12, styles.tabIconStyle]} />
               <Text style={[styles.tabText, Caption, activeTab === index && styles.activeTabText]}>

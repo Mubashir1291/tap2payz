@@ -62,6 +62,7 @@ const SaleScreen = () => {
   const [categories, setCategories] = useState([]);
   const [categoriesData, setCategoriesData] = useState(null);
   const [isLoadingMoreCategories, setIsLoadingMoreCategories] = useState(false);
+  const isLoadingCategoriesRef = useRef(false);
   const [selectedCategory, setSelectedCategory] = useState(null);
 
   const categoryScrollRef = useRef(null);
@@ -71,9 +72,11 @@ const SaleScreen = () => {
   const handleFetchAllCategories = async (query, loadMore = false) => {
     if (loadMore) {
       setIsLoadingMoreCategories(true);
+      isLoadingCategoriesRef.current = true;
     }
     try {
       const response = await GET_ALL_CATEGORIES(query);
+      console.log(response, 'categoriesssssssssssssss');
 
       if (loadMore) {
         setCategories(prev => [...prev, ...(response?.items || [])]);
@@ -90,6 +93,7 @@ const SaleScreen = () => {
     } finally {
       if (loadMore) {
         setIsLoadingMoreCategories(false);
+        isLoadingCategoriesRef.current = false;
       }
     }
   };
@@ -227,11 +231,13 @@ const SaleScreen = () => {
   const loadMoreCategories = () => {
     if (
       isLoadingMoreCategories ||
+      isLoadingCategoriesRef.current ||
       !categoriesData ||
       categorySearchQuery.page >= categoriesData.totalPages
     ) {
       return;
     }
+    isLoadingCategoriesRef.current = true;
     setCategorySearchQuery(prev => ({ ...prev, page: prev.page + 1 }));
   };
 
@@ -350,7 +356,7 @@ const SaleScreen = () => {
         {isAllCategoriesView ? (
           <FlatList
             data={categoriesItems}
-            keyExtractor={item => item?._id}
+            keyExtractor={(item, index) => (item?._id ? String(item._id) : `category-${index}`)}
             renderItem={({ item }) => (
               <TouchableOpacity
                 style={styles.categoryGridCard}
@@ -379,7 +385,7 @@ const SaleScreen = () => {
         ) : (
           <FlatList
             data={productItems}
-            keyExtractor={item => item?._id}
+            keyExtractor={(item, index) => (item?._id ? String(item._id) : `product-${index}`)}
             renderItem={renderProduct}
             numColumns={5}
             showsVerticalScrollIndicator={false}

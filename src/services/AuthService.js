@@ -13,3 +13,7 @@ export const ME = () => {
   const response = Fetch.get(`${BASE_PREFIX}${ENDPOINTS.AUTH.ME}`);
   return response;
 };
+export const LOGOUT = () => {
+  const response = Fetch.delete(`${BASE_PREFIX}${ENDPOINTS.AUTH.LOGOUT}`);
+  return response;
+};

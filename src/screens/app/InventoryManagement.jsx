@@ -182,7 +182,7 @@ const InventoryManagement = () => {
 
   const sortedData = useMemo(() => {
     let data = viewType === 'products' ? [...dummyData] : [...dummyCategories];
-    
+
     if (searchQuery.trim() !== '') {
       data = data.filter(item => item.name.toLowerCase().includes(searchQuery.toLowerCase()));
     }
