@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import {
   View,
   Text,
@@ -8,8 +8,10 @@ import {
   Image,
   Modal,
   Switch,
+  ActivityIndicator,
 } from 'react-native';
-import { launchImageLibrary } from 'react-native-image-picker';
+import { useSelector } from 'react-redux';
+import { GET_ALL_PRODUCTS_WITH_INVENTORY, GET_ALL_CATEGORIES } from '../../services/ProductService';
 import { Colors } from '../../utils/Colors';
 import { Subtitle2, Body3, Caption, H1 } from '../../utils/fonts';
 import { IconSize12, IconSize24, IconSize40 } from '../../utils/IconSizes';
@@ -27,121 +29,12 @@ import ConfirmationModal from '../../components/ConfirmationModal';
 import SuccessModal from '../../components/SuccessModal';
 import styles from './InventoryManagementStyles';
 import SortModal, { applySort } from '../../components/SortModal';
-
-const dummyData = [
-  {
-    id: '1',
-    name: "Men's Leather Jacket",
-    sku: 'avbd4562536',
-    barcode: 'avbd4562536',
-    category: "Men's Wear",
-    discount: 'End of Year (521426)',
-    qty: '1000',
-    price: '$ 5,956.00',
-    status: 'Active',
-  },
-  {
-    id: '2',
-    name: "Men's Leather Jacket",
-    sku: 'avbd4562536',
-    barcode: 'avbd4562536',
-    category: "Men's Wear",
-    discount: 'End of Year (521426)',
-    qty: '1000',
-    price: '$ 5,956.00',
-    status: 'Active',
-  },
-  {
-    id: '3',
-    name: "Men's Leather Jacket",
-    sku: 'avbd4562536',
-    barcode: 'avbd4562536',
-    category: "Men's Wear",
-    discount: '50% off Sale (521426)',
-    qty: '1000',
-    price: '$ 5,956.00',
-    status: 'Active',
-  },
-  {
-    id: '4',
-    name: "Men's Leather Jacket",
-    sku: 'avbd4562536',
-    barcode: 'avbd4562536',
-    category: "Men's Wear",
-    discount: 'End of Year (521426)',
-    qty: '1000',
-    price: '$ 5,956.00',
-    status: 'Inavtive',
-  },
-  {
-    id: '5',
-    name: "Men's Leather Jacket",
-    sku: 'avbd4562536',
-    barcode: 'avbd4562536',
-    category: "Men's Wear",
-    discount: 'End of Year (521426)',
-    qty: '1000',
-    price: '$ 5,956.00',
-    status: 'Active',
-  },
-  {
-    id: '6',
-    name: "Men's Leather Jacket",
-    sku: 'avbd4562536',
-    barcode: 'avbd4562536',
-    category: "Men's Wear",
-    discount: '50% off Sale (521426)',
-    qty: '1000',
-    price: '$ 5,956.00',
-    status: 'Active',
-  },
-  {
-    id: '7',
-    name: "Men's Leather Jacket",
-    sku: 'avbd4562536',
-    barcode: 'avbd4562536',
-    category: 'Winter Collection',
-    discount: 'End of Year (521426)',
-    qty: '1000',
-    price: '$ 5,956.00',
-    status: 'Inavtive',
-  },
-  {
-    id: '8',
-    name: "Men's Leather Jacket",
-    sku: 'avbd4562536',
-    barcode: 'avbd4562536',
-    category: 'Winter Collection',
-    discount: '50% off Sale (521426)',
-    qty: '1000',
-    price: '$ 5,956.00',
-    status: 'Inavtive',
-  },
-  {
-    id: '9',
-    name: "Men's Leather Jacket",
-    sku: 'avbd4562536',
-    barcode: 'avbd4562536',
-    category: 'Winter Collection',
-    discount: 'End of Year (521426)',
-    qty: '1000',
-    price: '$ 5,956.00',
-    status: 'Active',
-  },
-];
-
-const dummyCategories = [
-  { id: '1', name: "Men's Wear", status: 'Active' },
-  { id: '2', name: 'Business casual', status: 'Active' },
-  { id: '3', name: 'Cloths', status: 'Inactive' },
-  { id: '4', name: "Men's Shoes", status: 'Active' },
-  { id: '5', name: 'Baby Shoes', status: 'Inactive' },
-  { id: '6', name: 'Girly style', status: 'Active' },
-  { id: '7', name: 'Artsy fashion', status: 'Active' },
-  { id: '8', name: 'Artsy fashion', status: 'Active' },
-];
+import ProductFormModal from '../../components/ProductFormModal';
+import { SvgUri } from 'react-native-svg';
 
 const InventoryManagement = () => {
+  const { store_id } = useSelector(state => state.user);
+
   const [searchQuery, setSearchQuery] = useState('');
   const [showSortModal, setShowSortModal] = useState(false);
   const [sortType, setSortType] = useState('a-z');
@@ -149,26 +42,9 @@ const InventoryManagement = () => {
 
   const [showFormModal, setShowFormModal] = useState(false);
   const [formType, setFormType] = useState('add');
-  const [showCategoryDropdown, setShowCategoryDropdown] = useState(false);
-  const [showStatusDropdown, setShowStatusDropdown] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [showSuccessModal, setShowSuccessModal] = useState(false);
-
-  const [formData, setFormData] = useState({
-    name: '',
-    sku: '',
-    barcode: '',
-    category: "Men's Wear",
-    status: 'Active',
-    price: '',
-    tax: '',
-    qty: '',
-    discountEnabled: true,
-    discountTitle: '',
-    discountAmount: '',
-    image: null,
-    description: '',
-  });
+  const [selectedProduct, setSelectedProduct] = useState(null);
 
   const [showCatFormModal, setShowCatFormModal] = useState(false);
   const [catFormData, setCatFormData] = useState({
@@ -180,15 +56,89 @@ const InventoryManagement = () => {
   });
   const [showCatStatusDropdown, setShowCatStatusDropdown] = useState(false);
 
+  const [products, setProducts] = useState([]);
+  const [categories, setCategories] = useState([]);
+  const [isLoadingProducts, setIsLoadingProducts] = useState(false);
+  const [isLoadingCategories, setIsLoadingCategories] = useState(false);
+
+  const [productQuery, setProductQuery] = useState({
+    page: 1,
+    itemsPerPage: 20,
+    searchText: '',
+    getAll: 'false',
+    limited: 'false',
+    storeId: store_id,
+    category_id: '',
+  });
+
+  const [categoryQuery, setCategoryQuery] = useState({
+    page: 1,
+    itemsPerPage: 10,
+    searchText: '',
+    getAll: 'false',
+    limited: 'false',
+    storeId: store_id,
+  });
+
+  useEffect(() => {
+    const fetchProducts = async () => {
+      setIsLoadingProducts(true);
+      try {
+        const response = await GET_ALL_PRODUCTS_WITH_INVENTORY(productQuery);
+        console.log(response, 'productsssss');
+        const mappedProducts = (response?.items || []).map(p => ({
+          ...p,
+          id: p._id,
+          name: p.product_name || p.name || 'Unknown',
+          sku: p.sku || p.sku_code || 'N/A',
+          barcode: p.bar_code || 'N/A',
+          categoryName: p.category?.category_name || p.category || 'N/A',
+          discount: p.discount || 'N/A',
+          qty: p.quantity || 0,
+          priceValue: p.price ? `$ ${p.price}` : '$ 0.00',
+          status: p.status || 'Active',
+          image: p.product_image || null,
+        }));
+        setProducts(mappedProducts);
+      } catch (error) {
+        console.error('Error fetching products with inventory:', error);
+      } finally {
+        setIsLoadingProducts(false);
+      }
+    };
+    fetchProducts();
+  }, [productQuery]);
+
+  useEffect(() => {
+    const fetchCategories = async () => {
+      setIsLoadingCategories(true);
+      try {
+        const response = await GET_ALL_CATEGORIES(categoryQuery);
+        const mappedCategories = (response?.items || []).map(c => ({
+          ...c,
+          id: c._id,
+          name: c.category_name || c.name || 'Unknown',
+          status: c.status || 'Active',
+        }));
+        setCategories(mappedCategories);
+      } catch (error) {
+        console.error('Error fetching categories:', error);
+      } finally {
+        setIsLoadingCategories(false);
+      }
+    };
+    fetchCategories();
+  }, [categoryQuery]);
+
   const sortedData = useMemo(() => {
-    let data = viewType === 'products' ? [...dummyData] : [...dummyCategories];
+    let data = viewType === 'products' ? [...products] : [...categories];
 
     if (searchQuery.trim() !== '') {
       data = data.filter(item => item.name.toLowerCase().includes(searchQuery.toLowerCase()));
     }
 
     return applySort(data, sortType, item => item.name);
-  }, [sortType, searchQuery, viewType]);
+  }, [sortType, searchQuery, viewType, products, categories]);
 
   const handleSortSelect = type => {
     setSortType(type);
@@ -198,7 +148,7 @@ const InventoryManagement = () => {
   const handleCreateNew = () => {
     setFormType('add');
     if (viewType === 'products') {
-      setFormData({
+      setSelectedProduct({
         name: '',
         sku: '',
         barcode: '',
@@ -206,7 +156,7 @@ const InventoryManagement = () => {
         status: 'Active',
         price: '',
         tax: '',
-        qty: '',
+        qty: '0',
         discountEnabled: true,
         discountTitle: '',
         discountAmount: '',
@@ -229,20 +179,20 @@ const InventoryManagement = () => {
   const handleEdit = item => {
     setFormType('edit');
     if (viewType === 'products') {
-      setFormData({
+      setSelectedProduct({
         name: item.name || '',
         sku: item.sku || '',
         barcode: item.barcode || '',
-        category: item.category || "Men's Wear",
+        category: item.categoryName || "Men's Wear",
         status: item.status || 'Active',
-        price: item.price || '',
+        price: item.priceValue ? String(item.priceValue).replace(/[^0-9.]/g, '') : '',
         tax: '',
-        qty: item.qty || '',
-        discountEnabled: true,
+        qty: String(item.qty) || '0',
+        discountEnabled: !!item.discount,
         discountTitle: item.discount || '',
         discountAmount: '',
-        image: null,
-        description: '',
+        image: item.image || null,
+        description: item.description || '',
       });
       setShowFormModal(true);
     } else {
@@ -268,19 +218,12 @@ const InventoryManagement = () => {
     }, 500);
   };
 
-  const handleImageUpload = () => {
-    launchImageLibrary({ mediaType: 'photo', quality: 0.8 }, response => {
-      if (response.didCancel || response.errorMessage) {
-        return;
-      }
-      if (response.assets && response.assets.length > 0) {
-        if (showCatFormModal) {
-          setCatFormData({ ...catFormData, image: response.assets[0].uri });
-        } else {
-          setFormData({ ...formData, image: response.assets[0].uri });
-        }
-      }
-    });
+  const handleFormSubmit = data => {
+    // Here you would handle the API call to create or update a product
+    console.log('Submitting data:', data);
+    setShowFormModal(false);
+    // After a successful API call, you might want to refetch products and show a success message.
+    // For now, we'll just close the modal.
   };
 
   return (
@@ -386,101 +329,118 @@ const InventoryManagement = () => {
 
         {/* Table Content */}
         <ScrollView showsVerticalScrollIndicator={false}>
-          {sortedData.map((item, index) => (
-            <View key={index} style={styles.tableRow}>
-              {viewType === 'products' ? (
-                <>
-                  <View style={styles.colProductRow}>
-                    <View style={[styles.productImagePlaceholder, styles.placeholderImage]} />
-                    <Text style={[styles.rowText, Body3]} numberOfLines={2}>
-                      {item.name}
-                    </Text>
-                  </View>
-
-                  <Text style={[styles.colSKU, styles.rowText, Body3]}>{item.sku}</Text>
-                  <Text style={[styles.colBarcode, styles.rowText, Body3]}>{item.barcode}</Text>
-                  <Text style={[styles.colCategory, styles.rowText, Body3]}>{item.category}</Text>
-                  <Text style={[styles.colDiscount, styles.rowText, Body3]}>{item.discount}</Text>
-                  <Text style={[styles.colQty, styles.rowText, Body3]}>{item.qty}</Text>
-                  <Text style={[styles.colPrice, styles.rowText, Body3]}>{item.price}</Text>
-
-                  <View style={styles.colStatus}>
-                    <View
-                      style={[
-                        styles.statusPill,
-                        item.status === 'Active' ? styles.statusActiveBg : styles.statusInactiveBg,
-                      ]}
-                    >
-                      <Text
-                        style={[
-                          Caption,
-                          item.status === 'Active'
-                            ? styles.statusActiveText
-                            : styles.statusInactiveText,
-                        ]}
-                      >
-                        {item.status}
-                      </Text>
-                    </View>
-                  </View>
-
-                  <View style={styles.colAction}>
-                    <TouchableOpacity style={styles.infoCircle}>
-                      <Text style={styles.infoText}>i</Text>
-                    </TouchableOpacity>
-                    <TouchableOpacity onPress={() => handleEdit(item)}>
-                      <Image source={EditCircleIcon} style={[IconSize24]} />
-                    </TouchableOpacity>
-                    <TouchableOpacity onPress={() => handleDelete(item)}>
-                      <Image source={DeleteCircleIcon} style={[IconSize24]} />
-                    </TouchableOpacity>
-                  </View>
-                </>
-              ) : (
-                <>
-                  <View style={styles.colCatNameRow}>
-                    <View style={[styles.productImagePlaceholder, styles.placeholderImage]} />
-                    <Text style={[styles.rowText, Body3]} numberOfLines={2}>
-                      {item.name}
-                    </Text>
-                  </View>
-
-                  <View style={styles.colCatStatus}>
-                    <View
-                      style={[
-                        styles.statusPill,
-                        item.status === 'Active' ? styles.statusActiveBg : styles.statusInactiveBg,
-                        styles.alignSelfStart,
-                      ]}
-                    >
-                      <Text
-                        style={[
-                          Caption,
-                          item.status === 'Active'
-                            ? styles.statusActiveText
-                            : styles.statusInactiveText,
-                        ]}
-                      >
-                        {item.status}
-                      </Text>
-                    </View>
-                  </View>
-
-                  <View style={styles.colCatAction}>
-                    <TouchableOpacity style={styles.catRightCircle}>
-                      <Text style={styles.catRightText}>&gt;</Text>
-                    </TouchableOpacity>
-                    <TouchableOpacity onPress={() => handleEdit(item)}>
-                      <Image source={EditCircleIcon} style={[IconSize24]} />
-                    </TouchableOpacity>
-                    <TouchableOpacity onPress={() => handleDelete(item)}>
-                      <Image source={DeleteCircleIcon} style={[IconSize24]} />
-                    </TouchableOpacity>
-                  </View>
-                </>
-              )}
+          {(viewType === 'products' && isLoadingProducts) ||
+          (viewType === 'categories' && isLoadingCategories) ? (
+            <View style={{ padding: 40, justifyContent: 'center', alignItems: 'center' }}>
+              <ActivityIndicator size="large" color={Colors.primary} />
             </View>
-          ))}
+          ) : (
+            sortedData.map((item, index) => (
+              <View key={index} style={styles.tableRow}>
+                {viewType === 'products' ? (
+                  <>
+                    <View style={styles.colProductRow}>
+                      {item.image ? (
+                        <SvgUri style={styles.productImage} uri={item.image} />
+                      ) : (
+                        <View style={[styles.productImagePlaceholder, styles.placeholderImage]} />
+                      )}
+                      <Text style={[styles.rowText, Body3]} numberOfLines={2}>
+                        {item.name}
+                      </Text>
+                    </View>
+
+                    <Text style={[styles.colSKU, styles.rowText, Body3]}>{item.sku}</Text>
+                    <Text style={[styles.colBarcode, styles.rowText, Body3]}>{item.barcode}</Text>
+                    <Text style={[styles.colCategory, styles.rowText, Body3]}>
+                      {item.categoryName}
+                    </Text>
+                    <Text style={[styles.colDiscount, styles.rowText, Body3]}>{item.discount}</Text>
+                    <Text style={[styles.colQty, styles.rowText, Body3]}>{item.qty}</Text>
+                    <Text style={[styles.colPrice, styles.rowText, Body3]}>{item.priceValue}</Text>
+
+                    <View style={styles.colStatus}>
+                      <View
+                        style={[
+                          styles.statusPill,
+                          item.status === 'Active'
+                            ? styles.statusActiveBg
+                            : styles.statusInactiveBg,
+                        ]}
+                      >
+                        <Text
+                          style={[
+                            Caption,
+                            item.status === 'Active'
+                              ? styles.statusActiveText
+                              : styles.statusInactiveText,
+                          ]}
+                        >
+                          {item.status}
+                        </Text>
+                      </View>
+                    </View>
+
+                    <View style={styles.colAction}>
+                      <TouchableOpacity style={styles.infoCircle}>
+                        <Text style={styles.infoText}>i</Text>
+                      </TouchableOpacity>
+                      <TouchableOpacity onPress={() => handleEdit(item)}>
+                        <Image source={EditCircleIcon} style={[IconSize24]} />
+                      </TouchableOpacity>
+                      <TouchableOpacity onPress={() => handleDelete(item)}>
+                        <Image source={DeleteCircleIcon} style={[IconSize24]} />
+                      </TouchableOpacity>
+                    </View>
+                  </>
+                ) : (
+                  <>
+                    <View style={styles.colCatNameRow}>
+                      <View style={[styles.productImagePlaceholder, styles.placeholderImage]} />
+                      <Text style={[styles.rowText, Body3]} numberOfLines={2}>
+                        {item.name}
+                      </Text>
+                    </View>
+
+                    <View style={styles.colCatStatus}>
+                      <View
+                        style={[
+                          styles.statusPill,
+                          item.status === 'Active'
+                            ? styles.statusActiveBg
+                            : styles.statusInactiveBg,
+                          styles.alignSelfStart,
+                        ]}
+                      >
+                        <Text
+                          style={[
+                            Caption,
+                            item.status === 'Active'
+                              ? styles.statusActiveText
+                              : styles.statusInactiveText,
+                          ]}
+                        >
+                          {item.status}
+                        </Text>
+                      </View>
+                    </View>
+
+                    <View style={styles.colCatAction}>
+                      <TouchableOpacity style={styles.catRightCircle}>
+                        <Text style={styles.catRightText}>&gt;</Text>
+                      </TouchableOpacity>
+                      <TouchableOpacity onPress={() => handleEdit(item)}>
+                        <Image source={EditCircleIcon} style={[IconSize24]} />
+                      </TouchableOpacity>
+                      <TouchableOpacity onPress={() => handleDelete(item)}>
+                        <Image source={DeleteCircleIcon} style={[IconSize24]} />
+                      </TouchableOpacity>
+                    </View>
+                  </>
+                )}
+              </View>
+            ))
+          )}
         </ScrollView>
       </View>
 
@@ -525,257 +485,15 @@ const InventoryManagement = () => {
       />
 
       {/* Add / Edit Form Modal */}
-      <Modal visible={showFormModal} transparent animationType="fade">
-        <View style={styles.modalOverlay}>
-          <View style={styles.formModalContent}>
-            <TouchableOpacity style={styles.modalCloseBtn} onPress={() => setShowFormModal(false)}>
-              <Text style={styles.modalCloseText}>✕</Text>
-            </TouchableOpacity>
-
-            <Text style={[styles.modalTitle, H1]}>
-              {formType === 'add' ? 'Add new Product' : 'Edit Product'}
-            </Text>
-
-            <ScrollView
-              showsVerticalScrollIndicator={false}
-              contentContainerStyle={styles.formScrollContent}
-            >
-              <View style={styles.formRow}>
-                <View style={styles.formCol}>
-                  <View style={styles.formLabelRow}>
-                    <Text style={[styles.formLabel, Body3]}>Product Name</Text>
-                  </View>
-                  <TextInput
-                    style={[styles.formInput, Body3]}
-                    placeholder="Men's Leather Jacket"
-                    value={formData.name}
-                    onChangeText={t => setFormData({ ...formData, name: t })}
-                  />
-                </View>
-                <View style={styles.formCol}>
-                  <View style={styles.formLabelRow}>
-                    <Text style={[styles.formLabel, Body3]}>SKU Code</Text>
-                  </View>
-                  <TextInput
-                    style={[styles.formInput, Body3]}
-                    placeholder="avbd4562536"
-                    value={formData.sku}
-                    onChangeText={t => setFormData({ ...formData, sku: t })}
-                  />
-                </View>
-              </View>
-
-              <View style={styles.formRow}>
-                <View style={styles.formCol}>
-                  <View style={styles.formLabelRow}>
-                    <Text style={[styles.formLabel, Body3]}>Barcode</Text>
-                  </View>
-                  <TextInput
-                    style={[styles.formInput, Body3]}
-                    placeholder="avbd4562536"
-                    value={formData.barcode}
-                    onChangeText={t => setFormData({ ...formData, barcode: t })}
-                  />
-                </View>
-                <View style={styles.formCol}>
-                  <View style={styles.formLabelRow}>
-                    <Text style={[styles.formLabel, Body3]}>Select Category</Text>
-                  </View>
-                  <TouchableOpacity
-                    style={styles.dropdownInput}
-                    onPress={() => setShowCategoryDropdown(!showCategoryDropdown)}
-                  >
-                    <Text style={[styles.dropdownText, Body3]}>
-                      {formData.category || 'Select'}
-                    </Text>
-                    <Image
-                      source={ArrowDownIcon}
-                      style={styles.dropdownIcon}
-                      resizeMode="contain"
-                    />
-                  </TouchableOpacity>
-                  {showCategoryDropdown && (
-                    <View style={styles.dropdownList}>
-                      {["Men's Wear", 'Winter Collection', 'Summer Collection'].map((cat, i) => (
-                        <TouchableOpacity
-                          key={i}
-                          style={styles.dropdownItem}
-                          onPress={() => {
-                            setFormData({ ...formData, category: cat });
-                            setShowCategoryDropdown(false);
-                          }}
-                        >
-                          <Text style={[styles.dropdownText, Body3]}>{cat}</Text>
-                        </TouchableOpacity>
-                      ))}
-                    </View>
-                  )}
-                </View>
-              </View>
-
-              <View style={styles.formRow}>
-                <View style={[styles.formCol, styles.zIndexHigh]}>
-                  <View style={styles.formLabelRow}>
-                    <Text style={[styles.formLabel, Body3]}>Status</Text>
-                  </View>
-                  <TouchableOpacity
-                    style={styles.dropdownInput}
-                    onPress={() => setShowStatusDropdown(!showStatusDropdown)}
-                  >
-                    <View
-                      style={
-                        formData.status === 'Active'
-                          ? styles.statusActiveBg2
-                          : styles.statusInactiveBg2
-                      }
-                    >
-                      <Text
-                        style={[
-                          formData.status === 'Active'
-                            ? styles.statusActiveText2
-                            : styles.statusInactiveText2,
-                          Body3,
-                        ]}
-                      >
-                        {formData.status || 'Select'}
-                      </Text>
-                    </View>
-                    <Image
-                      source={ArrowDownIcon}
-                      style={styles.dropdownIcon}
-                      resizeMode="contain"
-                    />
-                  </TouchableOpacity>
-                  {showStatusDropdown && (
-                    <View style={styles.dropdownList}>
-                      {['Active', 'Inactive'].map((stat, i) => (
-                        <TouchableOpacity
-                          key={i}
-                          style={styles.dropdownItem}
-                          onPress={() => {
-                            setFormData({ ...formData, status: stat });
-                            setShowStatusDropdown(false);
-                          }}
-                        >
-                          <Text style={[styles.dropdownText, Body3]}>{stat}</Text>
-                        </TouchableOpacity>
-                      ))}
-                    </View>
-                  )}
-                </View>
-                <View style={styles.formCol}>
-                  <View style={styles.formLabelRow}>
-                    <Text style={[styles.formLabel, Body3]}>Price</Text>
-                  </View>
-                  <TextInput
-                    style={[styles.formInput, Body3]}
-                    placeholder="$ 20.00"
-                    value={formData.price}
-                    onChangeText={t => setFormData({ ...formData, price: t })}
-                  />
-                </View>
-              </View>
-
-              <View style={styles.formRow}>
-                <View style={styles.formCol}>
-                  <View style={styles.formLabelRow}>
-                    <Text style={[styles.formLabel, Body3]}>Tax</Text>
-                  </View>
-                  <TextInput
-                    style={[styles.formInput, Body3]}
-                    placeholder="$ 20.00"
-                    value={formData.tax}
-                    onChangeText={t => setFormData({ ...formData, tax: t })}
-                  />
-                </View>
-                <View style={styles.formCol}>
-                  <View style={styles.formLabelRow}>
-                    <Text style={[styles.formLabel, Body3]}>Qty</Text>
-                  </View>
-                  <TextInput
-                    style={[styles.formInput, Body3]}
-                    placeholder="2,000"
-                    value={formData.qty}
-                    onChangeText={t => setFormData({ ...formData, qty: t })}
-                  />
-                </View>
-              </View>
-
-              <View style={styles.formRow}>
-                <View style={styles.formCol}>
-                  <View style={styles.formLabelRow}>
-                    <Text style={[styles.formLabel, Body3]}>Discount Title</Text>
-                    <Switch
-                      value={formData.discountEnabled}
-                      onValueChange={val => setFormData({ ...formData, discountEnabled: val })}
-                      trackColor={{ false: '#E0E0E0', true: '#4FC3F7' }}
-                      thumbColor={Colors.white}
-                    />
-                  </View>
-                  <TextInput
-                    style={[styles.formInput, Body3]}
-                    placeholder="End of year"
-                    value={formData.discountTitle}
-                    onChangeText={t => setFormData({ ...formData, discountTitle: t })}
-                  />
-                </View>
-                <View style={styles.formCol}>
-                  <View style={styles.formLabelRow}>
-                    <Text style={[styles.formLabel, Body3]}>Discount Amount</Text>
-                  </View>
-                  <TextInput
-                    style={[styles.formInput, Body3]}
-                    placeholder="$ 5.00"
-                    value={formData.discountAmount}
-                    onChangeText={t => setFormData({ ...formData, discountAmount: t })}
-                  />
-                </View>
-              </View>
-
-              <View style={styles.formRow}>
-                <View style={styles.formCol}>
-                  <View style={styles.formLabelRow}>
-                    <Text style={[styles.formLabel, Body3]}>Product Image</Text>
-                  </View>
-                  <TouchableOpacity style={styles.uploadImageContainer} onPress={handleImageUpload}>
-                    {formData.image ? (
-                      <Image
-                        source={{ uri: formData.image }}
-                        style={styles.uploadedImage}
-                        resizeMode="cover"
-                      />
-                    ) : (
-                      <>
-                        <Image
-                          source={UploadIcon}
-                          style={styles.uploadImageIcon}
-                          resizeMode="contain"
-                        />
-                        <Text style={[styles.uploadImageText, Body3]}>Upload Image</Text>
-                        <Text style={[styles.uploadImageSubText, Caption]}>
-                          you can upload upto 2MB, Image{'\n'}(JPG, PNG)
-                        </Text>
-                      </>
-                    )}
-                  </TouchableOpacity>
-                </View>
-                <View style={styles.formCol}>
-                  <View style={styles.formLabelRow}>
-                    <Text style={[styles.formLabel, Body3]}>Product Description</Text>
-                  </View>
-                  <TextInput
-                    style={[styles.textAreaInput, Body3]}
-                    multiline
-                    placeholder="Context description goes here..."
-                    value={formData.description}
-                    onChangeText={t => setFormData({ ...formData, description: t })}
-                  />
-                </View>
-              </View>
-            </ScrollView>
-          </View>
-        </View>
-      </Modal>
+      {showFormModal && (
+        <ProductFormModal
+          visible={showFormModal}
+          onClose={() => setShowFormModal(false)}
+          formType={formType}
+          initialData={selectedProduct}
+          onSubmit={handleFormSubmit}
+        />
+      )}
 
       {/* Category Add/Edit Form Modal */}
       <Modal visible={showCatFormModal} transparent animationType="fade">
@@ -799,7 +517,7 @@ const InventoryManagement = () => {
               <View style={styles.formLabelRow}>
                 <Text style={[styles.formLabel, Body3]}>Category Image</Text>
               </View>
-              <TouchableOpacity style={styles.catUploadContainer} onPress={handleImageUpload}>
+              <TouchableOpacity style={styles.catUploadContainer} onPress={() => {}}>
                 {catFormData.image ? (
                   <>
                     <Image

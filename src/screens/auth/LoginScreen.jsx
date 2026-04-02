@@ -57,11 +57,13 @@ const LoginScreen = () => {
 
     try {
       const response = await LOGIN_ACCOUNT(payload);
+      console.log(response, 'login');
 
       store.dispatch(setAccessToken(response.token));
 
       // Hit ME API right after login
       const meResponse = await ME();
+      console.log(meResponse, 'me');
 
       const employeeData = meResponse?.employee;
 
@@ -69,8 +71,18 @@ const LoginScreen = () => {
         employeeData?.store_id?.length > 1
           ? employeeData?.store_id?.find(_ => _?.store_code === Number(payload.store_code))
           : employeeData?.store_id[0];
+      const employeeBusiness =
+        employeeData?.business_id?.length > 1
+          ? employeeData?.business_id?.find(_ => _?._id === employeeData?.business_id)
+          : employeeData?.business_id[0];
 
-      store.dispatch(setUserData({ ...meResponse.employee, store_id: employeeStore?._id }));
+      store.dispatch(
+        setUserData({
+          ...meResponse.employee,
+          store_id: employeeStore?._id,
+          business_id: employeeBusiness?._id,
+        }),
+      );
 
       // Check if device is already registered
       if (isDeviceRegistered && savedDeviceId) {

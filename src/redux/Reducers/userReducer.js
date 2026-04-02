@@ -5,6 +5,7 @@ const initialState = {
   accessToken: null,
   userData: null,
   store_id: null,
+  business_id: null,
 };
 
 export const userReducer = createSlice({
@@ -20,12 +21,14 @@ export const userReducer = createSlice({
     setUserData: (state, action) => {
       state.userData = action.payload;
       state.store_id = action.payload?.store_id;
+      state.business_id = action.payload?.business_id;
     },
     logout: state => {
       state.isLogin = false;
       state.accessToken = null;
       state.store_id = null;
       state.userData = null;
+      state.business_id = null;
     },
   },
 });

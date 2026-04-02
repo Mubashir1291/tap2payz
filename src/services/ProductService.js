@@ -4,6 +4,7 @@ import URLS from './urls';
 
 const BASE_PRODUCT_PREFIX = `${URLS.EMPLOYEE_SERVICE}`;
 const BASE_CATEGORY_PREFIX = `${URLS.STORE_SERVICE}/category`;
+const BASE_INVENTORY_PREFIX = `${URLS.STORE_SERVICE}`;
 
 export const GET_ALL_PRODUCTS_WITH_INVENTORY = ({
   page = 1,
@@ -31,5 +32,10 @@ export const GET_ALL_CATEGORIES = ({
   const response = Fetch.get(
     `${BASE_CATEGORY_PREFIX}${ENDPOINTS.PRODUCTS.GET_ALL_CATEGORIES}?page=${page}&itemsPerPage=${itemsPerPage}&searchText=${searchText}&getAll=${getAll}&limited=${limited}&storeId=${storeId}&status=Active`,
   );
+  return response;
+};
+
+export const CREATE_PRODUCT = data => {
+  const response = Fetch.post(`${BASE_INVENTORY_PREFIX}${ENDPOINTS.PRODUCTS.CREATE_PRODUCT}`, data);
   return response;
 };

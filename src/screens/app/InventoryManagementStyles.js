@@ -463,6 +463,12 @@ const styles = StyleSheet.create({
   zIndexHigh: {
     zIndex: 10,
   },
+  productImage: {
+    width: S(32),
+    height: S(32),
+    borderRadius: MS(6),
+    marginRight: S(10),
+  },
 });
 
 export default styles;
