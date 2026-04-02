@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { View, Text, TouchableOpacity, ScrollView, TextInput, Image } from 'react-native';
 import { Colors } from '../../utils/Colors';
 import { Subtitle2, Body3, Caption, H1 } from '../../utils/fonts';
@@ -18,65 +18,6 @@ import EditEmployeeModal from '../../components/EditEmployeeModal';
 import SuccessModal from '../../components/SuccessModal';
 import SortModal, { applySort } from '../../components/SortModal';
 import ConfirmationModal from '../../components/ConfirmationModal';
-
-const dummyData = [
-  {
-    id: '25312152',
-    name: 'Michel Gerdes',
-    email: 'michelgerdes@gmail.com',
-    sales: '$5,956.00',
-    tips: '$520.00',
-  },
-  {
-    id: '25312153',
-    name: 'John Peterson',
-    email: 'john.peterson@gmail.com',
-    sales: '$4,120.00',
-    tips: '$310.00',
-  },
-  {
-    id: '25312154',
-    name: 'Emma Wilson',
-    email: 'emmawilson@gmail.com',
-    sales: '$6,540.00',
-    tips: '$640.00',
-  },
-  {
-    id: '25312155',
-    name: 'David Miller',
-    email: 'davidmiller@gmail.com',
-    sales: '$3,890.00',
-    tips: '$250.00',
-  },
-  {
-    id: '25312156',
-    name: 'Sophia Anderson',
-    email: 'sophia.anderson@gmail.com',
-    sales: '$7,120.00',
-    tips: '$720.00',
-  },
-  {
-    id: '25312157',
-    name: 'Liam Johnson',
-    email: 'liamjohnson@gmail.com',
-    sales: '$2,980.00',
-    tips: '$180.00',
-  },
-  {
-    id: '25312158',
-    name: 'Olivia Brown',
-    email: 'oliviabrown@gmail.com',
-    sales: '$5,430.00',
-    tips: '$410.00',
-  },
-  {
-    id: '25312159',
-    name: 'Noah Davis',
-    email: 'noahdavis@gmail.com',
-    sales: '$6,010.00',
-    tips: '$505.00',
-  },
-];
 
 const EmployeeManagement = () => {
   const [searchQuery, setSearchQuery] = useState('');

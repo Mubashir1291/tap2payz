@@ -60,6 +60,13 @@ const ENDPOINTS = {
     UPDATE_CATEGORY: '/update-category',
     DELETE_CATEGORY: '/delete-category',
   },
+  Employee: {
+    GET_EMPLOYEES: '/get-employees',
+    GET_EMPLOYEE: '/get-employee',
+    CREATE_EMPLOYEE: '/create-employee',
+    UPDATE_EMPLOYEE: '/update-employee',
+    DELETE_EMPLOYEE: '/delete-employee',
+  },
 };
 
 export default ENDPOINTS;
