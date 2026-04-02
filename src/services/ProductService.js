@@ -39,3 +39,16 @@ export const CREATE_PRODUCT = data => {
   const response = Fetch.post(`${BASE_INVENTORY_PREFIX}${ENDPOINTS.PRODUCTS.CREATE_PRODUCT}`, data);
   return response;
 };
+export const UPDATE_PRODUCT = (id, payload) => {
+  const response = Fetch.put(
+    `${BASE_INVENTORY_PREFIX}${ENDPOINTS.PRODUCTS.UPDATE_PRODUCT}/${id}`,
+    payload,
+  );
+  return response;
+};
+export const DELETE_PRODUCT = id => {
+  const response = Fetch.delete(
+    `${BASE_INVENTORY_PREFIX}${ENDPOINTS.PRODUCTS.DELETE_PRODUCT}/${id}`,
+  );
+  return response;
+};

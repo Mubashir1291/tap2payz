@@ -17,7 +17,7 @@ import { Colors } from '../utils/Colors';
 import { H1, Body3, Caption } from '../utils/fonts';
 import { UploadIcon, ArrowDownIcon } from '../assets/Images';
 import styles from '../screens/app/InventoryManagementStyles';
-import { CREATE_PRODUCT, GET_ALL_CATEGORIES } from '../services/ProductService';
+import { CREATE_PRODUCT, GET_ALL_CATEGORIES, UPDATE_PRODUCT } from '../services/ProductService';
 
 const ProductFormModal = ({ visible, onClose, formType, initialData, onSubmit }) => {
   const [formData, setFormData] = useState({});
@@ -93,34 +93,48 @@ const ProductFormModal = ({ visible, onClose, formType, initialData, onSubmit })
       fetchCategories(categoryPage + 1);
     }
   };
-
+  const payload = {
+    product_name: formData.name || '',
+    sku_code: formData.sku || '',
+    bar_code: formData.barcode || '',
+    category: formData.category_id || '',
+    status: formData.status || 'Active',
+    product_price: formData.price || '',
+    product_tax: formData.tax || '',
+    quantity: formData.qty || 0,
+    product_image: formData.image || null,
+    product_description: formData.description || '',
+    store_id: store_id || '',
+    business_id: business_id || '',
+  };
   const handleSubmit = async () => {
-    const payload = {
-      product_name: formData.name || '',
-      sku_code: formData.sku || '',
-      bar_code: formData.barcode || '',
-      category: formData.category || '',
-      status: formData.status || 'Active',
-      product_price: formData.price || '',
-      product_tax: formData.tax || '',
-      quantity: formData.qty || 0,
-      product_image: formData.image || null,
-      product_description: formData.description || '',
-      store_id: store_id || '',
-      business_id: business_id || '',
-    };
-
     try {
       const response = await CREATE_PRODUCT(payload);
       console.log('Product Creation', response);
       if (response) {
         Alert.alert('Success', 'Product created successfully');
         onSubmit(payload);
+        onClose();
       }
     } catch (error) {
       Alert.alert('Error', 'Failed to create product');
       console.log(error, 'Product Creation Error');
-      console.log(payload, 'payload'); // Passing the submitted payload back to InventoryManagement to close modal and refresh
+      console.log(payload, 'payload');
+    }
+  };
+  const handleUpdateProduct = async () => {
+    try {
+      console.log('Payload for update', payload);
+      const response = await UPDATE_PRODUCT(formData._id, payload);
+      console.log('Product Update', response);
+      if (response) {
+        Alert.alert('Success', 'Product updated successfully');
+        onSubmit(payload);
+        onClose();
+      }
+    } catch (error) {
+      Alert.alert('Error', 'Failed to update product');
+      console.log(error, 'Product Update Error');
     }
   };
 
@@ -133,7 +147,7 @@ const ProductFormModal = ({ visible, onClose, formType, initialData, onSubmit })
           </TouchableOpacity>
 
           <Text style={[styles.modalTitle, H1]}>
-            {formType === 'add' ? 'Add new Product' : 'Edit Product'}
+            {formType === 'add' ? 'Add new Product' : 'Save Changes'}
           </Text>
 
           <ScrollView
@@ -202,11 +216,11 @@ const ProductFormModal = ({ visible, onClose, formType, initialData, onSubmit })
                         <TouchableOpacity
                           style={styles.dropdownItem}
                           onPress={() => {
-                            setFormData({
-                              ...formData,
+                            setFormData(prev => ({
+                              ...prev,
                               category: cat._id,
                               categoryName: cat.category_name || cat.name,
-                            });
+                            }));
                             setShowCategoryDropdown(false);
                           }}
                         >
@@ -406,7 +420,10 @@ const ProductFormModal = ({ visible, onClose, formType, initialData, onSubmit })
             </View>
           </ScrollView>
 
-          <TouchableOpacity style={styles.catSubmitBtn} onPress={handleSubmit}>
+          <TouchableOpacity
+            style={styles.catSubmitBtn}
+            onPress={formType === 'add' ? handleSubmit : handleUpdateProduct}
+          >
             <Text style={[styles.catSubmitBtnText, Body3]}>
               {formType === 'add' ? 'Add Product' : 'Save Changes'}
             </Text>

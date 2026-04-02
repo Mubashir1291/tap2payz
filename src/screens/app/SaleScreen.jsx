@@ -104,6 +104,8 @@ const SaleScreen = () => {
     }
     try {
       const response = await GET_ALL_PRODUCTS_WITH_INVENTORY(query);
+      // console.log(response, 'productsssssssssssssss');
+
       if (loadMore) {
         setProducts(prev => [...prev, ...(response?.items || [])]);
       } else {
@@ -126,7 +128,7 @@ const SaleScreen = () => {
   useEffect(() => {
     handleFetchAllCategories(categorySearchQuery, categorySearchQuery.page > 1);
   }, [categorySearchQuery]);
-
+  // console.log(productSearchQuery, 'searchhhhhhhhhhhhh');
   useEffect(() => {
     handleFetchAllProducts(productSearchQuery, productSearchQuery.page > 1);
   }, [productSearchQuery]);

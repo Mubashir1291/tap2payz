@@ -11,7 +11,11 @@ import {
   ActivityIndicator,
 } from 'react-native';
 import { useSelector } from 'react-redux';
-import { GET_ALL_PRODUCTS_WITH_INVENTORY, GET_ALL_CATEGORIES } from '../../services/ProductService';
+import {
+  GET_ALL_PRODUCTS_WITH_INVENTORY,
+  GET_ALL_CATEGORIES,
+  DELETE_PRODUCT,
+} from '../../services/ProductService';
 import { Colors } from '../../utils/Colors';
 import { Subtitle2, Body3, Caption, H1 } from '../../utils/fonts';
 import { IconSize12, IconSize24, IconSize40 } from '../../utils/IconSizes';
@@ -180,10 +184,12 @@ const InventoryManagement = () => {
     setFormType('edit');
     if (viewType === 'products') {
       setSelectedProduct({
+        _id: item._id || item.id,
         name: item.name || '',
         sku: item.sku || '',
         barcode: item.barcode || '',
         category: item.categoryName || "Men's Wear",
+        category_id: item.category || '',
         status: item.status || 'Active',
         price: item.priceValue ? String(item.priceValue).replace(/[^0-9.]/g, '') : '',
         tax: '',
@@ -207,11 +213,20 @@ const InventoryManagement = () => {
     }
   };
 
-  const handleDelete = () => {
+  const handleDelete = item => {
+    setSelectedProduct(item);
     setShowDeleteModal(true);
   };
 
-  const confirmDelete = () => {
+  const confirmDelete = async () => {
+    try {
+      const response = await DELETE_PRODUCT(selectedProduct._id);
+
+      console.log('Delete response', response);
+    } catch (error) {
+      console.error('Error deleting product:', error);
+    }
+
     setShowDeleteModal(false);
     setTimeout(() => {
       setShowSuccessModal(true);
