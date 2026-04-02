@@ -52,3 +52,25 @@ export const DELETE_PRODUCT = id => {
   );
   return response;
 };
+
+// Categories
+
+export const CREATE_CATEGORY = data => {
+  const response = Fetch.post(`${BASE_CATEGORY_PREFIX}${ENDPOINTS.category.CREATE_CATEGORY}`, data);
+  return response;
+};
+export const UPDATE_CATEGORY = (id, payload) => {
+  const response = Fetch.put(
+    `${BASE_CATEGORY_PREFIX}${ENDPOINTS.category.UPDATE_CATEGORY}/${id}`,
+    payload,
+  );
+  return response;
+};
+export const DELETE_CATEGORY = id => {
+  const response = Fetch.delete(
+    `${BASE_CATEGORY_PREFIX}${ENDPOINTS.category.DELETE_CATEGORY}/${id}`,
+  );
+  return response;
+};
+
+// Inventory

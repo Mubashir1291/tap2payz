@@ -55,6 +55,11 @@ const ENDPOINTS = {
     GET_ALL_INVENTORY: '/get-all-inventory',
     UPDATE_INVENTORY: '/update-inventory',
   },
+  category: {
+    CREATE_CATEGORY: '/create-category',
+    UPDATE_CATEGORY: '/update-category',
+    DELETE_CATEGORY: '/delete-category',
+  },
 };
 
 export default ENDPOINTS;

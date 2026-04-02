@@ -15,6 +15,7 @@ import {
   GET_ALL_PRODUCTS_WITH_INVENTORY,
   GET_ALL_CATEGORIES,
   DELETE_PRODUCT,
+  DELETE_CATEGORY,
 } from '../../services/ProductService';
 import { Colors } from '../../utils/Colors';
 import { Subtitle2, Body3, Caption, H1 } from '../../utils/fonts';
@@ -34,6 +35,7 @@ import SuccessModal from '../../components/SuccessModal';
 import styles from './InventoryManagementStyles';
 import SortModal, { applySort } from '../../components/SortModal';
 import ProductFormModal from '../../components/ProductFormModal';
+import CategoryFormModal from '../../components/CategoryFormModal';
 import { SvgUri } from 'react-native-svg';
 
 const InventoryManagement = () => {
@@ -49,16 +51,9 @@ const InventoryManagement = () => {
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [showSuccessModal, setShowSuccessModal] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState(null);
+  const [selectedCategory, setSelectedCategory] = useState(null);
 
   const [showCatFormModal, setShowCatFormModal] = useState(false);
-  const [catFormData, setCatFormData] = useState({
-    name: '',
-    status: 'Active',
-    products: '',
-    vendor: '',
-    image: null,
-  });
-  const [showCatStatusDropdown, setShowCatStatusDropdown] = useState(false);
 
   const [products, setProducts] = useState([]);
   const [categories, setCategories] = useState([]);
@@ -169,13 +164,7 @@ const InventoryManagement = () => {
       });
       setShowFormModal(true);
     } else {
-      setCatFormData({
-        name: '',
-        status: 'Active',
-        products: '',
-        vendor: '',
-        image: null,
-      });
+      setSelectedCategory(null);
       setShowCatFormModal(true);
     }
   };
@@ -202,34 +191,57 @@ const InventoryManagement = () => {
       });
       setShowFormModal(true);
     } else {
-      setCatFormData({
-        name: item.name || '',
-        status: item.status || 'Active',
-        products: item.products || '',
-        vendor: item.vendor || '',
-        image: item.image || null,
-      });
+      setSelectedCategory(item);
       setShowCatFormModal(true);
     }
   };
 
   const handleDelete = item => {
-    setSelectedProduct(item);
+    if (viewType === 'products') {
+      setSelectedProduct(item);
+    } else {
+      setSelectedCategory(item);
+    }
     setShowDeleteModal(true);
   };
 
   const confirmDelete = async () => {
     try {
-      const response = await DELETE_PRODUCT(selectedProduct._id);
-
-      console.log('Delete response', response);
+      if (viewType === 'products') {
+        const response = await DELETE_PRODUCT(selectedProduct._id);
+        console.log('Product Delete response', response);
+      } else {
+        const response = await DELETE_CATEGORY(selectedCategory._id || selectedCategory.id);
+        console.log('Category Delete response', response);
+      }
     } catch (error) {
-      console.error('Error deleting product:', error);
+      console.error('Error deleting:', error);
     }
 
     setShowDeleteModal(false);
     setTimeout(() => {
       setShowSuccessModal(true);
+      // Refresh the list after deletion - reset to page 1
+      if (viewType === 'products') {
+        setProductQuery({
+          page: 1,
+          itemsPerPage: 20,
+          searchText: '',
+          getAll: 'false',
+          limited: 'false',
+          storeId: store_id,
+          category_id: '',
+        });
+      } else {
+        setCategoryQuery({
+          page: 1,
+          itemsPerPage: 10,
+          searchText: '',
+          getAll: 'false',
+          limited: 'false',
+          storeId: store_id,
+        });
+      }
     }, 500);
   };
 
@@ -237,6 +249,13 @@ const InventoryManagement = () => {
     // Here you would handle the API call to create or update a product
     console.log('Submitting data:', data);
     setShowFormModal(false);
+    // After a successful API call, you might want to refetch products and show a success message.
+    // For now, we'll just close the modal.
+  };
+
+  const handleCategorySubmit = data => {
+    console.log('Submitting category data:', data);
+    setShowCatFormModal(false);
     // After a successful API call, you might want to refetch products and show a success message.
     // For now, we'll just close the modal.
   };
@@ -483,9 +502,11 @@ const InventoryManagement = () => {
         visible={showDeleteModal}
         icon={DeleteIcon}
         iconStyle={[IconSize40, styles.largeIconStyle]}
-        title="Want to Delete this Product!"
-        subtitle="Are you sure you want to delete this product?"
-        confirmText="Delete Product →"
+        title={`Want to Delete this ${viewType === 'products' ? 'Product' : 'Category'}!`}
+        subtitle={`Are you sure you want to delete this ${
+          viewType === 'products' ? 'product' : 'category'
+        }?`}
+        confirmText={`Delete ${viewType === 'products' ? 'Product' : 'Category'} →`}
         confirmButtonColor="#B71C1C"
         onConfirm={confirmDelete}
         onCancel={() => setShowDeleteModal(false)}
@@ -495,7 +516,7 @@ const InventoryManagement = () => {
       <SuccessModal
         visible={showSuccessModal}
         onClose={() => setShowSuccessModal(false)}
-        message="Product Deleted Successfully!"
+        message={`${viewType === 'products' ? 'Product' : 'Category'} Deleted Successfully!`}
         title="Deleted Successfully"
       />
 
@@ -511,152 +532,15 @@ const InventoryManagement = () => {
       )}
 
       {/* Category Add/Edit Form Modal */}
-      <Modal visible={showCatFormModal} transparent animationType="fade">
-        <View style={styles.modalOverlay}>
-          <View style={styles.catModalContent}>
-            <TouchableOpacity
-              style={styles.modalCloseBtn}
-              onPress={() => setShowCatFormModal(false)}
-            >
-              <Text style={styles.modalCloseText}>✕</Text>
-            </TouchableOpacity>
-
-            <Text style={[styles.modalTitle, H1]}>
-              {formType === 'add' ? 'Create Category' : 'Edit Category'}
-            </Text>
-
-            <ScrollView
-              showsVerticalScrollIndicator={false}
-              contentContainerStyle={styles.formScrollContent}
-            >
-              <View style={styles.formLabelRow}>
-                <Text style={[styles.formLabel, Body3]}>Category Image</Text>
-              </View>
-              <TouchableOpacity style={styles.catUploadContainer} onPress={() => {}}>
-                {catFormData.image ? (
-                  <>
-                    <Image
-                      source={{ uri: catFormData.image }}
-                      style={styles.catActiveUploadedImage}
-                      resizeMode="cover"
-                    />
-                    <View style={styles.catChangeImageBtn}>
-                      <Text style={styles.catChangeImageText}>Change Image</Text>
-                    </View>
-                  </>
-                ) : (
-                  <>
-                    <Image
-                      source={UploadIcon}
-                      style={styles.catUploadImageIcon}
-                      resizeMode="contain"
-                    />
-                    <Text style={[styles.catUploadImageHint, Body3]}>Upload Image</Text>
-                    <Text style={[styles.catUploadImageSubHint, Caption]}>
-                      you can upload upto 2MB, Image{'\n'}(JPG, PNG)
-                    </Text>
-                  </>
-                )}
-              </TouchableOpacity>
-
-              <View style={styles.catFormRow}>
-                <View style={styles.catFormCol}>
-                  <View style={styles.formLabelRow}>
-                    <Text style={[styles.formLabel, Body3]}>Category Name</Text>
-                  </View>
-                  <TextInput
-                    style={[styles.formInput, Body3]}
-                    placeholder="Men's Wear"
-                    value={catFormData.name}
-                    onChangeText={t => setCatFormData({ ...catFormData, name: t })}
-                  />
-                </View>
-                <View style={[styles.catFormCol, styles.zIndexHigh]}>
-                  <View style={styles.formLabelRow}>
-                    <Text style={[styles.formLabel, Body3]}>Status</Text>
-                  </View>
-                  <TouchableOpacity
-                    style={styles.dropdownInput}
-                    onPress={() => setShowCatStatusDropdown(!showCatStatusDropdown)}
-                  >
-                    <View
-                      style={
-                        catFormData.status === 'Active'
-                          ? styles.statusActiveBg2
-                          : styles.statusInactiveBg2
-                      }
-                    >
-                      <Text
-                        style={[
-                          catFormData.status === 'Active'
-                            ? styles.statusActiveText2
-                            : styles.statusInactiveText2,
-                          Body3,
-                        ]}
-                      >
-                        {catFormData.status || 'Select'}
-                      </Text>
-                    </View>
-                    <Image
-                      source={ArrowDownIcon}
-                      style={styles.dropdownIcon}
-                      resizeMode="contain"
-                    />
-                  </TouchableOpacity>
-                  {showCatStatusDropdown && (
-                    <View style={styles.dropdownList}>
-                      {['Active', 'Inactive'].map((stat, i) => (
-                        <TouchableOpacity
-                          key={i}
-                          style={styles.dropdownItem}
-                          onPress={() => {
-                            setCatFormData({ ...catFormData, status: stat });
-                            setShowCatStatusDropdown(false);
-                          }}
-                        >
-                          <Text style={[styles.dropdownText, Body3]}>{stat}</Text>
-                        </TouchableOpacity>
-                      ))}
-                    </View>
-                  )}
-                </View>
-              </View>
-
-              <View style={styles.catFormRow}>
-                <View style={styles.catFormCol}>
-                  <View style={styles.formLabelRow}>
-                    <Text style={[styles.formLabel, Body3]}>Products</Text>
-                  </View>
-                  <TextInput
-                    style={[styles.formInput, Body3]}
-                    placeholder="20"
-                    value={catFormData.products}
-                    onChangeText={t => setCatFormData({ ...catFormData, products: t })}
-                  />
-                </View>
-                <View style={styles.catFormCol}>
-                  <View style={styles.formLabelRow}>
-                    <Text style={[styles.formLabel, Body3]}>Vendor</Text>
-                  </View>
-                  <TextInput
-                    style={[styles.formInput, Body3]}
-                    placeholder="Gucci"
-                    value={catFormData.vendor}
-                    onChangeText={t => setCatFormData({ ...catFormData, vendor: t })}
-                  />
-                </View>
-              </View>
-
-              <TouchableOpacity style={styles.catSubmitBtn}>
-                <Text style={[styles.catSubmitBtnText, Body3]}>
-                  {formType === 'add' ? 'Add Category' : 'Save Changes'}
-                </Text>
-                <Text style={styles.catSubmitBtnText}>→</Text>
-              </TouchableOpacity>
-            </ScrollView>
-          </View>
-        </View>
-      </Modal>
+      {showCatFormModal && (
+        <CategoryFormModal
+          visible={showCatFormModal}
+          onClose={() => setShowCatFormModal(false)}
+          formType={formType}
+          initialData={selectedCategory}
+          onSubmit={handleCategorySubmit}
+        />
+      )}
     </View>
   );
 };
