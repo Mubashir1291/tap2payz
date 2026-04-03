@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useCallback } from 'react';
 import { View, Text, TouchableOpacity, FlatList, TextInput, Image, StatusBar } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import { Colors } from '../../utils/Colors';
 import { H2, Subtitle2, Body2, Body3 } from '../../utils/fonts';
 import { IconSize16, IconSize20 } from '../../utils/IconSizes';
@@ -9,6 +9,7 @@ import styles from './TableManagementScreenStyles';
 import DeleteTableModal from '../../components/DeleteTableModal';
 import EditTableModal from '../../components/EditTableModal';
 import SuccessModal from '../../components/SuccessModal';
+import { GET_TABLES } from '../../services/Restaurant/Tables/Table';
 
 const dummyData = [
   { id: '1', area: '1st Floor', tableNo: '01', seats: '5, Seats' },
@@ -69,6 +70,21 @@ const TableManagementScreen = () => {
         </TouchableOpacity>
       </View>
     </View>
+  );
+
+  const handleGetTables = async () => {
+    try {
+      const response = await GET_TABLES();
+      console.log('Tables fetched successfully:', response);
+    } catch (error) {
+      console.error('Error fetching tables:', error);
+    }
+  };
+
+  useFocusEffect(
+    useCallback(() => {
+      handleGetTables();
+    }, []),
   );
 
   return (

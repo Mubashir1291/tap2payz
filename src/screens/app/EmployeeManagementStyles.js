@@ -80,7 +80,7 @@ const styles = StyleSheet.create({
     color: Colors.black,
   },
   colId: { flex: 0.15 },
-  colName: { flex: 0.25, flexDirection: 'row', alignItems: 'center' },
+  colName: { flex: 0.25, flexDirection: 'row', alignItems: 'center', marginLeft: S(8) },
   colEmail: { flex: 0.25 },
   colSales: { flex: 0.15 },
   colTips: { flex: 0.1 },

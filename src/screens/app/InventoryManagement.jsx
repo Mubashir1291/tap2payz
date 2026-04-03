@@ -57,6 +57,8 @@ const InventoryManagement = () => {
 
   const [products, setProducts] = useState([]);
   const [categories, setCategories] = useState([]);
+  const [productData, setProductData] = useState(null);
+  const [categoryData, setCategoryData] = useState(null);
   const [isLoadingProducts, setIsLoadingProducts] = useState(false);
   const [isLoadingCategories, setIsLoadingCategories] = useState(false);
 
@@ -99,6 +101,7 @@ const InventoryManagement = () => {
           image: p.product_image || null,
         }));
         setProducts(mappedProducts);
+        setProductData(response);
       } catch (error) {
         console.error('Error fetching products with inventory:', error);
       } finally {
@@ -121,6 +124,7 @@ const InventoryManagement = () => {
           status: c.status || 'Active',
         }));
         setCategories(mappedCategories);
+        setCategoryData(response);
       } catch (error) {
         console.error('Error fetching categories:', error);
       } finally {
@@ -259,6 +263,28 @@ const InventoryManagement = () => {
     setShowCatFormModal(false);
     // After a successful API call, you might want to refetch products and show a success message.
     // For now, we'll just close the modal.
+  };
+
+  const currentPage = viewType === 'products' ? productQuery.page : categoryQuery.page;
+  const totalPages =
+    viewType === 'products' ? productData?.lastPage || 1 : categoryData?.lastPage || 1;
+  const canGoPrev = currentPage > 1;
+  const canGoNext = viewType === 'products' ? productData?.hasNextPage : categoryData?.hasNextPage;
+
+  const handlePrevPage = () => {
+    if (viewType === 'products') {
+      if (productQuery.page > 1) setProductQuery(prev => ({ ...prev, page: prev.page - 1 }));
+    } else {
+      if (categoryQuery.page > 1) setCategoryQuery(prev => ({ ...prev, page: prev.page - 1 }));
+    }
+  };
+
+  const handleNextPage = () => {
+    if (viewType === 'products') {
+      if (productData?.hasNextPage) setProductQuery(prev => ({ ...prev, page: prev.page + 1 }));
+    } else {
+      if (categoryData?.hasNextPage) setCategoryQuery(prev => ({ ...prev, page: prev.page + 1 }));
+    }
   };
 
   return (
@@ -481,14 +507,22 @@ const InventoryManagement = () => {
 
       {/* Pagination Footer */}
       <View style={styles.paginationRow}>
-        <TouchableOpacity style={styles.pageBtn}>
+        <TouchableOpacity
+          style={[styles.pageBtn, !canGoPrev && { opacity: 0.5 }]}
+          onPress={handlePrevPage}
+          disabled={!canGoPrev}
+        >
           <Image source={LeftArrowIcon} style={styles.actionIcon} />
         </TouchableOpacity>
-        <Text style={[styles.pageText, Body3]}>01</Text>
-        <TouchableOpacity style={styles.pageBtn}>
+        <Text style={[styles.pageText, Body3]}>{String(currentPage).padStart(2, '0')}</Text>
+        <TouchableOpacity
+          style={[styles.pageBtn, !canGoNext && { opacity: 0.5 }]}
+          onPress={handleNextPage}
+          disabled={!canGoNext}
+        >
           <Image source={RightArrowIcon} style={styles.actionIcon} />
         </TouchableOpacity>
-        <Text style={[styles.pageText, Body3]}>out of 20</Text>
+        <Text style={[styles.pageText, Body3]}>out of {String(totalPages).padStart(2, '0')}</Text>
       </View>
 
       <SortModal

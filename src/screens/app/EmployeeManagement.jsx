@@ -1,8 +1,17 @@
 import React, { useState, useMemo, useEffect } from 'react';
-import { View, Text, TouchableOpacity, ScrollView, TextInput, Image } from 'react-native';
+import {
+  View,
+  Text,
+  TouchableOpacity,
+  ScrollView,
+  TextInput,
+  Image,
+  ActivityIndicator,
+} from 'react-native';
+import { useSelector } from 'react-redux';
 import { Colors } from '../../utils/Colors';
 import { Subtitle2, Body3, Caption, H1 } from '../../utils/fonts';
-import { IconSize12, IconSize24, IconSize40 } from '../../utils/IconSizes';
+import { IconSize12, IconSize20, IconSize24, IconSize40 } from '../../utils/IconSizes';
 import {
   SearchIcon,
   LeftArrowIcon,
@@ -18,6 +27,8 @@ import EditEmployeeModal from '../../components/EditEmployeeModal';
 import SuccessModal from '../../components/SuccessModal';
 import SortModal, { applySort } from '../../components/SortModal';
 import ConfirmationModal from '../../components/ConfirmationModal';
+import { GET_EMPLOYEES } from '../../services/Employee';
+import { MS } from '../../utils/Responsive';
 
 const EmployeeManagement = () => {
   const [searchQuery, setSearchQuery] = useState('');
@@ -29,8 +40,12 @@ const EmployeeManagement = () => {
   const [selectedEmployee, setSelectedEmployee] = useState(null);
   const [sortType, setSortType] = useState('a-z');
 
+  const { store_id } = useSelector(state => state.user);
+  const [employees, setEmployees] = useState([]);
+  const [isLoading, setIsLoading] = useState(false);
+
   const sortedData = useMemo(() => {
-    let data = [...dummyData];
+    let data = [...employees];
 
     // Optionally also filter by searchQuery
     if (searchQuery.trim() !== '') {
@@ -38,7 +53,7 @@ const EmployeeManagement = () => {
     }
 
     return applySort(data, sortType, item => item.name);
-  }, [sortType, searchQuery]);
+  }, [sortType, searchQuery, employees]);
 
   const handleCreate = () => {
     setShowCreateModal(false);
@@ -64,6 +79,32 @@ const EmployeeManagement = () => {
     setSortType(type);
     setShowSortModal(false);
   };
+
+  useEffect(() => {
+    const fetchEmployees = async () => {
+      setIsLoading(true);
+      try {
+        const response = await GET_EMPLOYEES({ storeId: store_id });
+        const mappedEmployees = (response?.items || []).map(emp => ({
+          id: emp._id || emp.id,
+          image: emp.employee_profile || null,
+          name: emp.employee_name || emp.name || 'Unknown',
+          email: emp.employee_email || 'N/A',
+          sales: emp.sales || '$0.00',
+          tips: emp.tips || '$0.00',
+        }));
+        setEmployees(mappedEmployees);
+      } catch (error) {
+        console.error('Error fetching employees:', error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    if (store_id) {
+      fetchEmployees();
+    }
+  }, [store_id]);
 
   return (
     <View style={styles.root}>
@@ -106,37 +147,60 @@ const EmployeeManagement = () => {
 
         {/* Table Content */}
         <ScrollView showsVerticalScrollIndicator={false}>
-          {sortedData.map((item, index) => (
-            <View key={index} style={styles.tableRow}>
-              <Text style={[styles.colId, styles.rowText, Body3]}>{item.id}</Text>
-
-              <View style={styles.colName}>
-                <View style={[styles.avatar, { backgroundColor: Colors.lightGrey }]} />
-                <Text style={[styles.rowText, Body3]}>{item.name}</Text>
-              </View>
-
-              <Text style={[styles.colEmail, styles.rowText, Body3]}>{item.email}</Text>
-              <Text style={[styles.colSales, styles.rowText, Body3]}>{item.sales}</Text>
-              <Text style={[styles.colTips, styles.rowText, Body3]}>{item.tips}</Text>
-
-              <View style={styles.colAction}>
-                <TouchableOpacity
-                  onPress={() => {
-                    setSelectedEmployee(item);
-                    setShowEditModal(true);
-                  }}
-                >
-                  <Image source={EditCircleIcon} style={[IconSize24]} />
-                </TouchableOpacity>
-                <TouchableOpacity>
-                  <Image source={LockCircleIcon} style={[IconSize24]} />
-                </TouchableOpacity>
-                <TouchableOpacity onPress={() => handleDeleteClick(item)}>
-                  <Image source={DeleteCircleIcon} style={[IconSize24]} />
-                </TouchableOpacity>
-              </View>
+          {isLoading ? (
+            <View style={{ padding: 40, justifyContent: 'center', alignItems: 'center' }}>
+              <ActivityIndicator size="large" color={Colors.primary} />
             </View>
-          ))}
+          ) : (
+            sortedData.map((item, index) => (
+              <View key={index} style={styles.tableRow}>
+                <Text style={[styles.colId, styles.rowText, Body3]}>{item.id}</Text>
+
+                <View style={styles.colName}>
+                  {item.image ? (
+                    <Image
+                      source={{ uri: item?.image }}
+                      style={[
+                        IconSize20,
+                        {
+                          backgroundColor: 'white',
+                          borderWidth: MS(1),
+                          borderRadius: MS(20),
+                          marginRight: MS(5),
+                        },
+                      ]}
+                    />
+                  ) : (
+                    <View style={[IconSize40, styles.placeholderImage]}>
+                      <Text style={styles.placeholderText}>{item.name.charAt(0)}</Text>
+                    </View>
+                  )}
+                  <Text style={[styles.rowText, Body3]}>{item.name}</Text>
+                </View>
+
+                <Text style={[styles.colEmail, styles.rowText, Body3]}>{item?.email}</Text>
+                <Text style={[styles.colSales, styles.rowText, Body3]}>{item?.sales}</Text>
+                <Text style={[styles.colTips, styles.rowText, Body3]}>{item?.tips}</Text>
+
+                <View style={styles.colAction}>
+                  <TouchableOpacity
+                    onPress={() => {
+                      setSelectedEmployee(item);
+                      setShowEditModal(true);
+                    }}
+                  >
+                    <Image source={EditCircleIcon} style={[IconSize24]} />
+                  </TouchableOpacity>
+                  <TouchableOpacity>
+                    <Image source={LockCircleIcon} style={[IconSize24]} />
+                  </TouchableOpacity>
+                  <TouchableOpacity onPress={() => handleDeleteClick(item)}>
+                    <Image source={DeleteCircleIcon} style={[IconSize24]} />
+                  </TouchableOpacity>
+                </View>
+              </View>
+            ))
+          )}
         </ScrollView>
       </View>
 

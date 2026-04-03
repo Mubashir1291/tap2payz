@@ -67,6 +67,12 @@ const ENDPOINTS = {
     UPDATE_EMPLOYEE: '/update-employee',
     DELETE_EMPLOYEE: '/delete-employee',
   },
+  Tables: {
+    GET_TABLES: '/get-tables',
+    CREATE_TABLE: '/create-tables',
+    UPDATE_TABLE: '/update-table',
+    DELETE_TABLE: '/delete-table',
+  },
 };
 
 export default ENDPOINTS;
