@@ -113,6 +113,7 @@ const InventoryManagement = () => {
       setIsLoadingCategories(true);
       try {
         const response = await GET_ALL_CATEGORIES(categoryQuery);
+        console.log(response, 'categories');
         const mappedCategories = (response?.items || []).map(c => ({
           ...c,
           id: c._id,

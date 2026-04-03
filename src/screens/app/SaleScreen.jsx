@@ -50,10 +50,11 @@ const SaleScreen = () => {
   // eslint-disable-next-line unused-imports/no-unused-vars
   const [productsData, setProductsData] = useState(null);
   const [isLoadingMoreProducts, setIsLoadingMoreProducts] = useState(false);
+  const isLoadingProductsRef = useRef(false);
 
   const [categorySearchQuery, setCategorySearchQuery] = useState({
     page: 1,
-    itemsPerPage: 10,
+    itemsPerPage: 20,
     searchText: '',
     getAll: 'false',
     limited: 'false',
@@ -70,13 +71,13 @@ const SaleScreen = () => {
   const debouncedValue = useDebounce(searchQuery, 500);
 
   const handleFetchAllCategories = async (query, loadMore = false) => {
+    isLoadingCategoriesRef.current = true;
     if (loadMore) {
       setIsLoadingMoreCategories(true);
-      isLoadingCategoriesRef.current = true;
     }
     try {
       const response = await GET_ALL_CATEGORIES(query);
-      console.log(response, 'categoriesssssssssssssss');
+      // console.log(response, 'categoriesssssssssssssss');
 
       if (loadMore) {
         setCategories(prev => [...prev, ...(response?.items || [])]);
@@ -93,12 +94,13 @@ const SaleScreen = () => {
     } finally {
       if (loadMore) {
         setIsLoadingMoreCategories(false);
-        isLoadingCategoriesRef.current = false;
       }
+      isLoadingCategoriesRef.current = false;
     }
   };
 
   const handleFetchAllProducts = async (query, loadMore = false) => {
+    isLoadingProductsRef.current = true;
     if (loadMore) {
       setIsLoadingMoreProducts(true);
     }
@@ -122,6 +124,7 @@ const SaleScreen = () => {
       if (loadMore) {
         setIsLoadingMoreProducts(false);
       }
+      isLoadingProductsRef.current = false;
     }
   };
 
@@ -222,11 +225,13 @@ const SaleScreen = () => {
   const loadMoreProducts = () => {
     if (
       isLoadingMoreProducts ||
+      isLoadingProductsRef.current ||
       !productsData ||
-      productSearchQuery.page >= productsData.totalPages
+      !productsData.hasNextPage
     ) {
       return;
     }
+    isLoadingProductsRef.current = true;
     setProductSearchQuery(prev => ({ ...prev, page: prev.page + 1 }));
   };
 
@@ -235,7 +240,7 @@ const SaleScreen = () => {
       isLoadingMoreCategories ||
       isLoadingCategoriesRef.current ||
       !categoriesData ||
-      categorySearchQuery.page >= categoriesData.totalPages
+      !categoriesData.hasNextPage
     ) {
       return;
     }
@@ -375,7 +380,7 @@ const SaleScreen = () => {
             showsVerticalScrollIndicator={false}
             contentContainerStyle={styles.productListContent}
             onEndReached={loadMoreCategories}
-            onEndReachedThreshold={0.5}
+            onEndReachedThreshold={0.1}
             ListFooterComponent={
               isLoadingMoreCategories ? (
                 <View style={{ padding: 20 }}>
@@ -393,7 +398,7 @@ const SaleScreen = () => {
             showsVerticalScrollIndicator={false}
             contentContainerStyle={styles.productListContent}
             onEndReached={loadMoreProducts}
-            onEndReachedThreshold={0.5}
+            onEndReachedThreshold={0.1}
             ListFooterComponent={
               isLoadingMoreProducts ? (
                 <View style={{ padding: 20 }}>
