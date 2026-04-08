@@ -1,5 +1,6 @@
 import React, { useState, useCallback } from 'react';
 import { View, Text, TouchableOpacity, FlatList, TextInput, Image, StatusBar } from 'react-native';
+import { useSelector } from 'react-redux';
 import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import { Colors } from '../../utils/Colors';
 import { H2, Subtitle2, Body2, Body3 } from '../../utils/fonts';
@@ -11,26 +12,20 @@ import EditTableModal from '../../components/EditTableModal';
 import SuccessModal from '../../components/SuccessModal';
 import { GET_TABLES } from '../../services/Restaurant/Tables/Table';
 
-const dummyData = [
-  { id: '1', area: '1st Floor', tableNo: '01', seats: '5, Seats' },
-  { id: '2', area: '1st Floor', tableNo: '02', seats: '2, Seats' },
-  { id: '3', area: '1st Floor', tableNo: '03', seats: '2, Seats' },
-  { id: '4', area: '1st Floor', tableNo: '04', seats: '10, Seats' },
-  { id: '5', area: '1st Floor', tableNo: '05', seats: '12, Seats' },
-  { id: '6', area: '1st Floor', tableNo: '06', seats: '6, Seats' },
-  { id: '7', area: '1st Floor', tableNo: '07', seats: '8, Seats' },
-  { id: '8', area: '1st Floor', tableNo: '08', seats: '6, Seats' },
-  { id: '9', area: '1st Floor', tableNo: '09', seats: '2, Seats' },
-];
-
 const TableManagementScreen = () => {
   const navigation = useNavigation();
+  const { store_id } = useSelector(state => state.user);
+
   const [search, setSearch] = useState('');
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
   const [showSuccessModal, setShowSuccessModal] = useState(false);
   const [selectedTable, setSelectedTable] = useState(null);
   const [successMessage, setSuccessMessage] = useState('');
+  const [tables, setTables] = useState([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const [paginationData, setPaginationData] = useState(null);
+  const [page, setPage] = useState(1);
 
   const handleDeletePress = table => {
     setSelectedTable(table);
@@ -58,9 +53,9 @@ const TableManagementScreen = () => {
 
   const renderItem = ({ item }) => (
     <View style={styles.tableRow}>
-      <Text style={[styles.cell, Body2, styles.flexLarge]}>{item.area}</Text>
-      <Text style={[styles.cell, Body2, styles.flexCenterText]}>{item.tableNo}</Text>
-      <Text style={[styles.cell, Body2, styles.flexCenterText]}>{item.seats}</Text>
+      <Text style={[styles.cell, Body2, styles.flexLarge]}>{item.floor_id?.name || 'N/A'}</Text>
+      <Text style={[styles.cell, Body2, styles.flexCenterText]}>{item.table_no || 'N/A'}</Text>
+      <Text style={[styles.cell, Body2, styles.flexCenterText]}>{item.seats} Seats</Text>
       <View style={[styles.cell, styles.actionCell, styles.flexEqual]}>
         <TouchableOpacity style={styles.actionBtn} onPress={() => handleEditPress(item)}>
           <Image source={EditCircleIcon} style={IconSize20} />
@@ -72,20 +67,34 @@ const TableManagementScreen = () => {
     </View>
   );
 
-  const handleGetTables = async () => {
+  const handleGetTables = async query => {
+    if (!store_id) return;
+    setIsLoading(true);
     try {
-      const response = await GET_TABLES();
+      const response = await GET_TABLES({ ...query, storeId: store_id });
       console.log('Tables fetched successfully:', response);
+      setTables(response?.items || []);
+      setPaginationData(response);
     } catch (error) {
       console.error('Error fetching tables:', error);
+    } finally {
+      setIsLoading(false);
     }
   };
 
   useFocusEffect(
     useCallback(() => {
-      handleGetTables();
-    }, []),
+      handleGetTables({ page, itemsPerPage: 10 });
+    }, [page, store_id]),
   );
+
+  const handleNextPage = () => {
+    if (paginationData?.hasNextPage) setPage(prev => prev + 1);
+  };
+
+  const handlePrevPage = () => {
+    if (page > 1) setPage(prev => prev - 1);
+  };
 
   return (
     <View style={styles.container}>
@@ -139,23 +148,35 @@ const TableManagementScreen = () => {
           </View>
 
           <FlatList
-            data={dummyData}
+            data={tables}
             renderItem={renderItem}
-            keyExtractor={item => item.id}
+            keyExtractor={item => item._id || item.id}
             showsVerticalScrollIndicator={false}
             contentContainerStyle={styles.listContent}
+            refreshing={isLoading}
+            onRefresh={() => handleGetTables({ page, itemsPerPage: 10 })}
           />
 
           {/* Pagination */}
           <View style={styles.pagination}>
-            <TouchableOpacity style={styles.pageArrow}>
+            <TouchableOpacity
+              style={[styles.pageArrow, page === 1 && { opacity: 0.5 }]}
+              disabled={page === 1}
+              onPress={handlePrevPage}
+            >
               <Text style={styles.arrowText}>{'<'}</Text>
             </TouchableOpacity>
-            <Text style={[styles.pageText, Body2]}>01</Text>
-            <TouchableOpacity style={styles.pageArrow}>
+            <Text style={[styles.pageText, Body2]}>{String(page).padStart(2, '0')}</Text>
+            <TouchableOpacity
+              style={[styles.pageArrow, !paginationData?.hasNextPage && { opacity: 0.5 }]}
+              disabled={!paginationData?.hasNextPage}
+              onPress={handleNextPage}
+            >
               <Text style={styles.arrowText}>{'>'}</Text>
             </TouchableOpacity>
-            <Text style={[styles.outOfText, Body3]}>out of 20</Text>
+            <Text style={[styles.outOfText, Body3]}>
+              out of {String(paginationData?.lastPage || 1).padStart(2, '0')}
+            </Text>
           </View>
         </View>
       </View>

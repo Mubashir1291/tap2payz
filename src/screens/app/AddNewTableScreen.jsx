@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useCallback, useState } from 'react';
 import {
   View,
   Text,
@@ -14,9 +14,9 @@ import {
   Keyboard,
   Modal,
 } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
+import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import { Colors } from '../../utils/Colors';
-import { H2, Subtitle1, Subtitle2, Body3 } from '../../utils/fonts';
+import { H2, Subtitle1, Subtitle2, Body3, Overline2 } from '../../utils/fonts';
 import { IconSize12, IconSize20, IconSize50 } from '../../utils/IconSizes';
 import {
   LeftArrowIcon,
@@ -28,11 +28,15 @@ import {
 import styles from './AddNewTableScreenStyles';
 import SuccessModal from '../../components/SuccessModal';
 import DeleteTableModal from '../../components/DeleteTableModal';
+import { CREATE_TABLE, GET_TABLES } from '../../services/Restaurant/Tables/Table';
+import { useSelector } from 'react-redux';
+import { CREATE_FLOORS, GET_FLOORS } from '../../services/Restaurant/Floors/Floor';
 
 const AddNewTableScreen = () => {
   const navigation = useNavigation();
-  const [areas, setAreas] = useState(['Ground Floor', '1st Floor', '2nd Floor', '3rd Floor']);
-  const [selectedArea, setSelectedArea] = useState('Ground Floor');
+  const { store_id } = useSelector(state => state.user);
+  const [areas, setAreas] = useState([]);
+  const [selectedArea, setSelectedArea] = useState('null');
   const [seats, setSeats] = useState('');
   const [selectedTableId, setSelectedTableId] = useState(null);
   const [addedTables, setAddedTables] = useState([]);
@@ -47,10 +51,75 @@ const AddNewTableScreen = () => {
   const [showAddAreaModal, setShowAddAreaModal] = useState(false);
   const [newAreaName, setNewAreaName] = useState('');
 
+  const handleGetFloors = useCallback(async () => {
+    if (!store_id) return;
+    try {
+      const response = await GET_FLOORS({ storeId: store_id });
+      console.log('Floors fetched successfully:', response);
+      const fetchedAreas = response?.items || [];
+      setAreas(fetchedAreas);
+      if (fetchedAreas.length > 0) {
+        setSelectedArea(prev => prev || fetchedAreas[0]);
+      }
+    } catch (error) {
+      console.error('Error fetching floors:', error);
+    }
+  }, [store_id]);
+
+  useFocusEffect(
+    useCallback(() => {
+      handleGetFloors();
+    }, [handleGetFloors]),
+  );
+
+  const handleCreateFloor = async () => {
+    if (newAreaName.trim() === '') return;
+    const payload = {
+      name: newAreaName.trim(),
+      store_id: store_id || '',
+    };
+    try {
+      const response = await CREATE_FLOORS(payload);
+      console.log('Floor created successfully:', response);
+      setNewAreaName('');
+      setShowAddAreaModal(false);
+      setSuccessMessage('Area Added Successfully');
+      setShowSuccessModal(true);
+      setTimeout(() => setShowSuccessModal(false), 2000);
+      handleGetFloors();
+    } catch (error) {
+      console.error('Error creating floor:', error);
+    }
+  };
+
+  const handleCreateTable = async newTable => {
+    if (!selectedArea || !newTable) return;
+
+    try {
+      const payload = {
+        tables: [{ seats: parseInt(newTable.seats, 10) || 0 }],
+        floor_id: selectedArea._id,
+        store_id: store_id || '',
+      };
+
+      const response = await CREATE_TABLE(payload);
+      console.log('Tables created successfully:', response);
+      setSuccessMessage('Table Added Successfully');
+      setAddedTables(prev => [...prev, newTable]);
+      setSelectedTableId(null);
+      setSeats('');
+      setShowSuccessModal(true);
+      setTimeout(() => {
+        setShowSuccessModal(false);
+      }, 2000);
+    } catch (error) {
+      console.error('Error creating tables:', error);
+    }
+  };
+
   const renderTableGridItem = ({ item }) => {
     const isSelected = selectedTableId === item.id;
-    const isAcquired = addedTables.some(t => t.id === item.id && t.area === selectedArea);
-
+    const isAcquired = addedTables.some(t => t.id === item.id && t.floorId === selectedArea?._id);
     return (
       <TouchableOpacity
         style={styles.tableWrapper}
@@ -127,9 +196,11 @@ const AddNewTableScreen = () => {
           </TouchableOpacity>
           <Text style={[styles.headerTitle, H2]}>Add New Table</Text>
         </View>
-        <TouchableOpacity style={styles.addAreaBtn} onPress={() => setShowAddAreaModal(true)}>
-          <Text style={[styles.addAreaText, Subtitle2]}>Add Table Area +</Text>
-        </TouchableOpacity>
+        <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+          <TouchableOpacity style={styles.addAreaBtn} onPress={() => setShowAddAreaModal(true)}>
+            <Text style={[styles.addAreaText, Subtitle2]}>Add Area +</Text>
+          </TouchableOpacity>
+        </View>
       </View>
 
       <KeyboardAvoidingView
@@ -174,8 +245,11 @@ const AddNewTableScreen = () => {
                 <View style={styles.areaRow}>
                   {areas.map(area => (
                     <TouchableOpacity
-                      key={area}
-                      style={[styles.areaBtn, selectedArea === area && styles.activeAreaBtn]}
+                      key={area._id}
+                      style={[
+                        styles.areaBtn,
+                        selectedArea?._id === area._id && styles.activeAreaBtn,
+                      ]}
                       onPress={() => {
                         setSelectedArea(area);
                         setActiveActionId(null);
@@ -184,10 +258,10 @@ const AddNewTableScreen = () => {
                       <Text
                         style={[
                           styles.areaBtnText,
-                          selectedArea === area && styles.activeAreaBtnText,
+                          selectedArea?._id === area._id && styles.activeAreaBtnText,
                         ]}
                       >
-                        {area}
+                        {area.name}
                       </Text>
                     </TouchableOpacity>
                   ))}
@@ -220,20 +294,20 @@ const AddNewTableScreen = () => {
               )}
               <View style={styles.visualizationHeader}>
                 <Text style={[styles.showingAreaText, Subtitle1]}>
-                  Showing Area: {selectedArea}
+                  Showing Area: {selectedArea?.name || 'Select Area'}
                 </Text>
               </View>
 
               <View
                 style={
-                  addedTables.filter(t => t.area === selectedArea).length > 0
+                  addedTables.filter(t => t.floorId === selectedArea?._id).length > 0
                     ? styles.addedTablesContainer
                     : styles.emptyStateContainer
                 }
               >
-                {addedTables.filter(t => t.area === selectedArea).length > 0 ? (
+                {addedTables.filter(t => t.floorId === selectedArea?._id).length > 0 ? (
                   addedTables
-                    .filter(t => t.area === selectedArea)
+                    .filter(t => t.floorId === selectedArea?._id)
                     .map((table, index) => (
                       <TouchableOpacity
                         key={index}
@@ -280,9 +354,7 @@ const AddNewTableScreen = () => {
                           <Text style={[styles.vizTableText, styles.vizTableTextSmall]}>
                             Table {Number(table.id) + 1}
                           </Text>
-                          <Text style={[styles.vizSeatText, styles.vizSeatTextSmall]}>
-                            Seats: {table.seats}
-                          </Text>
+                          <Text style={[styles.vizSeatText, Overline2]}>Seats: {table.seats}</Text>
                         </View>
 
                         {/* Action Overlay */}
@@ -335,13 +407,9 @@ const AddNewTableScreen = () => {
                 style={[styles.addTableBtn, selectedTableId && seats && styles.addTableBtnEnabled]}
                 disabled={!(selectedTableId && seats)}
                 onPress={() => {
-                  setAddedTables(prev => [
-                    ...prev,
-                    { id: selectedTableId, seats, area: selectedArea },
-                  ]);
-                  setSelectedTableId(null);
+                  const newTable = { id: selectedTableId, seats, floorId: selectedArea?._id };
+                  handleCreateTable(newTable);
                   setActiveActionId(null);
-                  // setSeats(''); // Keep seats for "last one" UX
                 }}
               >
                 <Text
@@ -398,7 +466,7 @@ const AddNewTableScreen = () => {
               onPress={() => {
                 setAddedTables(
                   addedTables.map(t =>
-                    t.id === editingTable.id && t.area === selectedArea
+                    t.id === editingTable.id && t.floorId === selectedArea?._id
                       ? { ...t, seats: editSeats }
                       : t,
                   ),
@@ -446,19 +514,7 @@ const AddNewTableScreen = () => {
               />
             </View>
 
-            <TouchableOpacity
-              style={styles.saveChangesBtn}
-              onPress={() => {
-                if (newAreaName.trim() !== '') {
-                  setAreas([...areas, newAreaName.trim()]);
-                  setNewAreaName('');
-                  setShowAddAreaModal(false);
-                  setSuccessMessage('Area Added Successfully');
-                  setShowSuccessModal(true);
-                  setTimeout(() => setShowSuccessModal(false), 2000);
-                }
-              }}
-            >
+            <TouchableOpacity style={styles.saveChangesBtn} onPress={handleCreateFloor}>
               <Text style={[styles.saveChangesText, Subtitle1]}>Add Area</Text>
             </TouchableOpacity>
           </View>
@@ -470,7 +526,7 @@ const AddNewTableScreen = () => {
         onClose={() => setShowDeleteModal(false)}
         onDelete={() => {
           setAddedTables(
-            addedTables.filter(t => t.id !== tableToDelete.id || t.area !== selectedArea),
+            addedTables.filter(t => t.id !== tableToDelete.id || t.floorId !== selectedArea?._id),
           );
           setShowDeleteModal(false);
           setSuccessMessage('Table Deleted Successfully');

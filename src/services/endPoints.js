@@ -73,6 +73,51 @@ const ENDPOINTS = {
     UPDATE_TABLE: '/update-table',
     DELETE_TABLE: '/delete-table',
   },
+  Floors: {
+    GET_FLOORS: '/get-floors',
+    CREATE_FLOOR: '/create-floor',
+    UPDATE_FLOOR: '/update-floor',
+  },
+  Order: {
+    GET_ORDERS: '/get-orders',
+    GET_ORDER_DETAIL: '/get-order-detail',
+    GET_ACTIVE_ORDERS: '/get-active-orders',
+    CREATE_ORDER: '/create-order',
+    UPDATE_ORDER: '/update-order-status',
+    CHANGE_ORDER_STATUS: '/change-order-status',
+  },
+  Sales$Transaction: {
+    CHECK_TERMINAL_STATUS: '/check-terminal-status',
+    CREATE_TRANSACTION: '/create-transaction',
+  },
+  BankDetails: {
+    GET_BANK_DETAILS: '/get-bank-details',
+    CREATE_BANK_DETAILS: '/create-bank-details',
+    UPDATE_BANK_DETAILS: '/update-bank-details',
+  },
+  Terminals: {
+    GET_STORE_TERMINAL: '/get-store-terminals',
+    CREATE_STORE_TERMINAL: '/create-store-terminal',
+    TOGGLE_STORE_TERMINAL: '/toggle-store-terminal',
+  },
+  Devices: {
+    GET_DEVICES: '/get-devices',
+    CREATE_DEVICE: '/create-device',
+    UPDATE_DEVICE: '/update-device',
+    DELETE_DEVICE: '/delete-device',
+  },
+  Communication: {
+    SEND_DETAILS_EMAIL: '/send-details-email',
+  },
+  Sales$Analytics: {
+    GET_WEEKLY_SALES: '/get-weekly-sales',
+    GET_WEEKLY_TIPS: '/get-weekly-tips',
+    GET_ALL_SALES_BY_TYPE: '/get-all-sales-by-type',
+    GET_X_REPORT: '/get-x-report',
+    GET_Z_REPORT: '/get-z-report',
+    GENERATE_X_REPORT: '/generate-x-report',
+    GENERATE_Z_REPORT: '/generate-z-report',
+  },
 };
 
 export default ENDPOINTS;
