@@ -58,6 +58,14 @@ const CustomDrawerContent = ({ navigation, state }) => {
     return (first + last).toUpperCase();
   }
 
+  // Filter items based on business type
+  const filteredItems =
+    userData?.business_type === 'restaurant'
+      ? drawerItems.filter(item =>
+          ['Restaurant Orders', 'Close Register', 'Table Management'].includes(item.label),
+        )
+      : drawerItems;
+
   return (
     <View style={styles.container}>
       {/* Header */}
@@ -81,7 +89,7 @@ const CustomDrawerContent = ({ navigation, state }) => {
 
       {/* Menu Items */}
       <ScrollView style={styles.menuList} showsVerticalScrollIndicator={false}>
-        {drawerItems.map((item, index) => {
+        {filteredItems.map((item, index) => {
           // Settings tab is active if current route is SettingsScreen
           const isSettingsTab = item.label === 'Settings';
           const isSettingsActive = activeRoute === 'SettingsScreen';

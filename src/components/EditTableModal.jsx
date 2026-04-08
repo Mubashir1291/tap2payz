@@ -8,9 +8,10 @@ const EditTableModal = ({ visible, onClose, onSave, tableData }) => {
   const [seats, setSeats] = useState('');
 
   useEffect(() => {
-    if (tableData) {
-      // Extract numeric part from '5, Seats'
-      const seatCount = tableData.seats.split(',')[0].trim();
+    if (tableData && tableData.seats !== undefined) {
+      // Safely handle seats value (could be numeric 5 or string '5, Seats')
+      const seatValue = String(tableData.seats);
+      const seatCount = seatValue.includes(',') ? seatValue.split(',')[0].trim() : seatValue.trim();
       setSeats(seatCount);
     }
   }, [tableData, visible]);

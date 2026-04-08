@@ -10,7 +10,7 @@ import styles from './TableManagementScreenStyles';
 import DeleteTableModal from '../../components/DeleteTableModal';
 import EditTableModal from '../../components/EditTableModal';
 import SuccessModal from '../../components/SuccessModal';
-import { GET_TABLES } from '../../services/Restaurant/Tables/Table';
+import { DELETE_TABLE, GET_TABLES, UPDATE_TABLE } from '../../services/Restaurant/Tables/Table';
 
 const TableManagementScreen = () => {
   const navigation = useNavigation();
@@ -37,18 +37,40 @@ const TableManagementScreen = () => {
     setShowEditModal(true);
   };
 
-  const confirmDelete = () => {
+  const confirmDelete = async () => {
+    try {
+      const response = await DELETE_TABLE(selectedTable._id);
+      console.log('Table deleted successfully:', response);
+    } catch (error) {
+      // TODO: Handle error more gracefully, e.g., show a Toast message
+      console.log('Something Wrong', error);
+    }
     setShowDeleteModal(false);
     setSuccessMessage('Table Deleted Successfully');
     setShowSuccessModal(true);
-    // Logic to actually delete would go here (e.g., API call or state update)
   };
 
-  const confirmEdit = () => {
+  const confirmEdit = async updatedSeats => {
+    try {
+      const response = await UPDATE_TABLE(selectedTable._id, { seats: updatedSeats });
+      console.log('Table updated successfully:', response);
+    } catch (error) {
+      // TODO: Handle error more gracefully, e.g., show a Toast message
+      console.error('Error updating table:', error);
+    }
+
+    // Local UI update
+    setTables(prev =>
+      prev.map(t =>
+        (t._id || t.id) === (selectedTable._id || selectedTable.id)
+          ? { ...t, seats: updatedSeats }
+          : t,
+      ),
+    );
+    handleGetTables({ page: 1, itemsPerPage: 10 }); // Refetch tables after successful edit
     setShowEditModal(false);
     setSuccessMessage('Table Updated Successfully');
     setShowSuccessModal(true);
-    // Logic to actually update would go here (e.g., API call or state update)
   };
 
   const renderItem = ({ item }) => (
@@ -184,7 +206,10 @@ const TableManagementScreen = () => {
       <DeleteTableModal
         visible={showDeleteModal}
         onClose={() => setShowDeleteModal(false)}
-        onDelete={confirmDelete}
+        onDelete={async () => {
+          await confirmDelete();
+          handleGetTables({ page: 1, itemsPerPage: 10 });
+        }} // Refetch after delete
       />
 
       <EditTableModal

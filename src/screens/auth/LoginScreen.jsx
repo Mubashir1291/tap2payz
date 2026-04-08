@@ -81,6 +81,7 @@ const LoginScreen = () => {
           ...meResponse.employee,
           store_id: employeeStore?._id,
           business_id: employeeBusiness?._id,
+          business_type: employeeBusiness?.business_type,
         }),
       );
 
