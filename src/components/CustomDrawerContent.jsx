@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Image, ScrollView } from 'react-native';
 import { Colors } from '../utils/Colors';
 import { S, VS, MS } from '../utils/Responsive';
@@ -59,12 +59,18 @@ const CustomDrawerContent = ({ navigation, state }) => {
   }
 
   // Filter items based on business type
-  const filteredItems =
-    userData?.business_type === 'restaurant'
-      ? drawerItems.filter(item =>
-          ['Restaurant Orders', 'Close Register', 'Table Management'].includes(item.label),
-        )
-      : drawerItems;
+  const filteredItems = useMemo(() => {
+    if (userData?.business_type === 'restaurant') {
+      return drawerItems.filter(item =>
+        ['Restaurant Orders', 'Close Register', 'Table Management'].includes(item.label),
+      );
+    } else {
+      // If not restaurant, exclude restaurant-specific items
+      return drawerItems.filter(
+        item => !['Restaurant Orders', 'Table Management'].includes(item.label),
+      );
+    }
+  }, [userData?.business_type]);
 
   return (
     <View style={styles.container}>

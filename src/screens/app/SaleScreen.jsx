@@ -106,7 +106,7 @@ const SaleScreen = () => {
     }
     try {
       const response = await GET_ALL_PRODUCTS_WITH_INVENTORY(query);
-      // console.log(response, 'productsssssssssssssss');
+      console.log(response, 'productsssssssssssssss');
 
       if (loadMore) {
         setProducts(prev => [...prev, ...(response?.items || [])]);

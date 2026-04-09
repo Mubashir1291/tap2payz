@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect, useMemo } from 'react';
+import React, { useState, useRef, useEffect, useMemo, useCallback } from 'react';
 import {
   View,
   Text,
@@ -10,7 +10,7 @@ import {
   TouchableWithoutFeedback,
   ScrollView,
 } from 'react-native';
-import { useNavigation, useRoute } from '@react-navigation/native';
+import { useNavigation, useRoute, useFocusEffect } from '@react-navigation/native';
 import { Subtitle2, Body3, H4, Subtitle1, Overline } from '../../utils/fonts';
 import { IconSize12, IconSize16, IconSize20, IconSize40 } from '../../utils/IconSizes';
 import {
@@ -41,6 +41,10 @@ import ConfirmationModal from '../../components/ConfirmationModal';
 import SuccessModal from '../../components/SuccessModal';
 import TapCardModal from '../../components/TapCardModal';
 import NfcManager, { NfcTech } from 'react-native-nfc-manager';
+import { useSelector } from 'react-redux';
+import { GET_FLOORS } from '../../services/Restaurant/Floors/Floor';
+import { GET_TABLES } from '../../services/Restaurant/Tables/Table';
+import RestaurantCartPanel from '../../components/RestaurantCartPanel';
 
 const categories = [
   { name: 'Beverages', icon: ImageFrameIcon },
@@ -63,14 +67,18 @@ const dummyProducts = [
 const TableSelectionScreen = () => {
   const navigation = useNavigation();
   const route = useRoute();
+  const { store_id } = useSelector(state => state.user);
+
   const [activeTab, setActiveTab] = useState('Dine in');
-  const [selectedArea, setSelectedArea] = useState('Area: 1 (Ground Floor)');
+  const [areas, setAreas] = useState([]);
+  const [selectedArea, setSelectedArea] = useState(null);
   const [isAreaDropdownVisible, setIsAreaDropdownVisible] = useState(false);
   const [dropdownPosition, setDropdownPosition] = useState({ top: 0, left: 0, width: 0 });
   const areaSelectorRef = useRef(null);
 
   const [selectedCategory, setSelectedCategory] = useState('Beverages');
   const [cart, setCart] = useState([]);
+  const [tables, setTables] = useState([]);
   const categoryScrollRef = useRef(null);
   const scrollOffset = useRef(0);
 
@@ -92,9 +100,46 @@ const TableSelectionScreen = () => {
   const [showSuccessModal, setShowSuccessModal] = useState(false);
   const [showTapCardModal, setShowTapCardModal] = useState(false);
 
-  const areas = ['Area: 1 (Ground Floor)', 'Area: 2 (1st Floor)', 'Area: 3 ( 2nd Floor )'];
+  const [processingTables, setProcessingTables] = useState([]);
 
-  const [processingTables, setProcessingTables] = useState([1, 3, 5, 15, 17, 19]);
+  const handleGetFloors = useCallback(async () => {
+    if (!store_id) return;
+    try {
+      const response = await GET_FLOORS({ storeId: store_id });
+      const fetchedAreas = response?.items || [];
+      setAreas(fetchedAreas);
+      if (fetchedAreas.length > 0 && !selectedArea) {
+        setSelectedArea(fetchedAreas[0]);
+      }
+    } catch (error) {
+      console.error('Error fetching floors:', error);
+    }
+  }, [store_id, selectedArea]);
+
+  const handleGetTables = useCallback(
+    async floorId => {
+      if (!store_id || !floorId) return;
+      try {
+        const response = await GET_TABLES({ floor_id: floorId, storeId: store_id });
+        setTables(response?.items || []);
+      } catch (error) {
+        console.error('Error fetching tables:', error);
+      }
+    },
+    [store_id],
+  );
+
+  useFocusEffect(
+    useCallback(() => {
+      handleGetFloors();
+    }, [handleGetFloors]),
+  );
+
+  useEffect(() => {
+    if (selectedArea?._id) {
+      handleGetTables(selectedArea._id);
+    }
+  }, [selectedArea, handleGetTables]);
 
   useEffect(() => {
     if (route.params?.newlyProcessedTable) {
@@ -107,38 +152,6 @@ const TableSelectionScreen = () => {
       navigation.setParams({ newlyProcessedTable: undefined });
     }
   }, [route.params?.newlyProcessedTable, navigation]);
-
-  const tables = useMemo(() => {
-    return Array.from({ length: 24 }, (_, i) => {
-      const tableNum = i + 1;
-      const isProcessing = processingTables.includes(tableNum);
-      const isModified = tableNum === 1;
-      let seats = 4;
-      if ([2, 8, 14, 20].includes(tableNum)) {
-        seats = 6;
-      }
-      if ([3, 9, 15, 21].includes(tableNum)) {
-        seats = 8;
-      }
-      if ([4, 10, 16, 22].includes(tableNum)) {
-        seats = 10;
-      }
-      if ([5, 11, 17, 23].includes(tableNum)) {
-        seats = 12;
-      }
-      if ([6, 12, 18, 24].includes(tableNum)) {
-        seats = 14;
-      }
-
-      return {
-        id: tableNum.toString(),
-        number: tableNum,
-        seats,
-        status: isProcessing ? 'Processing' : 'Available',
-        isModified,
-      };
-    });
-  }, [processingTables]);
 
   const toggleDropdown = () => {
     if (areaSelectorRef.current) {
@@ -311,7 +324,7 @@ const TableSelectionScreen = () => {
   );
 
   const renderTable = ({ item }) => {
-    const isProcessing = item.status === 'Processing';
+    const isProcessing = item.status === 'Processing' || processingTables.includes(item.table_no);
 
     // Screenshot exact colors:
     // Available Table: Core = #A4B4FF, Chairs = #3E468A
@@ -326,13 +339,13 @@ const TableSelectionScreen = () => {
         onPress={() => {
           if (isProcessing) {
             navigation.navigate('OrderProcessingScreen', {
-              tableNumber: item.number,
+              tableNumber: item.table_no,
               orderType: 'Dine in',
               isNewOrder: false,
             });
           } else {
             navigation.navigate('OrderProcessingScreen', {
-              tableNumber: item.number,
+              tableNumber: item.table_no,
               orderType: 'Dine in',
               isNewOrder: true,
             });
@@ -364,7 +377,7 @@ const TableSelectionScreen = () => {
 
         {/* Table Core (the square part) */}
         <View style={[styles.tableCore, [styles.tableCoreDynamic, { backgroundColor: coreColor }]]}>
-          <Text style={styles.tableNameText}>Table {item.number}</Text>
+          <Text style={styles.tableNameText}>Table {item.table_no}</Text>
           <Text style={[styles.greyOverlineText]}>Seats: {item.seats}</Text>
 
           {isProcessing && (
@@ -440,7 +453,7 @@ const TableSelectionScreen = () => {
             style={styles.areaSelector}
             onPress={toggleDropdown}
           >
-            <Text style={[styles.areaText, Subtitle2]}>{selectedArea}</Text>
+            <Text style={[styles.areaText, Subtitle2]}>{selectedArea?.name || 'Select Area'}</Text>
             <Image source={ArrowDownIcon} style={[IconSize12, styles.darkBlueTint]} />
           </TouchableOpacity>
 
@@ -462,16 +475,16 @@ const TableSelectionScreen = () => {
                     },
                   ]}
                 >
-                  {areas.map((area, index) => (
+                  {areas.map(area => (
                     <TouchableOpacity
-                      key={index}
+                      key={area._id}
                       style={styles.dropdownItem}
                       onPress={() => {
                         setSelectedArea(area);
                         setIsAreaDropdownVisible(false);
                       }}
                     >
-                      <Text style={[styles.dropdownItemText, Subtitle2]}>{area}</Text>
+                      <Text style={[styles.dropdownItemText, Subtitle2]}>{area.name}</Text>
                     </TouchableOpacity>
                   ))}
                 </View>
@@ -484,7 +497,7 @@ const TableSelectionScreen = () => {
         {activeTab === 'Dine in' ? (
           <FlatList
             data={tables}
-            keyExtractor={item => item.id}
+            keyExtractor={item => item._id || item.id}
             renderItem={renderTable}
             numColumns={6}
             showsVerticalScrollIndicator={false}
@@ -551,170 +564,27 @@ const TableSelectionScreen = () => {
       </View>
 
       {/* ───── RIGHT CART PANEL ───── */}
-      <View style={styles.cartPanel}>
-        {/* Top Header */}
-        <View style={styles.cartPanelHeaderRow}>
-          <Text style={[styles.cartHeaderText, Subtitle1]}>Table #:</Text>
-          <Text style={[styles.cartHeaderText, Subtitle1]}>Cashier: Jane</Text>
-        </View>
-
-        {/* Cart Listing */}
-        <View style={styles.cartContent}>
-          {cart.length === 0 ? (
-            <View style={styles.emptyCart}>
-              <Text style={[styles.emptyCartText, H4]}>Cart is empty!</Text>
-            </View>
-          ) : (
-            <FlatList
-              data={cart}
-              keyExtractor={item => item.id}
-              renderItem={({ item }) => (
-                <View style={styles.cartItemCard}>
-                  <View style={styles.flexFull}>
-                    <Text style={[Subtitle2, styles.blackTextColor]}>{item.name}</Text>
-                    <Text style={[Body3, styles.blackTextColor]}>$ {item.price.toFixed(2)}</Text>
-                    {item.note ? (
-                      <Text style={[Body3, styles.greyItalicNote]} numberOfLines={1}>
-                        Note: {item.note}
-                      </Text>
-                    ) : null}
-                  </View>
-                  <View style={styles.alignFlexEnd}>
-                    <TouchableOpacity
-                      style={styles.noteButtonStyle}
-                      onPress={() => {
-                        setSelectedCartItem(item);
-                        setShowNoteModal(true);
-                      }}
-                    >
-                      <Text style={[Overline, styles.greyTextColor]}>
-                        {item.note ? 'Edit Note' : '+ Note'}
-                      </Text>
-                    </TouchableOpacity>
-                    <View style={styles.rowCentered}>
-                      <TouchableOpacity
-                        style={[styles.qtyMinusButton, item.qty > 1 && styles.qtyMinusButtonActive]}
-                        onPress={() => updateQty(item.id, -1)}
-                      >
-                        <View style={styles.minusButtonBar} />
-                      </TouchableOpacity>
-                      <Text style={[Subtitle2, styles.qtyTextStyle]}>
-                        {item.qty.toString().padStart(2, '0')}
-                      </Text>
-                      <TouchableOpacity
-                        style={styles.qtyPlusButton}
-                        onPress={() => updateQty(item.id, 1)}
-                      >
-                        <Text style={styles.plusButtonText}>+</Text>
-                      </TouchableOpacity>
-                    </View>
-                  </View>
-                  <TouchableOpacity
-                    style={styles.leftMarginSmall}
-                    onPress={() => removeItem(item.id)}
-                  >
-                    <Image source={DeleteIcon} style={styles.deleteButtonIcon} />
-                  </TouchableOpacity>
-                </View>
-              )}
-            />
-          )}
-        </View>
-
-        {/* Actions Rows */}
-        <View style={styles.actionRow}>
-          <TouchableOpacity style={styles.actionBtn} onPress={() => setShowDiscountModal(true)}>
-            <View style={styles.relativePosition}>
-              <Image source={DiscountIcon} style={[IconSize16, styles.actionIcon]} />
-              {discountCode.length > 0 && (
-                <Image source={TickIcon} style={styles.tickIconSmallOverlay} />
-              )}
-            </View>
-            <Text style={Overline}>Discount</Text>
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.actionBtn} onPress={handleOpenTipModal}>
-            <View style={styles.relativePosition}>
-              <Image source={DollarIcon} style={[IconSize16, styles.actionIcon]} />
-              {tipAmount !== null && (
-                <Image source={TickIcon} style={styles.tickIconSmallOverlay} />
-              )}
-            </View>
-            <Text style={Overline}>Add TIP</Text>
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.actionBtn} onPress={() => setShowQuickSaleModal(true)}>
-            <View style={styles.relativePosition}>
-              <Image source={RefreshICon} style={[IconSize16, styles.actionIcon]} />
-              {hasQuickSale && <Image source={TickIcon} style={styles.tickIconSmallOverlay} />}
-            </View>
-            <Text style={Overline}>Quick Sale</Text>
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.actionBtn} onPress={handleOpenBuyerModal}>
-            <View style={styles.relativePosition}>
-              <Image source={BuyersIcon} style={[IconSize16, styles.actionIcon]} />
-              {buyerInfo !== null && (
-                <Image source={TickIcon} style={styles.tickIconSmallOverlay} />
-              )}
-            </View>
-            <Text style={Overline}>Buyer Details</Text>
-          </TouchableOpacity>
-        </View>
-
-        {/* Total Section */}
-        <View style={styles.totalSection}>
-          {discountAmount > 0 && (
-            <View style={[styles.totalRow, styles.bottomMarginSmall]}>
-              <Text style={[Subtitle2, styles.greyTextColor]}>Discount:</Text>
-              <Text style={[Subtitle2, styles.redTextColor]}>- $ {discountAmount.toFixed(2)}</Text>
-            </View>
-          )}
-          {tipAmount !== null && parseFloat(tipAmount) > 0 && (
-            <View style={[styles.totalRow, styles.bottomMarginSmall]}>
-              <Text style={[Subtitle2, styles.greyTextColor]}>Tip:</Text>
-              <Text style={[Subtitle2, styles.greenTextColor]}>
-                + $ {parseFloat(tipAmount).toFixed(2)}
-              </Text>
-            </View>
-          )}
-          <View style={styles.totalRow}>
-            <Text style={styles.totalLabel}>Total:</Text>
-            <Text style={styles.totalAmount}>$ {total}</Text>
-          </View>
-
-          <View style={styles.bottomButtonGroup}>
-            <TouchableOpacity
-              style={[styles.processBtn, cart.length === 0 && styles.halfOpacity]}
-              onPress={() => cart.length > 0 && setShowProcessModal(true)}
-              disabled={cart.length === 0}
-            >
-              <Text style={styles.btnText}>Process Order</Text>
-            </TouchableOpacity>
-            <TouchableOpacity
-              style={[styles.cancelBtn, cart.length === 0 && styles.halfOpacity]}
-              onPress={() => cart.length > 0 && setShowCancelModal(true)}
-              disabled={cart.length === 0}
-            >
-              <Text style={styles.btnText}>Cancel Order</Text>
-            </TouchableOpacity>
-          </View>
-
-          <TouchableOpacity
-            style={[styles.checkoutBtn, cart.length > 0 && styles.darkBlueBg]}
-            onPress={() => {
-              if (cart.length > 0) {
-                if (activeTab === 'Take Away') {
-                  setShowPaymentModal(true);
-                } else {
-                  navigation.navigate('OrderProcessingScreen', { orderType: activeTab });
-                }
-              }
-            }}
-          >
-            <Text style={[styles.checkoutBtnText, cart.length > 0 && styles.whiteTextColor]}>
-              Proceed to Checkout
-            </Text>
-          </TouchableOpacity>
-        </View>
-      </View>
+      <RestaurantCartPanel
+        cart={cart}
+        updateQty={updateQty}
+        removeItem={removeItem}
+        discountAmount={discountAmount}
+        tipAmount={tipAmount}
+        total={total}
+        discountCode={discountCode}
+        buyerInfo={buyerInfo}
+        hasQuickSale={hasQuickSale}
+        activeTab={activeTab}
+        setShowDiscountModal={setShowDiscountModal}
+        setShowTipModal={setShowTipModal}
+        setShowQuickSaleModal={setShowQuickSaleModal}
+        setShowBuyerModal={setShowBuyerModal}
+        setShowProcessModal={setShowProcessModal}
+        setShowCancelModal={setShowCancelModal}
+        setShowPaymentModal={setShowPaymentModal}
+        setSelectedCartItem={setSelectedCartItem}
+        setShowNoteModal={setShowNoteModal}
+      />
 
       <TipModal
         visible={showTipModal}

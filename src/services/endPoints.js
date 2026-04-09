@@ -1,3 +1,5 @@
+import { VERIFY_DISCOUNT_CODE } from './DiscountReceipts';
+
 const ENDPOINTS = {
   AUTH: {
     LOGIN: '/login',
@@ -117,6 +119,9 @@ const ENDPOINTS = {
     GET_Z_REPORT: '/get-z-report',
     GENERATE_X_REPORT: '/generate-x-report',
     GENERATE_Z_REPORT: '/generate-z-report',
+  },
+  Discount: {
+    VERIFY_DISCOUNT_CODE: '/verify-discount-code',
   },
 };
 

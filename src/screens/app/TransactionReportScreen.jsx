@@ -10,11 +10,13 @@ import {
   CardpaymentIcon,
   CashIcon,
   FilterIcon,
-  ExportIcon
+  ExportIcon,
 } from '../../assets/Images';
 import styles from './TransactionReportScreenStyles';
 import { S } from '../../utils/Responsive';
 import SortModal, { applySort } from '../../components/SortModal';
+import { GET_TRANSACTION_DETAIL } from '../../services/Transaction';
+import { useSelector } from 'react-redux';
 
 const dummyData = [
   {
@@ -53,9 +55,7 @@ const dummyData = [
       totalAmount: '$5,956.00',
       orderNumber: 'Order #433',
       status: 'Approved',
-      items: [
-        { qt: '01', name: 'Burger', sku: '2152463', price: '$ 10.00' },
-      ],
+      items: [{ qt: '01', name: 'Burger', sku: '2152463', price: '$ 10.00' }],
       subtotal: '$ 10.00',
     },
   },
@@ -123,7 +123,22 @@ const TransactionReportScreen = () => {
   const [selectedItem, setSelectedItem] = useState(dummyData[0]);
   const [showSortModal, setShowSortModal] = useState(false);
   const [currentFilter, setCurrentFilter] = useState('a-z');
+  const { store_id } = useSelector(state => state.user);
 
+  const handleGetTransactionDetail = async (id, storeId) => {
+    try {
+      const response = await GET_TRANSACTION_DETAIL({
+        id: id,
+        store_id: store_id,
+      });
+
+      console.log('Transaction Detail:', response.data);
+      return response.data;
+    } catch (error) {
+      console.error('Error fetching transaction detail:', error);
+      return null;
+    }
+  };
   const processedData = useMemo(() => {
     let data = [...dummyData];
 
@@ -132,8 +147,9 @@ const TransactionReportScreen = () => {
         item =>
           item.id.includes(searchQuery) ||
           item.amount.includes(searchQuery) ||
-          (item.details && item.details.customer.toLowerCase().includes(searchQuery.toLowerCase())) ||
-          (item.details && item.details.transactionNumber.includes(searchQuery))
+          (item.details &&
+            item.details.customer.toLowerCase().includes(searchQuery.toLowerCase())) ||
+          (item.details && item.details.transactionNumber.includes(searchQuery)),
       );
     }
 
@@ -156,7 +172,9 @@ const TransactionReportScreen = () => {
             style={[styles.tabBtn, activeTab === 'Sales' && styles.tabBtnActive]}
             onPress={() => setActiveTab('Sales')}
           >
-            <Text style={[Subtitle2, activeTab === 'Sales' ? styles.tabTextActive : styles.tabText]}>
+            <Text
+              style={[Subtitle2, activeTab === 'Sales' ? styles.tabTextActive : styles.tabText]}
+            >
               Sales
             </Text>
           </TouchableOpacity>
@@ -164,7 +182,9 @@ const TransactionReportScreen = () => {
             style={[styles.tabBtn, activeTab === 'Refund' && styles.tabBtnActive]}
             onPress={() => setActiveTab('Refund')}
           >
-            <Text style={[Subtitle2, activeTab === 'Refund' ? styles.tabTextActive : styles.tabText]}>
+            <Text
+              style={[Subtitle2, activeTab === 'Refund' ? styles.tabTextActive : styles.tabText]}
+            >
               Refund
             </Text>
           </TouchableOpacity>
@@ -184,9 +204,7 @@ const TransactionReportScreen = () => {
         </View>
 
         <TouchableOpacity style={styles.actionBtn} onPress={() => setShowSortModal(true)}>
-          <Text style={[styles.actionBtnText, Caption]}>
-            Filter by
-          </Text>
+          <Text style={[styles.actionBtnText, Caption]}>Filter by</Text>
           <Image source={FilterIcon} style={[IconSize12, styles.actionIconTint]} />
         </TouchableOpacity>
 
@@ -208,7 +226,7 @@ const TransactionReportScreen = () => {
           </View>
 
           <ScrollView showsVerticalScrollIndicator={false}>
-            {processedData.map((item) => (
+            {processedData.map(item => (
               <TouchableOpacity
                 key={item.id}
                 style={[styles.listItem, selectedItem?.id === item.id && styles.listItemActive]}
@@ -223,11 +241,16 @@ const TransactionReportScreen = () => {
                   />
                   <Text style={[styles.rowText, Body3]}>{item.paymentType}</Text>
                 </View>
-                <View style={[styles.colStatus, { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }]}>
+                <View
+                  style={[
+                    styles.colStatus,
+                    { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
+                  ]}
+                >
                   <Text
                     style={[
                       Overline2,
-                      item.status === 'Approved' ? styles.approvedText : styles.declineText
+                      item.status === 'Approved' ? styles.approvedText : styles.declineText,
                     ]}
                   >
                     {item.status}
@@ -246,23 +269,33 @@ const TransactionReportScreen = () => {
               <View style={styles.topDetailsContainer}>
                 <View>
                   <Text style={[styles.detailLabel, Body3]}>Transaction Number:</Text>
-                  <Text style={[styles.detailValue, Subtitle2]}>{selectedItem.details.transactionNumber}</Text>
+                  <Text style={[styles.detailValue, Subtitle2]}>
+                    {selectedItem.details.transactionNumber}
+                  </Text>
                 </View>
                 <View>
                   <Text style={[styles.detailLabel, Body3]}>Customer:</Text>
-                  <Text style={[styles.detailValue, Subtitle2]}>{selectedItem.details.customer}</Text>
+                  <Text style={[styles.detailValue, Subtitle2]}>
+                    {selectedItem.details.customer}
+                  </Text>
                 </View>
                 <View>
                   <Text style={[styles.detailLabel, Body3]}>Transaction Type:</Text>
-                  <Text style={[styles.detailValue, Subtitle2]}>{selectedItem.details.transactionType}</Text>
+                  <Text style={[styles.detailValue, Subtitle2]}>
+                    {selectedItem.details.transactionType}
+                  </Text>
                 </View>
                 <View>
                   <Text style={[styles.detailLabel, Body3]}>Date & Time:</Text>
-                  <Text style={[styles.detailValue, Subtitle2]}>{selectedItem.details.dateTime}</Text>
+                  <Text style={[styles.detailValue, Subtitle2]}>
+                    {selectedItem.details.dateTime}
+                  </Text>
                 </View>
                 <View>
                   <Text style={[styles.detailLabel, Body3]}>Total Amount:</Text>
-                  <Text style={[styles.detailValue, Subtitle2]}>{selectedItem.details.totalAmount}</Text>
+                  <Text style={[styles.detailValue, Subtitle2]}>
+                    {selectedItem.details.totalAmount}
+                  </Text>
                 </View>
               </View>
 
@@ -270,14 +303,20 @@ const TransactionReportScreen = () => {
 
               <View style={styles.orderDetailContainer}>
                 <View style={styles.orderHeader}>
-                  <Text style={[styles.orderTitleLabel, Subtitle2]}>{selectedItem.details.orderNumber}</Text>
-                  <Text style={[styles.orderStatusLabel, Body3]}>{selectedItem.details.status}</Text>
+                  <Text style={[styles.orderTitleLabel, Subtitle2]}>
+                    {selectedItem.details.orderNumber}
+                  </Text>
+                  <Text style={[styles.orderStatusLabel, Body3]}>
+                    {selectedItem.details.status}
+                  </Text>
                 </View>
 
                 <View style={styles.tableHeader}>
                   <Text style={[styles.colQT, styles.headerText, Body3]}>QT</Text>
                   <Text style={[styles.colItem, styles.headerText, Body3]}>Items</Text>
-                  <Text style={[styles.colSKU, styles.headerText, Body3, { textAlign: 'center' }]}>SKU</Text>
+                  <Text style={[styles.colSKU, styles.headerText, Body3, { textAlign: 'center' }]}>
+                    SKU
+                  </Text>
                   <Text style={[styles.colPrice, styles.headerText, Body3]}>Price</Text>
                 </View>
 
@@ -286,14 +325,22 @@ const TransactionReportScreen = () => {
                     <View key={idx} style={styles.tableRow}>
                       <Text style={[styles.colQT, styles.tableRowText, Body3]}>{row.qt}</Text>
                       <Text style={[styles.colItem, styles.tableRowText, Body3]}>{row.name}</Text>
-                      <Text style={[styles.colSKU, styles.tableRowText, Body3, { textAlign: 'center' }]}>{row.sku}</Text>
-                      <Text style={[styles.colPrice, styles.tableRowPrice, Body3]}>{row.price}</Text>
+                      <Text
+                        style={[styles.colSKU, styles.tableRowText, Body3, { textAlign: 'center' }]}
+                      >
+                        {row.sku}
+                      </Text>
+                      <Text style={[styles.colPrice, styles.tableRowPrice, Body3]}>
+                        {row.price}
+                      </Text>
                     </View>
                   ))}
 
                   <View style={styles.subtotalContainer}>
                     <Text style={[styles.subtotalLabel, Subtitle2]}>Subtotal:</Text>
-                    <Text style={[styles.subtotalAmount, Subtitle2]}>{selectedItem.details.subtotal}</Text>
+                    <Text style={[styles.subtotalAmount, Subtitle2]}>
+                      {selectedItem.details.subtotal}
+                    </Text>
                   </View>
                 </ScrollView>
               </View>
@@ -309,7 +356,7 @@ const TransactionReportScreen = () => {
       <SortModal
         visible={showSortModal}
         onClose={() => setShowSortModal(false)}
-        onSelect={(val) => setCurrentFilter(val)}
+        onSelect={val => setCurrentFilter(val)}
         currentSort={currentFilter}
       />
     </View>

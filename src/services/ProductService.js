@@ -73,4 +73,9 @@ export const DELETE_CATEGORY = id => {
   return response;
 };
 
-// Inventory
+export const VERIFY_DISCOUNT_CODE = code => {
+  const response = Fetch.get(
+    `${BASE_INVENTORY_PREFIX}${ENDPOINTS.Discount.VERIFY_DISCOUNT_CODE}${code}`,
+  );
+  return response;
+};
