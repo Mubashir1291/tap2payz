@@ -45,6 +45,7 @@ const SaleCartPanel = ({ cart, setCart, onAddToCart }) => {
   const [showTapCardModal, setShowTapCardModal] = useState(false);
   const [showKitchenInvoiceModal, setShowKitchenInvoiceModal] = useState(false);
   const [showQuickSaleModal, setShowQuickSaleModal] = useState(false);
+  const [transReferenceId, setTransReferenceId] = useState(null);
 
   const { deviceId } = useSelector(state => state.device);
   const { store_id } = useSelector(state => state.user);
@@ -61,7 +62,7 @@ const SaleCartPanel = ({ cart, setCart, onAddToCart }) => {
         transAmntEx: subtotal,
         vat: 0,
         tipAmount: parseFloat(tipAmount) || 0,
-        referenceNumber: '',
+        referenceNumber: transReferenceId,
         transaction_uuid: `${Date.now()}`,
         deviceID: deviceId,
         storeID: store_id,
@@ -76,7 +77,7 @@ const SaleCartPanel = ({ cart, setCart, onAddToCart }) => {
   const handleCashProceed = async () => {
     try {
       const payload = buildTransactionPayload();
-
+      console.log(payload, 'create transaction ');
       const response = await CREATE_TRANSACTION(payload);
       console.log(response, ' Cash process');
 
@@ -105,13 +106,14 @@ const SaleCartPanel = ({ cart, setCart, onAddToCart }) => {
       });
 
       const payload = {
-        transactionType: 'SALE',
+        transactionType: 'CASH', // If payment type is CARD then use trncType SALE
         products: products,
         sale_store: store_id,
         deviceID: deviceId,
       };
       // console.log(payload, 'payloaddddddddddddd');
       const response = await GET_INVENTORY_STATUS(payload);
+      setTransReferenceId(response?.transaction?.referenceNumber);
       console.log(response, 'Inventory Status');
       return true; // Successfully verified
     } catch (error) {

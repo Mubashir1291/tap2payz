@@ -58,7 +58,7 @@ const LoginScreen = () => {
       employee_id: values.employeeId,
       password: values.password,
     };
-
+    console.log(payload, 'payload');
     try {
       const response = await LOGIN_ACCOUNT(payload);
       console.log(response, 'login');
