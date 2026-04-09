@@ -15,19 +15,29 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import TransactionReportScreen from '../screens/app/TransactionReportScreen';
 import { useSelector } from 'react-redux';
 
-const Stack = createNativeStackNavigator();
-
 const Drawer = createDrawerNavigator();
 
 const renderDrawerContent = props => <CustomDrawerContent {...props} />;
 
 const AppStack = () => {
   const { cashRegister } = useSelector(state => state.device);
+  const { userData } = useSelector(state => state.user);
+
+  const isRegisterOpen = !!(cashRegister && !cashRegister?.is_close);
+  const isRestaurant = userData?.business_type === 'restaurant';
+
+  const getInitialRoute = () => {
+    if (!cashRegister || cashRegister?.is_close) {
+      return 'OpenRegister';
+    }
+    // If register is open, decide landing page based on business type
+    return isRestaurant ? 'TableSelectionScreen' : 'SaleScreen';
+  };
 
   return (
     <Drawer.Navigator
-      key={cashRegister && !cashRegister?.is_close ? 'register-open' : 'register-closed'}
-      initialRouteName={cashRegister && !cashRegister?.is_close ? 'SaleScreen' : 'OpenRegister'}
+      key={isRegisterOpen ? 'register-open' : 'register-closed'}
+      initialRouteName={getInitialRoute()}
       drawerContent={renderDrawerContent}
       screenOptions={{
         headerShown: false,

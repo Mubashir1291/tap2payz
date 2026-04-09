@@ -28,7 +28,7 @@ const numpadKeys = [
   ['1', '2', '3'],
   ['4', '5', '6'],
   ['7', '8', '9'],
-  ['0', '.', 'C'],
+  ['C', '0', '⌫'],
 ];
 
 // Canadian Currency Denominations
@@ -70,14 +70,23 @@ const OpenRegisterScreen = ({ navigation }) => {
       store.dispatch(setCashRegisterData(response?.cashRegister ?? response?.closedRegister));
 
       if (response?.cashRegister && !response?.cashRegister?.is_close) {
-        navigate('SaleScreen');
+        // Check business type for redirection
+        if (userData?.business_type?.toLowerCase() === 'restaurant') {
+          navigate('TableSelectionScreen');
+        } else {
+          navigate('SaleScreen');
+        }
       }
     } catch (error) {
-      Toast.show({
-        type: 'error',
-        text1: 'Error fetching cash register',
-        text2: error?.message || String(error),
-      });
+      // If the error is just that the register isn't found, we don't show a toast
+      // because the user is already on the screen to open one.
+      if (!error?.message?.includes('Not Found')) {
+        Toast.show({
+          type: 'error',
+          text1: 'Error fetching cash register',
+          text2: error?.message || String(error),
+        });
+      }
     }
   }, [deviceId, userData, store_id]);
 
@@ -95,9 +104,23 @@ const OpenRegisterScreen = ({ navigation }) => {
       return;
     }
     setShowError(false);
-    if (key === '.') {
+    if (key === '⌫') {
+      let raw = amount.replace('.', '');
+      raw = String(parseInt(raw || '0', 10));
+      raw = raw.slice(0, -1);
+      if (!raw || raw === '0') {
+        setAmount('0.00');
+        return;
+      }
+      while (raw.length < 3) {
+        raw = '0' + raw;
+      }
+      const intPart = raw.slice(0, -2);
+      const decPart = raw.slice(-2);
+      setAmount(`${parseInt(intPart, 10) || 0}.${decPart}`);
       return;
     }
+
     let raw = amount.replace('.', '');
     raw = String(parseInt(raw || '0', 10));
     raw = raw + key;
@@ -121,6 +144,16 @@ const OpenRegisterScreen = ({ navigation }) => {
     setShowError(false);
     setCurrencyCounts({});
     setIsCurrencyModalVisible(true);
+  };
+
+  // Function to handle skipping the register opening
+  const handleSkip = () => {
+    // Direct user after skipping based on business type
+    if (userData?.business_type?.toLowerCase() === 'restaurant') {
+      navigate('TableSelectionScreen');
+    } else {
+      navigate('SaleScreen');
+    }
   };
 
   const calculatedTotal = Object.keys(currencyCounts)
@@ -159,9 +192,14 @@ const OpenRegisterScreen = ({ navigation }) => {
 
       setIsModalVisible(false);
 
-      navigate('SaleScreen');
-
       store.dispatch(setCashRegisterData(response?.newCashRegister));
+
+      // Direct user after successful open based on business type
+      if (userData?.business_type?.toLowerCase() === 'restaurant') {
+        navigate('TableSelectionScreen');
+      } else {
+        navigate('SaleScreen');
+      }
     } catch (error) {
       Toast.show({
         type: 'error',
@@ -237,6 +275,9 @@ const OpenRegisterScreen = ({ navigation }) => {
 
       {/* ── Right Panel ── */}
       <View style={styles.rightPanel}>
+        <TouchableOpacity style={styles.skipButton} onPress={handleSkip}>
+          <Text style={[styles.skipButtonText, ButtonTextSmall]}>Skip</Text>
+        </TouchableOpacity>
         <View style={styles.cashInCard}>
           <TouchableOpacity style={styles.closeBtn} onPress={() => navigation.goBack()}>
             <Text style={[styles.closeBtnText, H4]}>✕</Text>

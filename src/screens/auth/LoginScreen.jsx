@@ -25,9 +25,13 @@ import CustomInput from '../../components/CustomInput';
 import { PSPIcon } from '../../assets/Images';
 import { IconSize60 } from '../../utils/IconSizes';
 import { LOGIN_ACCOUNT, ME } from '../../services/AuthService';
-import { VERIFY_DEVICE } from '../../services/StoreService';
+import { VERIFY_DEVICE, GET_CASH_REGISTER } from '../../services/StoreService';
 import { setIsLogin, setAccessToken, setUserData } from '../../redux/Reducers/userReducer';
-import { setDeviceId, setIsDeviceRegistered } from '../../redux/Reducers/deviceReducer';
+import {
+  setDeviceId,
+  setIsDeviceRegistered,
+  setCashRegisterData,
+} from '../../redux/Reducers/deviceReducer';
 import { store } from '../../redux/store';
 
 const validationSchema = Yup.object().shape({
@@ -87,6 +91,24 @@ const LoginScreen = () => {
 
       // Check if device is already registered
       if (isDeviceRegistered && savedDeviceId) {
+        // Fetch Cash Register status to determine if we need to show OpenRegisterScreen
+        try {
+          const regQuery = {
+            device_id: savedDeviceId,
+            employee_id: employeeData?._id || meResponse?.employee?._id,
+            store_id: employeeStore?._id,
+          };
+          const regResponse = await GET_CASH_REGISTER(regQuery);
+
+          // Dispatch data: if an active register isn't found, we dispatch the last closed one or null
+          store.dispatch(
+            setCashRegisterData(regResponse?.cashRegister ?? regResponse?.closedRegister),
+          );
+        } catch (regError) {
+          // Suppress error log for "Not Found" as it is a valid state before opening a register
+          store.dispatch(setCashRegisterData(null));
+        }
+
         // Device already registered from a previous session — go straight in
         store.dispatch(setIsLogin(true));
         Toast.show({
@@ -130,9 +152,26 @@ const LoginScreen = () => {
       };
 
       const response = await VERIFY_DEVICE(payload);
+      const newDeviceId = response?.device?._id;
 
-      store.dispatch(setDeviceId(response?.device?._id));
+      store.dispatch(setDeviceId(newDeviceId));
       store.dispatch(setIsDeviceRegistered(true));
+
+      // Fetch Cash Register status for the newly verified device
+      try {
+        const state = store.getState();
+        const regQuery = {
+          device_id: newDeviceId,
+          employee_id: state.user.userData?._id,
+          store_id: state.user.store_id,
+        };
+        const regResponse = await GET_CASH_REGISTER(regQuery);
+        store.dispatch(
+          setCashRegisterData(regResponse?.cashRegister ?? regResponse?.closedRegister),
+        );
+      } catch (regError) {
+        store.dispatch(setCashRegisterData(null));
+      }
 
       setShowDeviceModal(false);
       setDeviceIdInput('');

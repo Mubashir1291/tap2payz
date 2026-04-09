@@ -299,6 +299,19 @@ const styles = StyleSheet.create({
   confirmButtonText: {
     color: Colors.white,
   },
+  skipButtonText: {
+    color: Colors.primary,
+  },
+  skipButton: {
+    position: 'absolute',
+    top: VS(16),
+    right: S(20),
+    zIndex: 10,
+    paddingHorizontal: S(12),
+    paddingVertical: VS(6),
+    borderRadius: MS(10),
+    backgroundColor: Colors.white,
+  },
 });
 
 export default styles;
