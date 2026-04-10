@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useEffect, use } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import {
   View,
   Text,
@@ -23,8 +23,8 @@ import {
 import styles from './TransactionReportScreenStyles';
 import { S } from '../../utils/Responsive';
 import SortModal, { applySort } from '../../components/SortModal';
-import { GET_TRANSACTION_DETAIL } from '../../services/Transaction';
 import { useSelector } from 'react-redux';
+import { GET_ALL_TRANSACTION } from '../../services/Reports';
 
 const TransactionReportScreen = () => {
   const [activeTab, setActiveTab] = useState('Sales');
@@ -33,104 +33,75 @@ const TransactionReportScreen = () => {
   const [showSortModal, setShowSortModal] = useState(false);
   const [currentFilter, setCurrentFilter] = useState('a-z');
   const { store_id } = useSelector(state => state.user);
+  const { deviceId } = useSelector(state => state.device);
+
+  const [transactions, setTransactions] = useState([]);
+  const [isLoading, setIsLoading] = useState(false);
   const [detailLoading, setDetailLoading] = useState(false);
   const [detailError, setDetailError] = useState(null);
 
-  // Sample transaction list - minimal data for the list view
-  const [transactions] = useState([
-    {
-      id: '2135424624',
-      amount: '$5,956',
-      paymentType: 'Card',
-      status: 'Approved',
-      details: null,
-    },
-    {
-      id: '2135424625',
-      amount: '$3,200',
-      paymentType: 'Cash',
-      status: 'Approved',
-      details: null,
-    },
-    {
-      id: '2135424626',
-      amount: '$1,500',
-      paymentType: 'Card',
-      status: 'Approved',
-      details: null,
-    },
-    {
-      id: '2135424627',
-      amount: '$4,750',
-      paymentType: 'Cash',
-      status: 'Decline',
-      details: null,
-    },
-    {
-      id: '2135424628',
-      amount: '$2,100',
-      paymentType: 'Card',
-      status: 'Approved',
-      details: null,
-    },
-    {
-      id: '2135424629',
-      amount: '$3,900',
-      paymentType: 'Cash',
-      status: 'Approved',
-      details: null,
-    },
-    {
-      id: '2135424630',
-      amount: '$5,100',
-      paymentType: 'Card',
-      status: 'Decline',
-      details: null,
-    },
-  ]);
+  useEffect(() => {
+    handleGetAllTransactions();
+  }, [store_id, deviceId]);
 
-  const handleGetTransactionDetail = async id => {
-    setDetailLoading(true);
-    setDetailError(null);
+  const handleGetAllTransactions = async () => {
+    setIsLoading(true);
     try {
-      const response = await GET_TRANSACTION_DETAIL({
-        id: id,
-        store_id: store_id,
+      const response = await GET_ALL_TRANSACTION({
+        page: 1,
+        itemsPerPage: 10,
+        searchText: '',
+        storeId: store_id,
+        deviceId: deviceId,
+        transType: '',
       });
-      console.log('API Response for Transaction Detail:', response);
+      const items = response?.data?.items || [];
+      setTransactions(items);
+
+      // Pre-select the first item if data exists
+      if (items.length > 0) {
+        setSelectedItem(items[0]);
+      }
+      console.log(response, 'get allll');
     } catch (error) {
-      console.error('Error fetching transaction detail:', error);
-      setDetailError('Failed to load transaction details');
+      console.error('Error fetching transactions:', error);
     } finally {
-      setDetailLoading(false);
+      setIsLoading(false);
     }
   };
 
-  useEffect(() => {
-    handleGetTransactionDetail(transactions[0].id);
-  }, []);
+  const handleGetTransactionDetail = id => {
+    setDetailLoading(true);
+    const item = transactions.find(t => t._id === id);
+    if (item) {
+      setSelectedItem(item);
+    }
+    setDetailLoading(false);
+  };
 
   const processedData = useMemo(() => {
-    let data = [...transactions];
+    console.log(transactions, 'transactttionsss');
+    let data = transactions;
 
     if (searchQuery.trim() !== '') {
       data = data.filter(
         item =>
-          item.id.includes(searchQuery) ||
-          item.amount.includes(searchQuery) ||
-          (item.details &&
-            item.details.customer?.toLowerCase().includes(searchQuery.toLowerCase())) ||
-          (item.details && item.details.transactionNumber?.includes(searchQuery)),
+          item.transactionNumber?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          item.totalAmount?.toString().includes(searchQuery) ||
+          item.buyer_info?.firstName?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          item.buyer_info?.lastName?.toLowerCase().includes(searchQuery.toLowerCase()),
       );
     }
 
-    return applySort(data, currentFilter, item => item.details?.customer);
+    return applySort(data, currentFilter, item =>
+      item.buyer_info?.name ? `${item.buyer_info.name}` : 'Walk-in',
+    );
   }, [searchQuery, currentFilter, transactions]);
-
+  console.log(processedData, 'processeddd dataaa');
   const processedOrderItems = useMemo(() => {
-    if (!selectedItem?.details?.items) return [];
+    if (!selectedItem?.products) return [];
 
-    return applySort(selectedItem.details.items, currentFilter, item => item.name);
+    return applySort(selectedItem.products, currentFilter, item => item.product_name);
   }, [selectedItem, currentFilter]);
 
   return (
@@ -138,28 +109,6 @@ const TransactionReportScreen = () => {
       {/* Header Row */}
       <View style={styles.headerRow}>
         <Text style={[styles.title, H2]}>Transaction Report</Text>
-        <View style={styles.tabContainer}>
-          <TouchableOpacity
-            style={[styles.tabBtn, activeTab === 'Sales' && styles.tabBtnActive]}
-            onPress={() => setActiveTab('Sales')}
-          >
-            <Text
-              style={[Subtitle2, activeTab === 'Sales' ? styles.tabTextActive : styles.tabText]}
-            >
-              Sales
-            </Text>
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={[styles.tabBtn, activeTab === 'Refund' && styles.tabBtnActive]}
-            onPress={() => setActiveTab('Refund')}
-          >
-            <Text
-              style={[Subtitle2, activeTab === 'Refund' ? styles.tabTextActive : styles.tabText]}
-            >
-              Refund
-            </Text>
-          </TouchableOpacity>
-        </View>
 
         <View style={styles.spacer} />
 
@@ -196,29 +145,37 @@ const TransactionReportScreen = () => {
             <Text style={[styles.colStatus, styles.headerText, Body3]}>Status</Text>
           </View>
 
-          {processedData.length === 0 ? (
+          {isLoading ? (
+            <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+              <ActivityIndicator size="large" color="#3B4B8A" />
+            </View>
+          ) : processedData.length === 0 ? (
             <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
               <Text style={[Subtitle2, { color: '#999' }]}>No transactions found</Text>
             </View>
           ) : (
             <ScrollView showsVerticalScrollIndicator={false}>
-              {processedData.map(item => (
+              {processedData.map((item, index) => (
                 <TouchableOpacity
-                  key={item.id}
-                  style={[styles.listItem, selectedItem?.id === item.id && styles.listItemActive]}
+                  key={item._id}
+                  style={[styles.listItem, selectedItem?._id === item._id && styles.listItemActive]}
                   onPress={() => {
-                    setSelectedItem(item);
-                    handleGetTransactionDetail(item.id);
+                    handleGetTransactionDetail(item._id);
                   }}
                 >
-                  <Text style={[styles.colSr, styles.rowText, Body3]}>{item.id}</Text>
-                  <Text style={[styles.colAmount, styles.rowText, Body3]}>{item.amount}</Text>
+                  <Text style={[styles.colSr, styles.rowText, Body3]}>{index + 1}</Text>
+                  <Text style={[styles.colAmount, styles.rowText, Body3]}>
+                    $ {item?.totalAmount}
+                  </Text>
                   <View style={[styles.colType, styles.typeRow]}>
                     <Image
-                      source={item.paymentType === 'Card' ? CardpaymentIcon : CashIcon}
+                      source={item.transactionType === 'CARD' ? CardpaymentIcon : CashIcon}
                       style={styles.typeIcon}
                     />
-                    <Text style={[styles.rowText, Body3]}>{item.paymentType}</Text>
+                    <Text style={[styles.rowText, Body3]}>
+                      {item.transactionType?.charAt(0) +
+                        item.transactionType?.slice(1).toLowerCase()}
+                    </Text>
                   </View>
                   <View
                     style={[
@@ -233,10 +190,10 @@ const TransactionReportScreen = () => {
                     <Text
                       style={[
                         Overline2,
-                        item.status === 'Approved' ? styles.approvedText : styles.declineText,
+                        item.status === 'Completed' ? styles.approvedText : styles.declineText,
                       ]}
                     >
-                      {item.status}
+                      {item.status || 'N/A'}
                     </Text>
                     <Image source={RightArrowIcon} style={[IconSize12, styles.arrowIcon]} />
                   </View>
@@ -244,123 +201,113 @@ const TransactionReportScreen = () => {
               ))}
             </ScrollView>
           )}
+        </View>
+        {/* Right Detail Panel */}
+        <View style={styles.rightPanel}>
+          {detailLoading ? (
+            <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+              <ActivityIndicator size="large" color="#3B4B8A" />
+              <Text style={[Body3, { marginTop: 16, color: '#999' }]}>Loading details...</Text>
+            </View>
+          ) : detailError ? (
+            <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+              <Text style={[Subtitle2, { color: '#E74C3C', textAlign: 'center' }]}>
+                {detailError}
+              </Text>
+            </View>
+          ) : selectedItem ? (
+            <View style={{ flex: 1 }}>
+              <View style={styles.topDetailsContainer}>
+                <View>
+                  <Text style={[styles.detailLabel, Body3]}>Transaction Number:</Text>
+                  <Text style={[styles.detailValue, Subtitle2]}>
+                    {selectedItem.transactionNumber}
+                  </Text>
+                </View>
+                <View>
+                  <Text style={[styles.detailLabel, Body3]}>Customer:</Text>
+                  <Text style={[styles.detailValue, Subtitle2]}>
+                    {selectedItem.buyer_info?.name
+                      ? `${selectedItem.buyer_info.name}`
+                      : 'Walk-in Customer'}
+                  </Text>
+                </View>
+                <View>
+                  <Text style={[styles.detailLabel, Body3]}>Transaction Type:</Text>
+                  <Text style={[styles.detailValue, Subtitle2]}>{selectedItem.type}</Text>
+                </View>
+                <View>
+                  <Text style={[styles.detailLabel, Body3]}>Date & Time:</Text>
+                  <Text style={[styles.detailValue, Subtitle2]}>
+                    {new Date(selectedItem.date).toLocaleDateString()} ({selectedItem.transTime})
+                  </Text>
+                </View>
+                <View>
+                  <Text style={[styles.detailLabel, Body3]}>Total Amount:</Text>
+                  <Text style={[styles.detailValue, Subtitle2]}>$ {selectedItem.totalAmount}</Text>
+                </View>
+              </View>
 
-          {/* Right Detail Panel */}
-          <View style={styles.rightPanel}>
-            {detailLoading ? (
-              <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-                <ActivityIndicator size="large" color="#3B4B8A" />
-                <Text style={[Body3, { marginTop: 16, color: '#999' }]}>Loading details...</Text>
-              </View>
-            ) : detailError ? (
-              <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-                <Text style={[Subtitle2, { color: '#E74C3C', textAlign: 'center' }]}>
-                  {detailError}
-                </Text>
-              </View>
-            ) : selectedItem?.details ? (
-              <View style={{ flex: 1 }}>
-                <View style={styles.topDetailsContainer}>
-                  <View>
-                    <Text style={[styles.detailLabel, Body3]}>Transaction Number:</Text>
-                    <Text style={[styles.detailValue, Subtitle2]}>
-                      {selectedItem.details.transactionNumber}
-                    </Text>
-                  </View>
-                  <View>
-                    <Text style={[styles.detailLabel, Body3]}>Customer:</Text>
-                    <Text style={[styles.detailValue, Subtitle2]}>
-                      {selectedItem.details.customer}
-                    </Text>
-                  </View>
-                  <View>
-                    <Text style={[styles.detailLabel, Body3]}>Transaction Type:</Text>
-                    <Text style={[styles.detailValue, Subtitle2]}>
-                      {selectedItem.details.transactionType}
-                    </Text>
-                  </View>
-                  <View>
-                    <Text style={[styles.detailLabel, Body3]}>Date & Time:</Text>
-                    <Text style={[styles.detailValue, Subtitle2]}>
-                      {selectedItem.details.dateTime}
-                    </Text>
-                  </View>
-                  <View>
-                    <Text style={[styles.detailLabel, Body3]}>Total Amount:</Text>
-                    <Text style={[styles.detailValue, Subtitle2]}>
-                      {selectedItem.details.totalAmount}
-                    </Text>
-                  </View>
+              <Text style={[styles.orderDetailTitle, Subtitle2]}>Order Detail:</Text>
+
+              <View style={styles.orderDetailContainer}>
+                <View style={styles.orderHeader}>
+                  <Text style={[styles.orderTitleLabel, Subtitle2]}>
+                    {selectedItem.serialNumber}
+                  </Text>
+                  <Text style={[styles.orderStatusLabel, Body3]}>{selectedItem.status}</Text>
                 </View>
 
-                <Text style={[styles.orderDetailTitle, Subtitle2]}>Order Detail:</Text>
+                <View style={styles.tableHeader}>
+                  <Text style={[styles.colQT, styles.headerText, Body3]}>QT</Text>
+                  <Text style={[styles.colItem, styles.headerText, Body3]}>Items</Text>
+                  <Text style={[styles.colSKU, styles.headerText, Body3, { textAlign: 'center' }]}>
+                    SKU
+                  </Text>
+                  <Text style={[styles.colPrice, styles.headerText, Body3]}>Price</Text>
+                </View>
 
-                <View style={styles.orderDetailContainer}>
-                  <View style={styles.orderHeader}>
-                    <Text style={[styles.orderTitleLabel, Subtitle2]}>
-                      {selectedItem.details.orderNumber}
-                    </Text>
-                    <Text style={[styles.orderStatusLabel, Body3]}>
-                      {selectedItem.details.status}
-                    </Text>
-                  </View>
-
-                  <View style={styles.tableHeader}>
-                    <Text style={[styles.colQT, styles.headerText, Body3]}>QT</Text>
-                    <Text style={[styles.colItem, styles.headerText, Body3]}>Items</Text>
-                    <Text
-                      style={[styles.colSKU, styles.headerText, Body3, { textAlign: 'center' }]}
-                    >
-                      SKU
-                    </Text>
-                    <Text style={[styles.colPrice, styles.headerText, Body3]}>Price</Text>
-                  </View>
-
-                  <ScrollView showsVerticalScrollIndicator={false}>
-                    {processedOrderItems.map((row, idx) => (
-                      <View key={idx} style={styles.tableRow}>
-                        <Text style={[styles.colQT, styles.tableRowText, Body3]}>{row.qt}</Text>
-                        <Text style={[styles.colItem, styles.tableRowText, Body3]}>{row.name}</Text>
-                        <Text
-                          style={[
-                            styles.colSKU,
-                            styles.tableRowText,
-                            Body3,
-                            { textAlign: 'center' },
-                          ]}
-                        >
-                          {row.sku}
-                        </Text>
-                        <Text style={[styles.colPrice, styles.tableRowPrice, Body3]}>
-                          {row.price}
-                        </Text>
-                      </View>
-                    ))}
-
-                    <View style={styles.subtotalContainer}>
-                      <Text style={[styles.subtotalLabel, Subtitle2]}>Subtotal:</Text>
-                      <Text style={[styles.subtotalAmount, Subtitle2]}>
-                        {selectedItem.details.subtotal}
+                <ScrollView showsVerticalScrollIndicator={false}>
+                  {processedOrderItems.map((row, idx) => (
+                    <View key={idx} style={styles.tableRow}>
+                      <Text style={[styles.colQT, styles.tableRowText, Body3]}>{row.quantity}</Text>
+                      <Text style={[styles.colItem, styles.tableRowText, Body3]}>
+                        {row.product_name}
+                      </Text>
+                      <Text
+                        style={[styles.colSKU, styles.tableRowText, Body3, { textAlign: 'center' }]}
+                      >
+                        {row.sku_code || 'N/A'}
+                      </Text>
+                      <Text style={[styles.colPrice, styles.tableRowPrice, Body3]}>
+                        $ {row.price}
                       </Text>
                     </View>
-                  </ScrollView>
-                </View>
-              </View>
-            ) : (
-              <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-                <Text style={[Subtitle2, { color: '#999' }]}>No details available</Text>
-              </View>
-            )}
-          </View>
-        </View>
+                  ))}
 
-        <SortModal
-          visible={showSortModal}
-          onClose={() => setShowSortModal(false)}
-          onSelect={val => setCurrentFilter(val)}
-          currentSort={currentFilter}
-        />
+                  <View style={styles.subtotalContainer}>
+                    <Text style={[styles.subtotalLabel, Subtitle2]}>Subtotal:</Text>
+                    <Text style={[styles.subtotalAmount, Subtitle2]}>
+                      $ {selectedItem.transAmntEx}
+                    </Text>
+                  </View>
+                </ScrollView>
+              </View>
+            </View>
+          ) : (
+            <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+              <Text style={[Subtitle2, { color: '#999' }]}>No details available</Text>
+            </View>
+          )}
+        </View>
       </View>
+
+      <SortModal
+        visible={showSortModal}
+        onClose={() => setShowSortModal(false)}
+        onSelect={val => setCurrentFilter(val)}
+        currentSort={currentFilter}
+      />
     </View>
   );
 };

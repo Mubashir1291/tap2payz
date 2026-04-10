@@ -46,6 +46,7 @@ const SaleCartPanel = ({ cart, setCart, onAddToCart }) => {
   const [showKitchenInvoiceModal, setShowKitchenInvoiceModal] = useState(false);
   const [showQuickSaleModal, setShowQuickSaleModal] = useState(false);
   const [transReferenceId, setTransReferenceId] = useState(null);
+  const [buyerId, setBuyerId] = useState(null);
 
   const { deviceId } = useSelector(state => state.device);
   const { store_id } = useSelector(state => state.user);
@@ -70,6 +71,7 @@ const SaleCartPanel = ({ cart, setCart, onAddToCart }) => {
         discountCode: '',
         discountPercentage: 0,
         status: 'Completed',
+        buyerID: buyerId,
       },
     };
   };
@@ -414,6 +416,7 @@ const SaleCartPanel = ({ cart, setCart, onAddToCart }) => {
         onSaveInfo={handleSaveBuyerInfo}
         onDeleteInfo={handleDeleteBuyerInfo}
         onClose={() => setShowBuyerModal(false)}
+        setBuyerId={setBuyerId}
       />
 
       <CashPayModal

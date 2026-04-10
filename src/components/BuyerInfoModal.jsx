@@ -14,6 +14,7 @@ const BuyerInfoModal = ({
   onSaveInfo,
   onDeleteInfo,
   onClose,
+  setBuyerId,
 }) => {
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
@@ -71,12 +72,13 @@ const BuyerInfoModal = ({
   const handleBuyerInfo = async () => {
     try {
       const response = await ADD_BUYER({
-        firstName,
-        lastName,
+        first_name: firstName,
+        last_name: lastName,
         email,
         phone,
       });
-
+      setBuyerId(response?.buyer?._id || null);
+      console.log(response?.buyer?._id, 'buyerrr iddd');
       console.log(response, 'buyer info');
 
       if (response.success) {
