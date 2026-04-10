@@ -1,6 +1,7 @@
 import { StyleSheet } from 'react-native';
 import { Colors } from '../../utils/Colors';
 import { S, VS, MS } from '../../utils/Responsive';
+import { H2 } from '../../utils/fonts';
 
 const styles = StyleSheet.create({
   root: {
@@ -176,6 +177,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     marginBottom: VS(16),
     alignItems: 'center',
+    justifyContent: 'space-between',
   },
   orderTitleLabel: {
     color: Colors.black,

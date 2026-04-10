@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useEffect } from 'react';
+import React, { useState, useMemo, useEffect, useRef } from 'react';
 import {
   View,
   Text,
@@ -7,8 +7,9 @@ import {
   TextInput,
   Image,
   ActivityIndicator,
+  FlatList,
 } from 'react-native';
-import { Subtitle2, Body3, Caption, H2, Overline, Overline2 } from '../../utils/fonts';
+import { Subtitle2, Body3, Caption, H2, Overline, Overline2, Subtitle1 } from '../../utils/fonts';
 import { IconSize12 } from '../../utils/IconSizes';
 import {
   SearchIcon,
@@ -25,6 +26,7 @@ import { S } from '../../utils/Responsive';
 import SortModal, { applySort } from '../../components/SortModal';
 import { useSelector } from 'react-redux';
 import { GET_ALL_TRANSACTION } from '../../services/Reports';
+import useDebounce from '../../utils/useDebounce';
 
 const TransactionReportScreen = () => {
   const [activeTab, setActiveTab] = useState('Sales');
@@ -35,39 +37,79 @@ const TransactionReportScreen = () => {
   const { store_id } = useSelector(state => state.user);
   const { deviceId } = useSelector(state => state.device);
 
+  const [transactionSearchQuery, setTransactionSearchQuery] = useState({
+    page: 1,
+    itemsPerPage: 10,
+    searchText: '',
+    storeId: store_id,
+    deviceId: deviceId,
+    transType: '',
+  });
   const [transactions, setTransactions] = useState([]);
+  const [transactionsData, setTransactionsData] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [loadingMore, setLoadingMore] = useState(false);
   const [detailLoading, setDetailLoading] = useState(false);
   const [detailError, setDetailError] = useState(null);
+  const isLoadingRef = useRef(false);
 
-  useEffect(() => {
-    handleGetAllTransactions();
-  }, [store_id, deviceId]);
+  const debouncedValue = useDebounce(searchQuery, 500);
 
-  const handleGetAllTransactions = async () => {
-    setIsLoading(true);
+  const handleFetchAllTransactions = async (query, loadMore = false) => {
+    isLoadingRef.current = true;
+    if (loadMore) {
+      setLoadingMore(true);
+    } else {
+      setIsLoading(true);
+    }
     try {
-      const response = await GET_ALL_TRANSACTION({
-        page: 1,
-        itemsPerPage: 10,
-        searchText: '',
-        storeId: store_id,
-        deviceId: deviceId,
-        transType: '',
-      });
+      const response = await GET_ALL_TRANSACTION(query);
       const items = response?.data?.items || [];
-      setTransactions(items);
 
-      // Pre-select the first item if data exists
-      if (items.length > 0) {
-        setSelectedItem(items[0]);
+      if (loadMore) {
+        setTransactions(prev => [...prev, ...items]);
+      } else {
+        setTransactions(items);
+        if (items.length > 0) setSelectedItem(items[0]);
       }
-      console.log(response, 'get allll');
+
+      setTransactionsData(response?.data);
     } catch (error) {
       console.error('Error fetching transactions:', error);
     } finally {
       setIsLoading(false);
+      setLoadingMore(false);
+      isLoadingRef.current = false;
     }
+  };
+
+  useEffect(() => {
+    handleFetchAllTransactions(transactionSearchQuery, transactionSearchQuery.page > 1);
+  }, [transactionSearchQuery, transactionSearchQuery.page > 1]);
+
+  useEffect(() => {
+    setTransactionSearchQuery(prev => ({
+      ...prev,
+      searchText: debouncedValue,
+      page: 1,
+    }));
+  }, [debouncedValue]);
+
+  useEffect(() => {
+    setTransactionSearchQuery(prev => ({
+      ...prev,
+      storeId: store_id,
+      deviceId: deviceId,
+      page: 1,
+    }));
+  }, [store_id, deviceId]);
+
+  const loadMoreTransactions = () => {
+    if (loadingMore || isLoadingRef.current || !transactionsData || !transactionsData.hasNextPage) {
+      return;
+    }
+    isLoadingRef.current = true;
+    setTransactionSearchQuery(prev => ({ ...prev, page: prev.page + 1 }));
   };
 
   const handleGetTransactionDetail = id => {
@@ -80,24 +122,12 @@ const TransactionReportScreen = () => {
   };
 
   const processedData = useMemo(() => {
-    console.log(transactions, 'transactttionsss');
-    let data = transactions;
-
-    if (searchQuery.trim() !== '') {
-      data = data.filter(
-        item =>
-          item.transactionNumber?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-          item.totalAmount?.toString().includes(searchQuery) ||
-          item.buyer_info?.firstName?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-          item.buyer_info?.lastName?.toLowerCase().includes(searchQuery.toLowerCase()),
-      );
-    }
-
-    return applySort(data, currentFilter, item =>
+    // Search is handled by API; logic here focuses on local sorting
+    return applySort(transactions, currentFilter, item =>
       item.buyer_info?.name ? `${item.buyer_info.name}` : 'Walk-in',
     );
-  }, [searchQuery, currentFilter, transactions]);
-  console.log(processedData, 'processeddd dataaa');
+  }, [currentFilter, transactions]);
+
   const processedOrderItems = useMemo(() => {
     if (!selectedItem?.products) return [];
 
@@ -154,14 +184,13 @@ const TransactionReportScreen = () => {
               <Text style={[Subtitle2, { color: '#999' }]}>No transactions found</Text>
             </View>
           ) : (
-            <ScrollView showsVerticalScrollIndicator={false}>
-              {processedData.map((item, index) => (
+            <FlatList
+              data={processedData}
+              keyExtractor={item => item._id}
+              renderItem={({ item, index }) => (
                 <TouchableOpacity
-                  key={item._id}
                   style={[styles.listItem, selectedItem?._id === item._id && styles.listItemActive]}
-                  onPress={() => {
-                    handleGetTransactionDetail(item._id);
-                  }}
+                  onPress={() => handleGetTransactionDetail(item._id)}
                 >
                   <Text style={[styles.colSr, styles.rowText, Body3]}>{index + 1}</Text>
                   <Text style={[styles.colAmount, styles.rowText, Body3]}>
@@ -183,13 +212,13 @@ const TransactionReportScreen = () => {
                       {
                         flexDirection: 'row',
                         alignItems: 'center',
-                        justifyContent: 'space-between',
+                        backgroundColor: 'yellow',
                       },
                     ]}
                   >
                     <Text
                       style={[
-                        Overline2,
+                        Body3,
                         item.status === 'Completed' ? styles.approvedText : styles.declineText,
                       ]}
                     >
@@ -198,8 +227,18 @@ const TransactionReportScreen = () => {
                     <Image source={RightArrowIcon} style={[IconSize12, styles.arrowIcon]} />
                   </View>
                 </TouchableOpacity>
-              ))}
-            </ScrollView>
+              )}
+              onEndReached={loadMoreTransactions}
+              onEndReachedThreshold={0.1}
+              ListFooterComponent={
+                loadingMore ? (
+                  <View style={{ paddingVertical: 20 }}>
+                    <ActivityIndicator size="large" color="#3B4B8A" />
+                  </View>
+                ) : null
+              }
+              showsVerticalScrollIndicator={false}
+            />
           )}
         </View>
         {/* Right Detail Panel */}
@@ -253,7 +292,7 @@ const TransactionReportScreen = () => {
               <View style={styles.orderDetailContainer}>
                 <View style={styles.orderHeader}>
                   <Text style={[styles.orderTitleLabel, Subtitle2]}>
-                    {selectedItem.serialNumber}
+                    Order # {selectedItem.transactionNumber}
                   </Text>
                   <Text style={[styles.orderStatusLabel, Body3]}>{selectedItem.status}</Text>
                 </View>
