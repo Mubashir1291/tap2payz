@@ -64,6 +64,8 @@ const TransactionReportScreen = () => {
     }
     try {
       const response = await GET_ALL_TRANSACTION(query);
+      console.log(response, 'transactions Zreports');
+
       const items = response?.data?.items || [];
 
       if (loadMore) {

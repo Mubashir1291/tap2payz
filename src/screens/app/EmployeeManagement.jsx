@@ -27,7 +27,7 @@ import EditEmployeeModal from '../../components/EditEmployeeModal';
 import SuccessModal from '../../components/SuccessModal';
 import SortModal, { applySort } from '../../components/SortModal';
 import ConfirmationModal from '../../components/ConfirmationModal';
-import { GET_EMPLOYEES } from '../../services/Employee';
+import { DELETE_EMPLOYEE, GET_EMPLOYEES } from '../../services/Employee';
 import { MS } from '../../utils/Responsive';
 
 const EmployeeManagement = () => {
@@ -68,11 +68,17 @@ const EmployeeManagement = () => {
     setShowDeleteModal(true);
   };
 
-  const confirmDelete = () => {
+  const confirmDelete = async () => {
+    try {
+      const response = await DELETE_EMPLOYEE(selectedEmployee?.id);
+      console.log('Employee Delete response', response);
+    } catch (error) {
+      console.log('Network Error', error);
+    }
     setShowDeleteModal(false);
-    setTimeout(() => {
-      setShowSuccessModal(true);
-    }, 500);
+    // setTimeout(() => {
+    //   setShowSuccessModal(true);
+    // }, 500);
   };
 
   const handleSortSelect = type => {
@@ -128,7 +134,7 @@ const EmployeeManagement = () => {
           </View>
 
           <TouchableOpacity style={styles.createBtn} onPress={() => setShowCreateModal(true)}>
-            <Text style={[styles.createBtnText, Caption]}>Create Merchant +</Text>
+            <Text style={[styles.createBtnText, Caption]}>Create Employee +</Text>
           </TouchableOpacity>
         </View>
       </View>

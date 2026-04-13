@@ -155,7 +155,16 @@ const SettingsScreen = () => {
               style={[styles.tab, styles.rowCentered, activeTab === index && styles.activeTab]}
               onPress={() => setActiveTab(index)}
             >
-              <Image source={tab.icon} style={[IconSize12, styles.tabIconStyle]} />
+              <Image
+                source={tab.icon}
+                style={[
+                  IconSize12,
+                  {
+                    tintColor: activeTab === index ? Colors.white : Colors.black,
+                    marginRight: S(8),
+                  },
+                ]}
+              />
               <Text style={[styles.tabText, Caption, activeTab === index && styles.activeTabText]}>
                 {tab.label}
               </Text>

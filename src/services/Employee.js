@@ -24,6 +24,6 @@ export const UPDATE_EMPLOYEE = (id, payload) => {
   const response = Fetch.put(`S{BaSE_PREFIX}${ENDPOINTS.Employee.UPDATE_EMPLOYEE}/${id}`, payload);
 };
 export const DELETE_EMPLOYEE = id => {
-  const response = `${BASE_PREFIX}${ENDPOINTS.Employee.DELETE_EMPLOYEE}/${id}`;
+  const response = Fetch.delete(`${BASE_PREFIX}${ENDPOINTS.Employee.DELETE_EMPLOYEE}/${id}`);
   return response;
 };
