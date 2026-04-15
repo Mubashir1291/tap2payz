@@ -11,6 +11,7 @@ const ENDPOINTS = {
     OPEN_REGISTER: '/create-cash-register',
     CLOSE_REGISTER: '/close-cash-register',
     GET_CASH_REGISTER: '/get-cash-register',
+    GET_ALL_CASH_REGISTER: '/get-all-cash-registers',
   },
   DEVICE: {
     VERIFY_DEVICE: '/verify-device',

@@ -129,6 +129,7 @@ const LoginScreen = () => {
         type: 'error',
         text1: error?.message || 'An error occurred during login',
       });
+      console.log(error, 'checking');
     } finally {
       setIsLoading(false);
     }
@@ -150,8 +151,9 @@ const LoginScreen = () => {
         device_id: trimmedId,
         store_id,
       };
-
+      console.log(payload, 'device');
       const response = await VERIFY_DEVICE(payload);
+
       const newDeviceId = response?.device?._id;
 
       store.dispatch(setDeviceId(newDeviceId));
@@ -196,8 +198,8 @@ const LoginScreen = () => {
 
   const formik = useFormik({
     initialValues: {
-      storeCode: '4002',
-      employeeId: '1002',
+      storeCode: '4000',
+      employeeId: '1000',
       password: '1@2.comM',
     },
     validationSchema,

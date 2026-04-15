@@ -211,7 +211,7 @@ const styles = StyleSheet.create({
   },
   cartHeader: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
+    justifyContent: 'flex-end',
     marginBottom: VS(12),
   },
   cartHeaderBtn: {

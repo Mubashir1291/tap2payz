@@ -6,100 +6,8 @@ import { SearchIcon, LeftArrowIcon, RightArrowIcon, ExportIcon } from '../../ass
 import styles from './XReportStyles';
 import SalesRefundDetailModal from '../../components/SalesRefundDetailModal';
 import DurationModal from '../../components/DurationModal';
-
-const dummyData = [
-  {
-    id: '1',
-    serialNumber: '213542',
-    transactionNumber: '2135424624',
-    customer: 'Michel Gerdes',
-    totalItems: '10 Items',
-    type: 'Sale',
-    dateTime: '1st Dec, 2023\n5:00 PM',
-    totalSales: '$5,956.00',
-    details: {
-      serialNumber: '213542',
-      transactionNumber: '2135424624',
-      customer: 'Michel Gerdes',
-      totalItems: 10,
-      dateTime: '1st Dec, 2023 (5:00 PM)',
-      totalSales: '5,956.00',
-      items: [
-        { name: 'Denis T-Shirt', sku: '2152462', qty: 6 },
-        { name: 'Pure Milk', sku: '2152463', qty: 2 },
-        { name: 'Coca Cola', sku: '2152464', qty: 2 },
-      ],
-    },
-  },
-  {
-    id: '2',
-    serialNumber: '213543',
-    transactionNumber: '2135424625',
-    customer: 'John Smith',
-    totalItems: '5 Items',
-    type: 'Sale',
-    dateTime: '2nd Dec, 2023\n3:30 PM',
-    totalSales: '$320.00',
-    details: {
-      serialNumber: '213543',
-      transactionNumber: '2135424625',
-      customer: 'John Smith',
-      totalItems: 5,
-      dateTime: '2nd Dec, 2023 (3:30 PM)',
-      totalSales: '320.00',
-      items: [
-        { name: 'Pizza', sku: '3152462', qty: 2 },
-        { name: 'Burger', sku: '3152463', qty: 2 },
-        { name: 'Pepsi', sku: '3152464', qty: 1 },
-      ],
-    },
-  },
-  {
-    id: '3',
-    serialNumber: '213544',
-    transactionNumber: '2135424626',
-    customer: '________',
-    totalItems: '3 Items',
-    type: 'Refund',
-    dateTime: '3rd Dec, 2023\n1:15 PM',
-    totalSales: '$120.00',
-    details: {
-      serialNumber: '213544',
-      transactionNumber: '2135424626',
-      customer: 'Michel Gerdes',
-      totalItems: 3,
-      dateTime: '3rd Dec, 2023 (1:15 PM)',
-      totalSales: '120.00',
-      items: [
-        { name: 'Coca Cola', sku: '4152462', qty: 1 },
-        { name: 'Denis T-Shirt', sku: '4152463', qty: 2 },
-      ],
-    },
-  },
-  {
-    id: '4',
-    serialNumber: '213545',
-    transactionNumber: '2135424627',
-    customer: 'Emma Watson',
-    totalItems: '7 Items',
-    type: 'Sale',
-    dateTime: '4th Dec, 2023\n6:45 PM',
-    totalSales: '$780.00',
-    details: {
-      serialNumber: '213545',
-      transactionNumber: '2135424627',
-      customer: 'Emma Watson',
-      totalItems: 7,
-      dateTime: '4th Dec, 2023 (6:45 PM)',
-      totalSales: '780.00',
-      items: [
-        { name: 'Burger', sku: '5152462', qty: 3 },
-        { name: 'Fries', sku: '5152463', qty: 2 },
-        { name: 'Pepsi', sku: '5152464', qty: 2 },
-      ],
-    },
-  },
-];
+import { Colors } from '../../utils/Colors';
+import { ActivityIndicator } from 'react-native';
 
 const XReport = ({ isActive }) => {
   const [searchQuery, setSearchQuery] = useState('');
@@ -107,6 +15,9 @@ const XReport = ({ isActive }) => {
   const [showDetailModal, setShowDetailModal] = useState(false);
   const [selectedTransaction, setSelectedTransaction] = useState(null);
   const [hasSelectedDuration, setHasSelectedDuration] = useState(false);
+  const [reportData, setReportData] = useState([]);
+  const [pagination, setPagination] = useState(null);
+  const [isLoading, setIsLoading] = useState(false);
 
   // When the tab becomes active, show the duration modal if not selected yet
   useEffect(() => {
@@ -122,25 +33,53 @@ const XReport = ({ isActive }) => {
   }, [isActive, hasSelectedDuration]);
 
   const filteredData = useMemo(() => {
-    let data = [...dummyData];
+    let data = [...reportData];
     if (searchQuery.trim() !== '') {
       data = data.filter(
         item =>
           item.transactionNumber.includes(searchQuery) ||
-          item.customer.toLowerCase().includes(searchQuery.toLowerCase()),
+          item.buyer_info?.name?.toLowerCase().includes(searchQuery.toLowerCase()),
       );
     }
     return data;
-  }, [searchQuery]);
+  }, [searchQuery, reportData]);
+
+  const formatSerialNumber = serial => {
+    if (!serial) return 'N/A';
+    return serial.length > 6 ? serial.slice(-6) : serial;
+  };
 
   const handleViewDetail = item => {
-    setSelectedTransaction(item);
+    // Mapping API response to the format expected by SalesRefundDetailModal
+    const detailObj = {
+      serialNumber: formatSerialNumber(item.serialNumber),
+      transactionNumber: item.transactionNumber,
+      customer: item.buyer_info?.name || 'Walk-in',
+      totalItems: item.totalItems,
+      dateTime: new Date(item.date).toLocaleString('en-GB', {
+        day: 'numeric',
+        month: 'short',
+        year: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit',
+        hour12: true,
+      }),
+      totalSales: item.totalSales.toFixed(2),
+      items: (item.products || []).map(p => ({
+        name: p.product_name || 'Unknown',
+        sku: p.sku_code || 'N/A',
+        qty: p.quantity || 0,
+      })),
+    };
+    setSelectedTransaction({ ...item, details: detailObj });
     setShowDetailModal(true);
   };
 
-  const handleDurationProceed = () => {
-    setShowDurationModal(false);
+  const handleDurationProceed = response => {
+    setReportData(response?.data?.items || []);
+    setPagination(response?.data || null);
     setHasSelectedDuration(true);
+    setShowDurationModal(false);
   };
 
   const handleDurationClose = () => {
@@ -204,25 +143,58 @@ const XReport = ({ isActive }) => {
 
         {/* Table Content */}
         <ScrollView showsVerticalScrollIndicator={false}>
-          {filteredData.map((item, index) => (
-            <View key={index} style={styles.tableRow}>
-              <Text style={[styles.colSerial, styles.rowText, Body3]}>{item.serialNumber}</Text>
-              <Text style={[styles.colTransaction, styles.rowText, Body3]}>
-                {item.transactionNumber}
-              </Text>
-              <Text style={[styles.colCustomer, styles.rowText, Body3]}>{item.customer}</Text>
-              <Text style={[styles.colItems, styles.rowText, Body3]}>{item.totalItems}</Text>
-              <Text style={[styles.colType, styles.rowText, Body3]}>{item.type}</Text>
-              <Text style={[styles.colDate, styles.rowText, Body3]}>{item.dateTime}</Text>
-              <Text style={[styles.colSales, styles.rowText, Body3]}>{item.totalSales}</Text>
-
-              <View style={styles.colAction}>
-                <TouchableOpacity style={styles.viewBtn} onPress={() => handleViewDetail(item)}>
-                  <Text style={[styles.viewBtnText, Caption]}>View Detail</Text>
-                </TouchableOpacity>
-              </View>
+          {isLoading ? (
+            <View style={{ padding: 40 }}>
+              <ActivityIndicator size="large" color={Colors.primary} />
             </View>
-          ))}
+          ) : filteredData.length === 0 ? (
+            <View style={{ padding: 40, alignItems: 'center' }}>
+              <Text style={[Subtitle2, { color: Colors.grey }]}>
+                No transactions found for the selected duration.
+              </Text>
+            </View>
+          ) : (
+            filteredData.map((item, index) => (
+              <View key={index} style={styles.tableRow}>
+                <Text style={[styles.colSerial, styles.rowText, Body3]}>
+                  {formatSerialNumber(item.serialNumber)}
+                </Text>
+                <Text style={[styles.colTransaction, styles.rowText, Body3]}>
+                  {item.transactionNumber}
+                </Text>
+                <Text style={[styles.colCustomer, styles.rowText, Body3]}>
+                  {item.buyer_info?.name || 'Walk-in'}
+                </Text>
+                <Text style={[styles.colItems, styles.rowText, Body3]}>
+                  {item.totalItems} Items
+                </Text>
+                <Text style={[styles.colType, styles.rowText, Body3]}>
+                  {item.transactionType?.charAt(0) + item.transactionType?.slice(1).toLowerCase()}
+                </Text>
+                <Text style={[styles.colDate, styles.rowText, Body3]}>
+                  {new Date(item.date)
+                    .toLocaleString('en-GB', {
+                      day: 'numeric',
+                      month: 'short',
+                      year: 'numeric',
+                      hour: '2-digit',
+                      minute: '2-digit',
+                      hour12: true,
+                    })
+                    .replace(',', '\n')}
+                </Text>
+                <Text style={[styles.colSales, styles.rowText, Body3]}>
+                  $ {item.totalSales.toFixed(2)}
+                </Text>
+
+                <View style={styles.colAction}>
+                  <TouchableOpacity style={styles.viewBtn} onPress={() => handleViewDetail(item)}>
+                    <Text style={[styles.viewBtnText, Caption]}>View Detail</Text>
+                  </TouchableOpacity>
+                </View>
+              </View>
+            ))
+          )}
         </ScrollView>
       </View>
 
@@ -231,11 +203,15 @@ const XReport = ({ isActive }) => {
         <TouchableOpacity style={styles.pageBtn}>
           <Image source={LeftArrowIcon} style={styles.actionIcon} />
         </TouchableOpacity>
-        <Text style={[styles.pageText, Body3]}>01</Text>
+        <Text style={[styles.pageText, Body3]}>
+          {String(pagination?.currentPage || 1).padStart(2, '0')}
+        </Text>
         <TouchableOpacity style={styles.pageBtn}>
           <Image source={RightArrowIcon} style={styles.actionIcon} />
         </TouchableOpacity>
-        <Text style={[styles.pageText, Body3]}>out of 20</Text>
+        <Text style={[styles.pageText, Body3]}>
+          out of {String(pagination?.lastPage || 1).padStart(2, '0')}
+        </Text>
       </View>
 
       {/* Detail Modal */}

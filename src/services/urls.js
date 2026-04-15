@@ -7,7 +7,8 @@ const URLS = {
   LIVE: {
     EMPLOYEE_SERVICE: 'https://psp-backend.webevis.com/api/employee-access',
     STORE_SERVICE: 'https://psp-backend.webevis.com/api/store-inventory',
+    RESTAURANT_SERVICE: 'https://psp-backend.webevis.com/api/restaurant',
   },
 };
 
-export default URLS.LOCAL;
+export default URLS.LIVE;

@@ -1,8 +1,8 @@
-// import { Fetch } from './config';
-// import ENDPOINTS from './endPoints';
-// import URLS from './urls';
+import { Fetch } from './config';
+import ENDPOINTS from './endPoints';
+import URLS from './urls';
 
-// const BASE_PREFIX = `${URLS.EMPLOYEE_SERVICE}/store`;
+const BASE_PREFIX = `${URLS.EMPLOYEE_SERVICE}`;
 
 // export const GET_WEEKLY_SALES = ({ type = 'SALE' }) => {
 //   return Fetch.get(`${BASE_PREFIX}${ENDPOINTS.Sales$Analytics.GET_WEEKLY_SALES}?type=${type}`);
@@ -22,19 +22,19 @@
 //   );
 // };
 
-// export const GET_X_REPORT = ({
-//   fromDate = '',
-//   fromTime = '',
-//   toDate = '',
-//   toTime = '',
-//   businessId = '',
-//   transType = '',
-//   storeId = '',
-// }) => {
-//   return Fetch.get(
-//     `${BASE_PREFIX}${ENDPOINTS.Sales$Analytics.GET_X_REPORT}?business_id=${businessId}&store_id=${storeId}&fromDate=${fromDate}&fromTime=${fromTime}&toDate=${toDate}&toTime=${toTime}&transType=${transType}`,
-//   );
-// };
+export const GET_X_REPORT = ({
+  fromDate = '',
+  fromTime = '',
+  toDate = '',
+  toTime = '',
+  businessId = '',
+  transType = '',
+  storeId = '',
+}) => {
+  return Fetch.post(
+    `${BASE_PREFIX}${ENDPOINTS.Sales$Analytics.GET_X_REPORT}?business_id=${businessId}&store_id=${storeId}&fromDate=${fromDate}&fromTime=${fromTime}&toDate=${toDate}&toTime=${toTime}&transType=${transType}`,
+  );
+};
 
 // // export const GET_Z_REPORT = ({ business_id = '', store_id = '' }) => {
 // //   return Fetch.get(
@@ -43,11 +43,11 @@
 // //   );
 // // };
 
-// export const GENERATE_X_REPORT = ({ business_id = '', store_id = '' }) => {
-//   return Fetch.post(
-//     `${BASE_PREFIX}${ENDPOINTS.Sales$Analytics.GENERATE_X_REPORT}?business_id=${business_id}&store_id=${store_id}`,
-//   );
-// };
+export const GENERATE_X_REPORT = ({ device_id = '', store_id = '', timeFrame = '' }) => {
+  return Fetch.get(
+    `${BASE_PREFIX}${ENDPOINTS.Sales$Analytics.GENERATE_X_REPORT}?device_id=${device_id}&store_id=${store_id}&timeFrame=${timeFrame}`,
+  );
+};
 // export const GENERATE_Z_REPORT = ({ business_id = '', store_id = '' }) => {
 //   return Fetch.post(
 //     `${BASE_PREFIX}${ENDPOINTS.Sales$Analytics.GENERATE_Z_REPORT}?business_id=${business_id}&store_id=${store_id}`,

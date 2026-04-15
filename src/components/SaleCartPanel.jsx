@@ -274,14 +274,14 @@ const SaleCartPanel = ({ cart, setCart, onAddToCart }) => {
     <View style={styles.cartPanel}>
       {/* Cart Header Icons */}
       <View style={styles.cartHeader}>
-        <TouchableOpacity onPress={() => setShowKitchenInvoiceModal(true)}>
+        {/* <TouchableOpacity onPress={() => setShowKitchenInvoiceModal(true)}>
           <Image source={RefreshICon} style={[IconSize20, styles.cartHeaderIcon]} />
         </TouchableOpacity>
         <TouchableOpacity>
           <Image source={ChipIcon} style={[IconSize20, styles.cartHeaderIcon]} />
-        </TouchableOpacity>
+        </TouchableOpacity> */}
         <TouchableOpacity onPress={handleClearCart}>
-          <Image source={DeleteIcon} style={[IconSize20, styles.cartHeaderIcon]} />
+          <Image source={DeleteIcon} style={[IconSize24, styles.cartHeaderIcon]} />
         </TouchableOpacity>
       </View>
 

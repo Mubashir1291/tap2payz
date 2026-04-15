@@ -1,6 +1,7 @@
 import ENDPOINTS from './endPoints';
 import { Fetch } from './config';
 import URLS from './urls';
+import { useEffect } from 'react';
 
 const BASE_PREFIX = `${URLS.EMPLOYEE_SERVICE}`;
 
@@ -23,6 +24,12 @@ export const CLOSE_REGISTER = async payload => {
   const response = await Fetch.post(
     `${BASE_PREFIX}${ENDPOINTS.CASH_REGISTER.CLOSE_REGISTER}`,
     payload,
+  );
+  return response;
+};
+export const GET_ALL_CASH_REGISTER = async ({ device_id, employee_id, store_id }) => {
+  const response = await Fetch.get(
+    `${BASE_PREFIX}${ENDPOINTS.CASH_REGISTER.GET_ALL_CASH_REGISTER}?device_id=${device_id}&employee_id=${employee_id}&store_id=${store_id}`,
   );
   return response;
 };

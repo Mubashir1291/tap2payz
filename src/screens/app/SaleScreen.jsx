@@ -325,6 +325,23 @@ const SaleScreen = () => {
               }}
               scrollEventThrottle={16}
             >
+              <TouchableOpacity
+                onPress={() => {
+                  setSelectedCategory(null);
+                  setProductSearchQuery(prev => ({ ...prev, category_id: '', page: 1 }));
+                }}
+                style={[styles.categoryBtn, selectedCategory === null && styles.activeCategory]}
+              >
+                <Text
+                  style={[
+                    styles.categoryText,
+                    Body3,
+                    selectedCategory === null && styles.activeCategoryText,
+                  ]}
+                >
+                  All
+                </Text>
+              </TouchableOpacity>
               {categoriesItems?.map((cat, index) => (
                 <TouchableOpacity
                   key={index}

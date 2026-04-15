@@ -2,6 +2,7 @@ import { configureStore } from '@reduxjs/toolkit';
 import { combineReducers } from 'redux';
 import { persistReducer, persistStore } from 'redux-persist';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { composeWithDevTools } from 'remote-redux-devtools';
 import UserReducer from './Reducers/userReducer';
 import DeviceReducer from './Reducers/deviceReducer';
 
@@ -18,8 +19,16 @@ const persistConfig = {
 
 const persistedReducer = persistReducer(persistConfig, reducers);
 
+const composeEnhancers = composeWithDevTools({
+  name: 'PSP_POS React Native App',
+  realtime: true,
+  port: 8000,
+});
+
 export const store = configureStore({
   reducer: persistedReducer,
+  devTools: true,
+  enhancers: getDefaultEnhancers => getDefaultEnhancers().concat([composeEnhancers()]),
   middleware: getDefaultMiddleware =>
     getDefaultMiddleware({
       serializableCheck: {

@@ -61,18 +61,17 @@ async function get(url) {
 async function post(url, body, isMultipart = false) {
   const headers = buildHeaders(isMultipart);
 
-  // console.log('📤 API REQUEST');
-  // console.log('➡️ URL:', url);
-  // console.log('➡️ METHOD: POST');
-  // console.log('➡️ HEADERS:', headers);
-  // console.log('➡️ BODY:', isMultipart ? body : JSON.stringify(body));
+  console.log('📤 API REQUEST');
+  console.log('➡️ URL:', url);
+  console.log('➡️ METHOD: POST');
+  console.log('➡️ HEADERS:', headers);
+  console.log('➡️ BODY:', isMultipart ? body : JSON.stringify(body));
 
   const response = await fetch(url, {
     method: 'POST',
     headers,
     body: isMultipart ? body : JSON.stringify(body),
   });
-
   return handleResponse(response);
 }
 
