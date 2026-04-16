@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from 'react';
+import React, { useCallback, useState, useEffect } from 'react';
 import {
   View,
   Text,
@@ -28,7 +28,12 @@ import {
 import styles from './AddNewTableScreenStyles';
 import SuccessModal from '../../components/SuccessModal';
 import DeleteTableModal from '../../components/DeleteTableModal';
-import { CREATE_TABLE, GET_TABLES } from '../../services/Restaurant/Tables/Table';
+import {
+  CREATE_TABLE,
+  GET_TABLES,
+  UPDATE_TABLE,
+  DELETE_TABLE,
+} from '../../services/Restaurant/Tables/Table';
 import { useSelector } from 'react-redux';
 import { CREATE_FLOORS, GET_FLOORS } from '../../services/Restaurant/Floors/Floor';
 
@@ -36,7 +41,7 @@ const AddNewTableScreen = () => {
   const navigation = useNavigation();
   const { store_id } = useSelector(state => state.user);
   const [areas, setAreas] = useState([]);
-  const [selectedArea, setSelectedArea] = useState('null');
+  const [selectedArea, setSelectedArea] = useState(null);
   const [seats, setSeats] = useState('');
   const [selectedTableId, setSelectedTableId] = useState(null);
   const [addedTables, setAddedTables] = useState([]);
@@ -59,12 +64,39 @@ const AddNewTableScreen = () => {
       const fetchedAreas = response?.items || [];
       setAreas(fetchedAreas);
       if (fetchedAreas.length > 0) {
-        setSelectedArea(prev => prev || fetchedAreas[0]);
+        setSelectedArea(prev => (prev === null ? fetchedAreas[0] : prev));
       }
     } catch (error) {
       console.error('Error fetching floors:', error);
     }
   }, [store_id]);
+
+  const handleGetTables = useCallback(
+    async floorId => {
+      if (!store_id || !floorId) return;
+      try {
+        const response = await GET_TABLES({ floor_id: floorId, store_id: store_id });
+        console.log(store_id, 'storeee');
+        const fetchedTables = (response?.items || []).map(t => ({
+          id: (t.table_no - 1).toString(), // Mapping table_no back to grid ID
+          seats: t.seats,
+          floorId: floorId,
+          _id: t._id,
+        }));
+        setAddedTables(fetchedTables);
+        console.log('Total tables already created for this area:', fetchedTables.length);
+      } catch (error) {
+        console.error('Error fetching tables:', error);
+      }
+    },
+    [store_id],
+  );
+
+  useEffect(() => {
+    if (selectedArea?._id) {
+      handleGetTables(selectedArea._id);
+    }
+  }, [selectedArea, handleGetTables]);
 
   useFocusEffect(
     useCallback(() => {
@@ -92,6 +124,41 @@ const AddNewTableScreen = () => {
     }
   };
 
+  const handleUpdateTable = async () => {
+    if (!editingTable?._id) return;
+    try {
+      const payload = { seats: parseInt(editSeats, 10) || 0 };
+      const response = await UPDATE_TABLE(editingTable._id, payload);
+      console.log('Table updated successfully:', response);
+
+      setShowEditModal(false);
+      setSuccessMessage('Table Updated Successfully');
+      setShowSuccessModal(true);
+      setTimeout(() => setShowSuccessModal(false), 2000);
+      handleGetTables(selectedArea._id); // Refresh data from server
+    } catch (error) {
+      console.error('Error updating table:', error);
+    }
+  };
+
+  const handleDeleteTable = async () => {
+    if (!tableToDelete?._id) return;
+    try {
+      const response = await DELETE_TABLE(tableToDelete._id);
+      console.log(tableToDelete._id);
+      console.log('Table deleted successfully:', response);
+
+      setShowDeleteModal(false);
+      setSuccessMessage('Table Deleted Successfully');
+      setShowSuccessModal(true);
+      setTimeout(() => setShowSuccessModal(false), 2000);
+      setTableToDelete(null);
+      handleGetTables(selectedArea._id); // Refresh data from server
+    } catch (error) {
+      console.error('Error deleting table:', error);
+    }
+  };
+
   const handleCreateTable = async newTable => {
     if (!selectedArea || !newTable) return;
 
@@ -105,7 +172,7 @@ const AddNewTableScreen = () => {
       const response = await CREATE_TABLE(payload);
       console.log('Tables created successfully:', response);
       setSuccessMessage('Table Added Successfully');
-      setAddedTables(prev => [...prev, newTable]);
+      handleGetTables(selectedArea._id); // Refresh tables from server
       setSelectedTableId(null);
       setSeats('');
       setShowSuccessModal(true);
@@ -461,22 +528,7 @@ const AddNewTableScreen = () => {
               />
             </View>
 
-            <TouchableOpacity
-              style={styles.saveChangesBtn}
-              onPress={() => {
-                setAddedTables(
-                  addedTables.map(t =>
-                    t.id === editingTable.id && t.floorId === selectedArea?._id
-                      ? { ...t, seats: editSeats }
-                      : t,
-                  ),
-                );
-                setShowEditModal(false);
-                setSuccessMessage('Table Updated Successfully');
-                setShowSuccessModal(true);
-                setTimeout(() => setShowSuccessModal(false), 2000);
-              }}
-            >
+            <TouchableOpacity style={styles.saveChangesBtn} onPress={handleUpdateTable}>
               <Text style={[styles.saveChangesText, Subtitle1]}>Save Changes</Text>
             </TouchableOpacity>
           </View>
@@ -524,16 +576,7 @@ const AddNewTableScreen = () => {
       <DeleteTableModal
         visible={showDeleteModal}
         onClose={() => setShowDeleteModal(false)}
-        onDelete={() => {
-          setAddedTables(
-            addedTables.filter(t => t.id !== tableToDelete.id || t.floorId !== selectedArea?._id),
-          );
-          setShowDeleteModal(false);
-          setSuccessMessage('Table Deleted Successfully');
-          setShowSuccessModal(true);
-          setTimeout(() => setShowSuccessModal(false), 2000);
-          setTableToDelete(null);
-        }}
+        onDelete={handleDeleteTable}
       />
 
       <SuccessModal
