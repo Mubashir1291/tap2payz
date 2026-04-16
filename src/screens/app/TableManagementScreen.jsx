@@ -1,5 +1,15 @@
-import React, { useState, useCallback } from 'react';
-import { View, Text, TouchableOpacity, FlatList, TextInput, Image, StatusBar } from 'react-native';
+import React, { useState, useCallback, useEffect, useRef } from 'react';
+import {
+  View,
+  Text,
+  TouchableOpacity,
+  FlatList,
+  TextInput,
+  Image,
+  StatusBar,
+  Modal,
+  TouchableWithoutFeedback,
+} from 'react-native';
 import { useSelector } from 'react-redux';
 import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import { Colors } from '../../utils/Colors';
@@ -11,6 +21,7 @@ import DeleteTableModal from '../../components/DeleteTableModal';
 import EditTableModal from '../../components/EditTableModal';
 import SuccessModal from '../../components/SuccessModal';
 import { DELETE_TABLE, GET_TABLES, UPDATE_TABLE } from '../../services/Restaurant/Tables/Table';
+import { GET_FLOORS } from '../../services/Restaurant/Floors/Floor';
 
 const TableManagementScreen = () => {
   const navigation = useNavigation();
@@ -26,10 +37,49 @@ const TableManagementScreen = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [paginationData, setPaginationData] = useState(null);
   const [page, setPage] = useState(1);
+  const [areas, setAreas] = useState([]);
+  const [selectedArea, setSelectedArea] = useState(null);
+  const [isAreaDropdownVisible, setIsAreaDropdownVisible] = useState(false);
+  const [dropdownPosition, setDropdownPosition] = useState({ top: 0, left: 0, width: 0 });
+  const areaSelectorRef = useRef(null);
 
   const handleDeletePress = table => {
     setSelectedTable(table);
     setShowDeleteModal(true);
+  };
+
+  const handleGetFloors = useCallback(async () => {
+    if (!store_id) return;
+    try {
+      const response = await GET_FLOORS({
+        page: 1,
+        itemsPerPage: 10,
+        storeId: store_id,
+      });
+      console.log('Floors fetched successfully:', response);
+      const fetchedAreas = response?.items || [];
+      setAreas(fetchedAreas);
+
+      // Auto-select first floor if nothing is selected
+      if (fetchedAreas.length > 0 && !selectedArea) {
+        setSelectedArea(fetchedAreas[0]);
+      }
+    } catch (error) {
+      console.error('Error fetching floors:', error);
+    }
+  }, [store_id, selectedArea]);
+
+  const toggleDropdown = () => {
+    if (areaSelectorRef.current) {
+      areaSelectorRef.current.measure((fx, fy, width, height, px, py) => {
+        setDropdownPosition({
+          top: py + height,
+          left: px,
+          width,
+        });
+        setIsAreaDropdownVisible(true);
+      });
+    }
   };
 
   const handleEditPress = table => {
@@ -89,26 +139,39 @@ const TableManagementScreen = () => {
     </View>
   );
 
-  const handleGetTables = async query => {
-    if (!store_id) return;
-    setIsLoading(true);
-    try {
-      const response = await GET_TABLES({ ...query, storeId: store_id });
-      console.log('Tables fetched successfully:', response);
-      setTables(response?.items || []);
-      setPaginationData(response);
-    } catch (error) {
-      console.error('Error fetching tables:', error);
-    } finally {
-      setIsLoading(false);
-    }
-  };
+  const handleGetTables = useCallback(
+    async query => {
+      if (!store_id) return;
+      setIsLoading(true);
+      try {
+        const response = await GET_TABLES({
+          ...query,
+          storeId: store_id,
+          floor_id: selectedArea?._id,
+        });
+        console.log('Tables fetched successfully:', response);
+        setTables(response?.items || []);
+        setPaginationData(response);
+      } catch (error) {
+        console.error('Error fetching tables:', error);
+      } finally {
+        setIsLoading(false);
+      }
+    },
+    [store_id, selectedArea?._id],
+  );
 
   useFocusEffect(
     useCallback(() => {
-      handleGetTables({ page, itemsPerPage: 10 });
-    }, [page, store_id]),
+      handleGetFloors();
+    }, [handleGetFloors]),
   );
+
+  useEffect(() => {
+    if (selectedArea?._id || !selectedArea) {
+      handleGetTables({ page, itemsPerPage: 10 });
+    }
+  }, [page, store_id, selectedArea, handleGetTables]);
 
   const handleNextPage = () => {
     if (paginationData?.hasNextPage) setPage(prev => prev + 1);
@@ -134,10 +197,75 @@ const TableManagementScreen = () => {
         <View style={styles.titleRow}>
           <Text style={[styles.title, H2]}>Table Management</Text>
           <View style={styles.controls}>
-            <TouchableOpacity style={styles.areaDropdown}>
-              <Text style={[styles.areaText, Subtitle2]}>1st Floor</Text>
+            <TouchableOpacity
+              ref={areaSelectorRef}
+              style={styles.areaDropdown}
+              onPress={toggleDropdown}
+            >
+              <Text style={[styles.areaText, Subtitle2]}>
+                {selectedArea?.name || 'Select Area'}
+              </Text>
               <Image source={MenuIcon} style={[IconSize16, styles.whiteIconTint]} />
             </TouchableOpacity>
+
+            <Modal
+              visible={isAreaDropdownVisible}
+              transparent={true}
+              animationType="fade"
+              onRequestClose={() => setIsAreaDropdownVisible(false)}
+            >
+              <TouchableWithoutFeedback onPress={() => setIsAreaDropdownVisible(false)}>
+                <View style={styles.modalOverlay}>
+                  <View
+                    style={[
+                      styles.dropdownContainer,
+                      {
+                        position: 'absolute',
+                        top: dropdownPosition.top + 5,
+                        left: dropdownPosition.left,
+                        width: dropdownPosition.width,
+                        backgroundColor: Colors.white,
+                        borderRadius: 8,
+                        elevation: 5,
+                        shadowColor: '#000',
+                        shadowOffset: { width: 0, height: 2 },
+                        shadowOpacity: 0.1,
+                        shadowRadius: 4,
+                        overflow: 'hidden',
+                      },
+                    ]}
+                  >
+                    {areas.map(area => (
+                      <TouchableOpacity
+                        key={area._id}
+                        style={[
+                          styles.dropdownItem,
+                          { paddingVertical: 12, paddingHorizontal: 16 },
+                          selectedArea?._id === area._id && { backgroundColor: '#F0F4F9' },
+                        ]}
+                        onPress={() => {
+                          setSelectedArea(area);
+                          setIsAreaDropdownVisible(false);
+                          setPage(1); // Reset to first page when changing area
+                        }}
+                      >
+                        <Text
+                          style={[
+                            styles.dropdownItemText,
+                            Subtitle2,
+                            {
+                              color: selectedArea?._id === area._id ? Colors.primary : Colors.black,
+                            },
+                          ]}
+                        >
+                          {area.name}
+                        </Text>
+                      </TouchableOpacity>
+                    ))}
+                  </View>
+                </View>
+              </TouchableWithoutFeedback>
+            </Modal>
 
             <View style={styles.searchContainer}>
               <Image source={SearchIcon} style={[IconSize16, styles.searchIcon]} />

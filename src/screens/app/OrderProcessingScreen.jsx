@@ -430,7 +430,7 @@ const OrderProcessingScreen = () => {
         />
 
         {/* Action Buttons */}
-        <View style={styles.actionRow}>
+        {/* <View style={styles.actionRow}>
           <TouchableOpacity style={styles.actionBtn} onPress={() => setShowDiscountModal(true)}>
             <View style={styles.relativePosition}>
               <Image source={DiscountIcon} style={[IconSize20, styles.actionIcon]} />
@@ -461,7 +461,7 @@ const OrderProcessingScreen = () => {
             </View>
             <Text style={Overline}>Buyer Details</Text>
           </TouchableOpacity>
-        </View>
+        </View> */}
 
         {/* Total Section */}
         <View style={styles.totalSection}>

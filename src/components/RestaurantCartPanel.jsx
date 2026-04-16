@@ -108,7 +108,7 @@ const RestaurantCartPanel = ({
       </View>
 
       {/* Actions Rows */}
-      <View style={styles.actionRow}>
+      {/* <View style={styles.actionRow}>
         <TouchableOpacity style={styles.actionBtn} onPress={() => setShowDiscountModal(true)}>
           <View style={styles.relativePosition}>
             <Image source={DiscountIcon} style={[IconSize16, styles.actionIcon]} />
@@ -139,7 +139,7 @@ const RestaurantCartPanel = ({
           </View>
           <Text style={Overline}>Buyer Details</Text>
         </TouchableOpacity>
-      </View>
+      </View> */}
 
       {/* Total Section */}
       <View style={styles.totalSection}>

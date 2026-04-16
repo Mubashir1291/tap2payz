@@ -19,21 +19,12 @@ import {
   ArrowDownIcon,
   MenuIcon,
   ImageFrameIcon,
-  DeleteIcon,
-  TickIcon,
-  RefreshICon,
-  DiscountIcon,
-  DollarIcon,
-  BuyersIcon,
   CancelOrderIcon,
 } from '../../assets/Images';
 import styles from './TableSelectionScreenStyles';
-import TipModal from '../../components/TipModal';
-import BuyerInfoModal from '../../components/BuyerInfoModal';
-import QuickSaleModal from '../../components/QuickSaleModal';
+
 import ProcessOrderModal from '../../components/ProcessOrderModal';
 import CartNoteModal from '../../components/CartNoteModal';
-import DiscountModal from '../../components/DiscountModal';
 import PaymentMethodModal from '../../components/PaymentMethodModal';
 import InvoiceModal from '../../components/InvoiceModal';
 import TransactionProcessModal from '../../components/TransactionProcessModal';
@@ -586,7 +577,7 @@ const TableSelectionScreen = () => {
         setShowNoteModal={setShowNoteModal}
       />
 
-      <TipModal
+      {/* <TipModal
         visible={showTipModal}
         isEditMode={tipAmount !== null}
         initialTipAmount={tipAmount}
@@ -594,9 +585,9 @@ const TableSelectionScreen = () => {
         onSaveTip={handleSaveTip}
         onDeleteTip={handleDeleteTip}
         onClose={() => setShowTipModal(false)}
-      />
+      /> */}
 
-      <BuyerInfoModal
+      {/* <BuyerInfoModal
         visible={showBuyerModal}
         isEditMode={buyerInfo !== null}
         initialBuyerInfo={buyerInfo}
@@ -604,13 +595,13 @@ const TableSelectionScreen = () => {
         onSaveInfo={handleSaveBuyerInfo}
         onDeleteInfo={handleDeleteBuyerInfo}
         onClose={() => setShowBuyerModal(false)}
-      />
+      /> */}
 
-      <QuickSaleModal
+      {/* <QuickSaleModal
         visible={showQuickSaleModal}
         onAddSale={handleQuickSale}
         onClose={() => setShowQuickSaleModal(false)}
-      />
+      /> */}
 
       <ConfirmationModal
         visible={showCancelModal}
@@ -637,13 +628,13 @@ const TableSelectionScreen = () => {
         initialNote={selectedCartItem?.note || ''}
       />
 
-      <DiscountModal
+      {/* <DiscountModal
         visible={showDiscountModal}
         onClose={() => setShowDiscountModal(false)}
         onSave={handleSaveDiscount}
         onDelete={handleDeleteDiscount}
         initialDiscountCode={discountCode}
-      />
+      /> */}
 
       <PaymentMethodModal
         visible={showPaymentModal}

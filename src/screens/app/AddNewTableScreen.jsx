@@ -192,7 +192,7 @@ const AddNewTableScreen = () => {
         style={styles.tableWrapper}
         activeOpacity={0.7}
         onPress={() => {
-          setSelectedTableId(item.id);
+          setSelectedTableId(prev => (prev === item.id ? null : item.id));
           setActiveActionId(null);
         }}
         disabled={isAcquired}
@@ -239,10 +239,12 @@ const AddNewTableScreen = () => {
             isAcquired && styles.acquiredTableCore,
           ]}
         >
-          {(isSelected || isAcquired) && (
+          {isSelected || isAcquired ? (
             <View style={styles.selectionDotContainer}>
               <Image source={TickIcon} style={styles.selectionDot} />
             </View>
+          ) : (
+            <Text style={{ fontSize: 8, color: Colors.grey }}>{Number(item.id) + 1}</Text>
           )}
         </View>
       </TouchableOpacity>
@@ -277,6 +279,7 @@ const AddNewTableScreen = () => {
         <TouchableWithoutFeedback
           onPress={() => {
             Keyboard.dismiss();
+
             setActiveActionId(null);
           }}
         >

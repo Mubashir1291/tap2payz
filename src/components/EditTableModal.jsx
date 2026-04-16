@@ -38,6 +38,7 @@ const EditTableModal = ({ visible, onClose, onSave, tableData }) => {
               onChangeText={setSeats}
               keyboardType="numeric"
               placeholder="00"
+              placeholderTextColor={Colors.grey}
             />
           </View>
 
