@@ -1,3 +1,4 @@
+import { fetchText } from 'react-native-svg';
 import { Fetch } from '../../config';
 import ENDPOINTS from '../../endPoints';
 import URLS from '../../urls';
@@ -15,6 +16,10 @@ export const GET_ORDERS = ({
   const response = Fetch.get(
     `${BASE_PREFIX}${ENDPOINTS.Order.GET_ORDERS}?page=${page}&itemsPerPage=${itemsPerPage}&store_id=${store_id} &status=${status}&type=${type}&sort=${sort}`,
   );
+  return response;
+};
+export const CREATE_RES_ORDER = payload => {
+  const response = Fetch.post(`${BASE_PREFIX}${ENDPOINTS.Order.CREATE_ORDER}`, payload);
   return response;
 };
 

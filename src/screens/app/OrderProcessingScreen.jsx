@@ -1,5 +1,14 @@
 import React, { useState, useMemo, useRef, useEffect } from 'react';
-import { View, Text, StatusBar, TouchableOpacity, FlatList, Image, ScrollView } from 'react-native';
+import {
+  View,
+  Text,
+  StatusBar,
+  TouchableOpacity,
+  FlatList,
+  Image,
+  ScrollView,
+  ActivityIndicator,
+} from 'react-native';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import {
   Subtitle1,
@@ -23,6 +32,7 @@ import {
   SplitIcon,
   TickIcon,
   CancelOrderIcon,
+  EmployeeIcon,
 } from '../../assets/Images';
 import styles from './OrderProcessingScreenStyles';
 import TipModal from '../../components/TipModal';
@@ -38,37 +48,19 @@ import InvoiceModal from '../../components/InvoiceModal';
 import TransactionProcessModal from '../../components/TransactionProcessModal';
 import TapCardModal from '../../components/TapCardModal';
 import NfcManager, { NfcTech } from 'react-native-nfc-manager';
-
-const categories = [
-  { name: 'Beverages', icon: ImageFrameIcon },
-  { name: 'Appetizer', icon: ImageFrameIcon },
-  { name: 'Drinks', icon: ImageFrameIcon },
-  { name: 'Chicken', icon: ImageFrameIcon },
-  { name: 'Whiskey', icon: ImageFrameIcon },
-  { name: 'Wine', icon: ImageFrameIcon },
-  { name: 'Beef', icon: ImageFrameIcon },
-];
-
-const dummyProducts = [
-  { id: '1', name: 'Sodavand (25cl)', price: 16.23 },
-  { id: '2', name: 'Sodavand (25cl)', price: 16.23 },
-  { id: '3', name: 'Sodavand (25cl)', price: 16.23 },
-  { id: '4', name: 'Sodavand (25cl)', price: 16.23 },
-  { id: '5', name: 'Sodavand (25cl)', price: 16.23 },
-  { id: '6', name: 'Sodavand (25cl)', price: 16.23 },
-  // ... more
-];
+import { useSelector } from 'react-redux';
+import { GET_ALL_CATEGORIES, GET_ALL_PRODUCTS_WITH_INVENTORY } from '../../services/ProductService';
+import Toast from 'react-native-toast-message';
+import { CREATE_RES_ORDER } from '../../services/Restaurant/Order/Order';
 
 const OrderProcessingScreen = () => {
   const navigation = useNavigation();
   const route = useRoute();
-  const { tableNumber, orderType, isNewOrder } = route.params || {
-    tableNumber: '7',
-    orderType: 'Dine in',
-    isNewOrder: false,
-  };
+  const { store_id } = useSelector(state => state.user);
 
-  const [selectedCategory, setSelectedCategory] = useState('Beverages');
+  const { tableNumber, tableId, orderType, isNewOrder } = route.params || {};
+
+  const [selectedCategory, setSelectedCategory] = useState(null);
   const [cart, setCart] = useState(
     isNewOrder
       ? []
@@ -94,6 +86,50 @@ const OrderProcessingScreen = () => {
   const [showSuccessModal, setShowSuccessModal] = useState(false);
   const [selectedCartItem, setSelectedCartItem] = useState(null);
   const [showTapCardModal, setShowTapCardModal] = useState(false);
+  const { userData } = useSelector(state => state.user);
+
+  // API Data State
+  const [products, setProducts] = useState([]);
+  const [productsData, setProductsData] = useState(null);
+  const [categories, setCategories] = useState([]);
+  const [isLoadingMoreProducts, setIsLoadingMoreProducts] = useState(false);
+  const isLoadingProductsRef = useRef(false);
+
+  const [productSearchQuery, setProductSearchQuery] = useState({
+    page: 1,
+    itemsPerPage: 20,
+    searchText: '',
+    getAll: 'false',
+    limited: 'false',
+    storeId: store_id,
+    category_id: '',
+  });
+
+  const handleCreateResOrder = async () => {
+    const payload = {
+      type: orderType === 'DineIn' ? 'DinIn' : 'TakeAway',
+      table_id: tableId || '',
+      products: cart.map(item => ({
+        pid: item.productId || item.id,
+        quantity: item.qty,
+        note: item.note || '',
+      })),
+      employee_id: userData?._id || '',
+      note: '',
+    };
+    try {
+      const response = await CREATE_RES_ORDER(payload);
+      console.log(response, 'Order Response');
+      setShowProcessModal(true);
+    } catch (error) {
+      console.error('Error creating order:', error);
+      Toast.show({
+        type: 'error',
+        text1: 'Order Error',
+        text2: error.message || 'Could not process order',
+      });
+    }
+  };
 
   useEffect(() => {
     if (isNewOrder) {
@@ -114,6 +150,100 @@ const OrderProcessingScreen = () => {
       setBuyerInfo(null);
     }
   }, [isNewOrder, tableNumber]);
+
+  const handleFetchAllCategories = async () => {
+    try {
+      const response = await GET_ALL_CATEGORIES({
+        storeId: store_id,
+        getAll: 'true',
+      });
+      console.log(response, 'Category Response');
+      setCategories(response?.items || []);
+    } catch (error) {
+      console.error('Error fetching categories:', error);
+    }
+  };
+
+  const handleFetchAllProducts = async (query, loadMore = false) => {
+    isLoadingProductsRef.current = true;
+    if (loadMore) {
+      setIsLoadingMoreProducts(true);
+    }
+    try {
+      const response = await GET_ALL_PRODUCTS_WITH_INVENTORY(query);
+      console.log(response, 'product response');
+
+      if (loadMore) {
+        setProducts(prev => [...prev, ...(response?.items || [])]);
+      } else {
+        setProducts(response?.items || []);
+      }
+      setProductsData(response);
+    } catch (error) {
+      Toast.show({
+        type: 'error',
+        text1: 'Error fetching products',
+        text2: error.message,
+      });
+    } finally {
+      if (loadMore) {
+        setIsLoadingMoreProducts(false);
+      }
+      isLoadingProductsRef.current = false;
+    }
+  };
+
+  useEffect(() => {
+    if (store_id) {
+      handleFetchAllCategories();
+    }
+  }, [store_id]);
+
+  useEffect(() => {
+    if (store_id) {
+      handleFetchAllProducts(productSearchQuery, productSearchQuery.page > 1);
+    }
+  }, [productSearchQuery, store_id]);
+
+  const loadMoreProducts = () => {
+    if (
+      isLoadingMoreProducts ||
+      isLoadingProductsRef.current ||
+      !productsData ||
+      !productsData.hasNextPage
+    ) {
+      return;
+    }
+    setProductSearchQuery(prev => ({ ...prev, page: prev.page + 1 }));
+  };
+
+  const handleFilterByCategory = cat => {
+    if (cat?._id === selectedCategory?._id) {
+      setSelectedCategory(null);
+      setProductSearchQuery(prev => ({ ...prev, category_id: '', page: 1 }));
+    } else {
+      setSelectedCategory(cat);
+      setProductSearchQuery(prev => ({ ...prev, category_id: cat?._id, page: 1 }));
+    }
+  };
+
+  const categoriesItems = useMemo(() => {
+    return categories?.map(cat => ({
+      _id: cat?._id,
+      name: cat?.category_name || cat?.name,
+    }));
+  }, [categories]);
+
+  const productItems = useMemo(() => {
+    return products?.map(product => ({
+      _id: product?._id,
+      id: product?._id,
+      name: product?.product_name,
+      price: product?.price,
+      quantity: product?.quantity,
+      quantitySold: product?.quantitySold,
+    }));
+  }, [products]);
 
   useEffect(() => {
     let timer;
@@ -143,21 +273,17 @@ const OrderProcessingScreen = () => {
   const scrollOffset = useRef(0);
 
   const addToCart = product => {
-    const prodId = product._id || product.id || product.productId;
+    const prodId = product._id || product.id;
     setCart(prev => {
-      const existing = prev.find(item => item.productId === product.id);
-      // const existing = prev.find(item => item.productId === prodId);
+      const existing = prev.find(item => (item.productId || item.id) === prodId);
       if (existing) {
-        return prev.map(
-          item => (item.productId === product.id ? { ...item, qty: item.qty + 1 } : item),
-          item.productId === prodId ? { ...item, qty: item.qty + 1 } : item,
+        return prev.map(item =>
+          (item.productId || item.id) === prodId ? { ...item, qty: item.qty + 1 } : item,
         );
       }
       return [
         ...prev,
         {
-          id: `c_${Date.now()}_${product.id}`,
-          productId: product.id,
           id: `c_${Date.now()}_${prodId}`,
           productId: prodId,
           name: product.name,
@@ -235,7 +361,7 @@ const OrderProcessingScreen = () => {
     if (cart.length === 0) {
       return;
     }
-    setShowProcessModal(true);
+    handleCreateResOrder();
   };
 
   const handleCancelOrder = () => {
@@ -335,13 +461,16 @@ const OrderProcessingScreen = () => {
             }}
             scrollEventThrottle={16}
           >
-            {categories.map(cat => (
+            {categoriesItems.map(cat => (
               <TouchableOpacity
-                key={cat.name}
-                style={[styles.categoryBtn, selectedCategory === cat.name && styles.activeCategory]}
-                onPress={() => setSelectedCategory(cat.name)}
+                key={cat._id}
+                style={[
+                  styles.categoryBtn,
+                  selectedCategory?._id === cat._id && styles.activeCategory,
+                ]}
+                onPress={() => handleFilterByCategory(cat)}
               >
-                <Image source={cat.icon} style={[IconSize16, styles.categoryIcon]} />
+                <Image source={ImageFrameIcon} style={[IconSize16, styles.categoryIcon]} />
                 <Text style={[styles.categoryText, Subtitle2]}>{cat.name}</Text>
               </TouchableOpacity>
             ))}
@@ -359,12 +488,21 @@ const OrderProcessingScreen = () => {
 
         {/* Product Grid */}
         <FlatList
-          data={[...dummyProducts, ...dummyProducts, ...dummyProducts].slice(0, 20)}
-          keyExtractor={(item, index) => `${item.id}-${index}`}
+          data={productItems}
+          keyExtractor={(item, index) => `${item._id}-${index}`}
           renderItem={renderProduct}
           numColumns={5}
           contentContainerStyle={styles.productListContent}
           showsVerticalScrollIndicator={false}
+          onEndReached={loadMoreProducts}
+          onEndReachedThreshold={0.1}
+          ListFooterComponent={
+            isLoadingMoreProducts ? (
+              <View style={{ padding: 20 }}>
+                <ActivityIndicator size="large" color="#3B4B8A" />
+              </View>
+            ) : null
+          }
         />
       </View>
 
@@ -430,7 +568,7 @@ const OrderProcessingScreen = () => {
         />
 
         {/* Action Buttons */}
-        {/* <View style={styles.actionRow}>
+        <View style={styles.actionRow}>
           <TouchableOpacity style={styles.actionBtn} onPress={() => setShowDiscountModal(true)}>
             <View style={styles.relativePosition}>
               <Image source={DiscountIcon} style={[IconSize20, styles.actionIcon]} />
@@ -461,7 +599,7 @@ const OrderProcessingScreen = () => {
             </View>
             <Text style={Overline}>Buyer Details</Text>
           </TouchableOpacity>
-        </View> */}
+        </View>
 
         {/* Total Section */}
         <View style={styles.totalSection}>
