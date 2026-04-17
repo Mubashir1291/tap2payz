@@ -33,6 +33,7 @@ const RestaurantCartPanel = ({
   setShowPaymentModal,
   setSelectedCartItem,
   setShowNoteModal,
+  handleCheckTerminalStatus,
 }) => {
   const navigation = useNavigation();
 
@@ -189,6 +190,7 @@ const RestaurantCartPanel = ({
                 navigation.navigate('OrderProcessingScreen', { orderType: activeTab });
               }
             }
+            handleCheckTerminalStatus();
           }}
         >
           <Text style={[styles.checkoutBtnText, cart.length > 0 && styles.whiteTextColor]}>

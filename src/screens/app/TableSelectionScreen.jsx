@@ -36,13 +36,22 @@ import { useSelector } from 'react-redux';
 import { GET_FLOORS } from '../../services/Restaurant/Floors/Floor';
 import { GET_TABLES } from '../../services/Restaurant/Tables/Table';
 import RestaurantCartPanel from '../../components/RestaurantCartPanel';
+import { GET_ALL_CATEGORIES, GET_ALL_PRODUCTS_WITH_INVENTORY } from '../../services/ProductService';
+import { CREATE_RES_ORDER } from '../../services/Restaurant/Order/Order';
+import Toast from 'react-native-toast-message';
+import TipModal from '../../components/TipModal';
+import BuyerInfoModal from '../../components/BuyerInfoModal';
+import QuickSaleModal from '../../components/QuickSaleModal';
+import DiscountModal from '../../components/DiscountModal';
+import { GET_TERMINAL_STATUS } from '../../services/Restaurant/Sales&Transaction/Sales&Transaction';
 
 const TableSelectionScreen = () => {
   const navigation = useNavigation();
   const route = useRoute();
-  const { store_id } = useSelector(state => state.user);
+  const { store_id, userData } = useSelector(state => state.user);
+  const { deviceId } = useSelector(state => state.device);
 
-  const [activeTab, setActiveTab] = useState('Dine in');
+  const [activeTab, setActiveTab] = useState(route.params?.orderType || 'Dine in');
   const [areas, setAreas] = useState([]);
   const [selectedArea, setSelectedArea] = useState(null);
   const [isAreaDropdownVisible, setIsAreaDropdownVisible] = useState(false);
@@ -52,6 +61,19 @@ const TableSelectionScreen = () => {
   const [selectedCategory, setSelectedCategory] = useState(null);
   const [cart, setCart] = useState([]);
   const [tables, setTables] = useState([]);
+  const [categories, setCategories] = useState([]);
+  const [products, setProducts] = useState([]);
+
+  const [productSearchQuery, setProductSearchQuery] = useState({
+    page: 1,
+    itemsPerPage: 20,
+    searchText: '',
+    getAll: 'false',
+    limited: 'false',
+    storeId: store_id,
+    category_id: '',
+  });
+
   const categoryScrollRef = useRef(null);
   const scrollOffset = useRef(0);
 
@@ -74,6 +96,27 @@ const TableSelectionScreen = () => {
   const [showTapCardModal, setShowTapCardModal] = useState(false);
 
   const [processingTables, setProcessingTables] = useState([]);
+
+  const handleFetchAllCategories = useCallback(async () => {
+    try {
+      const response = await GET_ALL_CATEGORIES({
+        storeId: store_id,
+        getAll: 'true',
+      });
+      setCategories(response?.items || []);
+    } catch (error) {
+      console.error('Error fetching categories:', error);
+    }
+  }, [store_id]);
+
+  const handleFetchAllProducts = useCallback(async query => {
+    try {
+      const response = await GET_ALL_PRODUCTS_WITH_INVENTORY(query);
+      setProducts(response?.items || []);
+    } catch (error) {
+      console.error('Error fetching products:', error);
+    }
+  }, []);
 
   const handleGetFloors = useCallback(async () => {
     if (!store_id) return;
@@ -101,18 +144,49 @@ const TableSelectionScreen = () => {
     },
     [store_id],
   );
+  const handleCheckTerminalStatus = async () => {
+    console.log('hello');
+    const order = route.params?.orderDetail;
+    console.log(route.params?.orderDetail, 'hello');
+
+    const payload = {
+      order_id: order?._id,
+      transaction_type: ' CASH',
+      products: order?.products?.map(item => ({
+        product_id: item?.product_id?._id,
+        quantity: item?.quantity,
+      })),
+      deviceId: deviceId,
+    };
+    console.log(payload, 'payload for get terminal status');
+    try {
+      const res = await GET_TERMINAL_STATUS(payload);
+      console.log(res, 'Terminal Response');
+    } catch (error) {
+      console.error('Error fetching categories:', error);
+    }
+  };
 
   useFocusEffect(
     useCallback(() => {
       handleGetFloors();
-    }, [handleGetFloors]),
+      if (activeTab === 'Take Away') {
+        handleFetchAllCategories();
+      }
+    }, [handleGetFloors, handleFetchAllCategories, activeTab]),
   );
 
   useEffect(() => {
-    if (selectedArea?._id) {
+    if (activeTab === 'Take Away') {
+      handleFetchAllProducts(productSearchQuery);
+    }
+  }, [productSearchQuery, activeTab, handleFetchAllProducts]);
+
+  useEffect(() => {
+    if (activeTab === 'Dine in' && selectedArea?._id) {
       handleGetTables(selectedArea._id);
     }
-  }, [selectedArea, handleGetTables]);
+  }, [selectedArea, handleGetTables, activeTab]);
 
   useEffect(() => {
     if (route.params?.newlyProcessedTable) {
@@ -135,6 +209,33 @@ const TableSelectionScreen = () => {
           width,
         });
         setIsAreaDropdownVisible(true);
+      });
+    }
+  };
+
+  const handleCreateResOrder = async () => {
+    const payload = {
+      type: 'TakeAway',
+      table_id: '',
+      products: cart.map(item => ({
+        pid: item.productId,
+        quantity: item.qty,
+        note: item.note || '',
+      })),
+      employee_id: userData?._id || '',
+      note: '',
+    };
+
+    try {
+      const response = await CREATE_RES_ORDER(payload);
+      console.log('Take Away Order Response:', response);
+      setShowProcessModal(true);
+    } catch (error) {
+      console.error('Error creating take away order:', error);
+      Toast.show({
+        type: 'error',
+        text1: 'Order Error',
+        text2: error.message || 'Could not process order',
       });
     }
   };
@@ -224,6 +325,16 @@ const TableSelectionScreen = () => {
     setShowNoteModal(false);
   };
 
+  const handleFilterByCategory = cat => {
+    if (cat?._id === selectedCategory?._id) {
+      setSelectedCategory(null);
+      setProductSearchQuery(prev => ({ ...prev, category_id: '', page: 1 }));
+    } else {
+      setSelectedCategory(cat);
+      setProductSearchQuery(prev => ({ ...prev, category_id: cat?._id, page: 1 }));
+    }
+  };
+
   const handleSaveDiscount = code => {
     setDiscountCode(code);
     if (code.length > 0) {
@@ -245,6 +356,15 @@ const TableSelectionScreen = () => {
     setBuyerInfo(null);
     setDiscountCode('');
     setDiscountAmount(0);
+  };
+
+  const handleProcessOrder = () => {
+    if (cart.length === 0) return;
+    if (activeTab === 'Take Away') {
+      handleCreateResOrder();
+    } else {
+      setShowProcessModal(true);
+    }
   };
 
   const confirmCancelOrder = () => {
@@ -382,13 +502,15 @@ const TableSelectionScreen = () => {
             </TouchableOpacity>
           </View>
 
-          <TouchableOpacity
-            style={styles.viewOrdersBtn}
-            onPress={() => navigation.navigate('ViewOrdersScreen')}
-          >
-            <Text style={[styles.viewOrdersText, Body3]}>View Orders</Text>
-            <Image source={RightArrowIcon} style={[IconSize12, styles.viewOrdersIcon]} />
-          </TouchableOpacity>
+          {activeTab === 'Dine in' && (
+            <TouchableOpacity
+              style={styles.viewOrdersBtn}
+              onPress={() => navigation.navigate('ViewOrdersScreen')}
+            >
+              <Text style={[styles.viewOrdersText, Body3]}>View Orders</Text>
+              <Image source={RightArrowIcon} style={[IconSize12, styles.viewOrdersIcon]} />
+            </TouchableOpacity>
+          )}
         </View>
 
         {/* Tab Selector & Area Filter */}
@@ -419,49 +541,55 @@ const TableSelectionScreen = () => {
             </TouchableOpacity>
           </View>
 
-          <TouchableOpacity
-            ref={areaSelectorRef}
-            style={styles.areaSelector}
-            onPress={toggleDropdown}
-          >
-            <Text style={[styles.areaText, Subtitle2]}>{selectedArea?.name || 'Select Area'}</Text>
-            <Image source={ArrowDownIcon} style={[IconSize12, styles.darkBlueTint]} />
-          </TouchableOpacity>
+          {activeTab === 'Dine in' && (
+            <>
+              <TouchableOpacity
+                ref={areaSelectorRef}
+                style={styles.areaSelector}
+                onPress={toggleDropdown}
+              >
+                <Text style={[styles.areaText, Subtitle2]}>
+                  {selectedArea?.name || 'Select Area'}
+                </Text>
+                <Image source={ArrowDownIcon} style={[IconSize12, styles.darkBlueTint]} />
+              </TouchableOpacity>
 
-          <Modal
-            visible={isAreaDropdownVisible}
-            transparent={true}
-            animationType="fade"
-            onRequestClose={() => setIsAreaDropdownVisible(false)}
-          >
-            <TouchableWithoutFeedback onPress={() => setIsAreaDropdownVisible(false)}>
-              <View style={styles.modalOverlay}>
-                <View
-                  style={[
-                    styles.dropdownContainer,
-                    {
-                      top: dropdownPosition.top,
-                      left: dropdownPosition.left,
-                      minWidth: dropdownPosition.width,
-                    },
-                  ]}
-                >
-                  {areas.map(area => (
-                    <TouchableOpacity
-                      key={area._id}
-                      style={styles.dropdownItem}
-                      onPress={() => {
-                        setSelectedArea(area);
-                        setIsAreaDropdownVisible(false);
-                      }}
+              <Modal
+                visible={isAreaDropdownVisible}
+                transparent={true}
+                animationType="fade"
+                onRequestClose={() => setIsAreaDropdownVisible(false)}
+              >
+                <TouchableWithoutFeedback onPress={() => setIsAreaDropdownVisible(false)}>
+                  <View style={styles.modalOverlay}>
+                    <View
+                      style={[
+                        styles.dropdownContainer,
+                        {
+                          top: dropdownPosition.top,
+                          left: dropdownPosition.left,
+                          minWidth: dropdownPosition.width,
+                        },
+                      ]}
                     >
-                      <Text style={[styles.dropdownItemText, Subtitle2]}>{area.name}</Text>
-                    </TouchableOpacity>
-                  ))}
-                </View>
-              </View>
-            </TouchableWithoutFeedback>
-          </Modal>
+                      {areas.map(area => (
+                        <TouchableOpacity
+                          key={area._id}
+                          style={styles.dropdownItem}
+                          onPress={() => {
+                            setSelectedArea(area);
+                            setIsAreaDropdownVisible(false);
+                          }}
+                        >
+                          <Text style={[styles.dropdownItemText, Subtitle2]}>{area.name}</Text>
+                        </TouchableOpacity>
+                      ))}
+                    </View>
+                  </View>
+                </TouchableWithoutFeedback>
+              </Modal>
+            </>
+          )}
         </View>
 
         {/* Table Grid */}
@@ -496,8 +624,19 @@ const TableSelectionScreen = () => {
                 }}
                 scrollEventThrottle={16}
               >
-                {/* Categories should be fetched from API and mapped here. 
-                    Removing static dummy categories data as requested. */}
+                {categories.map(cat => (
+                  <TouchableOpacity
+                    key={cat._id}
+                    style={[
+                      styles.categoryBtn,
+                      selectedCategory?._id === cat._id && styles.activeCategory,
+                    ]}
+                    onPress={() => handleFilterByCategory(cat)}
+                  >
+                    <Image source={ImageFrameIcon} style={[IconSize16, styles.categoryIcon]} />
+                    <Text style={[styles.categoryText, Subtitle2]}>{cat.category_name}</Text>
+                  </TouchableOpacity>
+                ))}
               </ScrollView>
               <TouchableOpacity
                 style={styles.categoryArrow}
@@ -512,8 +651,13 @@ const TableSelectionScreen = () => {
 
             {/* Product Grid */}
             <FlatList
-              data={[]} // Static dummy products removed.
-              keyExtractor={(item, index) => index.toString()}
+              data={products.map(p => ({
+                _id: p._id,
+                name: p.product_name,
+                price: p.price,
+                quantity: p.quantity,
+              }))}
+              keyExtractor={(item, index) => item._id || index.toString()}
               renderItem={renderProduct}
               numColumns={5}
               contentContainerStyle={styles.productListContent}
@@ -539,14 +683,15 @@ const TableSelectionScreen = () => {
         setShowTipModal={setShowTipModal}
         setShowQuickSaleModal={setShowQuickSaleModal}
         setShowBuyerModal={setShowBuyerModal}
-        setShowProcessModal={setShowProcessModal}
+        setShowProcessModal={handleProcessOrder}
         setShowCancelModal={setShowCancelModal}
         setShowPaymentModal={setShowPaymentModal}
         setSelectedCartItem={setSelectedCartItem}
         setShowNoteModal={setShowNoteModal}
+        handleCheckTerminalStatus={handleCheckTerminalStatus}
       />
 
-      {/* <TipModal
+      <TipModal
         visible={showTipModal}
         isEditMode={tipAmount !== null}
         initialTipAmount={tipAmount}
@@ -554,9 +699,9 @@ const TableSelectionScreen = () => {
         onSaveTip={handleSaveTip}
         onDeleteTip={handleDeleteTip}
         onClose={() => setShowTipModal(false)}
-      /> */}
+      />
 
-      {/* <BuyerInfoModal
+      <BuyerInfoModal
         visible={showBuyerModal}
         isEditMode={buyerInfo !== null}
         initialBuyerInfo={buyerInfo}
@@ -564,13 +709,13 @@ const TableSelectionScreen = () => {
         onSaveInfo={handleSaveBuyerInfo}
         onDeleteInfo={handleDeleteBuyerInfo}
         onClose={() => setShowBuyerModal(false)}
-      /> */}
+      />
 
-      {/* <QuickSaleModal
+      <QuickSaleModal
         visible={showQuickSaleModal}
         onAddSale={handleQuickSale}
         onClose={() => setShowQuickSaleModal(false)}
-      /> */}
+      />
 
       <ConfirmationModal
         visible={showCancelModal}
@@ -597,13 +742,13 @@ const TableSelectionScreen = () => {
         initialNote={selectedCartItem?.note || ''}
       />
 
-      {/* <DiscountModal
+      <DiscountModal
         visible={showDiscountModal}
         onClose={() => setShowDiscountModal(false)}
         onSave={handleSaveDiscount}
         onDelete={handleDeleteDiscount}
         initialDiscountCode={discountCode}
-      /> */}
+      />
 
       <PaymentMethodModal
         visible={showPaymentModal}

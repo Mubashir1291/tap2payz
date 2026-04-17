@@ -52,13 +52,18 @@ import { useSelector } from 'react-redux';
 import { GET_ALL_CATEGORIES, GET_ALL_PRODUCTS_WITH_INVENTORY } from '../../services/ProductService';
 import Toast from 'react-native-toast-message';
 import { CREATE_RES_ORDER } from '../../services/Restaurant/Order/Order';
+import { CREATE_RES_TRANSACTION } from '../../services/Restaurant/Sales&Transaction/Sales&Transaction';
 
 const OrderProcessingScreen = () => {
   const navigation = useNavigation();
   const route = useRoute();
-  const { store_id } = useSelector(state => state.user);
+  const { store_id, userData } = useSelector(state => state.user);
+  const { deviceId } = useSelector(state => state.device);
+  console.log(deviceId, 'deviceID');
 
   const { tableNumber, tableId, orderType, isNewOrder } = route.params || {};
+
+  const isTakeAway = orderType?.toLowerCase().replace(/\s/g, '') === 'takeaway';
 
   const [selectedCategory, setSelectedCategory] = useState(null);
   const [cart, setCart] = useState([]);
@@ -67,6 +72,7 @@ const OrderProcessingScreen = () => {
   const [showTipModal, setShowTipModal] = useState(false);
   const [buyerInfo, setBuyerInfo] = useState(null);
   const [showBuyerModal, setShowBuyerModal] = useState(false);
+  const [buyerId, setBuyerId] = useState(null);
   const [showQuickSaleModal, setShowQuickSaleModal] = useState(false);
   const [showCancelModal, setShowCancelModal] = useState(false);
   const [showProcessModal, setShowProcessModal] = useState(false);
@@ -78,7 +84,7 @@ const OrderProcessingScreen = () => {
   const [showSuccessModal, setShowSuccessModal] = useState(false);
   const [selectedCartItem, setSelectedCartItem] = useState(null);
   const [showTapCardModal, setShowTapCardModal] = useState(false);
-  const { userData } = useSelector(state => state.user);
+  const [orderDetail, setOrderDetail] = useState(null);
 
   // API Data State
   const [products, setProducts] = useState([]);
@@ -100,7 +106,7 @@ const OrderProcessingScreen = () => {
   const handleCreateResOrder = async () => {
     console.log(orderType, 'ordertype');
     const payload = {
-      type: orderType === 'DineIn' ? 'DineIn' : 'TakeAway',
+      type: isTakeAway ? 'TakeAway' : 'DineIn',
       table_id: tableId || '',
       products: cart.map(item => ({
         pid: item.productId || item.id,
@@ -114,6 +120,7 @@ const OrderProcessingScreen = () => {
     try {
       const response = await CREATE_RES_ORDER(payload);
       console.log(response, 'Order Response');
+      setOrderDetail(response?.order);
       setShowProcessModal(true);
     } catch (error) {
       console.error('Error creating order:', error);
@@ -131,6 +138,7 @@ const OrderProcessingScreen = () => {
     setDiscountAmount(0);
     setDiscountCode('');
     setBuyerInfo(null);
+    setBuyerId(null);
   }, [isNewOrder, tableId]);
 
   const handleFetchAllCategories = async () => {
@@ -186,6 +194,54 @@ const OrderProcessingScreen = () => {
       handleFetchAllProducts(productSearchQuery, productSearchQuery.page > 1);
     }
   }, [productSearchQuery, store_id]);
+
+  const handleCheckTerminalStatus = async () => {
+    console.log('hello');
+    const payload = {
+      order_id: orderDetail?._id,
+      transaction_type: ' CASH',
+      products: orderDetail?.products?.map(item => ({
+        product_id: item?.product_id?._id,
+        quantity: item?.quantity,
+      })),
+      deviceId: deviceId,
+    };
+    console.log(payload, 'payload for get terminal status');
+    try {
+      const res = await GET_TERMINAL_STATUS(payload);
+      console.log(res, 'Terminal Response');
+    } catch (error) {
+      console.error('Error fetching categories:', error);
+    }
+  };
+
+  const handleResTransaction = async method => {
+    const payload = {
+      transaction: {
+        deviceID: deviceId || '',
+        storeID: store_id || '',
+        nr: '',
+        referenceNumber: '',
+        transaction_uuid: `${Date.now()}`,
+        transType: method?.toUpperCase() === 'CASH' ? 'CASH' : 'CARD',
+        tipAmount: parseFloat(tipAmount) || 0,
+        transAmntIn: parseFloat(total),
+        transAmntEx: subtotal,
+        discountAmount: discountAmount || 0,
+        discountCode: discountCode || '',
+        discountPercentage: 0,
+        vat: 0,
+        status: 'Completed',
+        buyerID: buyerId,
+      },
+    };
+    try {
+      const res = await CREATE_RES_TRANSACTION(payload);
+      console.log(res, 'Transaction Response');
+    } catch (error) {
+      console.error('Error creating transaction:', error);
+    }
+  };
 
   const loadMoreProducts = () => {
     if (
@@ -367,7 +423,11 @@ const OrderProcessingScreen = () => {
     setDiscountAmount(0);
     setDiscountCode('');
     setBuyerInfo(null);
-    navigation.navigate('TableSelectionScreen', { newlyProcessedTable: tableNumber });
+    setBuyerId(null);
+    navigation.navigate('TableSelectionScreen', {
+      newlyProcessedTable: isTakeAway ? undefined : tableNumber,
+      orderType: isTakeAway ? 'Take Away' : 'Dine in',
+    });
   };
 
   const openNoteModal = item => {
@@ -491,7 +551,9 @@ const OrderProcessingScreen = () => {
       {/* ───── RIGHT PANEL ───── */}
       <View style={styles.cartPanel}>
         <View style={styles.cartPanelHeader}>
-          <Text style={[styles.tableInfo, Subtitle1]}>Table #: {tableNumber}</Text>
+          <Text style={[styles.tableInfo, Subtitle1]}>
+            {orderType === 'Take Away' ? 'Take Away' : `Table #: ${tableNumber}`}
+          </Text>
           {orderType !== 'Take Away' && (
             <TouchableOpacity style={styles.splitBtn}>
               <Image source={SplitIcon} style={[IconSize16, styles.splitIcon]} />
@@ -626,9 +688,12 @@ const OrderProcessingScreen = () => {
           <TouchableOpacity
             style={[styles.primaryBtn, cart.length === 0 && styles.primaryBtnDisabled]}
             disabled={cart.length === 0}
-            onPress={() => setShowPaymentModal(true)}
+            onPress={() => {
+              handleCheckTerminalStatus();
+              setShowPaymentModal(true);
+            }}
           >
-            <Text style={[styles.primaryBtnText, ButtonText]}>Proceed to Checkout</Text>
+            <Text style={[styles.primaryBtnText, ButtonText]}>Proceeds to Checkout</Text>
           </TouchableOpacity>
         </View>
       </View>
@@ -651,6 +716,7 @@ const OrderProcessingScreen = () => {
         onSaveInfo={handleSaveBuyerInfo}
         onDeleteInfo={handleDeleteBuyerInfo}
         onClose={() => setShowBuyerModal(false)}
+        setBuyerId={setBuyerId}
       />
 
       <QuickSaleModal
@@ -676,7 +742,10 @@ const OrderProcessingScreen = () => {
         onClose={() => setShowProcessModal(false)}
         onPrintBill={() => {
           setShowProcessModal(false);
-          navigation.navigate('TableSelectionScreen', { newlyProcessedTable: tableNumber });
+          navigation.navigate('TableSelectionScreen', {
+            newlyProcessedTable: tableNumber,
+            orderDetail,
+          });
         }}
       />
 
@@ -700,20 +769,27 @@ const OrderProcessingScreen = () => {
         totalAmount={parseFloat(total)}
         currency="$"
         onProceed={async data => {
+          console.log('Payment Proceeded with data:', data);
           setShowPaymentModal(false);
-          if (data.method === 'Cash') {
+
+          if (data.method?.toLowerCase() === 'cash') {
+            await handleResTransaction(data.method);
             setShowSuccessModal(true);
           } else {
             setShowTapCardModal(true);
             try {
               await NfcManager.start();
+              console.log('NFC Manager started, waiting for tap...');
+
               await NfcManager.requestTechnology(NfcTech.Ndef); // Use NfcTech.IsoDep if you are reading standard EMV Credit Cards
-              // const tag = await NfcManager.getTag();
-              // console.log('Card tapped:', tag);
+              console.log('NFC Technology acquired');
+
+              await handleResTransaction(data.method);
 
               setShowTapCardModal(false);
               setShowTransactionModal(true);
-            } catch {
+            } catch (error) {
+              console.error('NFC or Transaction Error:', error);
               setShowTapCardModal(false);
             } finally {
               NfcManager.cancelTechnologyRequest();

@@ -90,7 +90,7 @@ const ENDPOINTS = {
     CHANGE_ORDER_STATUS: '/change-order-status',
   },
   Sales$Transaction: {
-    CHECK_TERMINAL_STATUS: '/check-terminal-status',
+    CHECK_TERMINAL_STATUS: '/get-terminal-status',
     CREATE_TRANSACTION: '/create-transaction',
   },
   BankDetails: {
