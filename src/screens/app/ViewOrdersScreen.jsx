@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { View, Text, TouchableOpacity, Image, TextInput, FlatList, StatusBar } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { SearchIcon, LeftArrowIcon } from '../../assets/Images';
@@ -6,6 +6,7 @@ import { H1, Subtitle2, Body3 } from '../../utils/fonts';
 import { IconSize12, IconSize24 } from '../../utils/IconSizes';
 import styles from './ViewOrdersScreenStyles';
 import ViewInvoiceModal from '../../components/ViewInvoiceModal';
+import { GET_RES_ORDER_DETAIL } from '../../services/Restaurant/Order/Order';
 
 // Dummy data based on the screenshot
 const dummyOrders = Array.from({ length: 15 }, (_, i) => ({
@@ -24,6 +25,23 @@ const ViewOrdersScreen = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [modalVisible, setModalVisible] = useState(false);
   const [selectedOrder, setSelectedOrder] = useState(null);
+  const [orderDetails, setOrderDetails] = useState(null);
+  const [isDetailLoading, setIsDetailLoading] = useState(false);
+
+  // const handleGetResOrderDetail = async id => {
+  //   setIsDetailLoading(true);
+  //   try {
+  //     const response = await GET_RES_ORDER_DETAIL(id);
+  //     setOrderDetails(response);
+  //   } catch (error) {
+  //     console.error('Error fetching order details:', error);
+  //   } finally {
+  //     setIsDetailLoading(false);
+  //   }
+  // };
+  // useEffect(() => {
+  //   handleGetResOrderDetail();
+  // }, []);
 
   const handleOpenInvoice = orderNumber => {
     setSelectedOrder(orderNumber);

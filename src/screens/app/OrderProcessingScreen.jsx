@@ -61,15 +61,7 @@ const OrderProcessingScreen = () => {
   const { tableNumber, tableId, orderType, isNewOrder } = route.params || {};
 
   const [selectedCategory, setSelectedCategory] = useState(null);
-  const [cart, setCart] = useState(
-    isNewOrder
-      ? []
-      : [
-          { id: 'c1', name: 'Sodavand (25cl)', price: 35.0, qty: 2, note: '' },
-          { id: 'c2', name: 'Sodavand (25cl)', price: 35.0, qty: 2, note: '' },
-          { id: 'c3', name: 'Sodavand (25cl)', price: 35.0, qty: 2, note: '' },
-        ],
-  );
+  const [cart, setCart] = useState([]);
 
   const [tipAmount, setTipAmount] = useState(null);
   const [showTipModal, setShowTipModal] = useState(false);
@@ -106,8 +98,9 @@ const OrderProcessingScreen = () => {
   });
 
   const handleCreateResOrder = async () => {
+    console.log(orderType, 'ordertype');
     const payload = {
-      type: orderType === 'DineIn' ? 'DinIn' : 'TakeAway',
+      type: orderType === 'DineIn' ? 'DineIn' : 'TakeAway',
       table_id: tableId || '',
       products: cart.map(item => ({
         pid: item.productId || item.id,
@@ -117,6 +110,7 @@ const OrderProcessingScreen = () => {
       employee_id: userData?._id || '',
       note: '',
     };
+    console.log(payload, 'order payload');
     try {
       const response = await CREATE_RES_ORDER(payload);
       console.log(response, 'Order Response');
@@ -132,24 +126,12 @@ const OrderProcessingScreen = () => {
   };
 
   useEffect(() => {
-    if (isNewOrder) {
-      setCart([]);
-      setTipAmount(null);
-      setDiscountAmount(0);
-      setDiscountCode('');
-      setBuyerInfo(null);
-    } else {
-      setCart([
-        { id: 'c1', name: 'Sodavand (25cl)', price: 35.0, qty: 2, note: '' },
-        { id: 'c2', name: 'Sodavand (25cl)', price: 35.0, qty: 2, note: '' },
-        { id: 'c3', name: 'Sodavand (25cl)', price: 35.0, qty: 2, note: '' },
-      ]);
-      setTipAmount(null);
-      setDiscountAmount(0);
-      setDiscountCode('');
-      setBuyerInfo(null);
-    }
-  }, [isNewOrder, tableNumber]);
+    setCart([]);
+    setTipAmount(null);
+    setDiscountAmount(0);
+    setDiscountCode('');
+    setBuyerInfo(null);
+  }, [isNewOrder, tableId]);
 
   const handleFetchAllCategories = async () => {
     try {

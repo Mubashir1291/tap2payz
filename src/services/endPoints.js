@@ -83,8 +83,8 @@ const ENDPOINTS = {
   },
   Order: {
     GET_ORDERS: '/get-orders',
-    GET_ORDER_DETAIL: '/get-order-detail',
-    GET_ACTIVE_ORDERS: '/get-active-orders',
+    GET_ORDER_DETAIL: '/get-order-details',
+    GET_ACTIVE_ORDERS: '/get-active-order',
     CREATE_ORDER: '/create-order',
     UPDATE_ORDER: '/update-order-status',
     CHANGE_ORDER_STATUS: '/change-order-status',

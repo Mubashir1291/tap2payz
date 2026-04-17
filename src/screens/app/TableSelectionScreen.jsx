@@ -37,24 +37,6 @@ import { GET_FLOORS } from '../../services/Restaurant/Floors/Floor';
 import { GET_TABLES } from '../../services/Restaurant/Tables/Table';
 import RestaurantCartPanel from '../../components/RestaurantCartPanel';
 
-const categories = [
-  { name: 'Beverages', icon: ImageFrameIcon },
-  { name: 'Appetizer', icon: ImageFrameIcon },
-  { name: 'Drinks', icon: ImageFrameIcon },
-  { name: 'Chicken', icon: ImageFrameIcon },
-  { name: 'Whiskey', icon: ImageFrameIcon },
-  { name: 'Wine', icon: ImageFrameIcon },
-  { name: 'Beef', icon: ImageFrameIcon },
-];
-
-const dummyProducts = [
-  { id: '1', name: 'Sodavand (25cl)', price: 16.23 },
-  { id: '2', name: 'Sodavand (25cl)', price: 16.23 },
-  { id: '3', name: 'Sodavand (25cl)', price: 16.23 },
-  { id: '4', name: 'Sodavand (25cl)', price: 16.23 },
-  { id: '5', name: 'Sodavand (25cl)', price: 16.23 },
-];
-
 const TableSelectionScreen = () => {
   const navigation = useNavigation();
   const route = useRoute();
@@ -67,7 +49,7 @@ const TableSelectionScreen = () => {
   const [dropdownPosition, setDropdownPosition] = useState({ top: 0, left: 0, width: 0 });
   const areaSelectorRef = useRef(null);
 
-  const [selectedCategory, setSelectedCategory] = useState('Beverages');
+  const [selectedCategory, setSelectedCategory] = useState(null);
   const [cart, setCart] = useState([]);
   const [tables, setTables] = useState([]);
   const categoryScrollRef = useRef(null);
@@ -160,19 +142,15 @@ const TableSelectionScreen = () => {
   const addToCart = product => {
     const prodId = product._id || product.id || product.productId;
     setCart(prev => {
-      const existing = prev.find(item => item.productId === product.id);
-      // const existing = prev.find(item => item.productId === prodId);
+      const existing = prev.find(item => item.productId === prodId);
       if (existing) {
-        return prev.map(
-          item => (item.productId === product.id ? { ...item, qty: item.qty + 1 } : item),
+        return prev.map(item =>
           item.productId === prodId ? { ...item, qty: item.qty + 1 } : item,
         );
       }
       return [
         ...prev,
         {
-          id: `c_${Date.now()}_${product.id}`,
-          productId: product.id,
           id: `c_${Date.now()}_${prodId}`,
           productId: prodId,
           name: product.name,
@@ -315,13 +293,13 @@ const TableSelectionScreen = () => {
   );
 
   const renderTable = ({ item }) => {
-    const isProcessing = item.status === 'Processing' || processingTables.includes(item.table_no);
+    // Check isAvailable from response: true = available, false = processing
+    const isAvailable = item.isAvailable !== false; // Default to true if not provided
+    const isProcessing =
+      !isAvailable || item.status === 'Processing' || processingTables.includes(item.table_no);
 
-    // Screenshot exact colors:
-    // Available Table: Core = #A4B4FF, Chairs = #3E468A
-    // Processing Table: Core = #FEE4C1, Chairs = #FEE4C1
-    const coreColor = isProcessing ? '#FEE4C1' : '#A4B4FF';
-    const chairColor = isProcessing ? '#FEE4C1' : '#3E468A';
+    const coreColor = !isAvailable ? '#FFFFFF' : isProcessing ? '#FEE4C1' : '#A4B4FF';
+    const chairColor = !isAvailable ? '#FFFFFF' : isProcessing ? '#FEE4C1' : '#3E468A';
 
     return (
       <TouchableOpacity
@@ -331,14 +309,16 @@ const TableSelectionScreen = () => {
           if (isProcessing) {
             navigation.navigate('OrderProcessingScreen', {
               tableNumber: item.table_no,
-              orderType: 'Dine in',
+              orderType: 'DineIn',
               isNewOrder: false,
+              tableId: item._id,
             });
           } else {
             navigation.navigate('OrderProcessingScreen', {
               tableNumber: item.table_no,
-              orderType: 'Dine in',
+              orderType: 'DineIn',
               isNewOrder: true,
+              tableId: item._id,
             });
           }
         }}
@@ -516,19 +496,8 @@ const TableSelectionScreen = () => {
                 }}
                 scrollEventThrottle={16}
               >
-                {categories.map(cat => (
-                  <TouchableOpacity
-                    key={cat.name}
-                    style={[
-                      styles.categoryBtn,
-                      selectedCategory === cat.name && styles.activeCategory,
-                    ]}
-                    onPress={() => setSelectedCategory(cat.name)}
-                  >
-                    <Image source={cat.icon} style={[IconSize16, styles.categoryIcon]} />
-                    <Text style={[styles.categoryText, Subtitle2]}>{cat.name}</Text>
-                  </TouchableOpacity>
-                ))}
+                {/* Categories should be fetched from API and mapped here. 
+                    Removing static dummy categories data as requested. */}
               </ScrollView>
               <TouchableOpacity
                 style={styles.categoryArrow}
@@ -543,8 +512,8 @@ const TableSelectionScreen = () => {
 
             {/* Product Grid */}
             <FlatList
-              data={[...dummyProducts, ...dummyProducts, ...dummyProducts].slice(0, 15)}
-              keyExtractor={(item, index) => `${item.id}-${index}`}
+              data={[]} // Static dummy products removed.
+              keyExtractor={(item, index) => index.toString()}
               renderItem={renderProduct}
               numColumns={5}
               contentContainerStyle={styles.productListContent}

@@ -1,4 +1,3 @@
-import { fetchText } from 'react-native-svg';
 import { Fetch } from '../../config';
 import ENDPOINTS from '../../endPoints';
 import URLS from '../../urls';
@@ -23,11 +22,11 @@ export const CREATE_RES_ORDER = payload => {
   return response;
 };
 
-export const GET_ORDER_DETAIL = id => {
+export const GET_RES_ORDER_DETAIL = id => {
   const response = Fetch.get(`${BASE_PREFIX}${ENDPOINTS.Order.GET_ORDER_DETAIL}/${id}`);
   return response;
 };
-export const GET_ACTIVE_ORDERS = id => {
+export const GET_RES_ACTIVE_ORDERS = id => {
   const response = Fetch.get(`${BASE_PREFIX}${ENDPOINTS.Order.GET_ACTIVE_ORDERS}/${id}`);
   return response;
 };
