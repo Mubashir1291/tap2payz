@@ -32,7 +32,6 @@ import {
   SplitIcon,
   TickIcon,
   CancelOrderIcon,
-  EmployeeIcon,
 } from '../../assets/Images';
 import styles from './OrderProcessingScreenStyles';
 import TipModal from '../../components/TipModal';
@@ -52,14 +51,13 @@ import { useSelector } from 'react-redux';
 import { GET_ALL_CATEGORIES, GET_ALL_PRODUCTS_WITH_INVENTORY } from '../../services/ProductService';
 import Toast from 'react-native-toast-message';
 import { CREATE_RES_ORDER } from '../../services/Restaurant/Order/Order';
-import { CREATE_RES_TRANSACTION } from '../../services/Restaurant/Sales&Transaction/Sales&Transaction';
+import { CREATE_RES_TRANSACTION, GET_TERMINAL_STATUS } from '../../services/Restaurant/Sales&Transaction/Sales&Transaction';
 
 const OrderProcessingScreen = () => {
   const navigation = useNavigation();
   const route = useRoute();
   const { store_id, userData } = useSelector(state => state.user);
   const { deviceId } = useSelector(state => state.device);
-  console.log(deviceId, 'deviceID');
 
   const { tableNumber, tableId, orderType, isNewOrder } = route.params || {};
 
@@ -85,6 +83,8 @@ const OrderProcessingScreen = () => {
   const [selectedCartItem, setSelectedCartItem] = useState(null);
   const [showTapCardModal, setShowTapCardModal] = useState(false);
   const [orderDetail, setOrderDetail] = useState(null);
+  const [terminalReferenceNumber, setTerminalReferenceNumber] = useState('');
+  const [terminalNr, setTerminalNr] = useState('');
 
   // API Data State
   const [products, setProducts] = useState([]);
@@ -104,7 +104,6 @@ const OrderProcessingScreen = () => {
   });
 
   const handleCreateResOrder = async () => {
-    console.log(orderType, 'ordertype');
     const payload = {
       type: isTakeAway ? 'TakeAway' : 'DineIn',
       table_id: tableId || '',
@@ -116,7 +115,6 @@ const OrderProcessingScreen = () => {
       employee_id: userData?._id || '',
       note: '',
     };
-    console.log(payload, 'order payload');
     try {
       const response = await CREATE_RES_ORDER(payload);
       console.log(response, 'Order Response');
@@ -189,18 +187,28 @@ const OrderProcessingScreen = () => {
     }
   }, [store_id]);
 
+
   useEffect(() => {
     if (store_id) {
       handleFetchAllProducts(productSearchQuery, productSearchQuery.page > 1);
     }
   }, [productSearchQuery, store_id]);
 
-  const handleCheckTerminalStatus = async () => {
-    console.log('hello');
+  const handleCheckTerminalStatus = async (order) => {
+    const detail = order || orderDetail;
+    if (!detail?._id) {
+      console.warn('handleCheckTerminalStatus: No order detail available yet');
+      Toast.show({
+        type: 'error',
+        text1: 'Order Required',
+        text2: 'Please process the order first before checking out.',
+      });
+      return;
+    }
     const payload = {
-      order_id: orderDetail?._id,
-      transaction_type: ' CASH',
-      products: orderDetail?.products?.map(item => ({
+      order_id: detail._id,
+      transaction_type: 'CASH',
+      products: detail?.products?.map(item => ({
         product_id: item?.product_id?._id,
         quantity: item?.quantity,
       })),
@@ -210,8 +218,10 @@ const OrderProcessingScreen = () => {
     try {
       const res = await GET_TERMINAL_STATUS(payload);
       console.log(res, 'Terminal Response');
+      setTerminalReferenceNumber(res?.transaction?.referenceNumber || '');
+      setTerminalNr(res?.transaction?.nr || '');
     } catch (error) {
-      console.error('Error fetching categories:', error);
+      console.error('Error checking terminal status:', error);
     }
   };
 
@@ -220,8 +230,8 @@ const OrderProcessingScreen = () => {
       transaction: {
         deviceID: deviceId || '',
         storeID: store_id || '',
-        nr: '',
-        referenceNumber: '',
+        nr: terminalNr || '',
+        referenceNumber: terminalReferenceNumber || '',
         transaction_uuid: `${Date.now()}`,
         transType: method?.toUpperCase() === 'CASH' ? 'CASH' : 'CARD',
         tipAmount: parseFloat(tipAmount) || 0,
@@ -744,7 +754,7 @@ const OrderProcessingScreen = () => {
           setShowProcessModal(false);
           navigation.navigate('TableSelectionScreen', {
             newlyProcessedTable: tableNumber,
-            orderDetail,
+            orderDetail: orderDetail,
           });
         }}
       />

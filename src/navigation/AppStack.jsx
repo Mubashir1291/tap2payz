@@ -11,7 +11,6 @@ import OrderProcessingScreen from '../screens/app/OrderProcessingScreen';
 import TableManagementScreen from '../screens/app/TableManagementScreen';
 import AddNewTableScreen from '../screens/app/AddNewTableScreen';
 import ConnectedDevicesScreen from '../screens/app/ConnectedDevicesScreen';
-import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import TransactionReportScreen from '../screens/app/TransactionReportScreen';
 import { useSelector } from 'react-redux';
 

@@ -43,7 +43,7 @@ import TipModal from '../../components/TipModal';
 import BuyerInfoModal from '../../components/BuyerInfoModal';
 import QuickSaleModal from '../../components/QuickSaleModal';
 import DiscountModal from '../../components/DiscountModal';
-import { GET_TERMINAL_STATUS } from '../../services/Restaurant/Sales&Transaction/Sales&Transaction';
+import { GET_TERMINAL_STATUS, CREATE_RES_TRANSACTION } from '../../services/Restaurant/Sales&Transaction/Sales&Transaction';
 
 const TableSelectionScreen = () => {
   const navigation = useNavigation();
@@ -94,6 +94,9 @@ const TableSelectionScreen = () => {
   const [showCancelModal, setShowCancelModal] = useState(false);
   const [showSuccessModal, setShowSuccessModal] = useState(false);
   const [showTapCardModal, setShowTapCardModal] = useState(false);
+  const [orderDetail, setOrderDetail] = useState(null);
+  const [terminalReferenceNumber, setTerminalReferenceNumber] = useState('');
+  const [terminalNr, setTerminalNr] = useState('');
 
   const [processingTables, setProcessingTables] = useState([]);
 
@@ -144,15 +147,22 @@ const TableSelectionScreen = () => {
     },
     [store_id],
   );
-  const handleCheckTerminalStatus = async () => {
-    console.log('hello');
-    const order = route.params?.orderDetail;
-    console.log(route.params?.orderDetail, 'hello');
+  const handleCheckTerminalStatus = async (order) => {
+    const detail = order || orderDetail || route.params?.orderDetail;
+    if (!detail?._id) {
+      console.warn('handleCheckTerminalStatus: No order detail available yet');
+      Toast.show({
+        type: 'error',
+        text1: 'Order Required',
+        text2: 'Please process the order first before checking out.',
+      });
+      return;
+    }
 
     const payload = {
-      order_id: order?._id,
-      transaction_type: ' CASH',
-      products: order?.products?.map(item => ({
+      order_id: detail._id,
+      transaction_type: 'CASH',
+      products: detail?.products?.map(item => ({
         product_id: item?.product_id?._id,
         quantity: item?.quantity,
       })),
@@ -162,8 +172,10 @@ const TableSelectionScreen = () => {
     try {
       const res = await GET_TERMINAL_STATUS(payload);
       console.log(res, 'Terminal Response');
+      setTerminalReferenceNumber(res?.transaction?.referenceNumber || '');
+      setTerminalNr(res?.transaction?.nr || '');
     } catch (error) {
-      console.error('Error fetching categories:', error);
+      console.error('Error checking terminal status:', error);
     }
   };
 
@@ -198,7 +210,11 @@ const TableSelectionScreen = () => {
       });
       navigation.setParams({ newlyProcessedTable: undefined });
     }
-  }, [route.params?.newlyProcessedTable, navigation]);
+    // Sync orderDetail from route params (coming back from OrderProcessingScreen)
+    if (route.params?.orderDetail) {
+      setOrderDetail(route.params.orderDetail);
+    }
+  }, [route.params?.newlyProcessedTable, route.params?.orderDetail, navigation]);
 
   const toggleDropdown = () => {
     if (areaSelectorRef.current) {
@@ -229,6 +245,8 @@ const TableSelectionScreen = () => {
     try {
       const response = await CREATE_RES_ORDER(payload);
       console.log('Take Away Order Response:', response);
+      const createdOrder = response?.order;
+      setOrderDetail(createdOrder);
       setShowProcessModal(true);
     } catch (error) {
       console.error('Error creating take away order:', error);
@@ -359,7 +377,9 @@ const TableSelectionScreen = () => {
   };
 
   const handleProcessOrder = () => {
+
     if (cart.length === 0) return;
+
     if (activeTab === 'Take Away') {
       handleCreateResOrder();
     } else {
@@ -757,14 +777,41 @@ const TableSelectionScreen = () => {
         onProceed={async data => {
           setShowPaymentModal(false);
           if (data.method === 'Cash') {
-            setShowSuccessModal(true);
+            const payload = {
+              transaction: {
+                deviceID: deviceId || '',
+                storeID: store_id || '',
+                nr: terminalNr || '',
+                referenceNumber: terminalReferenceNumber || '',
+                transaction_uuid: `${Date.now()}`,
+                transType: 'CASH',
+                tipAmount: parseFloat(tipAmount) || 0,
+                transAmntIn: parseFloat(total),
+                transAmntEx: subtotal,
+                discountAmount: discountAmount || 0,
+                discountCode: discountCode || '',
+                discountPercentage: 0,
+                vat: 0,
+                status: 'Completed',
+              },
+            };
+            try {
+              const res = await CREATE_RES_TRANSACTION(payload);
+              console.log(res, 'Transaction Response');
+              setShowSuccessModal(true);
+            } catch (error) {
+              console.error('Error creating transaction:', error);
+              Toast.show({
+                type: 'error',
+                text1: 'Transaction Error',
+                text2: error.message || 'Could not complete transaction',
+              });
+            }
           } else {
             setShowTapCardModal(true);
             try {
               await NfcManager.start();
-              await NfcManager.requestTechnology(NfcTech.Ndef); // Use NfcTech.IsoDep if you are reading standard EMV Credit Cards
-              // const tag = await NfcManager.getTag();
-              // console.log('Card tapped:', tag);
+              await NfcManager.requestTechnology(NfcTech.Ndef);
 
               setShowTapCardModal(false);
               setShowTransactionModal(true);

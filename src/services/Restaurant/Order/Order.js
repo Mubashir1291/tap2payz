@@ -40,7 +40,7 @@ export const UPDATE_TABLE = (id, payload) => {
   const response = Fetch.put(`${BASE_PREFIX}${ENDPOINTS.Order.UPDATE_ORDER}/${id}`, payload);
   return response;
 };
-export const CHANGE_ORDER_STATUS = (id, payload) => {
+export const CHANGE_RES_ORDER_STATUS = (id, payload) => {
   const response = Fetch.put(`${BASE_PREFIX}${ENDPOINTS.Order.CHANGE_ORDER_STATUS}/${id}`, payload);
   return response;
 };
