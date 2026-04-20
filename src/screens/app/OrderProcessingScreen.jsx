@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useRef, useEffect } from 'react';
+import React, { useState, useMemo, useRef, useEffect, useCallback } from 'react';
 import {
   View,
   Text,
@@ -50,7 +50,7 @@ import NfcManager, { NfcTech } from 'react-native-nfc-manager';
 import { useSelector } from 'react-redux';
 import { GET_ALL_CATEGORIES, GET_ALL_PRODUCTS_WITH_INVENTORY } from '../../services/ProductService';
 import Toast from 'react-native-toast-message';
-import { CREATE_RES_ORDER } from '../../services/Restaurant/Order/Order';
+import { CREATE_RES_ORDER, GET_RES_ACTIVE_ORDERS, GET_RES_ORDER_DETAIL } from '../../services/Restaurant/Order/Order';
 import { CREATE_RES_TRANSACTION, GET_TERMINAL_STATUS } from '../../services/Restaurant/Sales&Transaction/Sales&Transaction';
 
 const OrderProcessingScreen = () => {
@@ -103,6 +103,29 @@ const OrderProcessingScreen = () => {
     category_id: '',
   });
 
+  const handleGetResOrderDetail = useCallback(async () => {
+    try {
+      const res = await GET_RES_ACTIVE_ORDERS(tableId);
+      console.log(res, 'Order Details Response');
+      const order = res?.order;
+      if (order) {
+        setOrderDetail(order);
+        // Map products from API response to component cart state
+        const mappedCart = (order.products || []).map(item => ({
+          id: item._id, // Local ID for cart management
+          productId: item.product_id?._id,
+          name: item.product_id?.product_name || 'Unknown',
+          price: item.price,
+          qty: item.quantity,
+          note: item.note || '',
+        }));
+        setCart(mappedCart);
+      }
+    } catch (error) {
+      console.error('Error fetching order details:', error);
+    }
+  }, [tableId]);
+
   const handleCreateResOrder = async () => {
     const payload = {
       type: isTakeAway ? 'TakeAway' : 'DineIn',
@@ -137,7 +160,11 @@ const OrderProcessingScreen = () => {
     setDiscountCode('');
     setBuyerInfo(null);
     setBuyerId(null);
-  }, [isNewOrder, tableId]);
+
+    if (!isNewOrder && tableId) {
+      handleGetResOrderDetail();
+    }
+  }, [isNewOrder, tableId, handleGetResOrderDetail]);
 
   const handleFetchAllCategories = async () => {
     try {
