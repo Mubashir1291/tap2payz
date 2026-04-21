@@ -442,9 +442,9 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     elevation: 10,
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 8 },
+    shadowOffset: { width: 0, height: VS(8) },
     shadowOpacity: 0.15,
-    shadowRadius: 24,
+    shadowRadius: MS(24),
   },
   modalTitle: {
     marginBottom: VS(8),

@@ -1,4 +1,4 @@
-import { VERIFY_DISCOUNT_CODE } from './DiscountReceipts';
+import { CHECK_STORE_DISCOUNT, VERIFY_DISCOUNT_CODE } from './DiscountReceipts';
 
 const ENDPOINTS = {
   AUTH: {
@@ -89,6 +89,7 @@ const ENDPOINTS = {
     UPDATE_ORDER: '/update-order-status',
     CHANGE_ORDER_STATUS: '/change-order-status',
   },
+
   Sales$Transaction: {
     CHECK_TERMINAL_STATUS: '/get-terminal-status',
     CREATE_TRANSACTION: '/create-transaction',
@@ -123,6 +124,7 @@ const ENDPOINTS = {
   },
   Discount: {
     VERIFY_DISCOUNT_CODE: '/verify-discount-code',
+    CHECK_STORE_DISCOUNT: '/check-store-discount',
   },
 };
 

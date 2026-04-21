@@ -280,7 +280,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     backgroundColor: '#E6EAFA',
     borderRadius: MS(10),
-    padding: 10,
+    padding: MS(10),
     marginBottom: VS(16),
   },
   input: { flex: 1 },
@@ -291,10 +291,10 @@ const styles = StyleSheet.create({
   proceedBtn: {
     flexDirection: 'row',
     backgroundColor: '#BECDFF',
-    padding: 12,
-    borderRadius: 10,
+    padding: MS(12),
+    borderRadius: MS(10),
   },
   proceedBtnText: {
-    marginRight: 8,
+    marginRight: S(8),
   },
 });

@@ -85,9 +85,9 @@ const styles = StyleSheet.create({
     padding: MS(16),
     elevation: 2, // shadow for Android
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
+    shadowOffset: { width: 0, height: VS(2) },
     shadowOpacity: 0.1,
-    shadowRadius: 4,
+    shadowRadius: MS(4),
   },
 
   // ─── Table Header ───

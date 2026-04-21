@@ -73,9 +73,16 @@ export const DELETE_CATEGORY = id => {
   return response;
 };
 
-export const VERIFY_DISCOUNT_CODE = code => {
+export const VERIFY_DISCOUNT_CODE = id => {
   const response = Fetch.get(
-    `${BASE_INVENTORY_PREFIX}${ENDPOINTS.Discount.VERIFY_DISCOUNT_CODE}${code}`,
+    `${BASE_PRODUCT_PREFIX}${ENDPOINTS.Discount.VERIFY_DISCOUNT_CODE}${id}`,
   );
   return response;
 };
+export const CHECK_STORE_DISCOUNT = store_id => {
+  const response = Fetch.get(
+    `${BASE_PRODUCT_PREFIX}${ENDPOINTS.Discount.CHECK_STORE_DISCOUNT}?store_id=${store_id}`,
+  );
+  return response;
+};
+// export const

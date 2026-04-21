@@ -151,14 +151,18 @@ const SaleScreen = () => {
 
   const renderProduct = ({ item }) => (
     <TouchableOpacity
-      style={[styles.productCard, item.quantitySold >= item.quantity && styles.outOfStockCard]}
+      style={[
+        styles.productCard,
+        item.quantity <= 0 && styles.outOfStockCard,
+        item.quantity <= 0 && { backgroundColor: '#E0E0E0' },
+      ]}
       activeOpacity={0.5}
       onPress={() => {
-        if (item.quantitySold >= item.quantity) {
+        if (item.quantity <= 0) {
           Toast.show({
             type: 'error',
             text1: 'Out of Stock',
-            text2: `${item.product_name} is currently out of stock.`,
+            text2: `${item.name} is currently out of stock.`,
           });
         } else {
           addToCart(item);
@@ -169,7 +173,8 @@ const SaleScreen = () => {
         <Text style={[styles.priceText, Caption]}>${item.price}</Text>
       </View>
       <Image source={ImageFrameIcon} style={styles.productImage} />
-      <Text style={[styles.productName, Subtitle2]}>{item.name}</Text>
+      <Text style={[styles.productName, Subtitle2, item.quantity <= 0 && { color: 'red' }]}>{item.name}</Text>
+      {item.quantity <= 0 && <Text style={[Caption, { color: 'red', textAlign: 'center' }]}>Out of Stock</Text>}
     </TouchableOpacity>
   );
 

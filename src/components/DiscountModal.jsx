@@ -2,9 +2,16 @@ import React, { useState, useEffect } from 'react';
 import { View, Text, Modal, StyleSheet, TouchableOpacity, TextInput } from 'react-native';
 import { Colors } from '../utils/Colors';
 import { S, VS, MS } from '../utils/Responsive';
-import { H3, Body1, ButtonText, Subtitle2 } from '../utils/fonts';
+import { H3, Body1, ButtonText, Subtitle2, Caption } from '../utils/fonts';
 
-const DiscountModal = ({ visible, onClose, onSave, onDelete, initialDiscountCode = '' }) => {
+const DiscountModal = ({
+  visible,
+  onClose,
+  onSave,
+  onDelete,
+  initialDiscountCode = '',
+  availableDiscount,
+}) => {
   const [code, setCode] = useState(initialDiscountCode);
 
   useEffect(() => {
@@ -27,6 +34,15 @@ const DiscountModal = ({ visible, onClose, onSave, onDelete, initialDiscountCode
           </TouchableOpacity>
 
           <Text style={[styles.title, H3]}>{isEdit ? 'Edit Discount' : 'Add Discount'}</Text>
+
+          {/* {availableDiscount && (
+            <View style={styles.promoContainer}>
+              <Text style={[Caption, styles.promoText]}>
+                Available: <Text style={{ fontWeight: 'bold' }}>{availableDiscount.code}</Text> (
+                {availableDiscount.percentage}%)
+              </Text>
+            </View>
+          )} */}
 
           <View style={styles.inputContainer}>
             <Text style={[styles.inputLabel, Body1]}>Add Discount Code</Text>
@@ -99,8 +115,20 @@ const styles = StyleSheet.create({
   },
   title: {
     color: Colors.black,
-    marginBottom: VS(24),
+    marginBottom: VS(12),
     textAlign: 'center',
+  },
+  promoContainer: {
+    backgroundColor: '#E8F5E9',
+    paddingVertical: VS(6),
+    paddingHorizontal: S(12),
+    borderRadius: MS(8),
+    marginBottom: VS(16),
+    borderWidth: 1,
+    borderColor: '#C8E6C9',
+  },
+  promoText: {
+    color: '#2E7D32',
   },
   inputContainer: {
     width: '100%',

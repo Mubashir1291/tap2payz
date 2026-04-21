@@ -4,7 +4,7 @@ import URLS from '../../urls';
 
 const BASE_PREFIX = `${URLS.RESTAURANT_SERVICE}/orders`;
 
-export const GET_ORDERS = ({
+export const GET_RES_ORDERS = ({
   page = 1,
   itemsPerPage = 10,
   store_id = '',
@@ -13,7 +13,7 @@ export const GET_ORDERS = ({
   sort = '',
 } = {}) => {
   const response = Fetch.get(
-    `${BASE_PREFIX}${ENDPOINTS.Order.GET_ORDERS}?page=${page}&itemsPerPage=${itemsPerPage}&store_id=${store_id} &status=${status}&type=${type}&sort=${sort}`,
+    `${BASE_PREFIX}${ENDPOINTS.Order.GET_ORDERS}?page=${page}&itemsPerPage=${itemsPerPage}&store_id=${store_id}&status=${status}&type=${type}&sort=${sort}`,
   );
   return response;
 };

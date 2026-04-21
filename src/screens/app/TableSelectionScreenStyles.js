@@ -108,9 +108,9 @@ const styles = StyleSheet.create({
     padding: MS(8),
     elevation: 5,
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
+    shadowOffset: { width: 0, height: VS(2) },
     shadowOpacity: 0.25,
-    shadowRadius: 3.84,
+    shadowRadius: MS(3.84),
   },
   dropdownItem: {
     paddingVertical: VS(10),

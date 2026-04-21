@@ -18,6 +18,7 @@ import {
   Overline,
   H2,
   ButtonTextSmall,
+  Body2,
 } from '../../utils/fonts';
 import { IconSize12, IconSize16, IconSize20, IconSize24, IconSize40 } from '../../utils/IconSizes';
 import {
@@ -48,10 +49,17 @@ import TransactionProcessModal from '../../components/TransactionProcessModal';
 import TapCardModal from '../../components/TapCardModal';
 import NfcManager, { NfcTech } from 'react-native-nfc-manager';
 import { useSelector } from 'react-redux';
-import { GET_ALL_CATEGORIES, GET_ALL_PRODUCTS_WITH_INVENTORY } from '../../services/ProductService';
+import {
+  CHECK_STORE_DISCOUNT,
+  GET_ALL_CATEGORIES,
+  GET_ALL_PRODUCTS_WITH_INVENTORY,
+} from '../../services/ProductService';
 import Toast from 'react-native-toast-message';
-import { CREATE_RES_ORDER, GET_RES_ACTIVE_ORDERS, GET_RES_ORDER_DETAIL } from '../../services/Restaurant/Order/Order';
-import { CREATE_RES_TRANSACTION, GET_TERMINAL_STATUS } from '../../services/Restaurant/Sales&Transaction/Sales&Transaction';
+import { CREATE_RES_ORDER, GET_RES_ACTIVE_ORDERS } from '../../services/Restaurant/Order/Order';
+import {
+  CREATE_RES_TRANSACTION,
+  GET_TERMINAL_STATUS,
+} from '../../services/Restaurant/Sales&Transaction/Sales&Transaction';
 
 const OrderProcessingScreen = () => {
   const navigation = useNavigation();
@@ -85,6 +93,7 @@ const OrderProcessingScreen = () => {
   const [orderDetail, setOrderDetail] = useState(null);
   const [terminalReferenceNumber, setTerminalReferenceNumber] = useState('');
   const [terminalNr, setTerminalNr] = useState('');
+  const [availableDiscount, setAvailableDiscount] = useState(null);
 
   // API Data State
   const [products, setProducts] = useState([]);
@@ -214,14 +223,13 @@ const OrderProcessingScreen = () => {
     }
   }, [store_id]);
 
-
   useEffect(() => {
     if (store_id) {
       handleFetchAllProducts(productSearchQuery, productSearchQuery.page > 1);
     }
   }, [productSearchQuery, store_id]);
 
-  const handleCheckTerminalStatus = async (order) => {
+  const handleCheckTerminalStatus = async order => {
     const detail = order || orderDetail;
     if (!detail?._id) {
       console.warn('handleCheckTerminalStatus: No order detail available yet');
@@ -247,8 +255,15 @@ const OrderProcessingScreen = () => {
       console.log(res, 'Terminal Response');
       setTerminalReferenceNumber(res?.transaction?.referenceNumber || '');
       setTerminalNr(res?.transaction?.nr || '');
+      return true;
     } catch (error) {
       console.error('Error checking terminal status:', error);
+      Toast.show({
+        type: 'error',
+        text1: 'Terminal Error',
+        text2: error.message || 'Could not check terminal status',
+      });
+      return false;
     }
   };
 
@@ -275,8 +290,15 @@ const OrderProcessingScreen = () => {
     try {
       const res = await CREATE_RES_TRANSACTION(payload);
       console.log(res, 'Transaction Response');
+      return res;
     } catch (error) {
       console.error('Error creating transaction:', error);
+      Toast.show({
+        type: 'error',
+        text1: 'Transaction Error',
+        text2: error.message || 'Could not complete transaction',
+      });
+      throw error;
     }
   };
 
@@ -461,9 +483,12 @@ const OrderProcessingScreen = () => {
     setDiscountCode('');
     setBuyerInfo(null);
     setBuyerId(null);
-    navigation.navigate('TableSelectionScreen', {
-      newlyProcessedTable: isTakeAway ? undefined : tableNumber,
-      orderType: isTakeAway ? 'Take Away' : 'Dine in',
+    navigation.navigate('MainDrawer', {
+      screen: 'TableSelectionScreen',
+      params: {
+        newlyProcessedTable: isTakeAway ? undefined : tableNumber,
+        orderType: isTakeAway ? 'Take Away' : 'Dine in',
+      },
     });
   };
 
@@ -479,27 +504,50 @@ const OrderProcessingScreen = () => {
     setShowNoteModal(false);
   };
 
-  const handleSaveDiscount = code => {
-    setDiscountCode(code);
-    // Dummy logic: if code exists, apply $10 discount
-    if (code.length > 0) {
-      setDiscountAmount(10);
-    } else {
-      setDiscountAmount(0);
-    }
-  };
+  // const handleSaveDiscount = code => {
+  //   setDiscountCode(code);
+  //   // Commented out available discount logic for future use
+  //   // if (availableDiscount && code === availableDiscount.code) {
+  //   //   const percentage = parseFloat(availableDiscount.percentage) || 0;
+  //   //   const amount = (subtotal * percentage) / 100;
+  //   //   setDiscountAmount(amount);
+  //   // } else
+  //   if (code.length > 0) {
+  //     setDiscountAmount(10); // Default/Dummy fallback
+  //   } else {
+  //     setDiscountAmount(0);
+  //   }
+  // };
 
-  const handleDeleteDiscount = () => {
-    setDiscountCode('');
-    setDiscountAmount(0);
-  };
+  // const handleDeleteDiscount = () => {
+  //   setDiscountCode('');
+  //   setDiscountAmount(0);
+  // };
 
   const renderProduct = ({ item }) => (
     <TouchableOpacity
-      style={styles.productCard}
+      style={[
+        styles.productCard,
+        item?.quantity <= 0 && [styles.outOfStockCard, { backgroundColor: '#E0E0E0' }],
+      ]}
       activeOpacity={0.7}
-      onPress={() => addToCart(item)}
+      onPress={() => {
+        if (item.quantity <= 0) {
+          Toast.show({
+            type: 'error',
+            text1: 'Out of Stock',
+            text2: `${item.name} is currently out of stock.`,
+          });
+        } else {
+          addToCart(item);
+        }
+      }}
     >
+      {item?.quantity <= 0 && (
+        <View style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, justifyContent: 'center', alignItems: 'center', zIndex: 1 }}>
+          <Text style={[Body2, { color: 'red', textAlign: 'center', fontWeight: 'bold' }]}>Out of Stock</Text>
+        </View>
+      )}
       <View style={styles.priceTag}>
         <Text style={[styles.priceText, Overline]}>$ {item.price}</Text>
       </View>
@@ -597,7 +645,7 @@ const OrderProcessingScreen = () => {
               <Text style={[styles.splitText, Body3]}>Split Items</Text>
             </TouchableOpacity>
           )}
-          <Text style={[styles.cashierInfo, Body3]}>Cashier: Jane</Text>
+          <Text style={[styles.cashierInfo, Body3]}>Cashier:{userData?.employee_name}</Text>
         </View>
 
         <FlatList
@@ -650,7 +698,13 @@ const OrderProcessingScreen = () => {
 
         {/* Action Buttons */}
         <View style={styles.actionRow}>
-          <TouchableOpacity style={styles.actionBtn} onPress={() => setShowDiscountModal(true)}>
+          {/* <TouchableOpacity
+            style={styles.actionBtn}
+            onPress={() => {
+              // handleCheckDiscountCode(); // Commented out for now
+              setShowDiscountModal(true);
+            }}
+          >
             <View style={styles.relativePosition}>
               <Image source={DiscountIcon} style={[IconSize20, styles.actionIcon]} />
               {discountCode.length > 0 && (
@@ -658,7 +712,7 @@ const OrderProcessingScreen = () => {
               )}
             </View>
             <Text style={Overline}>Discount</Text>
-          </TouchableOpacity>
+          </TouchableOpacity> */}
           <TouchableOpacity style={styles.actionBtn} onPress={handleOpenTipModal}>
             <View style={styles.relativePosition}>
               <Image source={DollarIcon} style={IconSize20} />
@@ -725,9 +779,11 @@ const OrderProcessingScreen = () => {
           <TouchableOpacity
             style={[styles.primaryBtn, cart.length === 0 && styles.primaryBtnDisabled]}
             disabled={cart.length === 0}
-            onPress={() => {
-              handleCheckTerminalStatus();
-              setShowPaymentModal(true);
+            onPress={async () => {
+              const isTerminalReady = await handleCheckTerminalStatus();
+              if (isTerminalReady) {
+                setShowPaymentModal(true);
+              }
             }}
           >
             <Text style={[styles.primaryBtnText, ButtonText]}>Proceeds to Checkout</Text>
@@ -779,9 +835,12 @@ const OrderProcessingScreen = () => {
         onClose={() => setShowProcessModal(false)}
         onPrintBill={() => {
           setShowProcessModal(false);
-          navigation.navigate('TableSelectionScreen', {
-            newlyProcessedTable: tableNumber,
-            orderDetail: orderDetail,
+          navigation.navigate('MainDrawer', {
+            screen: 'TableSelectionScreen',
+            params: {
+              newlyProcessedTable: tableNumber,
+              orderDetail: orderDetail,
+            },
           });
         }}
       />
@@ -793,13 +852,14 @@ const OrderProcessingScreen = () => {
         initialNote={selectedCartItem?.note || ''}
       />
 
-      <DiscountModal
+      {/* <DiscountModal
         visible={showDiscountModal}
         onClose={() => setShowDiscountModal(false)}
         onSave={handleSaveDiscount}
         onDelete={handleDeleteDiscount}
         initialDiscountCode={discountCode}
-      />
+        availableDiscount={availableDiscount}
+      /> */}
 
       <PaymentMethodModal
         visible={showPaymentModal}
@@ -810,8 +870,12 @@ const OrderProcessingScreen = () => {
           setShowPaymentModal(false);
 
           if (data.method?.toLowerCase() === 'cash') {
-            await handleResTransaction(data.method);
-            setShowSuccessModal(true);
+            try {
+              await handleResTransaction(data.method);
+              setShowSuccessModal(true);
+            } catch (error) {
+              // Error handled in handleResTransaction
+            }
           } else {
             setShowTapCardModal(true);
             try {

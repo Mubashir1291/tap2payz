@@ -10,6 +10,7 @@ import {
   Modal,
   TouchableWithoutFeedback,
 } from 'react-native';
+import Toast from 'react-native-toast-message';
 import { useSelector } from 'react-redux';
 import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import { Colors } from '../../utils/Colors';
@@ -42,6 +43,7 @@ const TableManagementScreen = () => {
   const [isAreaDropdownVisible, setIsAreaDropdownVisible] = useState(false);
   const [dropdownPosition, setDropdownPosition] = useState({ top: 0, left: 0, width: 0 });
   const areaSelectorRef = useRef(null);
+
 
   const handleDeletePress = table => {
     setSelectedTable(table);
@@ -88,39 +90,72 @@ const TableManagementScreen = () => {
   };
 
   const confirmDelete = async () => {
+    if (!selectedTable?._id) return;
     try {
       const response = await DELETE_TABLE(selectedTable._id);
       console.log('Table deleted successfully:', response);
+      setShowDeleteModal(false);
+      setSuccessMessage('Table Deleted Successfully');
+      setShowSuccessModal(true);
+      // Refresh the current page
+      handleGetTables({ page, itemsPerPage: 10 });
     } catch (error) {
-      // TODO: Handle error more gracefully, e.g., show a Toast message
-      console.log('Something Wrong', error);
+      console.error('Error deleting table:', error);
+      Toast.show({
+        type: 'error',
+        text1: 'Delete Failed',
+        text2: error.message || 'Something went wrong while deleting the table.',
+      });
+      setShowDeleteModal(false);
     }
-    setShowDeleteModal(false);
-    setSuccessMessage('Table Deleted Successfully');
-    setShowSuccessModal(true);
   };
 
   const confirmEdit = async updatedSeats => {
+    if (!selectedTable?._id) return;
     try {
-      const response = await UPDATE_TABLE(selectedTable._id, { seats: updatedSeats });
+      const response = await UPDATE_TABLE(selectedTable._id, {
+        seats: parseInt(updatedSeats, 10) || 0
+      });
       console.log('Table updated successfully:', response);
+
+      // Update local state for immediate UI feedback (optional but good)
+      setTables(prev =>
+        prev.map(t =>
+          (t._id || t.id) === (selectedTable._id || selectedTable.id)
+            ? { ...t, seats: updatedSeats }
+            : t,
+        ),
+      );
+
+      setShowEditModal(false);
+      setSuccessMessage('Table Updated Successfully');
+      setShowSuccessModal(true);
+      handleGetTables({ page, itemsPerPage: 10 }); // Refetch to sync with server
     } catch (error) {
-      // TODO: Handle error more gracefully, e.g., show a Toast message
+      console.error('Error updating table:', error);
+      Toast.show({
+        type: 'error',
+        text1: 'Update Failed',
+        text2: error.message || 'Could not update table seats.',
+      });
+    }
+  };
+
+  const handleUpdateTable = async () => {
+    if (!editingTable?._id) return;
+    try {
+      const payload = { seats: parseInt(editSeats, 10) || 0 };
+      const response = await UPDATE_TABLE(editingTable._id, payload);
+      console.log('Table updated successfully:', response);
+
+      setShowEditModal(false);
+      setSuccessMessage('Table Updated Successfully');
+      setShowSuccessModal(true);
+      setTimeout(() => setShowSuccessModal(false), 2000);
+      handleGetTables(selectedArea._id); // Refresh data from server
+    } catch (error) {
       console.error('Error updating table:', error);
     }
-
-    // Local UI update
-    setTables(prev =>
-      prev.map(t =>
-        (t._id || t.id) === (selectedTable._id || selectedTable.id)
-          ? { ...t, seats: updatedSeats }
-          : t,
-      ),
-    );
-    handleGetTables({ page: 1, itemsPerPage: 10 }); // Refetch tables after successful edit
-    setShowEditModal(false);
-    setSuccessMessage('Table Updated Successfully');
-    setShowSuccessModal(true);
   };
 
   const renderItem = ({ item }) => (
@@ -334,10 +369,7 @@ const TableManagementScreen = () => {
       <DeleteTableModal
         visible={showDeleteModal}
         onClose={() => setShowDeleteModal(false)}
-        onDelete={async () => {
-          await confirmDelete();
-          handleGetTables({ page: 1, itemsPerPage: 10 });
-        }} // Refetch after delete
+        onDelete={confirmDelete}
       />
 
       <EditTableModal

@@ -43,7 +43,10 @@ import TipModal from '../../components/TipModal';
 import BuyerInfoModal from '../../components/BuyerInfoModal';
 import QuickSaleModal from '../../components/QuickSaleModal';
 import DiscountModal from '../../components/DiscountModal';
-import { GET_TERMINAL_STATUS, CREATE_RES_TRANSACTION } from '../../services/Restaurant/Sales&Transaction/Sales&Transaction';
+import {
+  GET_TERMINAL_STATUS,
+  CREATE_RES_TRANSACTION,
+} from '../../services/Restaurant/Sales&Transaction/Sales&Transaction';
 
 const TableSelectionScreen = () => {
   const navigation = useNavigation();
@@ -147,7 +150,7 @@ const TableSelectionScreen = () => {
     },
     [store_id],
   );
-  const handleCheckTerminalStatus = async (order) => {
+  const handleCheckTerminalStatus = async order => {
     const detail = order || orderDetail || route.params?.orderDetail;
     if (!detail?._id) {
       console.warn('handleCheckTerminalStatus: No order detail available yet');
@@ -178,6 +181,11 @@ const TableSelectionScreen = () => {
       console.error('Error checking terminal status:', error);
     }
   };
+  useFocusEffect(
+    useCallback(() => {
+      handleGetTables();
+    }, [handleGetTables])
+  )
 
   useFocusEffect(
     useCallback(() => {
@@ -355,11 +363,11 @@ const TableSelectionScreen = () => {
 
   const handleSaveDiscount = code => {
     setDiscountCode(code);
-    if (code.length > 0) {
-      setDiscountAmount(10); // Dummy logic
-    } else {
-      setDiscountAmount(0);
-    }
+    // if (code.length > 0) {
+    //   setDiscountAmount(10); // Dummy logic
+    // } else {
+    //   setDiscountAmount(0);
+    // }
   };
 
   const handleDeleteDiscount = () => {
@@ -377,7 +385,6 @@ const TableSelectionScreen = () => {
   };
 
   const handleProcessOrder = () => {
-
     if (cart.length === 0) return;
 
     if (activeTab === 'Take Away') {

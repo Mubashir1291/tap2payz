@@ -12,6 +12,7 @@ import {
   BuyersIcon,
 } from '../assets/Images';
 import styles from '../screens/app/TableSelectionScreenStyles';
+import { useSelector } from 'react-redux';
 
 const RestaurantCartPanel = ({
   cart,
@@ -36,13 +37,16 @@ const RestaurantCartPanel = ({
   handleCheckTerminalStatus,
 }) => {
   const navigation = useNavigation();
+  const { userData } = useSelector(state => state.user);
 
   return (
     <View style={styles.cartPanel}>
       {/* Top Header */}
       <View style={styles.cartPanelHeaderRow}>
-        <Text style={[styles.cartHeaderText, Subtitle1]}>Table #:</Text>
-        <Text style={[styles.cartHeaderText, Subtitle1]}>Cashier: Jane</Text>
+        <Text style={[styles.cartHeaderText, Subtitle1]}>
+          {activeTab === 'Take Away' ? 'Take Away' : 'Table #:'}
+        </Text>
+        <Text style={[styles.cartHeaderText, Subtitle1]}>Cashier: {userData?.employee_name}</Text>
       </View>
 
       {/* Cart Listing */}
@@ -110,7 +114,7 @@ const RestaurantCartPanel = ({
 
       {/* Actions Rows */}
       <View style={styles.actionRow}>
-        <TouchableOpacity style={styles.actionBtn} onPress={() => setShowDiscountModal(true)}>
+        {/* <TouchableOpacity style={styles.actionBtn} onPress={() => setShowDiscountModal(true)}>
           <View style={styles.relativePosition}>
             <Image source={DiscountIcon} style={[IconSize16, styles.actionIcon]} />
             {discountCode.length > 0 && (
@@ -118,7 +122,7 @@ const RestaurantCartPanel = ({
             )}
           </View>
           <Text style={Overline}>Discount</Text>
-        </TouchableOpacity>
+        </TouchableOpacity> */}
         <TouchableOpacity style={styles.actionBtn} onPress={() => setShowTipModal(true)}>
           <View style={styles.relativePosition}>
             <Image source={DollarIcon} style={[IconSize16, styles.actionIcon]} />

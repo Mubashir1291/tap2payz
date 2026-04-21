@@ -326,9 +326,9 @@ export default StyleSheet.create({
     backgroundColor: Colors.white,
     elevation: 8,
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
+    shadowOffset: { width: 0, height: VS(4) },
     shadowOpacity: 0.3,
-    shadowRadius: 6,
+    shadowRadius: MS(6),
     width: '100%',
   },
   actionOverlayArrow: {

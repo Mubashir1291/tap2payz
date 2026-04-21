@@ -21,7 +21,6 @@ import { OPEN_REGISTER, GET_CASH_REGISTER } from '../../services/StoreService';
 import Toast from 'react-native-toast-message';
 import { useSelector } from 'react-redux';
 import { setCashRegisterData } from '../../redux/Reducers/deviceReducer';
-import { navigate } from '../../navigation/NavigationRef';
 import { useFocusEffect } from '@react-navigation/native';
 
 const numpadKeys = [
@@ -70,12 +69,8 @@ const OpenRegisterScreen = ({ navigation }) => {
       store.dispatch(setCashRegisterData(response?.cashRegister ?? response?.closedRegister));
 
       if (response?.cashRegister && !response?.cashRegister?.is_close) {
-        // Check business type for redirection
-        if (userData?.business_type?.toLowerCase() === 'restaurant') {
-          navigate('TableSelectionScreen');
-        } else {
-          navigate('SaleScreen');
-        }
+        // Redux update is handled at line 69. 
+        // AppStack will automatically swap to MainDrawer.
       }
     } catch (error) {
       // If the error is just that the register isn't found, we don't show a toast
@@ -150,9 +145,9 @@ const OpenRegisterScreen = ({ navigation }) => {
   const handleSkip = () => {
     // Direct user after skipping based on business type
     if (userData?.business_type?.toLowerCase() === 'restaurant') {
-      navigate('TableSelectionScreen');
+      navigation.navigate('MainDrawer', { screen: 'TableSelectionScreen' });
     } else {
-      navigate('SaleScreen');
+      navigation.navigate('MainDrawer', { screen: 'SaleScreen' });
     }
   };
 
@@ -193,13 +188,7 @@ const OpenRegisterScreen = ({ navigation }) => {
       setIsModalVisible(false);
 
       store.dispatch(setCashRegisterData(response?.newCashRegister));
-
-      // Direct user after successful open based on business type
-      if (userData?.business_type?.toLowerCase() === 'restaurant') {
-        navigate('TableSelectionScreen');
-      } else {
-        navigate('SaleScreen');
-      }
+      // AppStack will automatically switch to the MainDrawer now.
     } catch (error) {
       Toast.show({
         type: 'error',

@@ -1,23 +1,14 @@
-import React, { useEffect, useState } from 'react';
-import { View, Text, TouchableOpacity, Image, TextInput, FlatList, StatusBar } from 'react-native';
+import React, { useEffect, useState, useCallback, useRef } from 'react';
+import { View, Text, TouchableOpacity, Image, TextInput, FlatList, StatusBar, ActivityIndicator } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
-import { SearchIcon, LeftArrowIcon } from '../../assets/Images';
+import { SearchIcon, LeftArrowIcon, RightArrowIcon } from '../../assets/Images';
 import { H1, Subtitle2, Body3 } from '../../utils/fonts';
 import { IconSize12, IconSize24 } from '../../utils/IconSizes';
 import styles from './ViewOrdersScreenStyles';
 import ViewInvoiceModal from '../../components/ViewInvoiceModal';
-import { GET_RES_ORDER_DETAIL } from '../../services/Restaurant/Order/Order';
-
-// Dummy data based on the screenshot
-const dummyOrders = Array.from({ length: 15 }, (_, i) => ({
-  id: `559${4 + i}`,
-  table: (i + 1).toString().padStart(2, '0'),
-  waiter: 'Joe Smith',
-  handleBy: 'Joe Smith',
-  date: '30 Apr 2024, 04:06 PM',
-  total: '$ 12,000',
-  subTotal: '$ 12,000',
-}));
+import { GET_RES_ORDERS } from '../../services/Restaurant/Order/Order';
+import { useSelector } from 'react-redux';
+import { Colors } from '../../utils/Colors';
 
 const ViewOrdersScreen = () => {
   const navigation = useNavigation();
@@ -25,23 +16,77 @@ const ViewOrdersScreen = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [modalVisible, setModalVisible] = useState(false);
   const [selectedOrder, setSelectedOrder] = useState(null);
-  const [orderDetails, setOrderDetails] = useState(null);
-  const [isDetailLoading, setIsDetailLoading] = useState(false);
+  const [orders, setOrders] = useState([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const [paginationData, setPaginationData] = useState(null);
+  const [page, setPage] = useState(1);
+  const { store_id } = useSelector(state => state.user);
 
-  // const handleGetResOrderDetail = async id => {
-  //   setIsDetailLoading(true);
-  //   try {
-  //     const response = await GET_RES_ORDER_DETAIL(id);
-  //     setOrderDetails(response);
-  //   } catch (error) {
-  //     console.error('Error fetching order details:', error);
-  //   } finally {
-  //     setIsDetailLoading(false);
-  //   }
-  // };
-  // useEffect(() => {
-  //   handleGetResOrderDetail();
-  // }, []);
+  const isFirstRender = useRef(true);
+
+  const handleGetResOrders = useCallback(async (pageNumber = 1) => {
+    if (!store_id) return;
+
+    const statusMap = {
+      'All': '',
+      'Completed': 'Completed',
+      'In Processing': 'Processing',
+    };
+
+    const payload = {
+      page: pageNumber,
+      itemsPerPage: 10,
+      store_id,
+      status: statusMap[activeTab],
+      // type: 'DineIn',
+      // sort: 'desc',
+
+    };
+
+    setIsLoading(true);
+    try {
+      const response = await GET_RES_ORDERS(payload);
+      console.log(response, 'response');
+      console.log(payload, 'payload');
+      const mappedOrders = (response?.items || []).map(item => ({
+
+        id: item._id,
+        table: item.table_id?.table_no || 'N/A',
+        // waiter: item.employee_id?.employee_name || 'N/A',
+        handleBy: item?.transactions[0]?.empID?.employee_name || 'N/A',
+        date: new Date(item.updated_at).toLocaleString('en-GB', {
+          day: '2-digit',
+          month: 'short',
+          year: 'numeric',
+          hour: '2-digit',
+          minute: '2-digit',
+          hour12: true,
+        }),
+        total: `$ ${item.total_price?.toFixed(2) || '0.00'}`,
+        subTotal: `$ ${item.subtotal?.toFixed(2) || '0.00'}`,
+      }));
+      setOrders(mappedOrders);
+      setPaginationData(response);
+      setPage(pageNumber);
+    } catch (error) {
+      console.error('Error fetching orders:', error);
+    } finally {
+      setIsLoading(false);
+    }
+  }, [store_id, activeTab, searchQuery]);
+
+  useEffect(() => {
+    handleGetResOrders(1);
+  }, [handleGetResOrders]);
+
+  // Optional: Reset page when tab changes
+  useEffect(() => {
+    if (isFirstRender.current) {
+      isFirstRender.current = false;
+      return;
+    }
+    setPage(1);
+  }, [activeTab]);
 
   const handleOpenInvoice = orderNumber => {
     setSelectedOrder(orderNumber);
@@ -153,28 +198,46 @@ const ViewOrdersScreen = () => {
         </View>
 
         {/* Table List */}
-        <FlatList
-          data={dummyOrders}
-          keyExtractor={item => item.id}
-          renderItem={renderOrderRow}
-          showsVerticalScrollIndicator={false}
-          ListFooterComponent={
-            <View style={styles.paginationRow}>
-              <TouchableOpacity style={styles.pageBtn}>
-                <Image source={LeftArrowIcon} style={[IconSize12, styles.pageIcon]} />
-              </TouchableOpacity>
-              <Text style={[styles.pageText, Body3]}>01</Text>
-              <TouchableOpacity style={styles.pageBtn}>
-                {/* Reusing LeftArrowIcon and rotating it by 180 deg in style if needed, or simply using text. Wait, we have RightArrowIcon exported. We can import it. */}
-                <Image
-                  source={LeftArrowIcon}
-                  style={[IconSize12, styles.pageIcon, { transform: [{ rotate: '180deg' }] }]}
-                />
-              </TouchableOpacity>
-              <Text style={[styles.pageText, Body3]}>out of 20</Text>
-            </View>
-          }
-        />
+        {isLoading ? (
+          <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+            <ActivityIndicator size="large" color={Colors.primary} />
+          </View>
+        ) : (
+          <FlatList
+            data={orders}
+            keyExtractor={item => item.id}
+            renderItem={renderOrderRow}
+            showsVerticalScrollIndicator={false}
+            ListEmptyComponent={
+              <View style={{ padding: 40, alignItems: 'center' }}>
+                <Text style={[Subtitle2, { color: Colors.grey }]}>No orders found.</Text>
+              </View>
+            }
+            ListFooterComponent={
+              <View style={styles.paginationRow}>
+                <TouchableOpacity
+                  style={[styles.pageBtn, page <= 1 && { opacity: 0.5 }]}
+                  onPress={() => handleGetResOrders(page - 1)}
+                  disabled={page <= 1}
+                >
+                  <Image source={LeftArrowIcon} style={[IconSize12, styles.pageIcon]} />
+                </TouchableOpacity>
+                <Text style={[styles.pageText, Body3]}>{String(page).padStart(2, '0')}</Text>
+                <TouchableOpacity
+                  style={[styles.pageBtn, !paginationData?.hasNextPage && { opacity: 0.5 }]}
+                  onPress={() => handleGetResOrders(page + 1)}
+                  disabled={!paginationData?.hasNextPage}
+                >
+                  <Image
+                    source={RightArrowIcon}
+                    style={[IconSize12, styles.pageIcon]}
+                  />
+                </TouchableOpacity>
+                <Text style={[styles.pageText, Body3]}>out of {String(paginationData?.lastPage || 1).padStart(2, '0')}</Text>
+              </View>
+            }
+          />
+        )}
       </View>
 
       <ViewInvoiceModal

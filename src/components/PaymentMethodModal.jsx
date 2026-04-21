@@ -96,6 +96,7 @@ const PaymentMethodModal = ({
                 onChangeText={setEnteredAmount}
                 keyboardType="numeric"
                 placeholder={`${currency} 0.00`}
+                placeholderTextColor={Colors.grey}
               />
             </View>
           </View>
