@@ -1,6 +1,6 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useEffect } from 'react';
 import { View, Text, StatusBar, TouchableOpacity, Image, ScrollView } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
+import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import { LineChart, PieChart } from 'react-native-gifted-charts';
 import { Colors } from '../../utils/Colors';
 import { S, VS, MS } from '../../utils/Responsive';
@@ -26,6 +26,8 @@ import XReport from './XReport';
 import InventoryManagement from './InventoryManagement';
 import TransactionReportScreen from './TransactionReportScreen';
 import { GET_ALL_PRODUCTS_WITH_INVENTORY } from '../../services/ProductService';
+import { GET_WEEKLY_ANALYTICS, GET_X_REPORT } from '../../services/Sales&Analytics';
+import { useSelector } from 'react-redux';
 
 const tabs = [
   { label: 'Reports Overview', icon: OverviewIcon },
@@ -67,11 +69,7 @@ const refundLineData = [
   { value: 70 },
 ];
 
-const pieData = [
-  { value: 65.8, color: '#3B4B8A', text: "Men's Leather Jacket" },
-  { value: 30.5, color: '#7FD4E8', text: "Women's Jeans..." },
-  { value: 3.7, color: '#E0E0E0', text: 'Others' },
-];
+const pieColors = ['#3B4B8A', '#7FD4E8', '#A8C8F0', '#5A67D8', '#E0E0E0'];
 
 const xLabels = [
   'Jan',
@@ -87,6 +85,8 @@ const xLabels = [
   'Nov',
   'Dec',
 ];
+
+
 
 const dummyTransaction = {
   serialNumber: '213542',
@@ -111,6 +111,50 @@ const SettingsScreen = () => {
   const [showDetailModal, setShowDetailModal] = useState(false);
   const [detailType, setDetailType] = useState('sale');
   const [chartWidth, setChartWidth] = useState(S(380)); // default width
+  const { store_id, businessId } = useSelector(state => state.user);
+  const [analyticsData, setAnalyticsData] = useState()
+
+
+  // const handleGetXReport = async () => {
+  //   const payload = {
+  //     terminalId: "string",
+  //     fromDate": "string",
+  //     "fromTime": "string",
+  //     "toDate": "string",
+  //     "toTime": "string",
+  //     "businessId": businessId,
+  //     "transType": "string",
+  //     "storeId": store_id
+  //   }
+  //   try {
+  //     const response = await GET_X_REPORT(payload);
+  //     console.log(response, 'x report')
+  //   } catch (error) {
+  //     console.log(error)
+  //   }
+  // }
+
+  const handleGetWeeklyAnalytics = async () => {
+    try {
+      const payload = {
+        storeId: store_id,
+        timeFram: 'monthly',
+        totalSalesFilter: '1',
+      };
+      const response = await GET_WEEKLY_ANALYTICS(payload);
+      console.log(response, 'weekly analytics');
+      if (response?.status === 'success' || response?.data) {
+        setAnalyticsData(response);
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
+  useFocusEffect(useCallback(() => {
+    handleGetWeeklyAnalytics()
+  }, [
+    store_id
+  ]))
 
   const onChartContainerLayout = useCallback(event => {
     const { width } = event.nativeEvent.layout;
@@ -296,29 +340,53 @@ const SettingsScreen = () => {
             {/* Top Selling Products Pie Chart */}
             <View style={styles.pieChartCard}>
               <Text style={[styles.chartTitle, Subtitle1]}>Top Selling Products</Text>
-              <View style={styles.pieContainer}>
-                <PieChart
-                  data={pieData}
-                  donut
-                  radius={MS(60)}
-                  innerRadius={MS(35)}
-                  innerCircleColor={Colors.white}
-                  centerLabelComponent={pieContainerImage}
-                />
-              </View>
-
-              {/* Pie Legend */}
-              <View style={styles.pieLegend}>
-                {pieData.map((item, index) => (
-                  <View key={index} style={styles.pieLegendItem}>
-                    <View style={[styles.pieLegendDot, styles.dynamicColorLegendDot]} />
-                    <Text style={[styles.pieLegendText, Caption]} numberOfLines={1}>
-                      {item.text}
-                    </Text>
-                    <Text style={[styles.pieLegendPercent, Subtitle2]}>{item.value}%</Text>
+              {analyticsData?.data?.topSellingProducts?.length > 0 ? (
+                <>
+                  <View style={styles.pieContainer}>
+                    <PieChart
+                      data={analyticsData?.data?.topSellingProducts?.map((item, index) => ({
+                        value: Number(item.totalSales) || 0,
+                        color: pieColors[index % pieColors.length],
+                        text: item.productName,
+                      }))}
+                      donut
+                      radius={MS(60)}
+                      innerRadius={MS(35)}
+                      innerCircleColor={Colors.white}
+                      centerLabelComponent={pieContainerImage}
+                    />
                   </View>
-                ))}
-              </View>
+
+                  {/* Pie Legend */}
+                  <View style={styles.pieLegend}>
+                    {analyticsData?.data?.topSellingProducts?.map((item, index) => (
+                      <View key={index} style={styles.pieLegendItem}>
+                        <View
+                          style={[
+                            styles.pieLegendDot,
+                            { backgroundColor: pieColors[index % pieColors.length] },
+                          ]}
+                        />
+                        <Text style={[styles.pieLegendText, Caption]} numberOfLines={1}>
+                          {item.productName}
+                        </Text>
+                        <View style={{ alignItems: 'flex-end' }}>
+                          <Text style={[styles.pieLegendPercent, Subtitle2]}>
+                            ${Number(item.totalSales).toLocaleString()}
+                          </Text>
+                          <Text style={[Caption, { color: Colors.grey }]}>
+                            {item.totalItems} Items
+                          </Text>
+                        </View>
+                      </View>
+                    ))}
+                  </View>
+                </>
+              ) : (
+                <View style={[styles.flexFull, styles.rowCentered, { justifyContent: 'center', marginTop: VS(20) }]}>
+                  <Text style={[Caption, { color: Colors.grey }]}>No data available</Text>
+                </View>
+              )}
             </View>
           </View>
         </ScrollView>

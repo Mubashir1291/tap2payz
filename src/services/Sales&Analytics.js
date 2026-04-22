@@ -53,3 +53,9 @@ export const GENERATE_X_REPORT = ({ device_id = '', store_id = '', timeFrame = '
 //     `${BASE_PREFIX}${ENDPOINTS.Sales$Analytics.GENERATE_Z_REPORT}?business_id=${business_id}&store_id=${store_id}`,
 //   );
 // };
+
+export const GET_WEEKLY_ANALYTICS = ({  storeId = '',timeFram='',totalSalesFilter='' }) => {
+  return Fetch.get(
+    `${BASE_PREFIX}${ENDPOINTS.Sales$Analytics.GET_WEEKLY_ANALYTICS}?storeId=${storeId}&timeFram=${timeFram}&totalSalesFilter=${totalSalesFilter}`,
+  );
+};

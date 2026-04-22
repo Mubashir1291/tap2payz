@@ -198,8 +198,8 @@ const LoginScreen = () => {
 
   const formik = useFormik({
     initialValues: {
-      storeCode: '4000',
-      employeeId: '1000',
+      storeCode: '4001',
+      employeeId: '1001',
       password: '1@2.comM',
     },
     validationSchema,
@@ -299,7 +299,7 @@ const LoginScreen = () => {
       </KeyboardAvoidingView>
 
       {/* ── Device ID Modal ── */}
-      <Modal visible={showDeviceModal} transparent animationType="fade" onRequestClose={() => {}}>
+      <Modal visible={showDeviceModal} transparent animationType="fade" onRequestClose={() => { }}>
         <View style={styles.modalOverlay}>
           <View style={styles.modalContainer}>
             <Text style={[styles.modalTitle, H4, { color: Colors.primary }]}>Register Device</Text>

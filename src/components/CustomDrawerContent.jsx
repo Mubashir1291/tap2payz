@@ -25,7 +25,7 @@ const drawerItems = [
   // { label: 'Return', icon: ReturnIcon, route: 'ReturnScreen' },
   { label: 'Restaurant Orders', icon: ShopIcon, route: 'TableSelectionScreen' },
   { label: 'Close Register', icon: CloseRegisterIcon, route: 'CloseRegisterScreen' },
-  { label: 'Connected Devices', icon: ConnectedIcon, route: 'ConnectedDevicesScreen' },
+  // { label: 'Connected Devices', icon: ConnectedIcon, route: 'ConnectedDevicesScreen' },
   { label: 'Settings', icon: SettingIcon, icon2: LockIcon, route: null },
   { label: 'Table Management', icon: TableIcon, route: 'TableManagementScreen' },
 ];

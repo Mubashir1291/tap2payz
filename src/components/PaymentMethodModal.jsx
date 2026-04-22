@@ -29,8 +29,8 @@ const PaymentMethodModal = ({
     if (onProceed) {
       onProceed({
         method: paymentMethod,
-        amount: parsedAmount,
-        change,
+        amount: paymentMethod === 'Card' ? totalAmount : parsedAmount,
+        change: paymentMethod === 'Card' ? '0.00' : change,
       });
     }
   };
@@ -86,38 +86,42 @@ const PaymentMethodModal = ({
 
           <View style={styles.divider} />
 
-          {/* Enter Amount Section */}
-          <View style={styles.amountSection}>
-            <Text style={[styles.sectionLabel, Subtitle1]}>Enter Amount</Text>
-            <View style={styles.inputContainer}>
-              <TextInput
-                style={[styles.amountInput, Body1]}
-                value={enteredAmount}
-                onChangeText={setEnteredAmount}
-                keyboardType="numeric"
-                placeholder="0.00"
-                placeholderTextColor={Colors.grey}
-              />
-            </View>
-          </View>
+          {paymentMethod === 'Cash' && (
+            <>
+              {/* Enter Amount Section */}
+              <View style={styles.amountSection}>
+                <Text style={[styles.sectionLabel, Subtitle1]}>Enter Amount</Text>
+                <View style={styles.inputContainer}>
+                  <TextInput
+                    style={[styles.amountInput, Body1]}
+                    value={enteredAmount}
+                    onChangeText={setEnteredAmount}
+                    keyboardType="numeric"
+                    placeholder="0.00"
+                    placeholderTextColor={Colors.grey}
+                  />
+                </View>
+              </View>
 
-          {/* Change Section */}
-          <View style={styles.changeSection}>
-            <Text style={[styles.sectionLabel, Subtitle1]}>Change:</Text>
-            <Text style={[styles.changeValue, H2]}>
-              {currency}
-              {change}
-            </Text>
-          </View>
+              {/* Change Section */}
+              <View style={styles.changeSection}>
+                <Text style={[styles.sectionLabel, Subtitle1]}>Change:</Text>
+                <Text style={[styles.changeValue, H2]}>
+                  {currency}
+                  {change}
+                </Text>
+              </View>
+            </>
+          )}
 
           {/* Proceed Button */}
           <TouchableOpacity
             style={[
               styles.proceedBtn,
-              (!enteredAmount || paymentMethod === 'Card') && styles.proceedBtnDisabled,
+              (paymentMethod === 'Cash' && !enteredAmount) && styles.proceedBtnDisabled,
             ]}
             onPress={handleProceed}
-            disabled={!enteredAmount || paymentMethod === 'Card'}
+            disabled={paymentMethod === 'Cash' && !enteredAmount}
           >
             <Text style={[styles.proceedBtnText, ButtonText]}>Proceed</Text>
           </TouchableOpacity>

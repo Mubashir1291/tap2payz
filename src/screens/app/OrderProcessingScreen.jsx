@@ -418,6 +418,11 @@ const OrderProcessingScreen = () => {
     return cart.some(item => item.productId?.toString().startsWith('quick_'));
   }, [cart]);
 
+  const handleCancelTapCard = () => {
+    setShowTapCardModal(false);
+    NfcManager.cancelTechnologyRequest().catch(() => {});
+  };
+
   // Modals Handlers
   const handleOpenTipModal = () => setShowTipModal(true);
   const handleAddTip = amount => {
@@ -930,7 +935,7 @@ const OrderProcessingScreen = () => {
         onClose={() => setShowTransactionModal(false)}
       />
 
-      <TapCardModal visible={showTapCardModal} />
+      <TapCardModal visible={showTapCardModal} onClose={handleCancelTapCard} />
     </View>
   );
 };

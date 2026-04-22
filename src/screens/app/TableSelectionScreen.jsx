@@ -488,10 +488,11 @@ const TableSelectionScreen = () => {
   const renderTable = ({ item }) => {
     // isAvailable from response: true = available, false = occupied/processing
     const isAvailable = item.isAvailable !== false;
-    const isProcessing = item.status === 'Processing' || processingTables.includes(item.table_no);
+    const isProcessing =
+      !isAvailable || item.status === 'Processing' || processingTables.includes(item.table_no);
 
-    const coreColor = !isAvailable ? '#FFFFFF' : isProcessing ? '#FEE4C1' : '#A4B4FF';
-    const chairColor = !isAvailable ? '#FFFFFF' : isProcessing ? '#FEE4C1' : '#3E468A';
+    const coreColor = isProcessing ? '#FEE4C1' : '#A4B4FF';
+    const chairColor = isProcessing ? '#FEE4C1' : '#3E468A';
 
     return (
       <TouchableOpacity
