@@ -11,7 +11,7 @@ import {
   ScrollView,
 } from 'react-native';
 import { useNavigation, useRoute, useFocusEffect } from '@react-navigation/native';
-import { Subtitle2, Body3, H4, Subtitle1, Overline } from '../../utils/fonts';
+import { Subtitle2, Body3, H4, Subtitle1, Overline, Body1, Body2 } from '../../utils/fonts';
 import { IconSize12, IconSize16, IconSize20, IconSize40 } from '../../utils/IconSizes';
 import {
   LeftArrowIcon,
@@ -61,7 +61,7 @@ const TableSelectionScreen = () => {
   const [dropdownPosition, setDropdownPosition] = useState({ top: 0, left: 0, width: 0 });
   const areaSelectorRef = useRef(null);
 
-  const [selectedCategory, setSelectedCategory] = useState(null);
+  const [selectedCategory, setSelectedCategory] = useState({ _id: 'all', category_name: 'All' });
   const [cart, setCart] = useState([]);
   const [tables, setTables] = useState([]);
   const [categories, setCategories] = useState([]);
@@ -143,7 +143,15 @@ const TableSelectionScreen = () => {
       if (!store_id || !floorId) return;
       try {
         const response = await GET_TABLES({ floor_id: floorId, storeId: store_id });
-        setTables(response?.items || []);
+        const items = response?.items || [];
+        setTables(items);
+        // Sync processingTables: remove if API says available
+        setProcessingTables(prev =>
+          prev.filter(tNo => {
+            const table = items.find(t => t.table_no === tNo);
+            return table ? table.isAvailable === false : true;
+          }),
+        );
       } catch (error) {
         console.error('Error fetching tables:', error);
       }
@@ -183,17 +191,14 @@ const TableSelectionScreen = () => {
   };
   useFocusEffect(
     useCallback(() => {
-      handleGetTables();
-    }, [handleGetTables])
-  )
-
-  useFocusEffect(
-    useCallback(() => {
       handleGetFloors();
+      if (activeTab === 'Dine in' && selectedArea?._id) {
+        handleGetTables(selectedArea._id);
+      }
       if (activeTab === 'Take Away') {
         handleFetchAllCategories();
       }
-    }, [handleGetFloors, handleFetchAllCategories, activeTab]),
+    }, [handleGetFloors, handleGetTables, selectedArea, activeTab, handleFetchAllCategories]),
   );
 
   useEffect(() => {
@@ -352,14 +357,19 @@ const TableSelectionScreen = () => {
   };
 
   const handleFilterByCategory = cat => {
-    if (cat?._id === selectedCategory?._id) {
-      setSelectedCategory(null);
-      setProductSearchQuery(prev => ({ ...prev, category_id: '', page: 1 }));
-    } else {
-      setSelectedCategory(cat);
-      setProductSearchQuery(prev => ({ ...prev, category_id: cat?._id, page: 1 }));
-    }
+    setSelectedCategory(cat);
+    setProductSearchQuery(prev => ({
+      ...prev,
+      category_id: cat?._id === 'all' ? '' : cat?._id,
+      page: 1,
+    }));
   };
+
+  const categoriesItems = useMemo(() => {
+    const allTab = { _id: 'all', category_name: 'All' };
+    const items = categories || [];
+    return [allTab, ...items];
+  }, [categories]);
 
   const handleSaveDiscount = code => {
     setDiscountCode(code);
@@ -427,10 +437,46 @@ const TableSelectionScreen = () => {
 
   const renderProduct = ({ item }) => (
     <TouchableOpacity
-      style={styles.productCard}
+      style={[
+        styles.productCard,
+        item?.quantity <= 0 && [styles.outOfStockCard, { backgroundColor: '#E0E0E0' }],
+      ]}
       activeOpacity={0.7}
-      onPress={() => addToCart(item)}
+      onPress={() => {
+        if (item.quantity <= 0) {
+          Toast.show({
+            type: 'error',
+            text1: 'Out of Stock',
+            text2: `${item.name} is currently out of stock.`,
+          });
+        } else {
+          addToCart(item);
+        }
+      }}
     >
+      {item?.quantity <= 0 && (
+        <View
+          style={{
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            justifyContent: 'center',
+            alignItems: 'center',
+            zIndex: 1,
+          }}
+        >
+          <Text
+            style={[
+              Body2,
+              { color: 'red', textAlign: 'center', fontWeight: 'bold' },
+            ]}
+          >
+            Out of Stock
+          </Text>
+        </View>
+      )}
       <View style={styles.priceTag}>
         <Text style={[styles.priceText, Overline]}>$ {item.price}</Text>
       </View>
@@ -440,10 +486,9 @@ const TableSelectionScreen = () => {
   );
 
   const renderTable = ({ item }) => {
-    // Check isAvailable from response: true = available, false = processing
-    const isAvailable = item.isAvailable !== false; // Default to true if not provided
-    const isProcessing =
-      !isAvailable || item.status === 'Processing' || processingTables.includes(item.table_no);
+    // isAvailable from response: true = available, false = occupied/processing
+    const isAvailable = item.isAvailable !== false;
+    const isProcessing = item.status === 'Processing' || processingTables.includes(item.table_no);
 
     const coreColor = !isAvailable ? '#FFFFFF' : isProcessing ? '#FEE4C1' : '#A4B4FF';
     const chairColor = !isAvailable ? '#FFFFFF' : isProcessing ? '#FEE4C1' : '#3E468A';
@@ -651,7 +696,7 @@ const TableSelectionScreen = () => {
                 }}
                 scrollEventThrottle={16}
               >
-                {categories.map(cat => (
+                {categoriesItems.map(cat => (
                   <TouchableOpacity
                     key={cat._id}
                     style={[

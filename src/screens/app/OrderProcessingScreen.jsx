@@ -71,7 +71,7 @@ const OrderProcessingScreen = () => {
 
   const isTakeAway = orderType?.toLowerCase().replace(/\s/g, '') === 'takeaway';
 
-  const [selectedCategory, setSelectedCategory] = useState(null);
+  const [selectedCategory, setSelectedCategory] = useState({ _id: 'all', name: 'All' });
   const [cart, setCart] = useState([]);
 
   const [tipAmount, setTipAmount] = useState(null);
@@ -169,6 +169,8 @@ const OrderProcessingScreen = () => {
     setDiscountCode('');
     setBuyerInfo(null);
     setBuyerId(null);
+    setSelectedCategory({ _id: 'all', name: 'All' });
+    setProductSearchQuery(prev => ({ ...prev, category_id: '', page: 1 }));
 
     if (!isNewOrder && tableId) {
       handleGetResOrderDetail();
@@ -315,20 +317,22 @@ const OrderProcessingScreen = () => {
   };
 
   const handleFilterByCategory = cat => {
-    if (cat?._id === selectedCategory?._id) {
-      setSelectedCategory(null);
-      setProductSearchQuery(prev => ({ ...prev, category_id: '', page: 1 }));
-    } else {
-      setSelectedCategory(cat);
-      setProductSearchQuery(prev => ({ ...prev, category_id: cat?._id, page: 1 }));
-    }
+    setSelectedCategory(cat);
+    setProductSearchQuery(prev => ({
+      ...prev,
+      category_id: cat?._id === 'all' ? '' : cat?._id,
+      page: 1,
+    }));
   };
 
   const categoriesItems = useMemo(() => {
-    return categories?.map(cat => ({
-      _id: cat?._id,
-      name: cat?.category_name || cat?.name,
-    }));
+    const allTab = { _id: 'all', name: 'All' };
+    const items =
+      categories?.map(cat => ({
+        _id: cat?._id,
+        name: cat?.category_name || cat?.name,
+      })) || [];
+    return [allTab, ...items];
   }, [categories]);
 
   const productItems = useMemo(() => {

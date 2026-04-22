@@ -17,7 +17,7 @@ const PaymentMethodModal = ({
 
   useEffect(() => {
     if (visible) {
-      setEnteredAmount(totalAmount.toFixed(2));
+      setEnteredAmount('');
       setPaymentMethod('Cash');
     }
   }, [visible, totalAmount]);
@@ -95,7 +95,7 @@ const PaymentMethodModal = ({
                 value={enteredAmount}
                 onChangeText={setEnteredAmount}
                 keyboardType="numeric"
-                placeholder={`${currency} 0.00`}
+                placeholder="0.00"
                 placeholderTextColor={Colors.grey}
               />
             </View>
@@ -112,8 +112,12 @@ const PaymentMethodModal = ({
 
           {/* Proceed Button */}
           <TouchableOpacity
-            style={[styles.proceedBtn, paymentMethod === 'Card' && styles.proceedBtnDisabled]}
+            style={[
+              styles.proceedBtn,
+              (!enteredAmount || paymentMethod === 'Card') && styles.proceedBtnDisabled,
+            ]}
             onPress={handleProceed}
+            disabled={!enteredAmount || paymentMethod === 'Card'}
           >
             <Text style={[styles.proceedBtnText, ButtonText]}>Proceed</Text>
           </TouchableOpacity>
