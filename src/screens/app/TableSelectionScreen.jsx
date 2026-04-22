@@ -804,6 +804,7 @@ const TableSelectionScreen = () => {
 
       <ProcessOrderModal
         visible={showProcessModal}
+        orderNumber={orderDetail?._id?.slice(-6)}
         onClose={() => setShowProcessModal(false)}
         onPrintBill={() => setShowProcessModal(false)}
       />
@@ -881,7 +882,7 @@ const TableSelectionScreen = () => {
       <SuccessModal
         visible={showSuccessModal}
         title="Order Complete"
-        message="Your order #1254632 is completed successfully."
+        message={`Your order #${orderDetail?._id?.slice(-6)} is completed successfully.`}
         onClose={() => {
           setShowSuccessModal(false);
           setShowInvoiceModal(true);
