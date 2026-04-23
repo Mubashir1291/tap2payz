@@ -64,6 +64,7 @@ const ViewOrdersScreen = () => {
         }),
         total: `$ ${item.total_price?.toFixed(2) || '0.00'}`,
         subTotal: `$ ${item.subtotal?.toFixed(2) || '0.00'}`,
+        rawOrder: item,
       }));
       setOrders(mappedOrders);
       setPaginationData(response);
@@ -88,8 +89,8 @@ const ViewOrdersScreen = () => {
     setPage(1);
   }, [activeTab]);
 
-  const handleOpenInvoice = orderNumber => {
-    setSelectedOrder(orderNumber);
+  const handleOpenInvoice = orderData => {
+    setSelectedOrder(orderData);
     setModalVisible(true);
   };
 
@@ -117,7 +118,7 @@ const ViewOrdersScreen = () => {
         <Text style={[styles.rowText, Body3]}>{item.subTotal}</Text>
       </View>
       <View style={styles.colActions}>
-        <TouchableOpacity style={styles.viewInvoiceBtn} onPress={() => handleOpenInvoice(item.id)}>
+        <TouchableOpacity style={styles.viewInvoiceBtn} onPress={() => handleOpenInvoice(item.rawOrder)}>
           <Text style={styles.viewInvoiceText}>View Invoice</Text>
         </TouchableOpacity>
       </View>
@@ -243,7 +244,7 @@ const ViewOrdersScreen = () => {
       <ViewInvoiceModal
         visible={modalVisible}
         onClose={() => setModalVisible(false)}
-        orderNumber={selectedOrder}
+        orderData={selectedOrder}
       />
     </View>
   );

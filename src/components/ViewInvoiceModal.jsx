@@ -6,32 +6,45 @@ import { IconSize16 } from '../utils/IconSizes';
 import { PrinterIcon } from '../assets/Images';
 
 import { MS, S, VS } from '../utils/Responsive';
+import { useSelector } from 'react-redux';
 
 const dummyInvoiceItems = [
   { id: '1', no: '01', item: 'Sodavand (25cl)', qty: '01', price: '8.00', totals: '8.00' },
   { id: '2', no: '02', item: 'Sodavand (25cl)', qty: '01', price: '8.00', totals: '8.00' },
 ];
 
-const ViewInvoiceModal = ({ visible, onClose, orderNumber = '5660' }) => {
-  const renderItem = ({ item }) => (
-    <View style={styles.tableRow}>
-      <View style={styles.colNo}>
-        <Text style={[styles.rowText, Body3]}>{item.no}</Text>
+const ViewInvoiceModal = ({ visible, onClose, orderData = null }) => {
+  const { userData, business_id } = useSelector(state => state.user);
+
+  const renderItem = ({ item, index }) => {
+    // Dynamic mappings
+    const itemNo = String(index + 1).padStart(2, '0');
+    const itemName = item?.product_id?.product_name || item?.product_name || item?.item_name || item?.name || item?.item || 'Unknown Item';
+    const itemQty = String(item?.quantity || item?.qty || 1).padStart(2, '0');
+    const priceVal = parseFloat(item?.price || item?.product_id?.price || 0);
+    const itemPrice = priceVal.toFixed(2);
+    const itemTotal = parseFloat(item?.total_price || item?.totals || (priceVal * (item?.quantity || item?.qty || 1)) || 0).toFixed(2);
+    return (
+      <View style={styles.tableRow}>
+        <View style={styles.colNo}>
+          <Text style={[styles.rowText, Body3]}>{itemNo}</Text>
+        </View>
+        <View style={styles.colItem}>
+          <Text style={[styles.rowText, Body3]}>{itemName}</Text>
+        </View>
+        <View style={styles.colQty}>
+          <Text style={[styles.rowText, Body3]}>{itemQty}</Text>
+        </View>
+        <View style={styles.colPrice}>
+          <Text style={[styles.rowText, Body3]}>$ {itemPrice}</Text>
+        </View>
+        <View style={styles.colTotals}>
+          <Text style={[styles.rowText, Body3]}>$ {itemTotal}</Text>
+        </View>
       </View>
-      <View style={styles.colItem}>
-        <Text style={[styles.rowText, Body3]}>{item.item}</Text>
-      </View>
-      <View style={styles.colQty}>
-        <Text style={[styles.rowText, Body3]}>{item.qty}</Text>
-      </View>
-      <View style={styles.colPrice}>
-        <Text style={[styles.rowText, Body3]}>$ {item.price}</Text>
-      </View>
-      <View style={styles.colTotals}>
-        <Text style={[styles.rowText, Body3]}>$ {item.totals}</Text>
-      </View>
-    </View>
-  );
+    );
+  };
+
 
   return (
     <Modal visible={visible} transparent animationType="fade" onRequestClose={onClose}>
@@ -45,38 +58,43 @@ const ViewInvoiceModal = ({ visible, onClose, orderNumber = '5660' }) => {
           {/* Header */}
           <View style={styles.headerRow}>
             <Text style={[styles.titleText, H1]}>Invoice</Text>
-            <Text style={[styles.orderTitle, H4]}>Order #{orderNumber}</Text>
+            <Text style={[styles.orderTitle, H4]}>Order #{orderData?.order_number || orderData?.order_id || orderData?._id?.substring(orderData?._id?.length - 6) || 'N/A'}</Text>
           </View>
 
           {/* Info Section */}
           <View style={styles.infoSection}>
             <View style={styles.infoLeft}>
-              <Text style={[styles.infoTextList, Body3]}>ETA Transact</Text>
-              <Text style={[styles.infoTextList, Body3]}>400 Applewood Crescent Suite 200</Text>
+              <Text style={[styles.infoTextList, Body3]}>{userData?.business_id?.company_address}</Text>
+              {console.log(userData, 'userrrrr')}
+
               <Text style={[styles.infoTextList, Body3]}>
-                Opens at 10:15 AM - Closed at 04:15 PM
-              </Text>
-              <Text style={[styles.infoTextList, Body3]}>
-                <Text style={styles.infoLabel}>Waiter: </Text>
-                <Text style={styles.infoValue}>None</Text>
+                {/* <Text style={styles.infoLabel}>Waiter: </Text> */}
+                {/* <Text style={styles.infoValue}>{orderData?.employee_id?.employee_name || 'None'}</Text> */}
               </Text>
             </View>
             <View style={styles.infoRight}>
               <Text style={[styles.infoTextList, Body3]}>
                 <Text style={styles.infoLabel}>Table Details: </Text>
-                <Text style={styles.infoValue}>134</Text>
+                <Text style={styles.infoValue}>{orderData?.table_id?.table_no || 'N/A'}</Text>
               </Text>
               <Text style={[styles.infoTextList, Body3]}>
                 <Text style={styles.infoLabel}>No of Peoples: </Text>
-                <Text style={styles.infoValue}>04</Text>
+                <Text style={styles.infoValue}>{orderData?.person_capacity || 'N/A'}</Text>
               </Text>
               <Text style={[styles.infoTextList, Body3]}>
                 <Text style={styles.infoLabel}>Order Date: </Text>
-                <Text style={styles.infoValue}>30 Apr 2024, 04:06 PM</Text>
+                <Text style={styles.infoValue}>
+                  {orderData?.updated_at ? new Date(orderData.updated_at).toLocaleString('en-GB', {
+                    day: '2-digit', month: 'short', year: 'numeric',
+                    hour: '2-digit', minute: '2-digit', hour12: true
+                  }) : 'N/A'}
+                </Text>
               </Text>
               <Text style={[styles.infoTextList, Body3]}>
                 <Text style={styles.infoLabel}>Transaction Type: </Text>
-                <Text style={styles.infoValue}>Cash</Text>
+                <Text style={styles.infoValue}>
+                  {orderData?.transactions?.[0]?.payment_method || 'N/A'}
+                </Text>
               </Text>
             </View>
           </View>
@@ -86,7 +104,7 @@ const ViewInvoiceModal = ({ visible, onClose, orderNumber = '5660' }) => {
             <Text style={[styles.summaryTitle, Subtitle1]}>Order Summary</Text>
             <View style={styles.statusBadge}>
               <View style={styles.statusDot} />
-              <Text style={Body2}>In Processing</Text>
+              <Text style={Body2}>{orderData?.status || 'In Processing'}</Text>
             </View>
           </View>
           <Text style={[styles.summarySubtitle, Body3]}>All Items here cannot be deleted.</Text>
@@ -112,8 +130,8 @@ const ViewInvoiceModal = ({ visible, onClose, orderNumber = '5660' }) => {
 
           {/* Items List */}
           <FlatList
-            data={dummyInvoiceItems}
-            keyExtractor={item => item.id}
+            data={orderData?.products || orderData?.items || dummyInvoiceItems}
+            keyExtractor={(item, index) => item?._id || item?.id || String(index)}
             renderItem={renderItem}
             contentContainerStyle={styles.listContent}
             showsVerticalScrollIndicator={false}
@@ -123,24 +141,24 @@ const ViewInvoiceModal = ({ visible, onClose, orderNumber = '5660' }) => {
           <View style={styles.totalsSection}>
             <View style={styles.totalsRow}>
               <Text style={[styles.totalsLabel, Body3]}>Tip:</Text>
-              <Text style={[styles.totalsValue, Body3]}>$ 8.00</Text>
+              <Text style={[styles.totalsValue, Body3]}>$ {parseFloat(orderData?.tip || 0).toFixed(2)}</Text>
             </View>
             <View style={styles.totalsRow}>
               <Text style={[styles.totalsLabel, Body3]}>Promotion:</Text>
-              <Text style={[styles.totalsValue, Body3]}>$ 8.00</Text>
+              <Text style={[styles.totalsValue, Body3]}>$ {parseFloat(orderData?.discount || 0).toFixed(2)}</Text>
             </View>
             <View style={styles.totalsRow}>
               <Text style={[styles.totalsLabel, Body3]}>Subtotal:</Text>
-              <Text style={[styles.totalsValue, Body3]}>$ 8.00</Text>
+              <Text style={[styles.totalsValue, Body3]}>$ {parseFloat(orderData?.subtotal || 0).toFixed(2)}</Text>
             </View>
             <View style={styles.totalsRow}>
               <Text style={[styles.totalsLabel, Body3]}>Tax:</Text>
-              <Text style={[styles.totalsValue, Body3]}>$ 1.04</Text>
+              <Text style={[styles.totalsValue, Body3]}>$ {parseFloat(orderData?.tax || 0).toFixed(2)}</Text>
             </View>
 
             <View style={styles.grandTotalRow}>
               <Text style={[styles.grandTotalLabel, Subtitle1]}>Total:</Text>
-              <Text style={[styles.grandTotalValue, H4]}>$ 9.04</Text>
+              <Text style={[styles.grandTotalValue, H4]}>$ {parseFloat(orderData?.total_price || 0).toFixed(2)}</Text>
             </View>
 
             <TouchableOpacity style={styles.printBtn}>

@@ -17,15 +17,6 @@ import { GET_ALL_CASH_REGISTER } from '../../services/StoreService';
 import { Colors } from '../../utils/Colors';
 import { useSelector } from 'react-redux';
 
-const dummyData = Array.from({ length: 10 }).map((_, index) => ({
-  id: index.toString(),
-  openedAt: 'Mon 05-06-24\n01:19 PM',
-  closedAt: 'Mon 05-06-24\n01:19 PM',
-  opener: 'admin@payblisss.com',
-  closer: 'admin@payblisss.com',
-  openAmount: '$ 12,000',
-  closeAmount: '$ 12,000',
-}));
 
 const ZReport = () => {
   const [searchQuery, setSearchQuery] = useState('');
@@ -99,7 +90,7 @@ const ZReport = () => {
   }, [handleGetAllCashRegister]);
 
   const filteredData = useMemo(() => {
-    let data = apiData.length > 0 ? apiData : dummyData;
+    let data = apiData;
     if (searchQuery.trim() !== '') {
       data = data.filter(
         item =>

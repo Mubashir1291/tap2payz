@@ -69,7 +69,7 @@ const refundLineData = [
   { value: 70 },
 ];
 
-const pieColors = ['#3B4B8A', '#7FD4E8', '#A8C8F0', '#5A67D8', '#E0E0E0'];
+const pieColors = ['#3B4B8A', '#7FD4E8', '#70ede5ff', '#5A67D8', '#E0E0E0'];
 
 const xLabels = [
   'Jan',

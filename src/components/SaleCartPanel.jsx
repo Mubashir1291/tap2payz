@@ -84,8 +84,8 @@ const SaleCartPanel = ({ cart, setCart, onAddToCart }) => {
       console.log(response, ' Cash process');
 
       setShowCashPayModal(false);
-      setShowTransactionModal(true);
-    } catch {
+      setShowSuccessModal(true);
+    } catch (error) {
       console.log(error, 'Transaction Error');
     }
   };
@@ -182,6 +182,9 @@ const SaleCartPanel = ({ cart, setCart, onAddToCart }) => {
     setCart([]);
     setTipAmount(null);
     setBuyerInfo(null);
+    setPaymentType(null);
+    setTransReferenceId(null);
+    setBuyerId(null);
     setShowDeleteModal(false);
   };
 
@@ -252,11 +255,18 @@ const SaleCartPanel = ({ cart, setCart, onAddToCart }) => {
     }
   };
 
-  const handlePrintReceipt = () => {
+  const handleCloseInvoice = () => {
     setShowInvoiceModal(false);
     setCart([]);
     setTipAmount(null);
     setBuyerInfo(null);
+    setPaymentType(null);
+    setTransReferenceId(null);
+    setBuyerId(null);
+  };
+
+  const handlePrintReceipt = () => {
+    handleCloseInvoice();
   };
 
   const handleQuickSale = ({ name, price }) => {
@@ -448,7 +458,7 @@ const SaleCartPanel = ({ cart, setCart, onAddToCart }) => {
         totalAmount={parseFloat(total)}
         tipAmount={tipAmount}
         onPrintReceipt={handlePrintReceipt}
-        onClose={() => setShowInvoiceModal(false)}
+        onClose={handleCloseInvoice}
       />
 
       <QuickSaleModal

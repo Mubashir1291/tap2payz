@@ -34,15 +34,15 @@ const ZReportDetailModal = ({ visible = false, reportData = null, onClose }) => 
             <View style={styles.section}>
               <View style={styles.row}>
                 <Text style={[styles.label, Body3]}>Store Name:</Text>
-                <Text style={[styles.value, Subtitle2]}>Fostor Store</Text>
+                <Text style={[styles.value, Subtitle2]}>{reportData.details?.store?.name || 'N/A'}</Text>
               </View>
               <View style={styles.row}>
                 <Text style={[styles.label, Body3]}>Phone no:</Text>
-                <Text style={[styles.value, Subtitle2]}>+45 321 5546 875</Text>
+                <Text style={[styles.value, Subtitle2]}>{reportData.details?.store?.phone || 'N/A'}</Text>
               </View>
               <View style={styles.row}>
                 <Text style={[styles.label, Body3]}>Address:</Text>
-                <Text style={[styles.value, Subtitle2]}>123 main st, vancouver...</Text>
+                <Text style={[styles.value, Subtitle2]}>{reportData.details?.store?.address || 'N/A'}</Text>
               </View>
             </View>
 
@@ -57,40 +57,40 @@ const ZReportDetailModal = ({ visible = false, reportData = null, onClose }) => 
               </View>
               <View style={styles.row}>
                 <Text style={[styles.label, Body3]}>Report Date</Text>
-                <Text style={[styles.value, Subtitle2]}>05-06-24 01:21 PM</Text>
+                <Text style={[styles.value, Subtitle2]}>{reportData.openedAt?.replace('\n', ' ')}</Text>
               </View>
               <View style={styles.row}>
                 <Text style={[styles.label, Body3]}>Opening Balance</Text>
-                <Text style={[styles.value, Subtitle2]}>$ 12,000</Text>
+                <Text style={[styles.value, Subtitle2]}>{reportData.openAmount}</Text>
               </View>
               <View style={styles.row}>
                 <Text style={[styles.label, Body3]}>Opened at</Text>
-                <Text style={[styles.value, Subtitle2]}>05-06-24 01:21 PM</Text>
+                <Text style={[styles.value, Subtitle2]}>{reportData.openedAt?.replace('\n', ' ')}</Text>
               </View>
               <View style={styles.row}>
                 <Text style={[styles.label, Body3]}>Opened by</Text>
-                <Text style={[styles.value, Subtitle2]}>John Duo</Text>
+                <Text style={[styles.value, Subtitle2]}>{reportData.opener}</Text>
               </View>
               <View style={styles.row}>
                 <Text style={[styles.label, Body3]}>Closed at</Text>
-                <Text style={[styles.value, Subtitle2]}>05-06-24 01:21 PM</Text>
+                <Text style={[styles.value, Subtitle2]}>{reportData.closedAt?.replace('\n', ' ')}</Text>
               </View>
               <View style={styles.row}>
                 <Text style={[styles.label, Body3]}>Closed by</Text>
-                <Text style={[styles.value, Subtitle2]}>John Duo</Text>
+                <Text style={[styles.value, Subtitle2]}>{reportData.closer}</Text>
               </View>
             </View>
 
             <View style={styles.divider} />
 
             {/* Refund Payments */}
-            <Text style={[styles.sectionTitle, Subtitle1]}>Refund Payments</Text>
+            {/* <Text style={[styles.sectionTitle, Subtitle1]}>Refund Payments</Text>
             <View style={styles.section}>
               <View style={styles.row}>
                 <Text style={[styles.label, Body3]}>Total Refund</Text>
-                <Text style={[styles.value, Subtitle2]}>$ 0.00</Text>
+                <Text style={[styles.value, Subtitle2]}>{reportData.details?.total_refund ? `$ ${reportData.details.total_refund.toLocaleString()}` : '$ 0.00'}</Text>
               </View>
-            </View>
+            </View> */}
 
             <View style={styles.divider} />
 
@@ -99,15 +99,15 @@ const ZReportDetailModal = ({ visible = false, reportData = null, onClose }) => 
             <View style={styles.section}>
               <View style={styles.row}>
                 <Text style={[styles.label, Body3]}>Cash</Text>
-                <Text style={[styles.value, Subtitle2]}>$ 6,000</Text>
+                <Text style={[styles.value, Subtitle2]}>{reportData.details?.expected_in_drawer?.cash ? `$ ${reportData.details.expected_in_drawer.cash.toLocaleString()}` : '$ 0.00'}</Text>
               </View>
               <View style={styles.row}>
                 <Text style={[styles.label, Body3]}>Card</Text>
-                <Text style={[styles.value, Subtitle2]}>$ 6,000</Text>
+                <Text style={[styles.value, Subtitle2]}>{reportData.details?.expected_in_drawer?.card ? `$ ${reportData.details.expected_in_drawer.card.toLocaleString()}` : '$ 0.00'}</Text>
               </View>
               <View style={styles.row}>
                 <Text style={[styles.label, Body3]}>Total Tendered</Text>
-                <Text style={[styles.value, Subtitle2]}>$ 12,000</Text>
+                <Text style={[styles.value, Subtitle2]}>{reportData.closeAmount !== '________' ? reportData.closeAmount : '$ 0.00'}</Text>
               </View>
             </View>
 
@@ -117,7 +117,7 @@ const ZReportDetailModal = ({ visible = false, reportData = null, onClose }) => 
             <View style={styles.section}>
               <View style={styles.row}>
                 <Text style={[styles.totalLabel, Subtitle1]}>Total</Text>
-                <Text style={[styles.totalValue, Subtitle1]}>$12,000</Text>
+                <Text style={[styles.totalValue, Subtitle1]}>{reportData.closeAmount !== '________' ? reportData.closeAmount : '$ 0.00'}</Text>
               </View>
             </View>
           </ScrollView>
