@@ -8,11 +8,15 @@ import {
   Image,
   ScrollView,
   ActivityIndicator,
+  NativeModules,
 } from 'react-native';
 import { useNavigation, useRoute } from '@react-navigation/native';
+import ViewShot from 'react-native-view-shot';
+import RNFS from 'react-native-fs';
 import {
   Subtitle1,
   Subtitle2,
+  H3,
   Body3,
   ButtonText,
   Overline,
@@ -61,11 +65,16 @@ import {
   GET_TERMINAL_STATUS,
 } from '../../services/Restaurant/Sales&Transaction/Sales&Transaction';
 
+
 const OrderProcessingScreen = () => {
+  const { PrinterModule, DisplayManager } = NativeModules;
   const navigation = useNavigation();
   const route = useRoute();
   const { store_id, userData } = useSelector(state => state.user);
   const { deviceId } = useSelector(state => state.device);
+
+  const viewShotRef = useRef();
+  const [printing, setPrinting] = useState(false);
 
   const { tableNumber, tableId, orderType, isNewOrder } = route.params || {};
 
@@ -134,6 +143,15 @@ const OrderProcessingScreen = () => {
       console.error('Error fetching order details:', error);
     }
   }, [tableId]);
+
+  // Debugging hook to check for Native Modules
+  useEffect(() => {
+    console.log('--- NATIVE MODULES DEBUG ---');
+    console.log('Available Modules:', Object.keys(NativeModules));
+    console.log('PrinterModule found:', !!NativeModules.PrinterModule);
+    console.log('DisplayManager found:', !!NativeModules.DisplayManager);
+    console.log('---------------------------');
+  }, []);
 
   const handleCreateResOrder = async () => {
     const payload = {
@@ -301,6 +319,61 @@ const OrderProcessingScreen = () => {
         text2: error.message || 'Could not complete transaction',
       });
       throw error;
+    }
+  };
+
+  const handlePrintReceipt = async () => {
+    try {
+      setPrinting(true);
+      if (!PrinterModule || !viewShotRef.current) {
+        Toast.show({
+          type: 'error',
+          text1: 'Printer Error',
+          text2: !PrinterModule ? 'Native Printer Module not found.' : 'Receipt view not ready.',
+        });
+        return;
+      }
+
+      // Give the UI a moment to ensure the hidden view is rendered with latest data
+      await new Promise(resolve => setTimeout(resolve, 200));
+
+      // 1. Capture the hidden ViewShot component
+      const uri = await viewShotRef.current.capture();
+      console.log('Receipt captured at:', uri);
+
+      // 2. Convert image to Base64
+      const path = uri.startsWith('file://') ? uri.replace('file://', '') : uri;
+      const exists = await RNFS.exists(path);
+      if (!exists) throw new Error('Captured receipt file not found.');
+
+      const base64Image = await RNFS.readFile(path, 'base64');
+
+      // 3. Send to Native SDK
+      const printParams = {
+        logoUrl: userData?.store_id?.[0]?.store_logo || '',
+        logoBase64: base64Image,
+      };
+
+      await PrinterModule.printFun(printParams);
+    } catch (error) {
+      console.error('Printing Error:', error);
+      Toast.show({
+        type: 'error',
+        text1: 'Printing Failed',
+        text2: error.message || 'Check printer connection or paper.',
+      });
+    } finally {
+      setPrinting(false);
+    }
+  };
+
+  const handleClearSecondDisplay = async () => {
+    if (DisplayManager) {
+      await DisplayManager.showContentOnSecondDisplay(
+        'image',
+        null,
+        error => console.error('DisplayManager Error:', error)
+      );
     }
   };
 
@@ -485,6 +558,7 @@ const OrderProcessingScreen = () => {
   };
 
   const handleCloseInvoice = () => {
+    handleClearSecondDisplay(); // Clear secondary display when closing invoice
     setShowInvoiceModal(false);
     setCart([]);
     setTipAmount(null);
@@ -565,6 +639,87 @@ const OrderProcessingScreen = () => {
     </TouchableOpacity>
   );
 
+  const RenderPrintView = () => (
+    <View style={{ position: 'absolute', opacity: 0, zIndex: -1, pointerEvents: 'none' }}>
+      <ViewShot ref={viewShotRef} options={{ format: 'png', quality: 1.0 }}>
+        <View style={{ width: 384, backgroundColor: 'white', padding: 15 }} collapsable={false}>
+
+          {/* Header */}
+          <Text style={[H3, { textAlign: 'center', marginBottom: 4 }]}>
+            {userData?.store_id?.[0]?.store_name || 'PSP POS'}
+          </Text>
+          <Text style={[Body3, { textAlign: 'center' }]}>
+            CVR: {userData?.business_id?.[0]?.crv_number || 'N/A'}
+          </Text>
+
+          <View style={{ borderBottomWidth: 1, borderStyle: 'dashed', marginVertical: 10, borderColor: '#000' }} />
+
+          <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
+            <Text style={Body3}>Ref: {terminalReferenceNumber || 'N/A'}</Text>
+            <Text style={Body3}>{new Date().toLocaleDateString()}</Text>
+          </View>
+
+          <View style={{ borderBottomWidth: 1, borderStyle: 'dashed', marginVertical: 10, borderColor: '#000' }} />
+
+          {/* Item List */}
+          {cart.map((item, index) => (
+            <View key={index} style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 4 }}>
+              <Text style={Body3} numberOfLines={1}>
+                {item.qty} x {item.name}
+              </Text>
+              <Text style={Body3}>
+                $ {(item.price * item.qty).toFixed(2)}
+              </Text>
+            </View>
+          ))}
+
+          <View style={{ borderBottomWidth: 1, borderStyle: 'dashed', marginVertical: 10, borderColor: '#000' }} />
+
+          {/* Financials */}
+          <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
+            <Text style={Subtitle2}>Subtotal:</Text>
+            <Text style={Subtitle2}>$ {subtotal.toFixed(2)}</Text>
+          </View>
+
+          {parseFloat(tipAmount) > 0 && (
+            <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
+              <Text style={Subtitle2}>Tip:</Text>
+              <Text style={Subtitle2}>${parseFloat(tipAmount).toFixed(2)}</Text>
+            </View>
+          )}
+
+          <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginTop: 5 }}>
+            <Text style={H2}>Total:</Text>
+            <Text style={H2}>$ {total}</Text>
+          </View>
+
+          <View style={{ marginTop: 20, alignItems: 'center' }}>
+            <Text style={Body3}>Reference: {terminalReferenceNumber}</Text>
+            <Text style={Body3}>{new Date().toLocaleString()}</Text>
+            <Text style={[Subtitle2, { marginTop: 10 }]}>Thank You!</Text>
+
+            <View style={{ borderBottomWidth: 1, borderStyle: 'dashed', marginVertical: 10, borderColor: '#000' }} />
+
+            {/* Footer */}
+            <View style={{ alignItems: 'center' }}>
+              <Text style={[Body3, { textAlign: 'center' }]}>
+                {userData?.store_id?.[0]?.company_address}
+              </Text>
+              <Text style={[Subtitle2, { marginTop: 10 }]}>
+                Thank You for Shopping!
+              </Text>
+              <Text style={[Overline, { marginTop: 5 }]}>
+                #{userData?.store_id?.[0]?.store_code}
+              </Text>
+            </View>
+          </View>
+
+        </View>
+      </ViewShot>
+    </View>
+  );
+
+
   return (
     <View style={styles.root}>
       <StatusBar backgroundColor="#C6CDEF" barStyle="dark-content" />
@@ -644,6 +799,7 @@ const OrderProcessingScreen = () => {
 
       {/* ───── RIGHT PANEL ───── */}
       <View style={styles.cartPanel}>
+        <RenderPrintView />
         <View style={styles.cartPanelHeader}>
           <Text style={[styles.tableInfo, Subtitle1]}>
             {orderType === 'Take Away' ? 'Take Away' : `Table #: ${tableNumber}`}
@@ -786,9 +942,30 @@ const OrderProcessingScreen = () => {
           </View>
 
           <TouchableOpacity
-            style={[styles.primaryBtn, cart.length === 0 && styles.primaryBtnDisabled]}
-            disabled={cart.length === 0}
+            style={[styles.processBtn, { backgroundColor: '#FFB800', width: '100%', marginBottom: 10 }, cart.length === 0 && styles.disabledBtn]}
+            onPress={handlePrintReceipt}
+            disabled={cart.length === 0 || printing}
+          >
+            <Text style={[styles.processBtnText, ButtonTextSmall]}>{printing ? 'Printing...' : 'Print Bill Demo'}</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            style={[
+              styles.primaryBtn,
+              (cart.length === 0 || printing) && styles.primaryBtnDisabled,
+              { backgroundColor: printing ? '#999' : '#3B4B8A' }
+            ]}
+            disabled={cart.length === 0 || printing}
             onPress={async () => {
+              if (!PrinterModule) {
+                Toast.show({
+                  type: 'error',
+                  text1: 'Hardware Error',
+                  text2: 'Printer driver not found. Check native installation.',
+                });
+                return;
+              }
+
               const isTerminalReady = await handleCheckTerminalStatus();
               if (isTerminalReady) {
                 setShowPaymentModal(true);
@@ -882,6 +1059,7 @@ const OrderProcessingScreen = () => {
           if (data.method?.toLowerCase() === 'cash') {
             try {
               await handleResTransaction(data.method);
+              await handlePrintReceipt(); // Print receipt automatically on cash success
               setShowSuccessModal(true);
             } catch (error) {
               // Error handled in handleResTransaction
@@ -896,6 +1074,7 @@ const OrderProcessingScreen = () => {
               console.log('NFC Technology acquired');
 
               await handleResTransaction(data.method);
+              await handlePrintReceipt(); // Print receipt automatically on card success
 
               setShowTapCardModal(false);
               setShowTransactionModal(true);
