@@ -13,7 +13,7 @@ export const GET_ALL_TRANSACTION = ({
   transType = '',
 }) => {
   const response = Fetch.post(
-    `${BASE_PREFIX}${ENDPOINTS.Sales$Analytics.GET_Z_REPORT}?page=${page}&itemsPerPage=${itemsPerPage}&searchText=${searchText}&storeId=${storeId}&deviceId=${deviceId}&transType=${transType}`,
+    `${BASE_PREFIX}${ENDPOINTS.SALES$ANALYTICS.GET_Z_REPORT}?page=${page}&itemsPerPage=${itemsPerPage}&searchText=${searchText}&storeId=${storeId}&deviceId=${deviceId}&transType=${transType}`,
   );
   return response;
 };

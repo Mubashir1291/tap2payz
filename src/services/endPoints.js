@@ -1,4 +1,3 @@
-import { CHECK_STORE_DISCOUNT, VERIFY_DISCOUNT_CODE } from './DiscountReceipts';
 
 const ENDPOINTS = {
   AUTH: {
@@ -58,30 +57,30 @@ const ENDPOINTS = {
     GET_ALL_INVENTORY: '/get-all-inventory',
     UPDATE_INVENTORY: '/update-inventory',
   },
-  category: {
+  CATEGORY: {
     CREATE_CATEGORY: '/create-category',
     UPDATE_CATEGORY: '/update-category',
     DELETE_CATEGORY: '/delete-category',
   },
-  Employee: {
+  EMPLOYEE: {
     GET_EMPLOYEES: '/get-employees',
     GET_EMPLOYEE: '/get-employee',
     CREATE_EMPLOYEE: '/create-employee',
     UPDATE_EMPLOYEE: '/update-employee',
     DELETE_EMPLOYEE: '/delete-employee',
   },
-  Tables: {
+  TABLES: {
     GET_TABLES: '/get-tables',
     CREATE_TABLE: '/create-tables',
     UPDATE_TABLE: '/update-table',
     DELETE_TABLE: '/delete-table',
   },
-  Floors: {
+  FLOORS: {
     GET_FLOORS: '/get-floors',
     CREATE_FLOOR: '/create-floor',
     UPDATE_FLOOR: '/update-floor',
   },
-  Order: {
+  ORDER: {
     GET_ORDERS: '/get-orders',
     GET_ORDER_DETAIL: '/get-order-details',
     GET_ACTIVE_ORDERS: '/get-active-order',
@@ -90,30 +89,30 @@ const ENDPOINTS = {
     CHANGE_ORDER_STATUS: '/change-order-status',
   },
 
-  Sales$Transaction: {
+  SALES$TRANSACTION: {
     CHECK_TERMINAL_STATUS: '/get-terminal-status',
     CREATE_TRANSACTION: '/create-transaction',
   },
-  BankDetails: {
+  BANK_DETAILS: {
     GET_BANK_DETAILS: '/get-bank-details',
     CREATE_BANK_DETAILS: '/create-bank-details',
     UPDATE_BANK_DETAILS: '/update-bank-details',
   },
-  Terminals: {
+  TERMINALS: {
     GET_STORE_TERMINAL: '/get-store-terminals',
     CREATE_STORE_TERMINAL: '/create-store-terminal',
     TOGGLE_STORE_TERMINAL: '/toggle-store-terminal',
   },
-  Devices: {
+  DEVICES: {
     GET_DEVICES: '/get-devices',
     CREATE_DEVICE: '/create-device',
     UPDATE_DEVICE: '/update-device',
     DELETE_DEVICE: '/delete-device',
   },
-  Communication: {
+  COMMUNICATION: {
     SEND_DETAILS_EMAIL: '/send-details-email',
   },
-  Sales$Analytics: {
+  SALES$ANALYTICS: {
     GET_WEEKLY_SALES: '/get-weekly-sales',
     GET_WEEKLY_TIPS: '/get-weekly-tips',
     GET_ALL_SALES_BY_TYPE: '/get-all-sales-by-type',
@@ -123,7 +122,7 @@ const ENDPOINTS = {
     GENERATE_Z_REPORT: '/generate-z-report',
     GET_WEEKLY_ANALYTICS: '/get-weekly-analytics',
   },
-  Discount: {
+  DISCOUNT: {
     VERIFY_DISCOUNT_CODE: '/verify-discount-code',
     CHECK_STORE_DISCOUNT: '/check-store-discount',
   },

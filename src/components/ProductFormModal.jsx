@@ -8,9 +8,9 @@ import {
   Image,
   Modal,
   Switch,
-  Alert,
   FlatList,
 } from 'react-native';
+import Toast from 'react-native-toast-message';
 import { launchImageLibrary } from 'react-native-image-picker';
 import { useSelector } from 'react-redux';
 import { Colors } from '../utils/Colors';
@@ -112,12 +112,20 @@ const ProductFormModal = ({ visible, onClose, formType, initialData, onSubmit })
       const response = await CREATE_PRODUCT(payload);
       console.log('Product Creation', response);
       if (response) {
-        Alert.alert('Success', 'Product created successfully');
+        Toast.show({
+          type: 'success',
+          text1: 'Success',
+          text2: 'Product created successfully',
+        });
         onSubmit(payload);
         onClose();
       }
     } catch (error) {
-      Alert.alert('Error', 'Failed to create product');
+      Toast.show({
+        type: 'error',
+        text1: 'Error',
+        text2: 'Failed to create product',
+      });
       console.log(error, 'Product Creation Error');
       console.log(payload, 'payload');
     }
@@ -128,12 +136,20 @@ const ProductFormModal = ({ visible, onClose, formType, initialData, onSubmit })
       const response = await UPDATE_PRODUCT(formData._id, payload);
       console.log('Product Update', response);
       if (response) {
-        Alert.alert('Success', 'Product updated successfully');
+        Toast.show({
+          type: 'success',
+          text1: 'Success',
+          text2: 'Product updated successfully',
+        });
         onSubmit(payload);
         onClose();
       }
     } catch (error) {
-      Alert.alert('Error', 'Failed to update product');
+      Toast.show({
+        type: 'error',
+        text1: 'Error',
+        text2: 'Failed to update product',
+      });
       console.log(error, 'Product Update Error');
     }
   };

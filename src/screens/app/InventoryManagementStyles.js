@@ -157,9 +157,9 @@ const styles = StyleSheet.create({
     color: '#E74C3C',
   },
   infoCircle: {
-    width: S(24),
-    height: S(24),
-    borderRadius: S(12),
+    width: MS(20),
+    height: MS(20),
+    borderRadius: MS(12),
     backgroundColor: '#333333',
     justifyContent: 'center',
     alignItems: 'center',

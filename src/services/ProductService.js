@@ -56,32 +56,32 @@ export const DELETE_PRODUCT = id => {
 // Categories
 
 export const CREATE_CATEGORY = data => {
-  const response = Fetch.post(`${BASE_CATEGORY_PREFIX}${ENDPOINTS.category.CREATE_CATEGORY}`, data);
+  const response = Fetch.post(`${BASE_CATEGORY_PREFIX}${ENDPOINTS.CATEGORY.CREATE_CATEGORY}`, data);
   return response;
 };
 export const UPDATE_CATEGORY = (id, payload) => {
   const response = Fetch.put(
-    `${BASE_CATEGORY_PREFIX}${ENDPOINTS.category.UPDATE_CATEGORY}/${id}`,
+    `${BASE_CATEGORY_PREFIX}${ENDPOINTS.CATEGORY.UPDATE_CATEGORY}/${id}`,
     payload,
   );
   return response;
 };
 export const DELETE_CATEGORY = id => {
   const response = Fetch.delete(
-    `${BASE_CATEGORY_PREFIX}${ENDPOINTS.category.DELETE_CATEGORY}/${id}`,
+    `${BASE_CATEGORY_PREFIX}${ENDPOINTS.CATEGORY.DELETE_CATEGORY}/${id}`,
   );
   return response;
 };
 
 export const VERIFY_DISCOUNT_CODE = id => {
   const response = Fetch.get(
-    `${BASE_PRODUCT_PREFIX}${ENDPOINTS.Discount.VERIFY_DISCOUNT_CODE}${id}`,
+    `${BASE_PRODUCT_PREFIX}${ENDPOINTS.DISCOUNT.VERIFY_DISCOUNT_CODE}${id}`,
   );
   return response;
 };
 export const CHECK_STORE_DISCOUNT = store_id => {
   const response = Fetch.get(
-    `${BASE_PRODUCT_PREFIX}${ENDPOINTS.Discount.CHECK_STORE_DISCOUNT}?store_id=${store_id}`,
+    `${BASE_PRODUCT_PREFIX}${ENDPOINTS.DISCOUNT.CHECK_STORE_DISCOUNT}?store_id=${store_id}`,
   );
   return response;
 };

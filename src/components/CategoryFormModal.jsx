@@ -1,13 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, TouchableOpacity, ScrollView, TextInput, Image, Modal } from 'react-native';
-import { Colors } from '../utils/Colors';
 import { H1, Body3, Caption } from '../utils/fonts';
 import { UploadIcon, ArrowDownIcon } from '../assets/Images';
 import styles from '../screens/app/InventoryManagementStyles';
 import { useSelector } from 'react-redux';
 import { CREATE_CATEGORY, UPDATE_CATEGORY } from '../services/ProductService';
 import { launchImageLibrary } from 'react-native-image-picker';
-import { Alert } from 'react-native';
+import Toast from 'react-native-toast-message';
 
 const CategoryFormModal = ({ visible, onClose, formType, initialData, onSubmit }) => {
   const { store_id, business_id } = useSelector(state => state.user);
@@ -66,13 +65,20 @@ const CategoryFormModal = ({ visible, onClose, formType, initialData, onSubmit }
     try {
       const response = await CREATE_CATEGORY(payload);
       if (response) {
-        Alert.alert('Success', 'Category created successfully');
-        onSubmit && onSubmit(payload);
+        Toast.show({
+          type: 'success',
+          text1: 'Success',
+          text2: 'Category created successfully',
+        });
+        onSubmit(payload);
         onClose();
       }
     } catch (error) {
-      Alert.alert('Error', 'Failed to create category');
-      console.log(error, 'Category Creation Error');
+      Toast.show({
+        type: 'error',
+        text1: 'Error',
+        text2: 'Failed to create category',
+      });
     }
   };
 
@@ -80,13 +86,20 @@ const CategoryFormModal = ({ visible, onClose, formType, initialData, onSubmit }
     try {
       const response = await UPDATE_CATEGORY(catFormData._id, payload);
       if (response) {
-        Alert.alert('Success', 'Category updated successfully');
-        onSubmit && onSubmit(payload);
+        Toast.show({
+          type: 'success',
+          text1: 'Success',
+          text2: 'Category updated successfully',
+        });
+        onSubmit(payload);
         onClose();
       }
     } catch (error) {
-      Alert.alert('Error', 'Failed to update category');
-      console.log(error, 'Category Update Error');
+      Toast.show({
+        type: 'error',
+        text1: 'Error',
+        text2: 'Failed to update category',
+      });
     }
   };
 

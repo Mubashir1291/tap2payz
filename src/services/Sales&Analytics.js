@@ -32,7 +32,7 @@ export const GET_X_REPORT = ({
   storeId = '',
 }) => {
   return Fetch.post(
-    `${BASE_PREFIX}${ENDPOINTS.Sales$Analytics.GET_X_REPORT}?business_id=${businessId}&store_id=${storeId}&fromDate=${fromDate}&fromTime=${fromTime}&toDate=${toDate}&toTime=${toTime}&transType=${transType}`,
+    `${BASE_PREFIX}${ENDPOINTS.SALES$ANALYTICS.GET_X_REPORT}?business_id=${businessId}&store_id=${storeId}&fromDate=${fromDate}&fromTime=${fromTime}&toDate=${toDate}&toTime=${toTime}&transType=${transType}`,
   );
 };
 
@@ -45,7 +45,7 @@ export const GET_X_REPORT = ({
 
 export const GENERATE_X_REPORT = ({ device_id = '', store_id = '', timeFrame = '' }) => {
   return Fetch.get(
-    `${BASE_PREFIX}${ENDPOINTS.Sales$Analytics.GENERATE_X_REPORT}?device_id=${device_id}&store_id=${store_id}&timeFrame=${timeFrame}`,
+    `${BASE_PREFIX}${ENDPOINTS.SALES$ANALYTICS.GENERATE_X_REPORT}?device_id=${device_id}&store_id=${store_id}&timeFrame=${timeFrame}`,
   );
 };
 // export const GENERATE_Z_REPORT = ({ business_id = '', store_id = '' }) => {
@@ -56,6 +56,6 @@ export const GENERATE_X_REPORT = ({ device_id = '', store_id = '', timeFrame = '
 
 export const GET_WEEKLY_ANALYTICS = ({  storeId = '',timeFram='',totalSalesFilter='' }) => {
   return Fetch.get(
-    `${BASE_PREFIX}${ENDPOINTS.Sales$Analytics.GET_WEEKLY_ANALYTICS}?storeId=${storeId}&timeFram=${timeFram}&totalSalesFilter=${totalSalesFilter}`,
+    `${BASE_PREFIX}${ENDPOINTS.SALES$ANALYTICS.GET_WEEKLY_ANALYTICS}?storeId=${storeId}&timeFram=${timeFram}&totalSalesFilter=${totalSalesFilter}`,
   );
 };

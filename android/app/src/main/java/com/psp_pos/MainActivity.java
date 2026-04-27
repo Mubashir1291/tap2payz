@@ -4,6 +4,7 @@ import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.hardware.usb.UsbConstants;
 import android.hardware.usb.UsbDevice;
 import android.hardware.usb.UsbManager;
 import android.os.Build;
@@ -20,6 +21,10 @@ public class MainActivity extends ReactActivity {
     private static final String TAG = "MainActivity";
     private UsbPermissionReceiver usbPermissionReceiver;
 
+    // Telpo C2 Internal Printer IDs
+    private static final int TELPO_VID = 10473;
+    private static final int TELPO_PID = 653;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -30,6 +35,7 @@ public class MainActivity extends ReactActivity {
         // Register the USB permission receiver with modern Android security flags
         usbPermissionReceiver = new UsbPermissionReceiver();
         IntentFilter filter = new IntentFilter(UsbPermissionReceiver.ACTION_USB_PERMISSION);
+        filter.addAction(UsbManager.ACTION_USB_DEVICE_ATTACHED);
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             registerReceiver(usbPermissionReceiver, filter, Context.RECEIVER_NOT_EXPORTED);
@@ -65,35 +71,73 @@ public class MainActivity extends ReactActivity {
 
     private void requestUsbPermission() {
         UsbManager usbManager = (UsbManager) getSystemService(Context.USB_SERVICE);
-        UsbDevice device = findUsbDevice(usbManager);
+        boolean foundAny = false;
 
-        if (device != null) {
-            if (!usbManager.hasPermission(device)) {
-                // USB Hardware often requires MUTABLE intents to attach device data
-                int flags = (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S)
-                        ? PendingIntent.FLAG_MUTABLE
-                        : PendingIntent.FLAG_UPDATE_CURRENT;
+        if (usbManager == null || usbManager.getDeviceList() == null)
+            return;
 
-                PendingIntent permissionIntent = PendingIntent.getBroadcast(
-                        this, 0, new Intent(UsbPermissionReceiver.ACTION_USB_PERMISSION), flags);
+        for (UsbDevice device : usbManager.getDeviceList().values()) {
+            boolean isTarget = false;
 
-                usbManager.requestPermission(device, permissionIntent);
-                Log.d(TAG, "Requesting USB permission for: " + device.getDeviceName());
+            Log.d(TAG, "Checking device: VID=" + device.getVendorId() + " PID=" + device.getProductId());
+
+            // Check if it's Telpo or a Generic Printer Class
+            // Some C2 variants use PIDs like 650, 651, 653, or 654
+            if (device.getVendorId() == TELPO_VID && (device.getProductId() == TELPO_PID ||
+                    device.getProductId() == 650 ||
+                    device.getProductId() == 651 ||
+                    device.getProductId() == 654 ||
+                    device.getProductId() == 1539)) { // Common internal PID 0x0603
+                isTarget = true;
             } else {
-                Log.d(TAG, "USB Permission already granted");
+                for (int i = 0; i < device.getInterfaceCount(); i++) {
+                    if (device.getInterface(i).getInterfaceClass() == UsbConstants.USB_CLASS_PRINTER) {
+                        isTarget = true;
+                        break;
+                    }
+                }
             }
-        } else {
-            Log.w(TAG, "POS USB Device not found during request");
+
+            if (isTarget) {
+                foundAny = true;
+                if (!usbManager.hasPermission(device)) {
+                    int flags = (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) ? PendingIntent.FLAG_MUTABLE
+                            : PendingIntent.FLAG_UPDATE_CURRENT;
+                    PendingIntent permissionIntent = PendingIntent.getBroadcast(this, 0,
+                            new Intent(UsbPermissionReceiver.ACTION_USB_PERMISSION), flags);
+                    usbManager.requestPermission(device, permissionIntent);
+                    Log.d(TAG, "Requested permission for: " + device.getDeviceName() + " (VID: " + device.getVendorId()
+                            + ")");
+                }
+            }
         }
+
+        if (!foundAny)
+            Log.w(TAG, "No POS printers found on USB bus");
     }
 
     private UsbDevice findUsbDevice(UsbManager usbManager) {
-        int expectedVendorId = 10473;
-        int expectedProductId = 653;
 
         for (UsbDevice device : usbManager.getDeviceList().values()) {
-            if (device.getVendorId() == expectedVendorId && device.getProductId() == expectedProductId) {
+            int vid = device.getVendorId();
+            int pid = device.getProductId();
+
+            Log.d(TAG, "Scanning USB: VID=" + device.getVendorId() + " PID=" + device.getProductId()
+                    + " Class=" + device.getDeviceClass());
+
+            // Check for specific Telpo Hardware
+            if (device.getVendorId() == TELPO_VID && device.getProductId() == TELPO_PID) {
+                Log.d(TAG, "Matched Internal Printer");
                 return device;
+            }
+
+            // Generic check for USB Printer Class (Class 7) - Supports CP-306 and others
+            for (int i = 0; i < device.getInterfaceCount(); i++) {
+                if (device.getInterface(i).getInterfaceClass() == UsbConstants.USB_CLASS_PRINTER) {
+                    Log.d(TAG, "Matched Printer Class Device: " + device.getDeviceName()
+                            + " VID=" + device.getVendorId());
+                    return device;
+                }
             }
         }
         return null;
@@ -110,7 +154,7 @@ public class MainActivity extends ReactActivity {
                 this,
                 getMainComponentName(),
                 true, // fabricEnabled
-                true  // bridgelessEnabled
+                true // bridgelessEnabled
         );
     }
 }

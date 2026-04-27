@@ -10,6 +10,7 @@ import {
   Switch,
   ActivityIndicator,
 } from 'react-native';
+import Toast from 'react-native-toast-message';
 import { useSelector } from 'react-redux';
 import {
   GET_ALL_PRODUCTS_WITH_INVENTORY,
@@ -19,7 +20,7 @@ import {
 } from '../../services/ProductService';
 import { Colors } from '../../utils/Colors';
 import { Subtitle2, Body3, Caption, H1 } from '../../utils/fonts';
-import { IconSize12, IconSize24, IconSize40 } from '../../utils/IconSizes';
+import { IconSize12, IconSize16, IconSize20, IconSize24, IconSize40 } from '../../utils/IconSizes';
 import {
   SearchIcon,
   LeftArrowIcon,
@@ -104,6 +105,11 @@ const InventoryManagement = () => {
         setProductData(response);
       } catch (error) {
         console.error('Error fetching products with inventory:', error);
+        Toast.show({
+          type: 'error',
+          text1: 'Fetch Error',
+          text2: 'Could not load products',
+        });
       } finally {
         setIsLoadingProducts(false);
       }
@@ -127,6 +133,11 @@ const InventoryManagement = () => {
         setCategoryData(response);
       } catch (error) {
         console.error('Error fetching categories:', error);
+        Toast.show({
+          type: 'error',
+          text1: 'Fetch Error',
+          text2: 'Could not load categories',
+        });
       } finally {
         setIsLoadingCategories(false);
       }
@@ -221,6 +232,11 @@ const InventoryManagement = () => {
       }
     } catch (error) {
       console.error('Error deleting:', error);
+      Toast.show({
+        type: 'error',
+        text1: 'Delete Error',
+        text2: error?.message || 'Operation failed',
+      });
     }
 
     setShowDeleteModal(false);
@@ -343,7 +359,7 @@ const InventoryManagement = () => {
 
           <TouchableOpacity style={styles.createBtn} onPress={handleCreateNew}>
             <Text style={[styles.createBtnText, Caption]}>
-              {viewType === 'products' ? 'Create Merchant +' : 'Create Category +'}
+              {viewType === 'products' ? 'Create Product +' : 'Create Category +'}
             </Text>
           </TouchableOpacity>
         </View>
@@ -391,7 +407,7 @@ const InventoryManagement = () => {
         {/* Table Content */}
         <ScrollView showsVerticalScrollIndicator={false}>
           {(viewType === 'products' && isLoadingProducts) ||
-          (viewType === 'categories' && isLoadingCategories) ? (
+            (viewType === 'categories' && isLoadingCategories) ? (
             <View style={{ padding: 40, justifyContent: 'center', alignItems: 'center' }}>
               <ActivityIndicator size="large" color={Colors.primary} />
             </View>
@@ -447,10 +463,10 @@ const InventoryManagement = () => {
                         <Text style={styles.infoText}>i</Text>
                       </TouchableOpacity>
                       <TouchableOpacity onPress={() => handleEdit(item)}>
-                        <Image source={EditCircleIcon} style={[IconSize24]} />
+                        <Image source={EditCircleIcon} style={[IconSize20]} />
                       </TouchableOpacity>
                       <TouchableOpacity onPress={() => handleDelete(item)}>
-                        <Image source={DeleteCircleIcon} style={[IconSize24]} />
+                        <Image source={DeleteCircleIcon} style={[IconSize20]} />
                       </TouchableOpacity>
                     </View>
                   </>
@@ -538,9 +554,8 @@ const InventoryManagement = () => {
         icon={DeleteIcon}
         iconStyle={[IconSize40, styles.largeIconStyle]}
         title={`Want to Delete this ${viewType === 'products' ? 'Product' : 'Category'}!`}
-        subtitle={`Are you sure you want to delete this ${
-          viewType === 'products' ? 'product' : 'category'
-        }?`}
+        subtitle={`Are you sure you want to delete this ${viewType === 'products' ? 'product' : 'category'
+          }?`}
         confirmText={`Delete ${viewType === 'products' ? 'Product' : 'Category'} →`}
         confirmButtonColor="#B71C1C"
         onConfirm={confirmDelete}

@@ -5,8 +5,6 @@ import { S, VS, MS } from '../utils/Responsive';
 import { H2, Body2, Subtitle2 } from '../utils/fonts';
 import { CameraIcon } from '../assets/Images';
 import { IconSize16 } from '../utils/IconSizes';
-import { CREATE_EMPLOYEE } from '../services/Employee';
-import { useSelector } from 'react-redux';
 
 const EditEmployeeModal = ({ visible, onClose, onSave, employeeData }) => {
   const [name, setName] = useState('');
@@ -25,19 +23,7 @@ const EditEmployeeModal = ({ visible, onClose, onSave, employeeData }) => {
     }
   };
 
-  const handleCREATE_EMPLOYEE = async () => {
-    try {
-      const response = await CREATE_EMPLOYEE({
-        name,
-        email,
-        create_password,
-        store_id,
-        employee_profile,
-      });
-    } catch (error) {
-      console.error('Error creating employee:', error);
-    }
-  };
+
 
   return (
     <Modal visible={visible} transparent={true} animationType="fade" onRequestClose={onClose}>

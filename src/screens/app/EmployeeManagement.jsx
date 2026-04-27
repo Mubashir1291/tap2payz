@@ -8,6 +8,7 @@ import {
   Image,
   ActivityIndicator,
 } from 'react-native';
+import Toast from 'react-native-toast-message';
 import { useSelector } from 'react-redux';
 import { Colors } from '../../utils/Colors';
 import { Subtitle2, Body3, Caption, H1 } from '../../utils/fonts';
@@ -29,9 +30,17 @@ import SortModal, { applySort } from '../../components/SortModal';
 import ConfirmationModal from '../../components/ConfirmationModal';
 import { DELETE_EMPLOYEE, GET_EMPLOYEES } from '../../services/Employee';
 import { MS } from '../../utils/Responsive';
+import useDebounce from '../../utils/useDebounce';
 
 const EmployeeManagement = () => {
   const [searchQuery, setSearchQuery] = useState('');
+  const [filterSearch, setFilterSearch] = useState({
+    page: 1,
+    itemPerPage: 10,
+    searchText: debounceSearch,
+    sort: sortType,
+    storeId: store_id,
+  });
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
@@ -40,9 +49,18 @@ const EmployeeManagement = () => {
   const [selectedEmployee, setSelectedEmployee] = useState(null);
   const [sortType, setSortType] = useState('a-z');
 
+  const debounceSearch = useDebounce(searchQuery, 500)
+
+
   const { store_id } = useSelector(state => state.user);
   const [employees, setEmployees] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
+
+
+
+
+
+
 
   const sortedData = useMemo(() => {
     let data = [...employees];
@@ -73,7 +91,12 @@ const EmployeeManagement = () => {
       const response = await DELETE_EMPLOYEE(selectedEmployee?.id);
       console.log('Employee Delete response', response);
     } catch (error) {
-      console.log('Network Error', error);
+      console.error('Network Error', error);
+      Toast.show({
+        type: 'error',
+        text1: 'Delete Failed',
+        text2: error?.message || 'Could not delete employee',
+      });
     }
     setShowDeleteModal(false);
     // setTimeout(() => {
@@ -90,7 +113,7 @@ const EmployeeManagement = () => {
     const fetchEmployees = async () => {
       setIsLoading(true);
       try {
-        const response = await GET_EMPLOYEES({ storeId: store_id });
+        const response = await GET_EMPLOYEES({ storeId: store_id, searchText: debounceSearch });
         const mappedEmployees = (response?.items || []).map(emp => ({
           id: emp._id || emp.id,
           image: emp.employee_profile || null,
@@ -102,6 +125,11 @@ const EmployeeManagement = () => {
         setEmployees(mappedEmployees);
       } catch (error) {
         console.error('Error fetching employees:', error);
+        Toast.show({
+          type: 'error',
+          text1: 'Fetch Error',
+          text2: 'Could not load employees list',
+        });
       } finally {
         setIsLoading(false);
       }
@@ -129,7 +157,7 @@ const EmployeeManagement = () => {
               placeholder="Search Merchant"
               placeholderTextColor="#3B4B8A"
               value={searchQuery}
-              onChangeText={setSearchQuery}
+              onChangeText={(e) => setSearchQuery(e)}
             />
           </View>
 

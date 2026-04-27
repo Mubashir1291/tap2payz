@@ -13,34 +13,34 @@ export const GET_RES_ORDERS = ({
   sort = '',
 } = {}) => {
   const response = Fetch.get(
-    `${BASE_PREFIX}${ENDPOINTS.Order.GET_ORDERS}?page=${page}&itemsPerPage=${itemsPerPage}&store_id=${store_id}&status=${status}&type=${type}&sort=${sort}`,
+    `${BASE_PREFIX}${ENDPOINTS.ORDER.GET_ORDERS}?page=${page}&itemsPerPage=${itemsPerPage}&store_id=${store_id}&status=${status}&type=${type}&sort=${sort}`,
   );
   return response;
 };
 export const CREATE_RES_ORDER = payload => {
-  const response = Fetch.post(`${BASE_PREFIX}${ENDPOINTS.Order.CREATE_ORDER}`, payload);
+  const response = Fetch.post(`${BASE_PREFIX}${ENDPOINTS.ORDER.CREATE_ORDER}`, payload);
   return response;
 };
 
 export const GET_RES_ORDER_DETAIL = id => {
-  const response = Fetch.get(`${BASE_PREFIX}${ENDPOINTS.Order.GET_ORDER_DETAIL}/${id}`);
+  const response = Fetch.get(`${BASE_PREFIX}${ENDPOINTS.ORDER.GET_ORDER_DETAIL}/${id}`);
   return response;
 };
 export const GET_RES_ACTIVE_ORDERS = id => {
-  const response = Fetch.get(`${BASE_PREFIX}${ENDPOINTS.Order.GET_ACTIVE_ORDERS}/${id}`);
+  const response = Fetch.get(`${BASE_PREFIX}${ENDPOINTS.ORDER.GET_ACTIVE_ORDERS}/${id}`);
   return response;
 };
 
 export const CREATE_TABLE = data => {
-  const response = Fetch.post(`${BASE_PREFIX}${ENDPOINTS.Order.CREATE_ORDER}`, data);
+  const response = Fetch.post(`${BASE_PREFIX}${ENDPOINTS.ORDER.CREATE_ORDER}`, data);
   return response;
 };
 
 export const UPDATE_TABLE = (id, payload) => {
-  const response = Fetch.put(`${BASE_PREFIX}${ENDPOINTS.Order.UPDATE_ORDER}/${id}`, payload);
+  const response = Fetch.put(`${BASE_PREFIX}${ENDPOINTS.ORDER.UPDATE_ORDER}/${id}`, payload);
   return response;
 };
 export const CHANGE_RES_ORDER_STATUS = (id, payload) => {
-  const response = Fetch.put(`${BASE_PREFIX}${ENDPOINTS.Order.CHANGE_ORDER_STATUS}/${id}`, payload);
+  const response = Fetch.put(`${BASE_PREFIX}${ENDPOINTS.ORDER.CHANGE_ORDER_STATUS}/${id}`, payload);
   return response;
 };

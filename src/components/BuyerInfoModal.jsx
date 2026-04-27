@@ -81,22 +81,6 @@ const BuyerInfoModal = ({
       console.log(response?.buyer?._id, 'buyerrr iddd');
       console.log(response, 'buyer info');
 
-      if (response.success) {
-        const buyerData = getBuyerInfo();
-        onAddInfo(buyerData);
-
-        Toast.show({
-          type: 'success',
-          text1: 'Success',
-          text2: 'Buyer information added successfully',
-        });
-      } else {
-        Toast.show({
-          type: 'error',
-          text1: 'Failed',
-          text2: response.message || 'Failed to add buyer',
-        });
-      }
     } catch (error) {
       console.error('Error adding buyer:', error);
 

@@ -8,7 +8,6 @@ import { IconSize16 } from '../utils/IconSizes';
 import {
   DiscountIcon,
   CloseRegisterIcon,
-  ConnectedIcon,
   SettingIcon,
   LogoutIcon,
   LockIcon,
@@ -19,6 +18,7 @@ import { store } from '../redux/store';
 import PassKeyModal from './PassKeyModal';
 import { useSelector } from 'react-redux';
 import { LOGOUT } from '../services/AuthService';
+import MenuItem from './MenuItem';
 
 const drawerItems = [
   { label: 'Sale', icon: DiscountIcon, route: 'SaleScreen' },
@@ -37,7 +37,6 @@ const CustomDrawerContent = ({ navigation, state }) => {
 
   const handleLogout = () => {
     const response = LOGOUT();
-    console.log(response, 'logout');
     store.dispatch(logout(true));
   };
 
@@ -58,18 +57,16 @@ const CustomDrawerContent = ({ navigation, state }) => {
     return (first + last).toUpperCase();
   }
 
-  // Filter items based on business type
+  const retailDrawerItems = ["Sale", "Close Register", "Settings"];
+  const restaurantDrawerItems = ["Restaurant Orders", "Table Management", "Close Register", "Settings"];
+
   const filteredItems = useMemo(() => {
-    if (userData?.business_type === 'restaurant') {
-      return drawerItems.filter(item =>
-        ['Restaurant Orders', 'Close Register', 'Table Management'].includes(item.label),
-      );
-    } else {
-      // If not restaurant, exclude restaurant-specific items
-      return drawerItems.filter(
-        item => !['Restaurant Orders', 'Table Management'].includes(item.label),
-      );
-    }
+
+    const labels = userData?.business_type === 'restaurant'
+      ? restaurantDrawerItems
+      : retailDrawerItems;
+
+    return drawerItems.filter(item => labels.includes(item.label));
   }, [userData?.business_type]);
 
   return (
@@ -101,48 +98,26 @@ const CustomDrawerContent = ({ navigation, state }) => {
           const isSettingsActive = activeRoute === 'SettingsScreen';
           const isActive = isSettingsTab ? isSettingsActive : item.route === activeRoute;
           const isDisabled = isSettingsTab && isSettingsActive;
+
+          const handlePress = () => {
+            if (isSettingsTab) {
+              if (!isSettingsActive) setShowPasskey(true);
+            } else if (item.route) {
+              navigation.navigate(item.route);
+              navigation.closeDrawer();
+            } else {
+              navigation.closeDrawer();
+            }
+          };
+
           return (
-            <TouchableOpacity
+            <MenuItem
               key={index}
-              style={[
-                styles.menuItem,
-                isActive && styles.activeMenuItem,
-                isDisabled && { opacity: 0.5 },
-              ]}
-              activeOpacity={isDisabled ? 1 : 0.7}
-              disabled={isDisabled}
-              onPress={() => {
-                if (isSettingsTab) {
-                  if (!isSettingsActive) setShowPasskey(true);
-                } else if (item.route) {
-                  navigation.navigate(item.route);
-                  navigation.closeDrawer();
-                } else {
-                  navigation.closeDrawer();
-                }
-              }}
-            >
-              <Image
-                source={item.icon}
-                style={[IconSize16, isActive ? styles.menuIconActive : styles.menuIconDefault]}
-              />
-              <Text
-                style={[
-                  styles.menuLabel,
-                  Subtitle1,
-                  isActive ? styles.menuLabelActive : styles.menuLabelDefault,
-                  { ...styles.menuLabelText },
-                ]}
-              >
-                {item.label}
-              </Text>
-              {item.icon2 && (
-                <Image
-                  source={item.icon2}
-                  style={[IconSize16, isActive ? styles.menuIconActive : styles.menuIconDefault]}
-                />
-              )}
-            </TouchableOpacity>
+              item={item}
+              isActive={isActive}
+              isDisabled={isDisabled}
+              onPress={handlePress}
+            />
           );
         })}
       </ScrollView>
@@ -214,35 +189,6 @@ const styles = StyleSheet.create({
   },
   menuList: {
     flex: 1,
-  },
-  menuItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingVertical: VS(16),
-    paddingHorizontal: S(18),
-    borderRadius: MS(16),
-    marginBottom: VS(6),
-  },
-  activeMenuItem: {
-    backgroundColor: Colors.black,
-  },
-  menuIconDefault: {
-    tintColor: Colors.black,
-  },
-  menuIconActive: {
-    tintColor: Colors.white,
-  },
-  menuLabel: {
-    marginLeft: S(16),
-  },
-  menuLabelText: {
-    flex: 1,
-  },
-  menuLabelDefault: {
-    color: Colors.black,
-  },
-  menuLabelActive: {
-    color: Colors.white,
   },
   logoutBtn: {
     flexDirection: 'row',

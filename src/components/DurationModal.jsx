@@ -8,6 +8,7 @@ import {
   TextInput,
   ActivityIndicator,
 } from 'react-native';
+import Toast from 'react-native-toast-message';
 import { Colors } from '../utils/Colors';
 import { S, VS, MS } from '../utils/Responsive';
 import { H4, Body2, Subtitle1, Subtitle2 } from '../utils/fonts';
@@ -90,14 +91,16 @@ const DurationModal = ({ visible = false, onClose, onProceed }) => {
 
       console.log('X REPORT RESPONSE:', response);
 
-      // send data back to parent if needed
-      if (onProceed) {
-        onProceed(response);
-      }
+      onProceed?.(response);
 
       onClose();
     } catch (error) {
       console.log('X REPORT ERROR:', error);
+      Toast.show({
+        type: 'error',
+        text1: 'Report Error',
+        text2: error?.message || 'Could not fetch X Report',
+      });
     } finally {
       setLoading(false);
     }
@@ -215,12 +218,12 @@ const DurationModal = ({ visible = false, onClose, onProceed }) => {
           activeDateField === 'from'
             ? fromDate
             : activeDateField === 'to'
-            ? toDate
-            : activeTimeField === 'fromTime'
-            ? fromTime
-            : activeTimeField === 'toTime'
-            ? toTime
-            : new Date()
+              ? toDate
+              : activeTimeField === 'fromTime'
+                ? fromTime
+                : activeTimeField === 'toTime'
+                  ? toTime
+                  : new Date()
         }
         onConfirm={date => {
           if (activeDateField === 'from') setFromDate(date);
