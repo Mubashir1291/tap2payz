@@ -221,6 +221,13 @@ public class PrinterModule extends ReactContextBaseJavaModule {
                     try {
                         ThermalPrinter.printString();
                         ThermalPrinter.walkPaper(100);
+                        
+                        // Auto-cut the paper after printing
+                        try {
+                            ThermalPrinter.paperCut();
+                        } catch (Exception ignored) {
+                            Log.w(TAG, "Cutter not available or error during cut");
+                        }
                     } catch (Exception e) {
                         Log.e(TAG, "Execution failed", e);
                         promise.reject("PrintError", "Execution failed: " + (e.getMessage() != null ? e.getMessage() : e.toString()));
