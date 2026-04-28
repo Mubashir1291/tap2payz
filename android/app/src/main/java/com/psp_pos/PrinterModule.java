@@ -15,15 +15,17 @@ import androidx.annotation.NonNull;
 import com.common.apiutil.printer.NoPaperException;
 import com.common.apiutil.printer.OverHeatException;
 import com.common.apiutil.printer.ThermalPrinter;
-import com.common.apiutil.util.SystemUtil;
 import com.facebook.react.bridge.*;
+
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 
 public class PrinterModule extends ReactContextBaseJavaModule {
 
     private final ReactApplicationContext reactContext;
     private static final String TAG = "PrinterModule";
     private static final Object printerLock = new Object();
-    private int printerWidth = 384;
+    private int printerWidth = 576; // Telpo C2 is 80mm
     private static boolean isPrinterOpen = false;
 
     public PrinterModule(ReactApplicationContext reactContext) {
@@ -48,6 +50,27 @@ public class PrinterModule extends ReactContextBaseJavaModule {
         }
     }
 
+    private void startPrinterSync() {
+        try {
+            CountDownLatch latch = new CountDownLatch(1);
+            new Handler(Looper.getMainLooper()).post(() -> {
+                try {
+                    boolean initOk = ThermalPrinter.init80mmUsbPrinter(reactContext.getApplicationContext());
+                    Log.d(TAG, "init80mmUsbPrinter returned: " + initOk);
+                    ThermalPrinter.start(reactContext.getApplicationContext());
+                    ThermalPrinter.setGray(4);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                } finally {
+                    latch.countDown();
+                }
+            });
+            latch.await(2, TimeUnit.SECONDS);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
     @ReactMethod
     public void initializePrinter(Promise promise) {
         try {
@@ -58,7 +81,6 @@ public class PrinterModule extends ReactContextBaseJavaModule {
             }
 
             synchronized (printerLock) {
-                // Stop any previous instance
                 try {
                     ThermalPrinter.stop();
                 } catch (Exception ignored) {
@@ -66,33 +88,17 @@ public class PrinterModule extends ReactContextBaseJavaModule {
                 isPrinterOpen = false;
                 Thread.sleep(500);
 
-                // Note: SystemUtil.checkPrinter is not available in this SDK version.
-                // Defaulting to 384px (58mm) which is standard for Telpo C2.
-                // If you use an 80mm printer, change this value to 576.
-                printerWidth = 384;
-                Log.d(TAG, "Resolved printerWidth: " + printerWidth);
-
                 int retry = 0;
                 Exception lastEx = null;
                 while (retry < 3) {
                     try {
-                        // Telpo SDK works best when start() is initiated on the Main Looper
-                        new Handler(Looper.getMainLooper()).post(() -> {
-                            try {
-                                ThermalPrinter.start(reactContext.getApplicationContext());
-                                ThermalPrinter.setGray(4); // Slightly higher contrast for C2
-                            } catch (Exception ignored) {
-                            }
-                        });
+                        startPrinterSync();
+                        Thread.sleep(1200);
 
-                        Thread.sleep(1200); // Essential delay for service binding
-
-                        // Robust status check loop (Status 13 = Service Busy/Connecting)
                         int status = -1;
                         for (int i = 0; i < 4; i++) {
                             status = ThermalPrinter.checkStatus();
-                            if (status != 13)
-                                break;
+                            if (status != 13) break;
                             Thread.sleep(500);
                         }
 
@@ -113,32 +119,26 @@ public class PrinterModule extends ReactContextBaseJavaModule {
                     }
                 }
                 isPrinterOpen = false;
-                String errMsg = (lastEx != null && lastEx.getMessage() != null) ? lastEx.getMessage()
-                        : "Unknown SDK Error";
+                String errMsg = (lastEx != null && lastEx.getMessage() != null) ? lastEx.getMessage() : lastEx != null ? lastEx.toString() : "Unknown SDK Error";
                 promise.reject("InitError", "Could not open printer device after retries: " + errMsg);
             }
         } catch (Exception e) {
             isPrinterOpen = false;
-            promise.reject("InitError",
-                    "Exception during init: " + (e.getMessage() != null ? e.getMessage() : e.toString()));
+            promise.reject("InitError", "Exception during init: " + (e.getMessage() != null ? e.getMessage() : e.toString()));
         }
     }
 
     @ReactMethod
     public void printFun(final ReadableMap props, final Promise promise) {
-
         new Thread(() -> {
             Bitmap logo = null;
-
             try {
                 final android.app.Activity activity = getCurrentActivity();
-
                 if (activity == null) {
                     new Handler(Looper.getMainLooper()).post(() -> promise.reject("NoActivity", "Activity is null"));
                     return;
                 }
 
-                // Decode Base64 image
                 if (props.hasKey("logoBase64") && !props.isNull("logoBase64")) {
                     String base64 = props.getString("logoBase64");
                     if (base64 != null && !base64.isEmpty()) {
@@ -147,53 +147,35 @@ public class PrinterModule extends ReactContextBaseJavaModule {
                 }
 
                 synchronized (printerLock) {
-
                     Log.d(TAG, "Processing print job. isPrinterOpen: " + isPrinterOpen);
 
                     if (!isPrinterOpen) {
+                        try { ThermalPrinter.stop(); Thread.sleep(500); } catch (Exception ignored) {}
                         try {
-                            ThermalPrinter.stop();
-                            Thread.sleep(500);
-                        } catch (Exception ignored) {
-                        }
-
-                        try {
-                            // Defaulting to 58mm for initialization during print job recovery
-                            printerWidth = 384;
-
-                            new Handler(Looper.getMainLooper()).post(() -> {
-                                try {
-                                    ThermalPrinter.start(reactContext.getApplicationContext());
-                                    ThermalPrinter.setGray(4);
-                                } catch (Exception ignored) {
-                                }
-                            });
-
+                            startPrinterSync();
                             Thread.sleep(1200);
                             isPrinterOpen = true;
                         } catch (Exception e) {
-                            Log.e(TAG, "Printer start failed", e);
                             isPrinterOpen = false;
-                            promise.reject("StartError", "Could not open printer device: " + e.getMessage());
+                            promise.reject("StartError", "Could not open printer device: " + (e.getMessage() != null ? e.getMessage() : e.toString()));
                             return;
                         }
                     } else {
-                        // Quick verification
-                        int s = ThermalPrinter.checkStatus();
+                        int s = -1;
+                        try {
+                            s = ThermalPrinter.checkStatus();
+                        } catch (Exception e) {
+                            s = -1; // Force recovery
+                        }
+                        
                         if (s != 0 && s != 13) {
                             Log.w(TAG, "Printer stale, attempting hot recovery...");
-                            try {
-                                ThermalPrinter.stop();
-                                Thread.sleep(400);
-                                ThermalPrinter.start(reactContext.getApplicationContext());
-                                ThermalPrinter.setGray(4);
-                                Thread.sleep(800);
-                            } catch (Exception ignored) {
-                            }
+                            try { ThermalPrinter.stop(); Thread.sleep(400); } catch (Exception ignored) {}
+                            startPrinterSync();
+                            try { Thread.sleep(800); } catch (Exception ignored) {}
                         }
                     }
 
-                    // 🔥 CHECK STATUS
                     int status;
                     try {
                         status = ThermalPrinter.checkStatus();
@@ -201,37 +183,29 @@ public class PrinterModule extends ReactContextBaseJavaModule {
                     } catch (Exception e) {
                         Log.e(TAG, "Status failed", e);
                         isPrinterOpen = false;
-                        promise.reject("StatusError", e.getMessage());
+                        promise.reject("StatusError", e.getMessage() != null ? e.getMessage() : e.toString());
                         return;
                     }
 
-                    if (status != 0 && status != 13) { // 13 is sometimes returned as a 'busy but okay' state on C2
-                        if (status == 1)
-                            throw new NoPaperException();
-                        if (status == 2)
-                            throw new OverHeatException();
-
+                    if (status != 0 && status != 13) {
+                        if (status == 1) throw new NoPaperException();
+                        if (status == 2) throw new OverHeatException();
                         promise.reject("StatusError", "Printer not ready. Status code: " + status);
                         return;
                     }
 
                     boolean hasData = false;
 
-                    // 🖼️ Print Image
                     if (logo != null) {
                         Bitmap resized = resizeBitmap(logo, printerWidth, 1200);
-
                         ThermalPrinter.setAlgin(ThermalPrinter.ALGIN_MIDDLE);
                         ThermalPrinter.printLogo(resized);
-
                         Thread.sleep(300);
                         hasData = true;
                     }
 
-                    // 📝 Print Text
                     if (props.hasKey("content") && !props.isNull("content")) {
                         String content = props.getString("content");
-
                         if (content != null && !content.isEmpty()) {
                             ThermalPrinter.setAlgin(ThermalPrinter.ALGIN_LEFT);
                             ThermalPrinter.addString(content);
@@ -240,25 +214,21 @@ public class PrinterModule extends ReactContextBaseJavaModule {
                     }
 
                     if (!hasData) {
-                        try {
-                            ThermalPrinter.stop();
-                        } catch (Exception ignored) {
-                        }
                         promise.reject("NoData", "Nothing to print");
                         return;
                     }
 
-                    // 🧾 EXECUTE PRINT
                     try {
                         ThermalPrinter.printString();
                         ThermalPrinter.walkPaper(100);
                     } catch (Exception e) {
                         Log.e(TAG, "Execution failed", e);
+                        promise.reject("PrintError", "Execution failed: " + (e.getMessage() != null ? e.getMessage() : e.toString()));
+                        return;
                     }
 
                     promise.resolve("Print Success");
                 }
-
             } catch (NoPaperException e) {
                 promise.reject("NoPaper", "Out of paper");
             } catch (OverHeatException e) {
@@ -266,7 +236,7 @@ public class PrinterModule extends ReactContextBaseJavaModule {
             } catch (Exception e) {
                 Log.e(TAG, "Print error", e);
                 isPrinterOpen = false;
-                promise.reject("PrintError", e.getMessage() != null ? e.getMessage() : "Unknown print error");
+                promise.reject("PrintError", e.getMessage() != null ? e.getMessage() : e.toString());
             }
         }).start();
     }
@@ -284,19 +254,15 @@ public class PrinterModule extends ReactContextBaseJavaModule {
     private Bitmap resizeBitmap(Bitmap bitmap, int maxWidth, int maxHeight) {
         int width = bitmap.getWidth();
         int height = bitmap.getHeight();
-
         float ratio = (float) width / height;
-
         if (width > maxWidth) {
             width = maxWidth;
             height = (int) (width / ratio);
         }
-
         if (height > maxHeight) {
             height = maxHeight;
             width = (int) (height * ratio);
         }
-
         return Bitmap.createScaledBitmap(bitmap, width, height, true);
     }
 

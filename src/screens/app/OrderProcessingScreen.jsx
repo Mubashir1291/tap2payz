@@ -354,8 +354,6 @@ const OrderProcessingScreen = () => {
         throw new Error('Receipt too large');
       }
 
-      console.log({ PrinterModule })
-
       await PrinterModule.printFun({
         logoBase64: base64Image,
         content: "\n"
