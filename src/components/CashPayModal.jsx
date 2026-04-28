@@ -18,7 +18,7 @@ const CashPayModal = ({ visible = false, totalAmount = 0, onProceed, onClose }) 
 
   const handleProceed = () => {
     if (parsedAmount >= totalAmount && onProceed) {
-      onProceed(parsedAmount);
+      onProceed({ amount: parsedAmount.toFixed(2), change: change, method: 'Cash' });
     }
   };
 
@@ -60,7 +60,11 @@ const CashPayModal = ({ visible = false, totalAmount = 0, onProceed, onClose }) 
           </View>
 
           {/* Proceed Button */}
-          <TouchableOpacity style={styles.proceedBtn} onPress={handleProceed}>
+          <TouchableOpacity
+            style={[styles.proceedBtn, parsedAmount < totalAmount && styles.proceedBtnDisabled]}
+            onPress={handleProceed}
+            disabled={parsedAmount < totalAmount}
+          >
             <Text style={[styles.proceedBtnText, ButtonText]}>Proceed →</Text>
           </TouchableOpacity>
         </View>
@@ -149,6 +153,9 @@ const styles = StyleSheet.create({
     backgroundColor: '#B8C8E8',
     justifyContent: 'center',
     alignItems: 'center',
+  },
+  proceedBtnDisabled: {
+    opacity: 0.7,
   },
   proceedBtnText: {
     color: Colors.black,

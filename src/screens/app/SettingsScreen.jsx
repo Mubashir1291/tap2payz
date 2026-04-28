@@ -54,20 +54,7 @@ const salesLineData = [
   { value: 130 },
 ];
 
-const refundLineData = [
-  { value: 80 },
-  { value: 100 },
-  { value: 90 },
-  { value: 110 },
-  { value: 100 },
-  { value: 130 },
-  { value: 120 },
-  { value: 100 },
-  { value: 90 },
-  { value: 80 },
-  { value: 85 },
-  { value: 70 },
-];
+
 
 const pieColors = ['#3B4B8A', '#7FD4E8', '#70ede5ff', '#5A67D8', '#E0E0E0'];
 
@@ -175,6 +162,7 @@ const SettingsScreen = () => {
 
   const { chartData, chartLabels } = useMemo(() => {
     const series = analyticsData?.data?.WeeklySales?.series || [];
+
     if (series.length === 0) {
       return {
         chartData: salesLineData.map(item => ({ ...item, onPress: openSaleDetail })),
@@ -184,10 +172,10 @@ const SettingsScreen = () => {
 
     return {
       chartData: series.map(item => ({
-        value: item.y || 0,
+        value: Number(item.y) || 0,
         onPress: openSaleDetail,
       })),
-      chartLabels: series.map(item => item.name.slice(0, 3)),
+      chartLabels: series.map(item => (item.name ? item.name.slice(0, 3) : '')),
     };
   }, [analyticsData, openSaleDetail]);
 

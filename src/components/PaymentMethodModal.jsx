@@ -118,10 +118,10 @@ const PaymentMethodModal = ({
           <TouchableOpacity
             style={[
               styles.proceedBtn,
-              (paymentMethod === 'Cash' && !enteredAmount) && styles.proceedBtnDisabled,
+              (paymentMethod === 'Cash' && parsedAmount < totalAmount) && styles.proceedBtnDisabled,
             ]}
             onPress={handleProceed}
-            disabled={paymentMethod === 'Cash' && !enteredAmount}
+            disabled={paymentMethod === 'Cash' && parsedAmount < totalAmount}
           >
             <Text style={[styles.proceedBtnText, ButtonText]}>Proceed</Text>
           </TouchableOpacity>

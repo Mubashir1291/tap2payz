@@ -22,8 +22,9 @@ import {
   H2,
   ButtonTextSmall,
   Body2,
+  H4
 } from '../../utils/fonts';
-import { IconSize12, IconSize16, IconSize20, IconSize24, IconSize40 } from '../../utils/IconSizes';
+import { IconSize12, IconSize16, IconSize20, IconSize24, IconSize40, IconSize50, IconSize60 } from '../../utils/IconSizes';
 import {
   LeftArrowIcon,
   RightArrowIcon,
@@ -35,6 +36,7 @@ import {
   SplitIcon,
   TickIcon,
   CancelOrderIcon,
+  PSPIcon,
 } from '../../assets/Images';
 import styles from './OrderProcessingScreenStyles';
 import TipModal from '../../components/TipModal';
@@ -66,7 +68,7 @@ const OrderProcessingScreen = () => {
   const { PrinterModule, DisplayManager } = NativeModules;
   const navigation = useNavigation();
   const route = useRoute();
-  const { store_id, userData } = useSelector(state => state.user);
+  const { store_id, store_name, userData } = useSelector(state => state.user);
   const { deviceId } = useSelector(state => state.device);
 
   const viewShotRef = useRef();
@@ -100,13 +102,13 @@ const OrderProcessingScreen = () => {
   const [terminalNr, setTerminalNr] = useState('');
   const [availableDiscount, setAvailableDiscount] = useState(null);
 
+  const [paymentInfo, setPaymentInfo] = useState({ received: 0, change: 0, method: '' });
   // API Data State
   const [products, setProducts] = useState([]);
   const [productsData, setProductsData] = useState(null);
   const [categories, setCategories] = useState([]);
   const [isLoadingMoreProducts, setIsLoadingMoreProducts] = useState(false);
   const isLoadingProductsRef = useRef(false);
-
   const [productSearchQuery, setProductSearchQuery] = useState({
     page: 1,
     itemsPerPage: 20,
@@ -638,49 +640,143 @@ const OrderProcessingScreen = () => {
       <Text style={[styles.productName, Body3]}>{item.name}</Text>
     </TouchableOpacity>
   );
-  const RenderPrintView = () => (
-    <View style={{ position: 'absolute', left: -1000, top: -1000 }}>
-      <ViewShot
-        ref={viewShotRef}
-        options={{ format: 'png', quality: 1 }}
-      >
-        <View
-          collapsable={false}
-          style={{ width: 384, backgroundColor: 'white', padding: 10 }}
-        >
+  const RenderPrintView = () => {
+    const storeInfo = userData?.store_id?.[0] || {};
+    const businessInfo = userData?.business_id?.[0] || {};
 
-          <Text style={{ textAlign: 'center', fontSize: 18, fontWeight: 'bold' }}>
-            {userData?.store_id?.[0]?.store_name || 'PSP POS'}
-          </Text>
+    const cashierName = userData?.employee_name || 'N/A';
+    const orderId = orderDetail?._id
+      ? orderDetail._id.slice(-6).toUpperCase()
+      : 'N/A';
 
-          <Text style={{ textAlign: 'center', fontSize: 12 }}>
-            CVR: {userData?.business_id?.[0]?.crv_number || 'N/A'}
-          </Text>
+    const dateStr = new Date().toLocaleDateString('en-GB');
+    const timeStr = new Date().toLocaleTimeString([], {
+      hour: '2-digit',
+      minute: '2-digit',
+    });
 
-          <View style={{ borderBottomWidth: 1, borderStyle: 'dashed', marginVertical: 10 }} />
+    return (
+      <View style={{ position: 'absolute', left: -700, top: 100 }}>
+        <ViewShot ref={viewShotRef} options={{ format: 'png', quality: 1 }}>
+          <View style={{ width: 384, backgroundColor: '#fff', padding: 25 }}>
 
-          {cart.map((item, index) => (
-            <View key={index} style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
-              <Text>{item.qty} x {item.name}</Text>
-              <Text>$ {(item.price * item.qty).toFixed(2)}</Text>
+            {/* HEADER */}
+            <View style={{ alignItems: 'center', marginBottom: 10 }}>
+              <Image source={PSPIcon} style={IconSize60} />
+              <Text style={{ fontSize: 56, fontWeight: 'bold', marginBottom: 10 }}>PSP POS</Text>
             </View>
-          ))}
 
-          <View style={{ borderBottomWidth: 1, borderStyle: 'dashed', marginVertical: 10 }} />
+            {/* Separator after PSP POS */}
+            <View style={{ borderBottomWidth: 1, marginVertical: 10 }} />
 
-          <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
-            <Text>Total</Text>
-            <Text>$ {total}</Text>
+            <View style={{ marginBottom: 10 }}>
+              <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 5 }}>
+                <Text style={{ fontSize: 28, fontWeight: '400' }}>Store:</Text>
+                <Text style={{ fontSize: 28, fontWeight: '400' }}>{store_name}</Text>
+              </View>
+              <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 5 }}>
+                <Text style={{ fontSize: 28, fontWeight: '400' }}>Order Type:</Text>
+                <Text style={{ fontSize: 28, fontWeight: '400' }}>{isTakeAway ? 'Take Away' : 'Dine in'}</Text>
+              </View>
+              <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 5 }}>
+                <Text style={{ fontSize: 28, fontWeight: '400' }}>DATE:</Text>
+                <Text style={{ fontSize: 28, fontWeight: '400' }}>{dateStr}</Text>
+              </View>
+              <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 5 }}>
+                <Text style={{ fontSize: 28, fontWeight: '400' }}>TIME:</Text>
+                <Text style={{ fontSize: 28, fontWeight: '400' }}>{timeStr}</Text>
+              </View>
+              <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 5 }}>
+                <Text style={{ fontSize: 28, fontWeight: '400' }}>CASHIER:</Text>
+                <Text style={{ fontSize: 28, fontWeight: '400' }}>{cashierName}</Text>
+              </View>
+              <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 5 }}>
+                <Text style={{ fontSize: 28, fontWeight: '400' }}>ORDER:</Text>
+                <Text style={{ fontSize: 28, fontWeight: '400' }}>#{orderId}</Text>
+              </View>
+            </View>
+
+            <View style={{ borderBottomWidth: 1, marginVertical: 10 }} />
+
+            {/* ITEMS HEADER */}
+            <View style={{ flexDirection: 'row' }}>
+              <Text style={{ flex: 1, fontSize: 22, fontWeight: 'bold' }}>ITEM</Text>
+              <Text style={{ width: 60, textAlign: 'center', fontSize: 22, fontWeight: 'bold' }}>QTY</Text>
+              <Text style={{ width: 100, textAlign: 'right', fontSize: 22, fontWeight: 'bold' }}>TOTAL</Text>
+            </View>
+
+            {/* ITEMS */}
+            {cart.map((item, index) => (
+              <View key={index} style={{ flexDirection: 'row' }}>
+                <Text style={{ flex: 1, fontSize: 22, fontWeight: '400' }}>{item.name}</Text>
+                <Text style={{ width: 60, textAlign: 'center', fontSize: 22, fontWeight: '400' }}>
+                  {item.qty}
+                </Text>
+                <Text style={{ width: 100, textAlign: 'right', fontSize: 22, fontWeight: '400' }}>
+                  $ {(item.price * item.qty).toFixed(2)}
+                </Text>
+              </View>
+            ))}
+
+            <View style={{ borderBottomWidth: 1, marginVertical: 10 }} />
+
+            {/* TOTALS */}
+            <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 5 }}>
+              <Text style={{ fontSize: 28, fontWeight: '400' }}>Subtotal:</Text>
+              <Text style={{ fontSize: 28, fontWeight: '400' }}>$ {subtotal.toFixed(2)}</Text>
+            </View>
+
+            {discountAmount > 0 && (
+              <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 5 }}>
+                <Text style={{ fontSize: 28, fontWeight: '400' }}>Discount:</Text>
+                <Text style={{ fontSize: 28, fontWeight: '400' }}>$ {(-discountAmount).toFixed(2)}</Text>
+              </View>
+            )}
+
+            {parseFloat(tipAmount) > 0 && (
+              <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 5 }}>
+                <Text style={{ fontSize: 28, fontWeight: '400' }}>Tip:</Text>
+                <Text style={{ fontSize: 28, fontWeight: '400' }}>$ {parseFloat(tipAmount).toFixed(2)}</Text>
+              </View>
+            )}
+
+            <View style={{ borderBottomWidth: 1, marginVertical: 10 }} />
+
+            <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
+              <Text style={{ fontSize: 32, fontWeight: 'bold' }}>TOTAL</Text>
+              <Text style={{ fontSize: 32, fontWeight: 'bold' }}>
+                $ {total}
+              </Text>
+            </View>
+
+            {/* CASH */}
+            {paymentInfo?.method === 'Cash' && (
+              <>
+                <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 5 }}>
+                  <Text style={{ fontSize: 28, fontWeight: '400' }}>Cash Received:</Text>
+                  <Text style={{ fontSize: 28, fontWeight: '400' }}>$ {parseFloat(paymentInfo.received || 0).toFixed(2)}</Text>
+                </View>
+                <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 5 }}>
+                  <Text style={{ fontSize: 28, fontWeight: '400' }}>Change:</Text>
+                  <Text style={{ fontSize: 28, fontWeight: '400' }}>$ {parseFloat(paymentInfo.change || 0).toFixed(2)}</Text>
+                </View>
+              </>
+            )}
+
+            <View style={{ borderBottomWidth: 1, marginVertical: 10 }} />
+
+            {/* FOOTER */}
+            <Text style={{ textAlign: 'center', fontWeight: 'bold', fontSize: 28 }}>
+              Thank you for your Order!
+            </Text>
+
           </View>
+        </ViewShot>
+      </View>
+    );
+  };
 
-          <Text style={{ textAlign: 'center', marginTop: 10 }}>
-            Thank you!
-          </Text>
 
-        </View>
-      </ViewShot>
-    </View>
-  );
 
   return (
     <View style={styles.root}>
@@ -1017,6 +1113,12 @@ const OrderProcessingScreen = () => {
         onProceed={async data => {
           console.log('Payment Proceeded with data:', data);
           setShowPaymentModal(false);
+
+          setPaymentInfo({
+            received: data.amount,
+            change: data.change,
+            method: data.method
+          });
 
           if (data.method?.toLowerCase() === 'cash') {
             try {

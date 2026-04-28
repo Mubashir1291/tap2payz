@@ -6,6 +6,7 @@ const initialState = {
   userData: null,
   store_id: null,
   business_id: null,
+  store_name:null
 };
 
 export const userReducer = createSlice({
@@ -21,6 +22,7 @@ export const userReducer = createSlice({
     setUserData: (state, action) => {
       state.userData = action.payload;
       state.store_id = action.payload?.store_id;
+      state.store_name = action.payload?.store_name;
       state.business_id = action.payload?.business_id;
     },
     logout: state => {
