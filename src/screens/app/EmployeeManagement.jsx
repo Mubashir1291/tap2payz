@@ -34,13 +34,6 @@ import useDebounce from '../../utils/useDebounce';
 
 const EmployeeManagement = () => {
   const [searchQuery, setSearchQuery] = useState('');
-  const [filterSearch, setFilterSearch] = useState({
-    page: 1,
-    itemPerPage: 10,
-    searchText: debounceSearch,
-    sort: sortType,
-    storeId: store_id,
-  });
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
@@ -49,29 +42,15 @@ const EmployeeManagement = () => {
   const [selectedEmployee, setSelectedEmployee] = useState(null);
   const [sortType, setSortType] = useState('a-z');
 
-  const debounceSearch = useDebounce(searchQuery, 500)
-
+  const debounceSearch = useDebounce(searchQuery, 500);
 
   const { store_id } = useSelector(state => state.user);
   const [employees, setEmployees] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
 
-
-
-
-
-
-
   const sortedData = useMemo(() => {
-    let data = [...employees];
-
-    // Optionally also filter by searchQuery
-    if (searchQuery.trim() !== '') {
-      data = data.filter(item => item.name.toLowerCase().includes(searchQuery.toLowerCase()));
-    }
-
-    return applySort(data, sortType, item => item.name);
-  }, [sortType, searchQuery, employees]);
+    return applySort([...employees], sortType, item => item.name);
+  }, [sortType, employees]);
 
   const handleCreate = () => {
     setShowCreateModal(false);
@@ -138,7 +117,7 @@ const EmployeeManagement = () => {
     if (store_id) {
       fetchEmployees();
     }
-  }, [store_id]);
+  }, [store_id, debounceSearch]);
 
   return (
     <View style={styles.root}>

@@ -1,5 +1,8 @@
 package com.psp_pos;
 
+import android.content.Context;
+import android.hardware.usb.UsbDevice;
+import android.hardware.usb.UsbManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Handler;
@@ -35,8 +38,8 @@ public class PrinterModule extends ReactContextBaseJavaModule {
     }
 
     @Override
-    public void onCatalystInstanceDestroy() {
-        super.onCatalystInstanceDestroy();
+    public void invalidate() {
+        super.invalidate();
         try {
             ThermalPrinter.stop();
             isPrinterOpen = false;
@@ -63,23 +66,10 @@ public class PrinterModule extends ReactContextBaseJavaModule {
                 isPrinterOpen = false;
                 Thread.sleep(500);
 
-                // SystemUtil check for device type
-                int check = SystemUtil.checkPrinter(reactContext);
-                Log.d(TAG, "SystemUtil.checkPrinter returned: " + check);
-
-                // If check is 0, don't give up. Telpo SDK can sometimes find the device
-                // even when the SystemUtil check fails due to external USB interference.
-                if (check <= 0) {
-                    Log.w(TAG, "SystemUtil failed to detect printer, attempting force start.");
-                }
-
-                // C2 devices are typically 58mm (384).
-                // Some detection fails return -1 or 0 on internal serial ports.
-                if (check == SystemUtil.PRINTER_80MM_USB_COMMON) {
-                    printerWidth = 576;
-                } else {
-                    printerWidth = 384;
-                }
+                // Note: SystemUtil.checkPrinter is not available in this SDK version.
+                // Defaulting to 384px (58mm) which is standard for Telpo C2.
+                // If you use an 80mm printer, change this value to 576.
+                printerWidth = 384;
                 Log.d(TAG, "Resolved printerWidth: " + printerWidth);
 
                 int retry = 0;
@@ -168,14 +158,8 @@ public class PrinterModule extends ReactContextBaseJavaModule {
                         }
 
                         try {
-                            int check = SystemUtil.checkPrinter(reactContext);
-                            Log.d(TAG, "Print job printer check: " + check);
-
-                            // Same fallback as initialization
-                            if (check == 0)
-                                Log.w(TAG, "Printer check 0 during print job, trying anyway.");
-
-                            printerWidth = (check == SystemUtil.PRINTER_80MM_USB_COMMON) ? 576 : 384;
+                            // Defaulting to 58mm for initialization during print job recovery
+                            printerWidth = 384;
 
                             new Handler(Looper.getMainLooper()).post(() -> {
                                 try {
@@ -212,7 +196,6 @@ public class PrinterModule extends ReactContextBaseJavaModule {
                     // 🔥 CHECK STATUS
                     int status;
                     try {
-                        ThermalPrinter.clear();
                         status = ThermalPrinter.checkStatus();
                         Log.d(TAG, "Printer Status during print job: " + status);
                     } catch (Exception e) {
