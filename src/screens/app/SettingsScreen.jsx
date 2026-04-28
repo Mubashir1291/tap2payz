@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useEffect } from 'react';
+import React, { useState, useCallback, useEffect, useMemo } from 'react';
 import { View, Text, StatusBar, TouchableOpacity, Image, ScrollView } from 'react-native';
 import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import { LineChart, PieChart } from 'react-native-gifted-charts';
@@ -163,15 +163,33 @@ const SettingsScreen = () => {
     setChartWidth(width - S(40));
   }, []);
 
-  const openSaleDetail = () => {
+  const openSaleDetail = useCallback(() => {
     setDetailType('sale');
     setShowDetailModal(true);
-  };
+  }, []);
 
-  const openRefundDetail = () => {
+  const openRefundDetail = useCallback(() => {
     setDetailType('refund');
     setShowDetailModal(true);
-  };
+  }, []);
+
+  const { chartData, chartLabels } = useMemo(() => {
+    const series = analyticsData?.data?.WeeklySales?.series || [];
+    if (series.length === 0) {
+      return {
+        chartData: salesLineData.map(item => ({ ...item, onPress: openSaleDetail })),
+        chartLabels: xLabels,
+      };
+    }
+
+    return {
+      chartData: series.map(item => ({
+        value: item.y || 0,
+        onPress: openSaleDetail,
+      })),
+      chartLabels: series.map(item => item.name.slice(0, 3)),
+    };
+  }, [analyticsData, openSaleDetail]);
 
   const pieContainerImage = () => <Image source={CartIcon} style={IconSize20} />;
 
@@ -300,25 +318,25 @@ const SettingsScreen = () => {
             {/* Sales & Refund Line Chart */}
             <View style={styles.lineChartCard}>
               <View style={styles.chartHeader}>
-                <Text style={[styles.chartTitle, H1]}>Sales & Refund</Text>
+                <Text style={[styles.chartTitle, H1]}>Sales</Text>
                 <View style={styles.legendRow}>
                   <TouchableOpacity style={styles.legendItem} onPress={openSaleDetail}>
                     <View style={[styles.legendDot, styles.lightBlueLegendDot]} />
                     <Text style={[styles.legendText, Caption]}>Sales</Text>
                   </TouchableOpacity>
-                  <TouchableOpacity style={styles.legendItem} onPress={openRefundDetail}>
+                  {/* <TouchableOpacity style={styles.legendItem} onPress={openRefundDetail}>
                     <View style={[styles.legendDot, styles.darkBlueLegendDot]} />
                     <Text style={[styles.legendText, Caption]}>Refund</Text>
-                  </TouchableOpacity>
+                  </TouchableOpacity> */}
                 </View>
               </View>
               <View style={styles.flexFull} onLayout={onChartContainerLayout}>
                 <LineChart
-                  data={salesLineData.map(item => ({ ...item, onPress: openSaleDetail }))}
-                  data2={refundLineData.map(item => ({ ...item, onPress: openRefundDetail }))}
+                  data={chartData}
+                  // data2={refundLineData.map(item => ({ ...item, onPress: openRefundDetail }))}
                   height={VS(160)}
                   width={chartWidth}
-                  spacing={Math.max((chartWidth - S(20)) / 11, S(20))}
+                  spacing={Math.max((chartWidth - S(20)) / (chartData.length - 1 || 1), S(20))}
                   initialSpacing={S(10)}
                   color1="#A8C8F0"
                   color2="#3B4B8A"
@@ -328,7 +346,7 @@ const SettingsScreen = () => {
                   yAxisColor="transparent"
                   xAxisColor={Colors.lightGrey}
                   yAxisTextStyle={[Caption, { color: Colors.grey }]}
-                  xAxisLabelTexts={xLabels}
+                  xAxisLabelTexts={chartLabels}
                   xAxisLabelTextStyle={[Caption, { color: Colors.grey }]}
                   noOfSections={5}
                   rulesType="solid"
