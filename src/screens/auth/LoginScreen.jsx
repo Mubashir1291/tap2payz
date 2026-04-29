@@ -88,7 +88,8 @@ const LoginScreen = () => {
           store_id: employeeStore?._id,
           business_id: employeeBusiness?._id,
           business_type: employeeBusiness?.business_type,
-          store_name: employeeStore?.store_name
+          store_name: employeeStore?.store_name,
+
         }),
       );
 

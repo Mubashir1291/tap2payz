@@ -25,7 +25,7 @@ const ZReport = () => {
   const [apiData, setApiData] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
 
-  const { store_id, userData } = useSelector(state => state.user);
+  const { store_id, userData, store_name } = useSelector(state => state.user);
   const { deviceId } = useSelector(state => state.device);
 
   const handleGetAllCashRegister = useCallback(async () => {
@@ -102,7 +102,16 @@ const ZReport = () => {
   }, [searchQuery, apiData]);
 
   const handleView = report => {
-    setSelectedReport(report);
+    setSelectedReport({
+      ...report,
+      details: {
+        ...report.details,
+        store: {
+          ...report.details?.store,
+          name: report.details?.store?.name || store_name,
+        },
+      },
+    });
     setShowDetailModal(true);
   };
 
@@ -151,7 +160,7 @@ const ZReport = () => {
         {/* Table Content */}
         <ScrollView showsVerticalScrollIndicator={false}>
           {isLoading ? (
-            <View style={{ padding: 40 }}>
+            <View style={styles.loadingContainer}>
               <ActivityIndicator size="large" color={Colors.primary} />
             </View>
           ) : (

@@ -123,6 +123,18 @@ const styles = StyleSheet.create({
     width: S(14),
     height: S(14),
   },
+  loadingContainer: {
+    padding: MS(40),
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  emptyContainer: {
+    padding: MS(40),
+    alignItems: 'center',
+  },
+  emptyText: {
+    color: Colors.grey,
+  },
 });
 
 export default styles;

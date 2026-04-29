@@ -22,7 +22,7 @@ import {
   ExportIcon,
 } from '../../assets/Images';
 import styles from './TransactionReportScreenStyles';
-import { S } from '../../utils/Responsive';
+import { S, MS } from '../../utils/Responsive';
 import SortModal, { applySort } from '../../components/SortModal';
 import { useSelector } from 'react-redux';
 import { GET_ALL_TRANSACTION } from '../../services/Reports';
@@ -178,12 +178,12 @@ const TransactionReportScreen = () => {
           </View>
 
           {isLoading ? (
-            <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+            <View style={styles.centerContainer}>
               <ActivityIndicator size="large" color="#3B4B8A" />
             </View>
           ) : processedData.length === 0 ? (
-            <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-              <Text style={[Subtitle2, { color: '#999' }]}>No transactions found</Text>
+            <View style={styles.centerContainer}>
+              <Text style={[Subtitle2, styles.emptyText]}>No transactions found</Text>
             </View>
           ) : (
             <FlatList
@@ -214,13 +214,13 @@ const TransactionReportScreen = () => {
                       {
                         flexDirection: 'row',
                         alignItems: 'center',
-                        backgroundColor: 'yellow',
+                        gap: MS(8),
                       },
                     ]}
                   >
                     <Text
                       style={[
-                        Body3,
+                        Overline,
                         item.status === 'Completed' ? styles.approvedText : styles.declineText,
                       ]}
                     >
@@ -246,13 +246,13 @@ const TransactionReportScreen = () => {
         {/* Right Detail Panel */}
         <View style={styles.rightPanel}>
           {detailLoading ? (
-            <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+            <View style={styles.centerContainer}>
               <ActivityIndicator size="large" color="#3B4B8A" />
-              <Text style={[Body3, { marginTop: 16, color: '#999' }]}>Loading details...</Text>
+              <Text style={[Body3, styles.loadingText]}>Loading details...</Text>
             </View>
           ) : detailError ? (
-            <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-              <Text style={[Subtitle2, { color: '#E74C3C', textAlign: 'center' }]}>
+            <View style={styles.centerContainer}>
+              <Text style={[Subtitle2, styles.errorText]}>
                 {detailError}
               </Text>
             </View>
@@ -336,8 +336,8 @@ const TransactionReportScreen = () => {
               </View>
             </View>
           ) : (
-            <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-              <Text style={[Subtitle2, { color: '#999' }]}>No details available</Text>
+            <View style={styles.centerContainer}>
+              <Text style={[Subtitle2, styles.emptyText]}>No details available</Text>
             </View>
           )}
         </View>

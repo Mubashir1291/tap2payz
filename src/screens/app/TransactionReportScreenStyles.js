@@ -229,6 +229,24 @@ const styles = StyleSheet.create({
   subtotalAmount: {
     color: Colors.black,
   },
+  centerContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: MS(20),
+  },
+  emptyText: {
+    color: '#999999',
+    textAlign: 'center',
+  },
+  loadingText: {
+    marginTop: VS(16),
+    color: '#999999',
+  },
+  errorText: {
+    color: '#E74C3C',
+    textAlign: 'center',
+  },
 });
 
 export default styles;

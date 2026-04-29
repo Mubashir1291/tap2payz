@@ -1,4 +1,5 @@
 import React, { useState, useMemo, useEffect } from 'react';
+import { useSelector } from 'react-redux';
 import { View, Text, TouchableOpacity, ScrollView, TextInput, Image } from 'react-native';
 import { Subtitle2, Body3, Caption, H2 } from '../../utils/fonts';
 import { IconSize12 } from '../../utils/IconSizes';
@@ -20,6 +21,8 @@ const XReport = ({ isActive }) => {
   const [pagination, setPagination] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
   const [currentParams, setCurrentParams] = useState(null);
+
+  const { store_name } = useSelector(state => state.user);
 
   // When the tab becomes active, show the duration modal if not selected yet
   useEffect(() => {
@@ -72,6 +75,7 @@ const XReport = ({ isActive }) => {
         sku: p.sku_code || 'N/A',
         qty: p.quantity || 0,
       })),
+      storeName: store_name || 'N/A',
     };
     setSelectedTransaction({ ...item, details: detailObj });
     setShowDetailModal(true);
@@ -168,12 +172,12 @@ const XReport = ({ isActive }) => {
         {/* Table Content */}
         <ScrollView showsVerticalScrollIndicator={false}>
           {isLoading ? (
-            <View style={{ padding: 40 }}>
+            <View style={styles.loadingContainer}>
               <ActivityIndicator size="large" color={Colors.primary} />
             </View>
           ) : filteredData.length === 0 ? (
-            <View style={{ padding: 40, alignItems: 'center' }}>
-              <Text style={[Subtitle2, { color: Colors.grey }]}>
+            <View style={styles.emptyContainer}>
+              <Text style={[Subtitle2, styles.emptyText]}>
                 No transactions found for the selected duration.
               </Text>
             </View>
