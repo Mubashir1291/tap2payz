@@ -197,7 +197,7 @@ public class PrinterModule extends ReactContextBaseJavaModule {
                     boolean hasData = false;
 
                     if (logo != null) {
-                        Bitmap resized = resizeBitmap(logo, printerWidth, 1200);
+                        Bitmap resized = resizeBitmap(logo, printerWidth);
                         ThermalPrinter.setAlgin(ThermalPrinter.ALGIN_MIDDLE);
                         ThermalPrinter.printLogo(resized);
                         Thread.sleep(300);
@@ -258,19 +258,15 @@ public class PrinterModule extends ReactContextBaseJavaModule {
         }
     }
 
-    private Bitmap resizeBitmap(Bitmap bitmap, int maxWidth, int maxHeight) {
+    private Bitmap resizeBitmap(Bitmap bitmap, int maxWidth) {
         int width = bitmap.getWidth();
         int height = bitmap.getHeight();
+        if (width <= maxWidth) return bitmap;
+        
         float ratio = (float) width / height;
-        if (width > maxWidth) {
-            width = maxWidth;
-            height = (int) (width / ratio);
-        }
-        if (height > maxHeight) {
-            height = maxHeight;
-            width = (int) (height * ratio);
-        }
-        return Bitmap.createScaledBitmap(bitmap, width, height, true);
+        int newWidth = maxWidth;
+        int newHeight = (int) (newWidth / ratio);
+        return Bitmap.createScaledBitmap(bitmap, newWidth, newHeight, true);
     }
 
     @ReactMethod

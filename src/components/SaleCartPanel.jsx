@@ -1,7 +1,10 @@
-import React, { useState, useMemo, useEffect } from 'react';
-import { View, Text, TouchableOpacity, FlatList, Image } from 'react-native';
-import { Caption, Body2, Body3, Subtitle1, Subtitle2, H4, ButtonText } from '../utils/fonts';
-import { IconSize12, IconSize20, IconSize24, IconSize40 } from '../utils/IconSizes';
+import React, { useState, useMemo, useEffect, useRef } from 'react';
+import { View, Text, TouchableOpacity, FlatList, Image, NativeModules } from 'react-native';
+import ViewShot from 'react-native-view-shot';
+import ReceiptTemplate from './ReceiptTemplate';
+import RNFS from 'react-native-fs';
+import { Caption, Body2, Body3, Subtitle1, Subtitle2, H4, ButtonText, ButtonTextSmall } from '../utils/fonts';
+import { IconSize12, IconSize20, IconSize24, IconSize40, IconSize60 } from '../utils/IconSizes';
 import {
   CashIcon,
   CardIcon,
@@ -13,6 +16,7 @@ import {
   BuyersIcon,
   TickIcon,
   WarningIcon,
+  PSPIcon,
 } from '../assets/Images';
 import SwipeableCartItem from './SwipeableCartItem';
 import styles from '../screens/app/SaleScreenStyles';
@@ -48,8 +52,13 @@ const SaleCartPanel = ({ cart, setCart, onAddToCart }) => {
   const [transReferenceId, setTransReferenceId] = useState(null);
   const [buyerId, setBuyerId] = useState(null);
 
+  const { PrinterModule } = NativeModules;
   const { deviceId } = useSelector(state => state.device);
-  const { store_id } = useSelector(state => state.user);
+  const { store_id, store_name, userData } = useSelector(state => state.user);
+
+  const viewShotRef = useRef();
+  const [printing, setPrinting] = useState(false);
+  const [paymentInfo, setPaymentInfo] = useState(null);
 
   const buildTransactionPayload = () => {
     const subtotal = cart.reduce((sum, item) => sum + item.price * item.qty, 0);
@@ -76,17 +85,61 @@ const SaleCartPanel = ({ cart, setCart, onAddToCart }) => {
     };
   };
 
-  const handleCashProceed = async () => {
+  const handleCashProceed = async (data) => {
     try {
       const payload = buildTransactionPayload();
       console.log(payload, 'create transaction ');
       const response = await CREATE_TRANSACTION(payload);
       console.log(response, ' Cash process');
 
+      setPaymentInfo({
+        method: 'Cash',
+        received: data?.amount || payload.transaction.transAmntIn,
+        change: data?.change || 0
+      });
+
       setShowCashPayModal(false);
       setShowSuccessModal(true);
     } catch (error) {
       console.log(error, 'Transaction Error');
+    }
+  };
+
+  const handlePrintReceipt = async () => {
+    try {
+      setPrinting(true);
+
+      if (!PrinterModule || !viewShotRef.current) {
+        throw new Error('Printer not ready');
+      }
+
+      // Wait for render
+      await new Promise(res => setTimeout(res, 500));
+
+      // Capture image
+      const uri = await viewShotRef.current.capture();
+      const path = uri.replace('file://', '');
+      const base64Image = await RNFS.readFile(path, 'base64');
+
+      // Prevent crash (large image)
+      if (base64Image.length > 2000000) {
+        throw new Error('Receipt too large');
+      }
+
+      await PrinterModule.printFun({
+        logoBase64: base64Image,
+        content: "\n"
+      });
+
+    } catch (error) {
+      console.log('PRINT ERROR:', error);
+      Toast.show({
+        type: 'error',
+        text1: 'Print Error',
+        text2: error?.message || 'Could not print receipt',
+      });
+    } finally {
+      setPrinting(false);
     }
   };
 
@@ -246,6 +299,11 @@ const SaleCartPanel = ({ cart, setCart, onAddToCart }) => {
         await NfcManager.requestTechnology(NfcTech.Ndef); // Use NfcTech.IsoDep if you are reading standard EMV Credit Cards
 
         setShowTapCardModal(false);
+        setPaymentInfo({
+          method: 'Card',
+          received: total,
+          change: 0
+        });
         setShowTransactionModal(true);
       } catch {
         setShowTapCardModal(false);
@@ -265,9 +323,7 @@ const SaleCartPanel = ({ cart, setCart, onAddToCart }) => {
     setBuyerId(null);
   };
 
-  const handlePrintReceipt = () => {
-    handleCloseInvoice();
-  };
+  // ReceiptTemplate replaces RenderPrintView
 
   const handleQuickSale = ({ name, price }) => {
     const quickItem = {
@@ -282,6 +338,17 @@ const SaleCartPanel = ({ cart, setCart, onAddToCart }) => {
 
   return (
     <View style={styles.cartPanel}>
+      <ReceiptTemplate
+        ref={viewShotRef}
+        cart={cart}
+        storeName={store_name}
+        cashierName={userData?.employee_name}
+        orderId={transReferenceId?.slice(-6).toUpperCase()}
+        subtotal={cart.reduce((sum, item) => sum + item.price * item.qty, 0)}
+        total={total}
+        tipAmount={tipAmount}
+        paymentInfo={paymentInfo}
+      />
       {/* Cart Header Icons */}
       <View style={styles.cartHeader}>
         {/* <TouchableOpacity onPress={() => setShowKitchenInvoiceModal(true)}>
@@ -392,6 +459,8 @@ const SaleCartPanel = ({ cart, setCart, onAddToCart }) => {
           </TouchableOpacity>
         </View>
 
+
+
         <TouchableOpacity style={styles.placeOrderBtn} onPress={handlePlaceOrder}>
           <Text style={[styles.placeOrderText, ButtonText]}>Place Order</Text>
         </TouchableOpacity>
@@ -457,7 +526,10 @@ const SaleCartPanel = ({ cart, setCart, onAddToCart }) => {
         cartItems={cart}
         totalAmount={parseFloat(total)}
         tipAmount={tipAmount}
-        onPrintReceipt={handlePrintReceipt}
+        onPrintReceipt={async () => {
+          await handlePrintReceipt();
+          handleCloseInvoice();
+        }}
         onClose={handleCloseInvoice}
       />
 
