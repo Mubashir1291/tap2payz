@@ -60,12 +60,22 @@ const BuyerInfoModal = ({
     const info = getBuyerInfo();
     if (info && onSaveInfo) {
       onSaveInfo(info);
+      Toast.show({
+        type: 'success',
+        text1: 'Success',
+        text2: 'Buyer info updated',
+      });
     }
   };
 
   const handleDeleteInfo = () => {
     if (onDeleteInfo) {
       onDeleteInfo();
+      Toast.show({
+        type: 'success',
+        text1: 'Success',
+        text2: 'Buyer info deleted',
+      });
     }
   };
 
@@ -78,9 +88,14 @@ const BuyerInfoModal = ({
         phone,
       });
       setBuyerId(response?.buyer?._id || null);
-      console.log(response?.buyer?._id, 'buyerrr iddd');
-      console.log(response, 'buyer info');
 
+      Toast.show({
+        type: 'success',
+        text1: 'Success',
+        text2: 'Buyer added',
+      });
+
+      handleAddInfo();
     } catch (error) {
       console.error('Error adding buyer:', error);
 

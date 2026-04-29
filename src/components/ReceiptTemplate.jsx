@@ -4,17 +4,17 @@ import ViewShot from 'react-native-view-shot';
 import { PSPIcon } from '../assets/Images';
 import { IconSize60 } from '../utils/IconSizes';
 
-const ReceiptTemplate = forwardRef(({ 
-  cart = [], 
-  storeName = '', 
-  cashierName = 'N/A', 
-  orderId = 'N/A', 
-  orderType = '', 
-  subtotal = 0, 
-  total = 0, 
-  discountAmount = 0, 
-  tipAmount = 0, 
-  paymentInfo = null 
+const ReceiptTemplate = forwardRef(({
+  cart = [],
+  storeName = '',
+  cashierName = 'N/A',
+  orderId = 'N/A',
+  orderType = '',
+  subtotal = 0,
+  total = 0,
+  discountAmount = 0,
+  tipAmount = 0,
+  paymentInfo = null
 }, ref) => {
   const dateStr = new Date().toLocaleDateString('en-GB');
   const timeStr = new Date().toLocaleTimeString([], {
@@ -23,7 +23,7 @@ const ReceiptTemplate = forwardRef(({
   });
 
   return (
-    <View style={{ position: 'absolute', left: -700, top: 100 }}>
+    <View style={{ position: 'absolute', left: -1000, top: -1000 }}>
       <ViewShot ref={ref} options={{ format: 'png', quality: 1 }}>
         <View style={{ width: 384, backgroundColor: '#fff', padding: 25 }}>
 

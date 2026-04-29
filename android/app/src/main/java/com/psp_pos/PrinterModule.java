@@ -98,7 +98,8 @@ public class PrinterModule extends ReactContextBaseJavaModule {
                         int status = -1;
                         for (int i = 0; i < 4; i++) {
                             status = ThermalPrinter.checkStatus();
-                            if (status != 13) break;
+                            if (status != 13)
+                                break;
                             Thread.sleep(500);
                         }
 
@@ -119,12 +120,14 @@ public class PrinterModule extends ReactContextBaseJavaModule {
                     }
                 }
                 isPrinterOpen = false;
-                String errMsg = (lastEx != null && lastEx.getMessage() != null) ? lastEx.getMessage() : lastEx != null ? lastEx.toString() : "Unknown SDK Error";
+                String errMsg = (lastEx != null && lastEx.getMessage() != null) ? lastEx.getMessage()
+                        : lastEx != null ? lastEx.toString() : "Unknown SDK Error";
                 promise.reject("InitError", "Could not open printer device after retries: " + errMsg);
             }
         } catch (Exception e) {
             isPrinterOpen = false;
-            promise.reject("InitError", "Exception during init: " + (e.getMessage() != null ? e.getMessage() : e.toString()));
+            promise.reject("InitError",
+                    "Exception during init: " + (e.getMessage() != null ? e.getMessage() : e.toString()));
         }
     }
 
@@ -150,14 +153,19 @@ public class PrinterModule extends ReactContextBaseJavaModule {
                     Log.d(TAG, "Processing print job. isPrinterOpen: " + isPrinterOpen);
 
                     if (!isPrinterOpen) {
-                        try { ThermalPrinter.stop(); Thread.sleep(500); } catch (Exception ignored) {}
+                        try {
+                            ThermalPrinter.stop();
+                            Thread.sleep(500);
+                        } catch (Exception ignored) {
+                        }
                         try {
                             startPrinterSync();
                             Thread.sleep(1200);
                             isPrinterOpen = true;
                         } catch (Exception e) {
                             isPrinterOpen = false;
-                            promise.reject("StartError", "Could not open printer device: " + (e.getMessage() != null ? e.getMessage() : e.toString()));
+                            promise.reject("StartError", "Could not open printer device: "
+                                    + (e.getMessage() != null ? e.getMessage() : e.toString()));
                             return;
                         }
                     } else {
@@ -167,12 +175,19 @@ public class PrinterModule extends ReactContextBaseJavaModule {
                         } catch (Exception e) {
                             s = -1; // Force recovery
                         }
-                        
+
                         if (s != 0 && s != 13) {
                             Log.w(TAG, "Printer stale, attempting hot recovery...");
-                            try { ThermalPrinter.stop(); Thread.sleep(400); } catch (Exception ignored) {}
+                            try {
+                                ThermalPrinter.stop();
+                                Thread.sleep(400);
+                            } catch (Exception ignored) {
+                            }
                             startPrinterSync();
-                            try { Thread.sleep(800); } catch (Exception ignored) {}
+                            try {
+                                Thread.sleep(800);
+                            } catch (Exception ignored) {
+                            }
                         }
                     }
 
@@ -188,8 +203,10 @@ public class PrinterModule extends ReactContextBaseJavaModule {
                     }
 
                     if (status != 0 && status != 13) {
-                        if (status == 1) throw new NoPaperException();
-                        if (status == 2) throw new OverHeatException();
+                        if (status == 1)
+                            throw new NoPaperException();
+                        if (status == 2)
+                            throw new OverHeatException();
                         promise.reject("StatusError", "Printer not ready. Status code: " + status);
                         return;
                     }
@@ -221,7 +238,7 @@ public class PrinterModule extends ReactContextBaseJavaModule {
                     try {
                         ThermalPrinter.printString();
                         ThermalPrinter.walkPaper(100);
-                        
+
                         // Auto-cut the paper after printing
                         try {
                             ThermalPrinter.paperCut();
@@ -230,7 +247,8 @@ public class PrinterModule extends ReactContextBaseJavaModule {
                         }
                     } catch (Exception e) {
                         Log.e(TAG, "Execution failed", e);
-                        promise.reject("PrintError", "Execution failed: " + (e.getMessage() != null ? e.getMessage() : e.toString()));
+                        promise.reject("PrintError",
+                                "Execution failed: " + (e.getMessage() != null ? e.getMessage() : e.toString()));
                         return;
                     }
 
@@ -261,8 +279,9 @@ public class PrinterModule extends ReactContextBaseJavaModule {
     private Bitmap resizeBitmap(Bitmap bitmap, int maxWidth) {
         int width = bitmap.getWidth();
         int height = bitmap.getHeight();
-        if (width <= maxWidth) return bitmap;
-        
+        if (width <= maxWidth)
+            return bitmap;
+
         float ratio = (float) width / height;
         int newWidth = maxWidth;
         int newHeight = (int) (newWidth / ratio);
@@ -285,5 +304,45 @@ public class PrinterModule extends ReactContextBaseJavaModule {
         } catch (Exception e) {
             promise.reject("Error", e.getMessage());
         }
+    }
+
+}}
+
+    private byte[] bitmapToEscPos(Bitmap bitmap) {
+        // Simple implementation of GS v 0 (Normal mode)
+        int width = (bitmap.getWidth() + 7) / 8;
+        int height = bitmap.getHeight();
+        byte[] data = new byte[8 + width * height];
+
+        data[0] = 0x1D;
+        data[1] = 0x76;
+        data[2] = 0x30;
+        data[3] = 0x00; // m = 0
+        data[4] = (byte) (width % 256); // xL
+        data[5] = (byte) (width / 256); // xH
+        data[6] = (byte) (height % 256); // yL
+        data[7] = (byte) (height / 256); // yH
+
+        int k = 8;
+        for (int y = 0; y < height; y++) {
+            for (int x = 0; x < width; x++) {
+                byte b = 0;
+                for (int bit = 0; bit < 8; bit++) {
+                    int px = x * 8 + bit;
+                    if (px < bitmap.getWidth()) {
+                        int pixel = bitmap.getPixel(px, y);
+                        // Simple threshold for black/white
+                        int r = (pixel >> 16) & 0xff;
+                        int g = (pixel >> 8) & 0xff;
+                        int b_val = pixel & 0xff;
+                        if ((r + g + b_val) / 3 < 128) {
+                            b |= (1 << (7 - bit));
+                        }
+                    }
+                }
+                data[k++] = b;
+            }
+        }
+        return data;
     }
 }

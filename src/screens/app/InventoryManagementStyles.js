@@ -469,6 +469,140 @@ const styles = StyleSheet.create({
     borderRadius: MS(6),
     marginRight: S(10),
   },
+
+  // Product Detail Modal Styles
+  detailModalContent: {
+    backgroundColor: Colors.white,
+    borderRadius: MS(20),
+    padding: MS(32),
+    width: '90%',
+    maxWidth: S(900),
+    maxHeight: '90%',
+  },
+  detailModalTitle: {
+    color: '#333333',
+    textAlign: 'center',
+    marginBottom: VS(40),
+    fontSize: S(32),
+  },
+  detailMainRow: {
+    flexDirection: 'row',
+    gap: MS(40),
+    marginBottom: VS(32),
+  },
+  detailImageContainer: {
+    width: S(350),
+    height: S(420),
+    backgroundColor: '#F0F0F0',
+    borderRadius: MS(24),
+    overflow: 'hidden',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  detailLargeImage: {
+    width: '100%',
+    height: '100%',
+    resizeMode: 'cover',
+  },
+  detailInfoContainer: {
+    flex: 1,
+  },
+  detailHeaderRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'flex-start',
+    marginBottom: VS(12),
+  },
+  detailProductName: {
+    flex: 1,
+    color: '#333333',
+    fontSize: S(34),
+    fontWeight: '700',
+    lineHeight: VS(40),
+  },
+  detailActionButtons: {
+    gap: VS(16),
+    marginLeft: S(20),
+  },
+  detailEditBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#3B5998',
+    paddingVertical: VS(12),
+    paddingHorizontal: S(24),
+    borderRadius: MS(30),
+    minWidth: S(200),
+  },
+  detailEditBtnText: {
+    color: Colors.white,
+    fontSize: S(16),
+    fontWeight: '600',
+    marginLeft: S(12),
+  },
+  detailDeleteBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#FFCDD2',
+    paddingVertical: VS(12),
+    paddingHorizontal: S(24),
+    borderRadius: MS(30),
+    minWidth: S(200),
+  },
+  detailDeleteBtnText: {
+    color: '#E53935',
+    fontSize: S(16),
+    fontWeight: '600',
+    marginLeft: S(12),
+  },
+  detailActionIcon: {
+    width: S(22),
+    height: S(22),
+  },
+  detailGrid: {
+    flexDirection: 'row',
+    marginBottom: VS(16),
+  },
+  detailGridCol: {
+    width: '45%',
+    marginRight: S(10),
+  },
+  detailLabel: {
+    color: '#333333',
+    fontSize: S(18),
+    marginBottom: 0,
+    paddingBottom: 0,
+    includeFontPadding: false,
+  },
+  detailValue: {
+    color: '#666666',
+    fontSize: S(18),
+    fontWeight: '400',
+    marginTop: 0,
+    paddingTop: 0,
+    includeFontPadding: false,
+  },
+  detailSummaryRow: {
+    flexDirection: 'row',
+    marginTop: VS(12),
+    gap: MS(32),
+  },
+  detailSummaryItem: {
+    alignItems: 'flex-start',
+  },
+  detailDescriptionSection: {
+    marginTop: VS(16),
+  },
+  detailDescriptionTitle: {
+    color: '#333333',
+    marginBottom: VS(12),
+    fontSize: S(22),
+    fontWeight: '600',
+  },
+  detailDescriptionText: {
+    color: '#666666',
+    lineHeight: VS(26),
+    fontSize: S(18),
+  },
 });
 
 export default styles;

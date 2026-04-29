@@ -8,6 +8,7 @@ import SalesRefundDetailModal from '../../components/SalesRefundDetailModal';
 import DurationModal from '../../components/DurationModal';
 import { Colors } from '../../utils/Colors';
 import { ActivityIndicator } from 'react-native';
+import { GET_X_REPORT } from '../../services/Sales&Analytics';
 
 const XReport = ({ isActive }) => {
   const [searchQuery, setSearchQuery] = useState('');
@@ -18,6 +19,7 @@ const XReport = ({ isActive }) => {
   const [reportData, setReportData] = useState([]);
   const [pagination, setPagination] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [currentParams, setCurrentParams] = useState(null);
 
   // When the tab becomes active, show the duration modal if not selected yet
   useEffect(() => {
@@ -75,11 +77,33 @@ const XReport = ({ isActive }) => {
     setShowDetailModal(true);
   };
 
-  const handleDurationProceed = response => {
+  const handleDurationProceed = (response, params) => {
     setReportData(response?.data?.items || []);
     setPagination(response?.data || null);
+    setCurrentParams(params);
     setHasSelectedDuration(true);
     setShowDurationModal(false);
+  };
+
+  const handlePageChange = async newPage => {
+    if (!currentParams || isLoading) return;
+    if (newPage < 1 || (pagination && newPage > pagination.lastPage)) return;
+
+    try {
+      setIsLoading(true);
+      const response = await GET_X_REPORT({
+        ...currentParams,
+        page: newPage,
+      });
+      if (response?.data) {
+        setReportData(response.data.items || []);
+        setPagination(response.data);
+      }
+    } catch (error) {
+      console.error('Error fetching page:', error);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const handleDurationClose = () => {
@@ -200,13 +224,24 @@ const XReport = ({ isActive }) => {
 
       {/* Pagination Footer */}
       <View style={styles.paginationRow}>
-        <TouchableOpacity style={styles.pageBtn}>
+        <TouchableOpacity
+          style={[styles.pageBtn, (pagination?.currentPage || 1) <= 1 && { opacity: 0.5 }]}
+          disabled={(pagination?.currentPage || 1) <= 1 || isLoading}
+          onPress={() => handlePageChange((pagination?.currentPage || 1) - 1)}
+        >
           <Image source={LeftArrowIcon} style={styles.actionIcon} />
         </TouchableOpacity>
         <Text style={[styles.pageText, Body3]}>
           {String(pagination?.currentPage || 1).padStart(2, '0')}
         </Text>
-        <TouchableOpacity style={styles.pageBtn}>
+        <TouchableOpacity
+          style={[
+            styles.pageBtn,
+            (pagination?.currentPage || 1) >= (pagination?.lastPage || 1) && { opacity: 0.5 },
+          ]}
+          disabled={(pagination?.currentPage || 1) >= (pagination?.lastPage || 1) || isLoading}
+          onPress={() => handlePageChange((pagination?.currentPage || 1) + 1)}
+        >
           <Image source={RightArrowIcon} style={styles.actionIcon} />
         </TouchableOpacity>
         <Text style={[styles.pageText, Body3]}>

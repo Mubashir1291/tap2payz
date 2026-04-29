@@ -235,12 +235,7 @@ const SettingsScreen = () => {
         <XReport isActive={activeTab === 3} />
       ) : (
         <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
-          {/* Sort By */}
-          <View style={styles.sortRow}>
-            <TouchableOpacity style={styles.sortBtn}>
-              <Text style={[styles.sortText, Caption]}>Sort by ⇅</Text>
-            </TouchableOpacity>
-          </View>
+
 
           {/* Stats Cards */}
           <View style={styles.statsRow}>

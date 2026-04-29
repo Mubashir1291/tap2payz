@@ -30,9 +30,11 @@ export const GET_X_REPORT = ({
   businessId = '',
   transType = '',
   storeId = '',
+  page = 1,
+  itemsPerPage = 10,
 }) => {
   return Fetch.post(
-    `${BASE_PREFIX}${ENDPOINTS.SALES$ANALYTICS.GET_X_REPORT}?business_id=${businessId}&store_id=${storeId}&fromDate=${fromDate}&fromTime=${fromTime}&toDate=${toDate}&toTime=${toTime}&transType=${transType}`,
+    `${BASE_PREFIX}${ENDPOINTS.SALES$ANALYTICS.GET_X_REPORT}?business_id=${businessId}&store_id=${storeId}&fromDate=${fromDate}&fromTime=${fromTime}&toDate=${toDate}&toTime=${toTime}&transType=${transType}&page=${page}&itemsPerPage=${itemsPerPage}`,
   );
 };
 

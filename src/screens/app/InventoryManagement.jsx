@@ -37,6 +37,7 @@ import styles from './InventoryManagementStyles';
 import SortModal, { applySort } from '../../components/SortModal';
 import ProductFormModal from '../../components/ProductFormModal';
 import CategoryFormModal from '../../components/CategoryFormModal';
+import ProductDetailModal from '../../components/ProductDetailModal';
 import { SvgUri } from 'react-native-svg';
 
 const InventoryManagement = () => {
@@ -55,6 +56,7 @@ const InventoryManagement = () => {
   const [selectedCategory, setSelectedCategory] = useState(null);
 
   const [showCatFormModal, setShowCatFormModal] = useState(false);
+  const [showDetailModal, setShowDetailModal] = useState(false);
 
   const [products, setProducts] = useState([]);
   const [categories, setCategories] = useState([]);
@@ -210,6 +212,11 @@ const InventoryManagement = () => {
       setSelectedCategory(item);
       setShowCatFormModal(true);
     }
+  };
+
+  const handleShowDetails = item => {
+    setSelectedProduct(item);
+    setShowDetailModal(true);
   };
 
   const handleDelete = item => {
@@ -459,7 +466,10 @@ const InventoryManagement = () => {
                     </View>
 
                     <View style={styles.colAction}>
-                      <TouchableOpacity style={styles.infoCircle}>
+                      <TouchableOpacity
+                        style={styles.infoCircle}
+                        onPress={() => handleShowDetails(item)}
+                      >
                         <Text style={styles.infoText}>i</Text>
                       </TouchableOpacity>
                       <TouchableOpacity onPress={() => handleEdit(item)}>
@@ -503,9 +513,9 @@ const InventoryManagement = () => {
                     </View>
 
                     <View style={styles.colCatAction}>
-                      <TouchableOpacity style={styles.catRightCircle}>
+                      {/* <TouchableOpacity style={styles.catRightCircle}>
                         <Text style={styles.catRightText}>&gt;</Text>
-                      </TouchableOpacity>
+                      </TouchableOpacity> */}
                       <TouchableOpacity onPress={() => handleEdit(item)}>
                         <Image source={EditCircleIcon} style={[IconSize24]} />
                       </TouchableOpacity>
@@ -589,6 +599,23 @@ const InventoryManagement = () => {
           formType={formType}
           initialData={selectedCategory}
           onSubmit={handleCategorySubmit}
+        />
+      )}
+
+      {/* Product Detail Modal */}
+      {showDetailModal && (
+        <ProductDetailModal
+          visible={showDetailModal}
+          onClose={() => setShowDetailModal(false)}
+          product={selectedProduct}
+          onEdit={item => {
+            setShowDetailModal(false);
+            handleEdit(item);
+          }}
+          onDelete={item => {
+            setShowDetailModal(false);
+            handleDelete(item);
+          }}
         />
       )}
     </View>

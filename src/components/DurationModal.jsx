@@ -66,32 +66,23 @@ const DurationModal = ({ visible = false, onClose, onProceed }) => {
 
       const fromDateTime = combineDateTime(fromDate, fromTime);
       const toDateTime = combineDateTime(toDate, toTime);
-      console.log(
-        {
-          totimes: toTime,
-          businessId: business_id,
-          stored: store_id,
-          fromDate: formatForAPI(fromDateTime),
-          toDate: formatForAPI(toDateTime),
-          fromTime: formatForAPI(fromDateTime),
-          toTime: formatForAPI(toDateTime),
-          transType: '',
-        },
-        'dafsadsd',
-      );
-      const response = await GET_X_REPORT({
+      
+      const params = {
         businessId: business_id,
-        stored: store_id,
+        storeId: store_id,
         fromDate: formatForAPI(fromDateTime),
         toDate: formatForAPI(toDateTime),
         fromTime: formatForAPI(fromDateTime),
         toTime: formatForAPI(toDateTime),
         transType: '',
-      });
+      };
+
+      const response = await GET_X_REPORT(params);
 
       console.log('X REPORT RESPONSE:', response);
 
-      onProceed?.(response);
+      // Pass both response and the params used so XReport can reuse params for pagination
+      onProceed?.(response, params);
 
       onClose();
     } catch (error) {
