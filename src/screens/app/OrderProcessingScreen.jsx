@@ -23,9 +23,17 @@ import {
   H2,
   ButtonTextSmall,
   Body2,
-  H4
+  H4,
 } from '../../utils/fonts';
-import { IconSize12, IconSize16, IconSize20, IconSize24, IconSize40, IconSize50, IconSize60 } from '../../utils/IconSizes';
+import {
+  IconSize12,
+  IconSize16,
+  IconSize20,
+  IconSize24,
+  IconSize40,
+  IconSize50,
+  IconSize60,
+} from '../../utils/IconSizes';
 import {
   LeftArrowIcon,
   RightArrowIcon,
@@ -53,17 +61,13 @@ import TransactionProcessModal from '../../components/TransactionProcessModal';
 import TapCardModal from '../../components/TapCardModal';
 import NfcManager, { NfcTech } from 'react-native-nfc-manager';
 import { useSelector } from 'react-redux';
-import {
-  GET_ALL_CATEGORIES,
-  GET_ALL_PRODUCTS_WITH_INVENTORY,
-} from '../../services/ProductService';
+import { GET_ALL_CATEGORIES, GET_ALL_PRODUCTS_WITH_INVENTORY } from '../../services/ProductService';
 import Toast from 'react-native-toast-message';
 import { CREATE_RES_ORDER, GET_RES_ACTIVE_ORDERS } from '../../services/Restaurant/Order/Order';
 import {
   CREATE_RES_TRANSACTION,
   GET_TERMINAL_STATUS,
 } from '../../services/Restaurant/Sales&Transaction/Sales&Transaction';
-
 
 const OrderProcessingScreen = () => {
   const { PrinterModule, DisplayManager } = NativeModules;
@@ -159,8 +163,10 @@ const OrderProcessingScreen = () => {
       if (PrinterModule && PrinterModule.initializePrinter) {
         try {
           await PrinterModule.initializePrinter();
-          console.log("printer initialzed successfully")
-        } catch (err) { console.warn("Printer initialization failed:", err); }
+          console.log('printer initialzed successfully');
+        } catch (err) {
+          console.warn('Printer initialization failed:', err);
+        }
       }
     };
     initPrinter();
@@ -353,7 +359,7 @@ const OrderProcessingScreen = () => {
 
       await PrinterModule.printFun({
         logoBase64: base64Rest,
-        content: "\n"
+        content: '\n',
       });
 
       // Small delay between prints
@@ -366,9 +372,8 @@ const OrderProcessingScreen = () => {
 
       await PrinterModule.printFun({
         logoBase64: base64Cust,
-        content: "\n"
+        content: '\n',
       });
-
     } catch (error) {
       console.log('PRINT ERROR:', error);
       Toast.show({
@@ -503,7 +508,7 @@ const OrderProcessingScreen = () => {
 
   const handleCancelTapCard = () => {
     setShowTapCardModal(false);
-    NfcManager.cancelTechnologyRequest().catch(() => { });
+    NfcManager.cancelTechnologyRequest().catch(() => {});
   };
 
   // Modals Handlers
@@ -637,8 +642,21 @@ const OrderProcessingScreen = () => {
       }}
     >
       {item?.quantity <= 0 && (
-        <View style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, justifyContent: 'center', alignItems: 'center', zIndex: 1 }}>
-          <Text style={[Body2, { color: 'red', textAlign: 'center', fontWeight: 'bold' }]}>Out of Stock</Text>
+        <View
+          style={{
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            justifyContent: 'center',
+            alignItems: 'center',
+            zIndex: 1,
+          }}
+        >
+          <Text style={[Body2, { color: 'red', textAlign: 'center', fontWeight: 'bold' }]}>
+            Out of Stock
+          </Text>
         </View>
       )}
       <View style={styles.priceTag}>
@@ -649,8 +667,6 @@ const OrderProcessingScreen = () => {
     </TouchableOpacity>
   );
   // ReceiptTemplate replaces RenderPrintView
-
-
 
   return (
     <View style={styles.root}>
@@ -673,7 +689,7 @@ const OrderProcessingScreen = () => {
               categoryScrollRef.current?.scrollTo({ x: prevX, animated: true });
             }}
           >
-            <Image source={LeftArrowIcon} style={IconSize12} />
+            <Image source={LeftArrowIcon} style={IconSize12} resizeMode="contain" />
           </TouchableOpacity>
           <ScrollView
             ref={categoryScrollRef}
@@ -705,7 +721,7 @@ const OrderProcessingScreen = () => {
               categoryScrollRef.current?.scrollTo({ x: nextX, animated: true });
             }}
           >
-            <Image source={RightArrowIcon} style={IconSize12} />
+            <Image source={RightArrowIcon} style={IconSize12} resizeMode="contain" />
           </TouchableOpacity>
         </View>
 
@@ -900,13 +916,11 @@ const OrderProcessingScreen = () => {
             </TouchableOpacity>
           </View>
 
-
-
           <TouchableOpacity
             style={[
               styles.primaryBtn,
               (cart.length === 0 || printing) && styles.primaryBtnDisabled,
-              { backgroundColor: printing ? '#999' : '#3B4B8A' }
+              { backgroundColor: printing ? '#999' : '#3B4B8A' },
             ]}
             disabled={cart.length === 0 || printing}
             onPress={async () => {
@@ -1012,7 +1026,7 @@ const OrderProcessingScreen = () => {
           setPaymentInfo({
             received: data.amount,
             change: data.change,
-            method: data.method
+            method: data.method,
           });
 
           if (data.method?.toLowerCase() === 'cash') {

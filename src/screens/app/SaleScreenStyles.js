@@ -122,6 +122,7 @@ const styles = StyleSheet.create({
   },
   arrowIcon: {
     tintColor: Colors.primary,
+    resizeMode: 'contain',
   },
   categoryBtn: {
     paddingHorizontal: S(16),
@@ -283,6 +284,7 @@ const styles = StyleSheet.create({
   },
   actionIcon: {
     tintColor: Colors.black,
+    resizeMode: 'contain',
   },
   actionLabelText: {
     color: Colors.black,

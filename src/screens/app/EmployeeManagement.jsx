@@ -145,7 +145,7 @@ const EmployeeManagement = () => {
               placeholder="Search Employee"
               placeholderTextColor="#3B4B8A"
               value={searchQuery}
-              onChangeText={(e) => setSearchQuery(e)}
+              onChangeText={e => setSearchQuery(e)}
             />
           </View>
 
@@ -233,7 +233,7 @@ const EmployeeManagement = () => {
           disabled={page <= 1 || isLoading}
           onPress={() => setPage(prev => prev - 1)}
         >
-          <Image source={LeftArrowIcon} style={styles.actionIcon} />
+          <Image source={LeftArrowIcon} style={styles.actionIcon} resizeMode="contain" />
         </TouchableOpacity>
         <Text style={[styles.pageText, Body3]}>{String(page).padStart(2, '0')}</Text>
         <TouchableOpacity
@@ -244,7 +244,7 @@ const EmployeeManagement = () => {
           disabled={!paginationData?.hasNextPage || page >= paginationData?.lastPage || isLoading}
           onPress={() => setPage(prev => prev + 1)}
         >
-          <Image source={RightArrowIcon} style={styles.actionIcon} />
+          <Image source={RightArrowIcon} style={styles.actionIcon} resizeMode="contain" />
         </TouchableOpacity>
         <Text style={[styles.pageText, Body3]}>
           out of {String(paginationData?.lastPage || 1).padStart(2, '0')}

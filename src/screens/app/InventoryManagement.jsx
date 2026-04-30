@@ -286,17 +286,25 @@ const InventoryManagement = () => {
 
   const handlePrevPage = () => {
     if (viewType === 'products') {
-      if (productQuery.page > 1) { setProductQuery(prev => ({ ...prev, page: prev.page - 1 })) };
+      if (productQuery.page > 1) {
+        setProductQuery(prev => ({ ...prev, page: prev.page - 1 }));
+      }
     } else {
-      if (categoryQuery.page > 1) { setCategoryQuery(prev => ({ ...prev, page: prev.page - 1 })) };
+      if (categoryQuery.page > 1) {
+        setCategoryQuery(prev => ({ ...prev, page: prev.page - 1 }));
+      }
     }
   };
 
   const handleNextPage = () => {
     if (viewType === 'products') {
-      if (productData?.hasNextPage) { setProductQuery(prev => ({ ...prev, page: prev.page + 1 })) };
+      if (productData?.hasNextPage) {
+        setProductQuery(prev => ({ ...prev, page: prev.page + 1 }));
+      }
     } else {
-      if (categoryData?.hasNextPage) { setCategoryQuery(prev => ({ ...prev, page: prev.page + 1 })) };
+      if (categoryData?.hasNextPage) {
+        setCategoryQuery(prev => ({ ...prev, page: prev.page + 1 }));
+      }
     }
   };
 
@@ -404,7 +412,7 @@ const InventoryManagement = () => {
         {/* Table Content */}
         <ScrollView showsVerticalScrollIndicator={false}>
           {(viewType === 'products' && isLoadingProducts) ||
-            (viewType === 'categories' && isLoadingCategories) ? (
+          (viewType === 'categories' && isLoadingCategories) ? (
             <View style={{ padding: 40, justifyContent: 'center', alignItems: 'center' }}>
               <ActivityIndicator size="large" color={Colors.primary} />
             </View>
@@ -528,7 +536,7 @@ const InventoryManagement = () => {
           onPress={handlePrevPage}
           disabled={!canGoPrev}
         >
-          <Image source={LeftArrowIcon} style={styles.actionIcon} />
+          <Image source={LeftArrowIcon} style={styles.actionIcon} resizeMode="contain" />
         </TouchableOpacity>
         <Text style={[styles.pageText, Body3]}>{String(currentPage).padStart(2, '0')}</Text>
         <TouchableOpacity
@@ -536,7 +544,7 @@ const InventoryManagement = () => {
           onPress={handleNextPage}
           disabled={!canGoNext}
         >
-          <Image source={RightArrowIcon} style={styles.actionIcon} />
+          <Image source={RightArrowIcon} style={styles.actionIcon} resizeMode="contain" />
         </TouchableOpacity>
         <Text style={[styles.pageText, Body3]}>out of {String(totalPages).padStart(2, '0')}</Text>
       </View>
@@ -554,8 +562,9 @@ const InventoryManagement = () => {
         icon={DeleteIcon}
         iconStyle={[IconSize40, styles.largeIconStyle]}
         title={`Want to Delete this ${viewType === 'products' ? 'Product' : 'Category'}!`}
-        subtitle={`Are you sure you want to delete this ${viewType === 'products' ? 'product' : 'category'
-          }?`}
+        subtitle={`Are you sure you want to delete this ${
+          viewType === 'products' ? 'product' : 'category'
+        }?`}
         confirmText={`Delete ${viewType === 'products' ? 'Product' : 'Category'} →`}
         confirmButtonColor="#B71C1C"
         onConfirm={confirmDelete}

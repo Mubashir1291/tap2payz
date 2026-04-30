@@ -553,12 +553,7 @@ const TableSelectionScreen = () => {
             zIndex: 1,
           }}
         >
-          <Text
-            style={[
-              Body2,
-              { color: 'red', textAlign: 'center', fontWeight: 'bold' },
-            ]}
-          >
+          <Text style={[Body2, { color: 'red', textAlign: 'center', fontWeight: 'bold' }]}>
             Out of Stock
           </Text>
         </View>
@@ -772,7 +767,7 @@ const TableSelectionScreen = () => {
                   categoryScrollRef.current?.scrollTo({ x: prevX, animated: true });
                 }}
               >
-                <Image source={LeftArrowIcon} style={IconSize12} />
+                <Image source={LeftArrowIcon} style={IconSize12} resizeMode="contain" />
               </TouchableOpacity>
               <ScrollView
                 ref={categoryScrollRef}
@@ -804,7 +799,7 @@ const TableSelectionScreen = () => {
                   categoryScrollRef.current?.scrollTo({ x: nextX, animated: true });
                 }}
               >
-                <Image source={RightArrowIcon} style={IconSize12} />
+                <Image source={RightArrowIcon} style={IconSize12} resizeMode="contain" />
               </TouchableOpacity>
             </View>
 

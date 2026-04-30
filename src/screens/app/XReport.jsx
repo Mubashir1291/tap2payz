@@ -233,7 +233,7 @@ const XReport = ({ isActive }) => {
           disabled={(pagination?.currentPage || 1) <= 1 || isLoading}
           onPress={() => handlePageChange((pagination?.currentPage || 1) - 1)}
         >
-          <Image source={LeftArrowIcon} style={styles.actionIcon} />
+          <Image source={LeftArrowIcon} style={styles.actionIcon} resizeMode="contain" />
         </TouchableOpacity>
         <Text style={[styles.pageText, Body3]}>
           {String(pagination?.currentPage || 1).padStart(2, '0')}
@@ -246,7 +246,7 @@ const XReport = ({ isActive }) => {
           disabled={(pagination?.currentPage || 1) >= (pagination?.lastPage || 1) || isLoading}
           onPress={() => handlePageChange((pagination?.currentPage || 1) + 1)}
         >
-          <Image source={RightArrowIcon} style={styles.actionIcon} />
+          <Image source={RightArrowIcon} style={styles.actionIcon} resizeMode="contain" />
         </TouchableOpacity>
         <Text style={[styles.pageText, Body3]}>
           out of {String(pagination?.lastPage || 1).padStart(2, '0')}

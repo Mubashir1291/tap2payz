@@ -123,6 +123,7 @@ const styles = StyleSheet.create({
   actionIcon: {
     width: S(14),
     height: S(14),
+    resizeMode: 'contain',
   },
   loadingContainer: {
     padding: MS(40),

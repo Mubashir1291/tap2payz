@@ -1,5 +1,14 @@
 import React, { useEffect, useState, useCallback, useRef } from 'react';
-import { View, Text, TouchableOpacity, Image, TextInput, FlatList, StatusBar, ActivityIndicator } from 'react-native';
+import {
+  View,
+  Text,
+  TouchableOpacity,
+  Image,
+  TextInput,
+  FlatList,
+  StatusBar,
+  ActivityIndicator,
+} from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { SearchIcon, LeftArrowIcon, RightArrowIcon } from '../../assets/Images';
 import { H1, Subtitle2, Body3 } from '../../utils/fonts';
@@ -24,57 +33,58 @@ const ViewOrdersScreen = () => {
 
   const isFirstRender = useRef(true);
 
-  const handleGetResOrders = useCallback(async (pageNumber = 1) => {
-    if (!store_id) return;
+  const handleGetResOrders = useCallback(
+    async (pageNumber = 1) => {
+      if (!store_id) return;
 
-    const statusMap = {
-      'All': '',
-      'Completed': 'Completed',
-      'In Processing': 'Processing',
-    };
+      const statusMap = {
+        All: '',
+        Completed: 'Completed',
+        'In Processing': 'Processing',
+      };
 
-    const payload = {
-      page: pageNumber,
-      itemsPerPage: 10,
-      store_id,
-      status: statusMap[activeTab],
-      // type: 'DineIn',
-      // sort: 'desc',
+      const payload = {
+        page: pageNumber,
+        itemsPerPage: 10,
+        store_id,
+        status: statusMap[activeTab],
+        // type: 'DineIn',
+        // sort: 'desc',
+      };
 
-    };
-
-    setIsLoading(true);
-    try {
-      const response = await GET_RES_ORDERS(payload);
-      console.log(response, 'response');
-      console.log(payload, 'payload');
-      const mappedOrders = (response?.items || []).map(item => ({
-
-        id: item._id,
-        table: item.table_id?.table_no || 'N/A',
-        // waiter: item.employee_id?.employee_name || 'N/A',
-        handleBy: item?.transactions[0]?.empID?.employee_name || 'N/A',
-        date: new Date(item.updated_at).toLocaleString('en-GB', {
-          day: '2-digit',
-          month: 'short',
-          year: 'numeric',
-          hour: '2-digit',
-          minute: '2-digit',
-          hour12: true,
-        }),
-        total: `$ ${item.total_price?.toFixed(2) || '0.00'}`,
-        subTotal: `$ ${item.subtotal?.toFixed(2) || '0.00'}`,
-        rawOrder: item,
-      }));
-      setOrders(mappedOrders);
-      setPaginationData(response);
-      setPage(pageNumber);
-    } catch (error) {
-      console.error('Error fetching orders:', error);
-    } finally {
-      setIsLoading(false);
-    }
-  }, [store_id, activeTab, searchQuery]);
+      setIsLoading(true);
+      try {
+        const response = await GET_RES_ORDERS(payload);
+        console.log(response, 'response');
+        console.log(payload, 'payload');
+        const mappedOrders = (response?.items || []).map(item => ({
+          id: item._id,
+          table: item.table_id?.table_no || 'N/A',
+          // waiter: item.employee_id?.employee_name || 'N/A',
+          handleBy: item?.transactions[0]?.empID?.employee_name || 'N/A',
+          date: new Date(item.updated_at).toLocaleString('en-GB', {
+            day: '2-digit',
+            month: 'short',
+            year: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit',
+            hour12: true,
+          }),
+          total: `$ ${item.total_price?.toFixed(2) || '0.00'}`,
+          subTotal: `$ ${item.subtotal?.toFixed(2) || '0.00'}`,
+          rawOrder: item,
+        }));
+        setOrders(mappedOrders);
+        setPaginationData(response);
+        setPage(pageNumber);
+      } catch (error) {
+        console.error('Error fetching orders:', error);
+      } finally {
+        setIsLoading(false);
+      }
+    },
+    [store_id, activeTab, searchQuery],
+  );
 
   useEffect(() => {
     handleGetResOrders(1);
@@ -118,7 +128,10 @@ const ViewOrdersScreen = () => {
         <Text style={[styles.rowText, Body3]}>{item.subTotal}</Text>
       </View>
       <View style={styles.colActions}>
-        <TouchableOpacity style={styles.viewInvoiceBtn} onPress={() => handleOpenInvoice(item.rawOrder)}>
+        <TouchableOpacity
+          style={styles.viewInvoiceBtn}
+          onPress={() => handleOpenInvoice(item.rawOrder)}
+        >
           <Text style={styles.viewInvoiceText}>View Invoice</Text>
         </TouchableOpacity>
       </View>
@@ -221,20 +234,27 @@ const ViewOrdersScreen = () => {
                   onPress={() => handleGetResOrders(page - 1)}
                   disabled={page <= 1}
                 >
-                  <Image source={LeftArrowIcon} style={[IconSize12, styles.pageIcon]} />
+                  <Image
+                    source={LeftArrowIcon}
+                    style={[IconSize12, styles.pageIcon]}
+                    resizeMode="contain"
+                  />
                 </TouchableOpacity>
                 <Text style={[styles.pageText, Body3]}>{String(page).padStart(2, '0')}</Text>
                 <TouchableOpacity
-                  style={[styles.pageBtn, !paginationData?.hasNextPage && { opacity: 0.5 }]}
+                  style={[styles.pageBtn, !paginationData?.hasNextPage && { opacity: 0.8 }]}
                   onPress={() => handleGetResOrders(page + 1)}
                   disabled={!paginationData?.hasNextPage}
                 >
                   <Image
                     source={RightArrowIcon}
                     style={[IconSize12, styles.pageIcon]}
+                    resizeMode="contain"
                   />
                 </TouchableOpacity>
-                <Text style={[styles.pageText, Body3]}>out of {String(paginationData?.lastPage || 1).padStart(2, '0')}</Text>
+                <Text style={[styles.pageText, Body3]}>
+                  out of {String(paginationData?.lastPage || 1).padStart(2, '0')}
+                </Text>
               </View>
             }
           />
