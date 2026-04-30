@@ -741,12 +741,12 @@ const OrderProcessingScreen = () => {
           <Text style={[styles.tableInfo, Subtitle1]}>
             {orderType === 'Take Away' ? 'Take Away' : `Table #: ${tableNumber}`}
           </Text>
-          {orderType !== 'Take Away' && (
+          {/* {orderType !== 'Take Away' && (
             <TouchableOpacity style={styles.splitBtn}>
               <Image source={SplitIcon} style={[IconSize16, styles.splitIcon]} />
               <Text style={[styles.splitText, Body3]}>Split Items</Text>
             </TouchableOpacity>
-          )}
+          )} */}
           <Text style={[styles.cashierInfo, Body3]}>Cashier:{userData?.employee_name}</Text>
         </View>
 

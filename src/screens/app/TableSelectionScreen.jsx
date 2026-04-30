@@ -9,8 +9,13 @@ import {
   Modal,
   TouchableWithoutFeedback,
   ScrollView,
+  NativeModules,
+  ActivityIndicator,
 } from 'react-native';
 import { useNavigation, useRoute, useFocusEffect } from '@react-navigation/native';
+import ViewShot from 'react-native-view-shot';
+import RNFS from 'react-native-fs';
+import ReceiptTemplate from '../../components/ReceiptTemplate';
 import { Subtitle2, Body3, H4, Subtitle1, Overline, Body1, Body2 } from '../../utils/fonts';
 import { IconSize12, IconSize16, IconSize20, IconSize40 } from '../../utils/IconSizes';
 import {
@@ -51,8 +56,13 @@ import {
 const TableSelectionScreen = () => {
   const navigation = useNavigation();
   const route = useRoute();
-  const { store_id, userData } = useSelector(state => state.user);
+  const { store_id, store_name, userData } = useSelector(state => state.user);
   const { deviceId } = useSelector(state => state.device);
+  const { PrinterModule } = NativeModules;
+  const viewShotRef = useRef();
+  const [printing, setPrinting] = useState(false);
+  const [paymentInfo, setPaymentInfo] = useState({ received: 0, change: 0, method: '' });
+  const [buyerId, setBuyerId] = useState(null);
 
   const [activeTab, setActiveTab] = useState(route.params?.orderType || 'Dine in');
   const [areas, setAreas] = useState([]);
@@ -187,6 +197,70 @@ const TableSelectionScreen = () => {
       setTerminalNr(res?.transaction?.nr || '');
     } catch (error) {
       console.error('Error checking terminal status:', error);
+    }
+  };
+
+  const handleResTransaction = async method => {
+    const payload = {
+      transaction: {
+        deviceID: deviceId || '',
+        storeID: store_id || '',
+        nr: terminalNr || '',
+        referenceNumber: terminalReferenceNumber || '',
+        transaction_uuid: `${Date.now()}`,
+        transType: method?.toUpperCase() === 'CASH' ? 'CASH' : 'CARD',
+        tipAmount: parseFloat(tipAmount) || 0,
+        transAmntIn: parseFloat(total),
+        transAmntEx: subtotal,
+        discountAmount: discountAmount || 0,
+        discountCode: discountCode || '',
+        discountPercentage: 0,
+        vat: 0,
+        status: 'Completed',
+        buyerID: buyerId,
+      },
+    };
+    try {
+      const res = await CREATE_RES_TRANSACTION(payload);
+      console.log(res, 'Transaction Response');
+      return res;
+    } catch (error) {
+      console.error('Error creating transaction:', error);
+      Toast.show({
+        type: 'error',
+        text1: 'Transaction Error',
+        text2: error.message || 'Could not complete transaction',
+      });
+      throw error;
+    }
+  };
+
+  const handlePrintReceipt = async () => {
+    try {
+      setPrinting(true);
+      if (!PrinterModule || !viewShotRef.current) {
+        throw new Error('Printer not ready');
+      }
+      await new Promise(res => setTimeout(res, 500));
+      const uri = await viewShotRef.current.capture();
+      const path = uri.replace('file://', '');
+      const base64Image = await RNFS.readFile(path, 'base64');
+      if (base64Image.length > 2000000) {
+        throw new Error('Receipt too large');
+      }
+      await PrinterModule.printFun({
+        logoBase64: base64Image,
+        content: '\n',
+      });
+    } catch (error) {
+      console.log('PRINT ERROR:', error);
+      Toast.show({
+        type: 'error',
+        text1: 'Print Error',
+        text2: error?.message || 'Could not print receipt',
+      });
+    } finally {
+      setPrinting(false);
     }
   };
   useFocusEffect(
@@ -762,6 +836,21 @@ const TableSelectionScreen = () => {
         setSelectedCartItem={setSelectedCartItem}
         setShowNoteModal={setShowNoteModal}
         handleCheckTerminalStatus={handleCheckTerminalStatus}
+        disableActions={activeTab === 'Dine in'}
+      />
+
+      <ReceiptTemplate
+        ref={viewShotRef}
+        cart={cart}
+        storeName={store_name}
+        cashierName={userData?.employee_name}
+        orderId={orderDetail?._id?.slice(-6).toUpperCase()}
+        orderType={activeTab}
+        subtotal={subtotal}
+        total={total}
+        discountAmount={discountAmount}
+        tipAmount={tipAmount}
+        paymentInfo={paymentInfo}
       />
 
       <TipModal
@@ -782,6 +871,7 @@ const TableSelectionScreen = () => {
         onSaveInfo={handleSaveBuyerInfo}
         onDeleteInfo={handleDeleteBuyerInfo}
         onClose={() => setShowBuyerModal(false)}
+        setBuyerId={setBuyerId}
       />
 
       <QuickSaleModal
@@ -829,47 +919,29 @@ const TableSelectionScreen = () => {
         totalAmount={parseFloat(total)}
         currency="$"
         onProceed={async data => {
+          console.log('Payment Proceeded with data:', data);
           setShowPaymentModal(false);
-          if (data.method === 'Cash') {
-            const payload = {
-              transaction: {
-                deviceID: deviceId || '',
-                storeID: store_id || '',
-                nr: terminalNr || '',
-                referenceNumber: terminalReferenceNumber || '',
-                transaction_uuid: `${Date.now()}`,
-                transType: 'CASH',
-                tipAmount: parseFloat(tipAmount) || 0,
-                transAmntIn: parseFloat(total),
-                transAmntEx: subtotal,
-                discountAmount: discountAmount || 0,
-                discountCode: discountCode || '',
-                discountPercentage: 0,
-                vat: 0,
-                status: 'Completed',
-              },
-            };
+          setPaymentInfo({
+            received: data.amount,
+            change: data.change,
+            method: data.method,
+          });
+
+          if (data.method?.toLowerCase() === 'cash') {
             try {
-              const res = await CREATE_RES_TRANSACTION(payload);
-              console.log(res, 'Transaction Response');
+              await handleResTransaction(data.method);
               setShowSuccessModal(true);
-            } catch (error) {
-              console.error('Error creating transaction:', error);
-              Toast.show({
-                type: 'error',
-                text1: 'Transaction Error',
-                text2: error.message || 'Could not complete transaction',
-              });
-            }
+            } catch (error) {}
           } else {
             setShowTapCardModal(true);
             try {
               await NfcManager.start();
               await NfcManager.requestTechnology(NfcTech.Ndef);
-
+              await handleResTransaction(data.method);
               setShowTapCardModal(false);
               setShowTransactionModal(true);
-            } catch {
+            } catch (error) {
+              console.error('NFC or Transaction Error:', error);
               setShowTapCardModal(false);
             } finally {
               NfcManager.cancelTechnologyRequest();
@@ -896,7 +968,10 @@ const TableSelectionScreen = () => {
         totalAmount={parseFloat(total)}
         discountAmount={discountAmount}
         tipAmount={tipAmount}
-        onPrintReceipt={handleCloseInvoice}
+        onPrintReceipt={async () => {
+          await handlePrintReceipt();
+          handleCloseInvoice();
+        }}
         onClose={handleCloseInvoice}
       />
 

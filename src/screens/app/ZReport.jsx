@@ -24,6 +24,8 @@ const ZReport = () => {
   const [selectedReport, setSelectedReport] = useState(null);
   const [apiData, setApiData] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 10;
 
   const { store_id, userData, store_name } = useSelector(state => state.user);
   const { deviceId } = useSelector(state => state.device);
@@ -101,6 +103,29 @@ const ZReport = () => {
     return data;
   }, [searchQuery, apiData]);
 
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchQuery]);
+
+  const totalPages = Math.ceil(filteredData.length / itemsPerPage);
+
+  const paginatedData = useMemo(() => {
+    const startIndex = (currentPage - 1) * itemsPerPage;
+    return filteredData.slice(startIndex, startIndex + itemsPerPage);
+  }, [filteredData, currentPage]);
+
+  const handlePrevPage = () => {
+    if (currentPage > 1) {
+      setCurrentPage(prev => prev - 1);
+    }
+  };
+
+  const handleNextPage = () => {
+    if (currentPage < totalPages) {
+      setCurrentPage(prev => prev + 1);
+    }
+  };
+
   const handleView = report => {
     setSelectedReport({
       ...report,
@@ -164,7 +189,7 @@ const ZReport = () => {
               <ActivityIndicator size="large" color={Colors.primary} />
             </View>
           ) : (
-            filteredData.map((item, index) => (
+            paginatedData.map((item, index) => (
               <View key={index} style={styles.tableRow}>
                 <Text style={[styles.colOpenedAt, styles.rowText, Body3]}>{item.openedAt}</Text>
                 <Text style={[styles.colClosedAt, styles.rowText, Body3]}>{item.closedAt}</Text>
@@ -194,14 +219,25 @@ const ZReport = () => {
 
       {/* Pagination Footer */}
       <View style={styles.paginationRow}>
-        <TouchableOpacity style={styles.pageBtn}>
+        <TouchableOpacity
+          style={[styles.pageBtn, currentPage === 1 && { opacity: 0.5 }]}
+          onPress={handlePrevPage}
+          disabled={currentPage === 1}
+        >
           <Image source={LeftArrowIcon} style={styles.actionIcon} />
         </TouchableOpacity>
-        <Text style={[styles.pageText, Body3]}>01</Text>
-        <TouchableOpacity style={styles.pageBtn}>
+        <Text style={[styles.pageText, Body3]}>{currentPage.toString().padStart(2, '0')}</Text>
+        <TouchableOpacity
+          style={[
+            styles.pageBtn,
+            (currentPage === totalPages || totalPages === 0) && { opacity: 0.5 },
+          ]}
+          onPress={handleNextPage}
+          disabled={currentPage === totalPages || totalPages === 0}
+        >
           <Image source={RightArrowIcon} style={styles.actionIcon} />
         </TouchableOpacity>
-        <Text style={[styles.pageText, Body3]}>out of 20</Text>
+        <Text style={[styles.pageText, Body3]}>out of {totalPages || 1}</Text>
       </View>
 
       {/* Detail Modal */}

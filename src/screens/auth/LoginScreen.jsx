@@ -202,109 +202,117 @@ const LoginScreen = () => {
 
   const formik = useFormik({
     initialValues: {
-      storeCode: '4001',
-      employeeId: '1001',
-      password: '1@2.comM',
+      storeCode: '',
+      employeeId: '',
+      password: '',
     },
     validationSchema,
     onSubmit: handleLogin,
   });
 
   return (
-    <View style={styles.root}>
-      <StatusBar backgroundColor={Colors.primary} barStyle="light-content" />
+    <>
+      <View style={styles.root}>
+        <StatusBar backgroundColor={Colors.primary} barStyle="light-content" />
 
-      {/* Left branding panel */}
-      <View style={styles.brandPanel}>
-        <View style={styles.brandContent}>
-          <View style={styles.logoCircle}>
-            <Image source={PSPIcon} style={IconSize60} />
+        {/* Left branding panel */}
+        <View style={styles.brandPanel}>
+          <View style={styles.brandContent}>
+            <View style={styles.logoCircle}>
+              <Image source={PSPIcon} style={IconSize60} />
+            </View>
+            <Text style={[styles.brandTitle, H1, { color: Colors.white }]}>Point of Sale</Text>
+            <Text style={[styles.brandTitle, Body1, { color: Colors.white }]}>
+              Manage your store with ease
+            </Text>
           </View>
-          <Text style={[styles.brandTitle, H1, { color: Colors.white }]}>Point of Sale</Text>
-          <Text style={[styles.brandTitle, Body1, { color: Colors.white }]}>
-            Manage your store with ease
-          </Text>
+        </View>
+
+        {/* Right form panel */}
+        <View style={styles.formPanel}>
+          <KeyboardAvoidingView
+            style={{ flex: 1 }}
+            behavior={Platform.OS === 'ios' ? 'padding' : 'padding'}
+            keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : VS(20)}
+          >
+            <ScrollView
+              contentContainerStyle={styles.formScrollContent}
+              keyboardShouldPersistTaps="handled"
+              showsVerticalScrollIndicator={false}
+            >
+              <View style={styles.formCard}>
+                <Text style={[styles.welcomeText, H1, { fontSize: MS(26), color: Colors.primary }]}>
+                  Welcome Back
+                </Text>
+                <Text style={[styles.subtitle, Body1, { color: Colors.grey }]}>
+                  Sign in to your POS terminal
+                </Text>
+
+                <View style={styles.inputsWrapper}>
+                  <CustomInput
+                    label="Store Code"
+                    placeholder="Enter your store code"
+                    value={formik.values.storeCode}
+                    onChangeText={formik.handleChange('storeCode')}
+                    onBlur={formik.handleBlur('storeCode')}
+                    autoCapitalize="none"
+                    keyboardType="numeric"
+                  />
+                  {formik.touched.storeCode && formik.errors.storeCode && (
+                    <Text style={styles.errorText}>{formik.errors.storeCode}</Text>
+                  )}
+
+                  <CustomInput
+                    label="Employee ID"
+                    placeholder="Enter your employee ID"
+                    value={formik.values.employeeId}
+                    onChangeText={formik.handleChange('employeeId')}
+                    onBlur={formik.handleBlur('employeeId')}
+                    autoCapitalize="none"
+                    keyboardType="numeric"
+                  />
+                  {formik.touched.employeeId && formik.errors.employeeId && (
+                    <Text style={styles.errorText}>{formik.errors.employeeId}</Text>
+                  )}
+
+                  <CustomInput
+                    label="Password"
+                    placeholder="Enter your password"
+                    value={formik.values.password}
+                    onChangeText={formik.handleChange('password')}
+                    onBlur={formik.handleBlur('password')}
+                    secureTextEntry
+                    isPassword={true}
+                  />
+                  {formik.touched.password && formik.errors.password && (
+                    <Text style={styles.errorText}>{formik.errors.password}</Text>
+                  )}
+                </View>
+
+                <TouchableOpacity
+                  style={[styles.loginButton, isLoading && styles.loginButtonLoading]}
+                  activeOpacity={0.85}
+                  onPress={formik.handleSubmit}
+                  disabled={isLoading}
+                >
+                  {isLoading ? (
+                    <ActivityIndicator color={Colors.white} />
+                  ) : (
+                    <Text style={[ButtonText, { color: Colors.white }]}>Login</Text>
+                  )}
+                </TouchableOpacity>
+              </View>
+            </ScrollView>
+          </KeyboardAvoidingView>
         </View>
       </View>
 
-      {/* Right form panel */}
-      <KeyboardAvoidingView
-        style={styles.formPanel}
-        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-      >
-        <ScrollView
-          contentContainerStyle={styles.formScrollContent}
-          keyboardShouldPersistTaps="handled"
-          showsVerticalScrollIndicator={false}
-        >
-          <View style={styles.formCard}>
-            <Text style={[styles.welcomeText, H1, { fontSize: MS(26), color: Colors.primary }]}>
-              Welcome Back
-            </Text>
-            <Text style={[styles.subtitle, Body1, { color: Colors.grey }]}>
-              Sign in to your POS terminal
-            </Text>
-
-            <View style={styles.inputsWrapper}>
-              <CustomInput
-                label="Store Code"
-                placeholder="Enter your store code"
-                value={formik.values.storeCode}
-                onChangeText={formik.handleChange('storeCode')}
-                onBlur={formik.handleBlur('storeCode')}
-                autoCapitalize="none"
-                keyboardType="numeric"
-              />
-              {formik.touched.storeCode && formik.errors.storeCode && (
-                <Text style={styles.errorText}>{formik.errors.storeCode}</Text>
-              )}
-
-              <CustomInput
-                label="Employee ID"
-                placeholder="Enter your employee ID"
-                value={formik.values.employeeId}
-                onChangeText={formik.handleChange('employeeId')}
-                onBlur={formik.handleBlur('employeeId')}
-                autoCapitalize="none"
-                keyboardType="numeric"
-              />
-              {formik.touched.employeeId && formik.errors.employeeId && (
-                <Text style={styles.errorText}>{formik.errors.employeeId}</Text>
-              )}
-
-              <CustomInput
-                label="Password"
-                placeholder="Enter your password"
-                value={formik.values.password}
-                onChangeText={formik.handleChange('password')}
-                onBlur={formik.handleBlur('password')}
-                secureTextEntry
-                isPassword={true}
-              />
-              {formik.touched.password && formik.errors.password && (
-                <Text style={styles.errorText}>{formik.errors.password}</Text>
-              )}
-            </View>
-
-            <TouchableOpacity
-              style={[styles.loginButton, isLoading && styles.loginButtonLoading]}
-              activeOpacity={0.85}
-              onPress={formik.handleSubmit}
-              disabled={isLoading}
-            >
-              {isLoading ? (
-                <ActivityIndicator color={Colors.white} />
-              ) : (
-                <Text style={[ButtonText, { color: Colors.white }]}>Login</Text>
-              )}
-            </TouchableOpacity>
-          </View>
-        </ScrollView>
-      </KeyboardAvoidingView>
-
       {/* ── Device ID Modal ── */}
       <Modal visible={showDeviceModal} transparent animationType="fade" onRequestClose={() => { }}>
-        <View style={styles.modalOverlay}>
+        <KeyboardAvoidingView
+          behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+          style={styles.modalOverlay}
+        >
           <View style={styles.modalContainer}>
             <Text style={[styles.modalTitle, H4, { color: Colors.primary }]}>Register Device</Text>
             <Text style={[styles.modalSubtitle, Body1, { color: Colors.grey }]}>
@@ -348,15 +356,16 @@ const LoginScreen = () => {
               <Text style={[ButtonText, { color: Colors.white }]}>Verify & Continue</Text>
             </TouchableOpacity>
           </View>
-        </View>
+        </KeyboardAvoidingView>
       </Modal>
-    </View>
+    </>
   );
 };
 
 const styles = StyleSheet.create({
   root: {
     flex: 1,
+    width: '100%',
     flexDirection: 'row',
     backgroundColor: Colors.white,
   },
@@ -385,12 +394,11 @@ const styles = StyleSheet.create({
   formPanel: {
     flex: 0.6,
     backgroundColor: '#F0F4F8',
-    justifyContent: 'center',
   },
   formScrollContent: {
     flexGrow: 1,
     justifyContent: 'center',
-    paddingHorizontal: '12%',
+    paddingHorizontal: '10%',
     paddingVertical: VS(40),
   },
   formCard: {

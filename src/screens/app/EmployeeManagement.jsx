@@ -47,6 +47,8 @@ const EmployeeManagement = () => {
   const { store_id } = useSelector(state => state.user);
   const [employees, setEmployees] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [page, setPage] = useState(1);
+  const [paginationData, setPaginationData] = useState(null);
 
   const sortedData = useMemo(() => {
     return applySort([...employees], sortType, item => item.name);
@@ -89,10 +91,15 @@ const EmployeeManagement = () => {
   };
 
   useEffect(() => {
-    const fetchEmployees = async () => {
+    const fetchEmployees = async (pageNumber = 1) => {
       setIsLoading(true);
       try {
-        const response = await GET_EMPLOYEES({ storeId: store_id, searchText: debounceSearch });
+        const response = await GET_EMPLOYEES({
+          storeid: store_id,
+          searchText: debounceSearch,
+          page: pageNumber,
+          itemPerPage: 10,
+        });
         const mappedEmployees = (response?.items || []).map(emp => ({
           id: emp._id || emp.id,
           image: emp.employee_profile || null,
@@ -102,6 +109,8 @@ const EmployeeManagement = () => {
           tips: emp.tips || '$0.00',
         }));
         setEmployees(mappedEmployees);
+        setPaginationData(response);
+        setPage(pageNumber);
       } catch (error) {
         console.error('Error fetching employees:', error);
         Toast.show({
@@ -115,9 +124,9 @@ const EmployeeManagement = () => {
     };
 
     if (store_id) {
-      fetchEmployees();
+      fetchEmployees(page);
     }
-  }, [store_id, debounceSearch]);
+  }, [store_id, debounceSearch, page]);
 
   return (
     <View style={styles.root}>
@@ -133,7 +142,7 @@ const EmployeeManagement = () => {
             <Image source={SearchIcon} style={IconSize12} />
             <TextInput
               style={[styles.searchInput, Body3]}
-              placeholder="Search Merchant"
+              placeholder="Search Employee"
               placeholderTextColor="#3B4B8A"
               value={searchQuery}
               onChangeText={(e) => setSearchQuery(e)}
@@ -219,14 +228,27 @@ const EmployeeManagement = () => {
 
       {/* Pagination Footer */}
       <View style={styles.paginationRow}>
-        <TouchableOpacity style={styles.pageBtn}>
+        <TouchableOpacity
+          style={[styles.pageBtn, page <= 1 && { opacity: 0.5 }]}
+          disabled={page <= 1 || isLoading}
+          onPress={() => setPage(prev => prev - 1)}
+        >
           <Image source={LeftArrowIcon} style={styles.actionIcon} />
         </TouchableOpacity>
-        <Text style={[styles.pageText, Body3]}>01</Text>
-        <TouchableOpacity style={styles.pageBtn}>
+        <Text style={[styles.pageText, Body3]}>{String(page).padStart(2, '0')}</Text>
+        <TouchableOpacity
+          style={[
+            styles.pageBtn,
+            (!paginationData?.hasNextPage || page >= paginationData?.lastPage) && { opacity: 0.5 },
+          ]}
+          disabled={!paginationData?.hasNextPage || page >= paginationData?.lastPage || isLoading}
+          onPress={() => setPage(prev => prev + 1)}
+        >
           <Image source={RightArrowIcon} style={styles.actionIcon} />
         </TouchableOpacity>
-        <Text style={[styles.pageText, Body3]}>out of 20</Text>
+        <Text style={[styles.pageText, Body3]}>
+          out of {String(paginationData?.lastPage || 1).padStart(2, '0')}
+        </Text>
       </View>
 
       {/* Modals */}

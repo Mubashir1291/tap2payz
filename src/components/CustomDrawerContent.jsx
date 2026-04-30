@@ -58,7 +58,7 @@ const CustomDrawerContent = ({ navigation, state }) => {
   }
 
   const retailDrawerItems = ["Sale", "Close Register", "Settings"];
-  const restaurantDrawerItems = ["Restaurant Orders", "Table Management", "Close Register", "Settings"];
+  const restaurantDrawerItems = ["Restaurant Orders", "Table Management", "Close Register"];
 
   const filteredItems = useMemo(() => {
 

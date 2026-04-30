@@ -306,7 +306,8 @@ public class PrinterModule extends ReactContextBaseJavaModule {
         }
     }
 
-}}
+
+
 
     private byte[] bitmapToEscPos(Bitmap bitmap) {
         // Simple implementation of GS v 0 (Normal mode)

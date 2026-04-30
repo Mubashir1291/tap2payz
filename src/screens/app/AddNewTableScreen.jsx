@@ -60,7 +60,6 @@ const AddNewTableScreen = () => {
     if (!store_id) return;
     try {
       const response = await GET_FLOORS({ storeId: store_id });
-      console.log('Floors fetched successfully:', response);
       const fetchedAreas = response?.items || [];
       setAreas(fetchedAreas);
       if (fetchedAreas.length > 0) {

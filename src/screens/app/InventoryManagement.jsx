@@ -6,8 +6,6 @@ import {
   ScrollView,
   TextInput,
   Image,
-  Modal,
-  Switch,
   ActivityIndicator,
 } from 'react-native';
 import Toast from 'react-native-toast-message';
@@ -20,16 +18,14 @@ import {
 } from '../../services/ProductService';
 import { Colors } from '../../utils/Colors';
 import { Subtitle2, Body3, Caption, H1 } from '../../utils/fonts';
-import { IconSize12, IconSize16, IconSize20, IconSize24, IconSize40 } from '../../utils/IconSizes';
+import { IconSize12, IconSize20, IconSize24, IconSize40 } from '../../utils/IconSizes';
 import {
   SearchIcon,
   LeftArrowIcon,
   RightArrowIcon,
   DeleteCircleIcon,
   EditCircleIcon,
-  UploadIcon,
   DeleteIcon,
-  ArrowDownIcon,
 } from '../../assets/Images';
 import ConfirmationModal from '../../components/ConfirmationModal';
 import SuccessModal from '../../components/SuccessModal';
@@ -89,7 +85,6 @@ const InventoryManagement = () => {
       setIsLoadingProducts(true);
       try {
         const response = await GET_ALL_PRODUCTS_WITH_INVENTORY(productQuery);
-        console.log(response, 'productsssss');
         const mappedProducts = (response?.items || []).map(p => ({
           ...p,
           id: p._id,
@@ -124,7 +119,6 @@ const InventoryManagement = () => {
       setIsLoadingCategories(true);
       try {
         const response = await GET_ALL_CATEGORIES(categoryQuery);
-        console.log(response, 'categories');
         const mappedCategories = (response?.items || []).map(c => ({
           ...c,
           id: c._id,
@@ -231,11 +225,9 @@ const InventoryManagement = () => {
   const confirmDelete = async () => {
     try {
       if (viewType === 'products') {
-        const response = await DELETE_PRODUCT(selectedProduct._id);
-        console.log('Product Delete response', response);
+        await DELETE_PRODUCT(selectedProduct._id);
       } else {
-        const response = await DELETE_CATEGORY(selectedCategory._id || selectedCategory.id);
-        console.log('Category Delete response', response);
+        await DELETE_CATEGORY(selectedCategory._id || selectedCategory.id);
       }
     } catch (error) {
       console.error('Error deleting:', error);
@@ -273,16 +265,14 @@ const InventoryManagement = () => {
     }, 500);
   };
 
-  const handleFormSubmit = data => {
+  const handleFormSubmit = () => {
     // Here you would handle the API call to create or update a product
-    console.log('Submitting data:', data);
     setShowFormModal(false);
     // After a successful API call, you might want to refetch products and show a success message.
     // For now, we'll just close the modal.
   };
 
-  const handleCategorySubmit = data => {
-    console.log('Submitting category data:', data);
+  const handleCategorySubmit = () => {
     setShowCatFormModal(false);
     // After a successful API call, you might want to refetch products and show a success message.
     // For now, we'll just close the modal.
@@ -296,17 +286,17 @@ const InventoryManagement = () => {
 
   const handlePrevPage = () => {
     if (viewType === 'products') {
-      if (productQuery.page > 1) setProductQuery(prev => ({ ...prev, page: prev.page - 1 }));
+      if (productQuery.page > 1) { setProductQuery(prev => ({ ...prev, page: prev.page - 1 })) };
     } else {
-      if (categoryQuery.page > 1) setCategoryQuery(prev => ({ ...prev, page: prev.page - 1 }));
+      if (categoryQuery.page > 1) { setCategoryQuery(prev => ({ ...prev, page: prev.page - 1 })) };
     }
   };
 
   const handleNextPage = () => {
     if (viewType === 'products') {
-      if (productData?.hasNextPage) setProductQuery(prev => ({ ...prev, page: prev.page + 1 }));
+      if (productData?.hasNextPage) { setProductQuery(prev => ({ ...prev, page: prev.page + 1 })) };
     } else {
-      if (categoryData?.hasNextPage) setCategoryQuery(prev => ({ ...prev, page: prev.page + 1 }));
+      if (categoryData?.hasNextPage) { setCategoryQuery(prev => ({ ...prev, page: prev.page + 1 })) };
     }
   };
 
@@ -357,7 +347,7 @@ const InventoryManagement = () => {
             <Image source={SearchIcon} style={IconSize12} />
             <TextInput
               style={[styles.searchInput, Body3]}
-              placeholder="Search Merchant"
+              placeholder={viewType === 'products' ? 'Search Product' : 'Search Category'}
               placeholderTextColor="#3B4B8A"
               value={searchQuery}
               onChangeText={setSearchQuery}

@@ -35,6 +35,7 @@ const RestaurantCartPanel = ({
   setSelectedCartItem,
   setShowNoteModal,
   handleCheckTerminalStatus,
+  disableActions,
 }) => {
   const navigation = useNavigation();
   const { userData } = useSelector(state => state.user);
@@ -123,21 +124,33 @@ const RestaurantCartPanel = ({
           </View>
           <Text style={Overline}>Discount</Text>
         </TouchableOpacity> */}
-        <TouchableOpacity style={styles.actionBtn} onPress={() => setShowTipModal(true)}>
+        <TouchableOpacity
+          style={[styles.actionBtn, disableActions && styles.halfOpacity]}
+          onPress={() => !disableActions && setShowTipModal(true)}
+          disabled={disableActions}
+        >
           <View style={styles.relativePosition}>
             <Image source={DollarIcon} style={[IconSize16, styles.actionIcon]} />
             {tipAmount !== null && <Image source={TickIcon} style={styles.tickIconSmallOverlay} />}
           </View>
           <Text style={Overline}>Add TIP</Text>
         </TouchableOpacity>
-        <TouchableOpacity style={styles.actionBtn} onPress={() => setShowQuickSaleModal(true)}>
+        <TouchableOpacity
+          style={[styles.actionBtn, disableActions && styles.halfOpacity]}
+          onPress={() => !disableActions && setShowQuickSaleModal(true)}
+          disabled={disableActions}
+        >
           <View style={styles.relativePosition}>
             <Image source={RefreshICon} style={[IconSize16, styles.actionIcon]} />
             {hasQuickSale && <Image source={TickIcon} style={styles.tickIconSmallOverlay} />}
           </View>
           <Text style={Overline}>Quick Sale</Text>
         </TouchableOpacity>
-        <TouchableOpacity style={styles.actionBtn} onPress={() => setShowBuyerModal(true)}>
+        <TouchableOpacity
+          style={[styles.actionBtn, disableActions && styles.halfOpacity]}
+          onPress={() => !disableActions && setShowBuyerModal(true)}
+          disabled={disableActions}
+        >
           <View style={styles.relativePosition}>
             <Image source={BuyersIcon} style={[IconSize16, styles.actionIcon]} />
             {buyerInfo !== null && <Image source={TickIcon} style={styles.tickIconSmallOverlay} />}
@@ -173,14 +186,14 @@ const RestaurantCartPanel = ({
             onPress={() => cart.length > 0 && setShowProcessModal(true)}
             disabled={cart.length === 0}
           >
-            <Text style={styles.btnText}>Process Order</Text>
+            <Text style={styles.processBtnText}>Process Order</Text>
           </TouchableOpacity>
           <TouchableOpacity
             style={[styles.cancelBtn, cart.length === 0 && styles.halfOpacity]}
             onPress={() => cart.length > 0 && setShowCancelModal(true)}
             disabled={cart.length === 0}
           >
-            <Text style={styles.btnText}>Cancel Order</Text>
+            <Text style={styles.cancelBtnText}>Cancel Order</Text>
           </TouchableOpacity>
         </View>
 

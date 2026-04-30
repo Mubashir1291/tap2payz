@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useEffect, useMemo } from 'react';
+import React, { useState, useCallback, useMemo } from 'react';
 import { View, Text, StatusBar, TouchableOpacity, Image, ScrollView } from 'react-native';
 import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import { LineChart, PieChart } from 'react-native-gifted-charts';
@@ -25,8 +25,7 @@ import ZReport from './ZReport';
 import XReport from './XReport';
 import InventoryManagement from './InventoryManagement';
 import TransactionReportScreen from './TransactionReportScreen';
-import { GET_ALL_PRODUCTS_WITH_INVENTORY } from '../../services/ProductService';
-import { GET_WEEKLY_ANALYTICS, GET_X_REPORT } from '../../services/Sales&Analytics';
+import { GET_WEEKLY_ANALYTICS } from '../../services/Sales&Analytics';
 import { useSelector } from 'react-redux';
 
 const tabs = [
@@ -102,31 +101,14 @@ const SettingsScreen = () => {
   const [analyticsData, setAnalyticsData] = useState()
 
 
-  // const handleGetXReport = async () => {
-  //   const payload = {
-  //     terminalId: "string",
-  //     fromDate": "string",
-  //     "fromTime": "string",
-  //     "toDate": "string",
-  //     "toTime": "string",
-  //     "businessId": businessId,
-  //     "transType": "string",
-  //     "storeId": store_id
-  //   }
-  //   try {
-  //     const response = await GET_X_REPORT(payload);
-  //     console.log(response, 'x report')
-  //   } catch (error) {
-  //     console.log(error)
-  //   }
-  // }
+
 
   const handleGetWeeklyAnalytics = async () => {
     try {
       const payload = {
         storeId: store_id,
-        timeFram: 'monthly',
-        totalSalesFilter: '1',
+        timeFrame: 'weekly',
+        totalSalesFilter: 1,
       };
       const response = await GET_WEEKLY_ANALYTICS(payload);
       console.log(response, 'weekly analytics');
@@ -355,6 +337,7 @@ const SettingsScreen = () => {
                       innerRadius={MS(35)}
                       innerCircleColor={Colors.white}
                       centerLabelComponent={pieContainerImage}
+
                     />
                   </View>
 

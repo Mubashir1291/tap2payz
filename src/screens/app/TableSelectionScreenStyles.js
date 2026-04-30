@@ -289,7 +289,9 @@ const styles = StyleSheet.create({
     flex: 1,
     height: VS(40),
     borderRadius: MS(8),
-    backgroundColor: '#F5F5F5',
+    backgroundColor: '#E6F9FF',
+    borderColor: '#29CCFF',
+    borderWidth: 1,
     justifyContent: 'center',
     alignItems: 'center',
     marginRight: S(4),
@@ -298,7 +300,7 @@ const styles = StyleSheet.create({
     flex: 1,
     height: VS(40),
     borderRadius: MS(8),
-    backgroundColor: '#F5F5F5',
+    backgroundColor: '#FFEAE6',
     justifyContent: 'center',
     alignItems: 'center',
     marginLeft: S(4),
@@ -306,6 +308,16 @@ const styles = StyleSheet.create({
   btnText: {
     color: '#777',
     fontSize: MS(12),
+  },
+  processBtnText: {
+    color: '#29CCFF',
+    fontSize: MS(12),
+    fontWeight: 'bold',
+  },
+  cancelBtnText: {
+    color: '#E74C3C',
+    fontSize: MS(12),
+    fontWeight: 'bold',
   },
 
   // ─── Checkout Section ───
