@@ -72,7 +72,8 @@ const OrderProcessingScreen = () => {
   const { store_id, store_name, userData } = useSelector(state => state.user);
   const { deviceId } = useSelector(state => state.device);
 
-  const viewShotRef = useRef();
+  const viewShotCustomerRef = useRef();
+  const viewShotRestaurantRef = useRef();
   const [printing, setPrinting] = useState(false);
 
   const { tableNumber, tableId, orderType, isNewOrder } = route.params || {};
@@ -338,27 +339,33 @@ const OrderProcessingScreen = () => {
     try {
       setPrinting(true);
 
-      if (!PrinterModule || !viewShotRef.current) {
+      if (!PrinterModule || !viewShotCustomerRef.current || !viewShotRestaurantRef.current) {
         throw new Error('Printer not ready');
       }
 
       // Wait for render
       await new Promise(res => setTimeout(res, 500));
 
-      // Capture image
-      const uri = await viewShotRef.current.capture();
-
-      const path = uri.replace('file://', '');
-
-      const base64Image = await RNFS.readFile(path, 'base64');
-
-      // Prevent crash (large image)
-      if (base64Image.length > 2000000) {
-        throw new Error('Receipt too large');
-      }
+      // Capture and print Restaurant Copy
+      const uriRest = await viewShotRestaurantRef.current.capture();
+      const pathRest = uriRest.replace('file://', '');
+      const base64Rest = await RNFS.readFile(pathRest, 'base64');
 
       await PrinterModule.printFun({
-        logoBase64: base64Image,
+        logoBase64: base64Rest,
+        content: "\n"
+      });
+
+      // Small delay between prints
+      await new Promise(res => setTimeout(res, 500));
+
+      // Capture and print Customer Copy
+      const uriCust = await viewShotCustomerRef.current.capture();
+      const pathCust = uriCust.replace('file://', '');
+      const base64Cust = await RNFS.readFile(pathCust, 'base64');
+
+      await PrinterModule.printFun({
+        logoBase64: base64Cust,
         content: "\n"
       });
 
@@ -725,7 +732,7 @@ const OrderProcessingScreen = () => {
       {/* ───── RIGHT PANEL ───── */}
       <View style={styles.cartPanel}>
         <ReceiptTemplate
-          ref={viewShotRef}
+          ref={viewShotRestaurantRef}
           cart={cart}
           storeName={store_name}
           cashierName={userData?.employee_name}
@@ -736,6 +743,21 @@ const OrderProcessingScreen = () => {
           discountAmount={discountAmount}
           tipAmount={tipAmount}
           paymentInfo={paymentInfo}
+          copyType="Restaurant Copy"
+        />
+        <ReceiptTemplate
+          ref={viewShotCustomerRef}
+          cart={cart}
+          storeName={store_name}
+          cashierName={userData?.employee_name}
+          orderId={orderDetail?._id?.slice(-6).toUpperCase()}
+          orderType={isTakeAway ? 'Take Away' : 'Dine in'}
+          subtotal={subtotal}
+          total={total}
+          discountAmount={discountAmount}
+          tipAmount={tipAmount}
+          paymentInfo={paymentInfo}
+          copyType="Customer Copy"
         />
         <View style={styles.cartPanelHeader}>
           <Text style={[styles.tableInfo, Subtitle1]}>

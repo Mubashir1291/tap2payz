@@ -56,7 +56,8 @@ const SaleCartPanel = ({ cart, setCart, onAddToCart }) => {
   const { deviceId } = useSelector(state => state.device);
   const { store_id, store_name, userData } = useSelector(state => state.user);
 
-  const viewShotRef = useRef();
+  const viewShotCustomerRef = useRef();
+  const viewShotRestaurantRef = useRef();
   const [printing, setPrinting] = useState(false);
   const [paymentInfo, setPaymentInfo] = useState(null);
 
@@ -109,25 +110,33 @@ const SaleCartPanel = ({ cart, setCart, onAddToCart }) => {
     try {
       setPrinting(true);
 
-      if (!PrinterModule || !viewShotRef.current) {
+      if (!PrinterModule || !viewShotCustomerRef.current || !viewShotRestaurantRef.current) {
         throw new Error('Printer not ready');
       }
 
       // Wait for render
       await new Promise(res => setTimeout(res, 500));
 
-      // Capture image
-      const uri = await viewShotRef.current.capture();
-      const path = uri.replace('file://', '');
-      const base64Image = await RNFS.readFile(path, 'base64');
-
-      // Prevent crash (large image)
-      if (base64Image.length > 2000000) {
-        throw new Error('Receipt too large');
-      }
+      // Capture and print Restaurant Copy
+      const uriRest = await viewShotRestaurantRef.current.capture();
+      const pathRest = uriRest.replace('file://', '');
+      const base64Rest = await RNFS.readFile(pathRest, 'base64');
 
       await PrinterModule.printFun({
-        logoBase64: base64Image,
+        logoBase64: base64Rest,
+        content: "\n"
+      });
+
+      // Small delay
+      await new Promise(res => setTimeout(res, 500));
+
+      // Capture and print Customer Copy
+      const uriCust = await viewShotCustomerRef.current.capture();
+      const pathCust = uriCust.replace('file://', '');
+      const base64Cust = await RNFS.readFile(pathCust, 'base64');
+
+      await PrinterModule.printFun({
+        logoBase64: base64Cust,
         content: "\n"
       });
 
@@ -339,7 +348,7 @@ const SaleCartPanel = ({ cart, setCart, onAddToCart }) => {
   return (
     <View style={styles.cartPanel}>
       <ReceiptTemplate
-        ref={viewShotRef}
+        ref={viewShotRestaurantRef}
         cart={cart}
         storeName={store_name}
         cashierName={userData?.employee_name}
@@ -348,6 +357,19 @@ const SaleCartPanel = ({ cart, setCart, onAddToCart }) => {
         total={total}
         tipAmount={tipAmount}
         paymentInfo={paymentInfo}
+        copyType="Restaurant Copy"
+      />
+      <ReceiptTemplate
+        ref={viewShotCustomerRef}
+        cart={cart}
+        storeName={store_name}
+        cashierName={userData?.employee_name}
+        orderId={transReferenceId?.slice(-6).toUpperCase()}
+        subtotal={cart.reduce((sum, item) => sum + item.price * item.qty, 0)}
+        total={total}
+        tipAmount={tipAmount}
+        paymentInfo={paymentInfo}
+        copyType="Customer Copy"
       />
       {/* Cart Header Icons */}
       <View style={styles.cartHeader}>

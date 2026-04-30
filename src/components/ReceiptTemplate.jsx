@@ -14,7 +14,8 @@ const ReceiptTemplate = forwardRef(({
   total = 0,
   discountAmount = 0,
   tipAmount = 0,
-  paymentInfo = null
+  paymentInfo = null,
+  copyType = ''
 }, ref) => {
   const dateStr = new Date().toLocaleDateString('en-GB');
   const timeStr = new Date().toLocaleTimeString([], {
@@ -145,6 +146,11 @@ const ReceiptTemplate = forwardRef(({
           <Text style={{ textAlign: 'center', fontWeight: 'bold', fontSize: 28 }}>
             Thank you for your Order!
           </Text>
+          {copyType ? (
+            <Text style={{ textAlign: 'center', fontSize: 20, marginTop: 10 }}>
+              {copyType}
+            </Text>
+          ) : null}
 
         </View>
       </ViewShot>
