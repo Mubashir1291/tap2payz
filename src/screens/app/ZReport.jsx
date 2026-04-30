@@ -29,6 +29,7 @@ const ZReport = () => {
 
   const { store_id, userData, store_name } = useSelector(state => state.user);
   const { deviceId } = useSelector(state => state.device);
+  console.log("userData", userData)
 
   const handleGetAllCashRegister = useCallback(async () => {
     setIsLoading(true);
@@ -45,27 +46,27 @@ const ZReport = () => {
           id: item._id,
           openedAt: item.opening_amount?.opening_date
             ? new Date(item.opening_amount.opening_date)
-                .toLocaleString('en-GB', {
-                  day: '2-digit',
-                  month: '2-digit',
-                  year: '2-digit',
-                  hour: '2-digit',
-                  minute: '2-digit',
-                  hour12: true,
-                })
-                .replace(',', '\n')
+              .toLocaleString('en-GB', {
+                day: '2-digit',
+                month: '2-digit',
+                year: '2-digit',
+                hour: '2-digit',
+                minute: '2-digit',
+                hour12: true,
+              })
+              .replace(',', '\n')
             : 'N/A',
           closedAt: item.is_close
             ? new Date(item.updated_at)
-                .toLocaleString('en-GB', {
-                  day: '2-digit',
-                  month: '2-digit',
-                  year: '2-digit',
-                  hour: '2-digit',
-                  minute: '2-digit',
-                  hour12: true,
-                })
-                .replace(',', '\n')
+              .toLocaleString('en-GB', {
+                day: '2-digit',
+                month: '2-digit',
+                year: '2-digit',
+                hour: '2-digit',
+                minute: '2-digit',
+                hour12: true,
+              })
+              .replace(',', '\n')
             : 'Open',
           opener:
             item.opening_amount?.employee?.employee_email ||
@@ -134,7 +135,10 @@ const ZReport = () => {
         store: {
           ...report.details?.store,
           name: report.details?.store?.name || store_name,
+          address: userData?.company_address || 'N/A',
+
         },
+
       },
     });
     setShowDetailModal(true);

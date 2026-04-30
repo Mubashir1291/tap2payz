@@ -7,6 +7,7 @@ import {
   StyleSheet,
   TextInput,
   ActivityIndicator,
+  Image,
 } from 'react-native';
 import Toast from 'react-native-toast-message';
 import { Colors } from '../utils/Colors';
@@ -15,6 +16,8 @@ import { H4, Body2, Subtitle1, Subtitle2 } from '../utils/fonts';
 import DatePicker from 'react-native-date-picker';
 import { useSelector } from 'react-redux';
 import { GET_X_REPORT } from '../services/Sales&Analytics';
+import { HalfArrowIcon } from '../assets/Images';
+import { IconSize16 } from '../utils/IconSizes';
 
 // ✅ API FUNCTION
 
@@ -66,7 +69,7 @@ const DurationModal = ({ visible = false, onClose, onProceed }) => {
 
       const fromDateTime = combineDateTime(fromDate, fromTime);
       const toDateTime = combineDateTime(toDate, toTime);
-      
+
       const params = {
         businessId: business_id,
         storeId: store_id,
@@ -192,7 +195,8 @@ const DurationModal = ({ visible = false, onClose, onProceed }) => {
               ) : (
                 <>
                   <Text style={[styles.proceedBtnText, Subtitle2]}>Proceed</Text>
-                  <Text>↘</Text>
+                  <Image source={HalfArrowIcon} style={IconSize16} />
+
                 </>
               )}
             </TouchableOpacity>

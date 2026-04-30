@@ -76,7 +76,6 @@ const LoginScreen = () => {
           ? employeeData?.store_id?.find(_ => _?.store_code === Number(payload.store_code))
           : employeeData?.store_id[0];
 
-      console.log(employeeStore, "emp-store")
       const employeeBusiness =
         employeeData?.business_id?.length > 1
           ? employeeData?.business_id?.find(_ => _?._id === employeeData?.business_id)
@@ -89,6 +88,7 @@ const LoginScreen = () => {
           business_id: employeeBusiness?._id,
           business_type: employeeBusiness?.business_type,
           store_name: employeeStore?.store_name,
+          company_address: employeeStore?.company_address,
 
         }),
       );
