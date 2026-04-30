@@ -99,6 +99,12 @@ const CloseRegisterScreen = () => {
     }
   };
 
+  const openingAmount = state?.opening_amount?.amount || 0;
+  const salesAmount = state?.totalSales || 0;
+  const expectedDrawerTotal = state?.net_cash || openingAmount + salesAmount;
+  const currentCashOut = parseFloat(cashOutAmount) || 0;
+  const closingBalance = expectedDrawerTotal - currentCashOut;
+
   return (
     <View style={styles.root}>
       <StatusBar backgroundColor={Colors.primary} barStyle="light-content" />
@@ -115,28 +121,29 @@ const CloseRegisterScreen = () => {
 
         <View style={styles.summaryRow}>
           <Text style={[styles.summaryLabel, Subtitle1]}>Opening Amount</Text>
-          <Text style={[styles.summaryValue, Subtitle1]}>
-            {state?.opening_amount?.amount?.toFixed(2)}
-          </Text>
+          <Text style={[styles.summaryValue, Subtitle1]}>{openingAmount.toFixed(2)}</Text>
         </View>
         <View style={styles.divider} />
 
         <View style={styles.summaryRow}>
           <Text style={[styles.summaryLabel, Subtitle1]}>Sales</Text>
-          <Text style={[styles.summaryValue, Subtitle1]}>{state?.totalSales?.toFixed(2)}</Text>
+          <Text style={[styles.summaryValue, Subtitle1]}>{salesAmount.toFixed(2)}</Text>
         </View>
         <View style={styles.divider} />
 
         <View style={styles.summaryRow}>
-          <Text style={[styles.summaryLabel, Subtitle1]}>Online Sales</Text>
-          <Text style={[styles.summaryValue, Subtitle1]}>{state?.onlineSales?.toFixed(2)}</Text>
+          <Text style={[styles.summaryLabel, Subtitle1]}>Total</Text>
+          <Text style={[styles.summaryValue, Subtitle1]}>{expectedDrawerTotal.toFixed(2)}</Text>
         </View>
         <View style={styles.divider} />
 
         <View style={styles.summaryRow}>
-          <Text style={[styles.summaryLabel, Subtitle1]}>Return</Text>
-          <Text style={[styles.summaryValue, Subtitle1]}>{state?.totalReturns?.toFixed(2)}</Text>
+          <Text style={[styles.summaryLabel, Subtitle1]}>Closing Balance (Left in Drawer)</Text>
+          <Text style={[styles.summaryValue, Subtitle1, { color: Colors.primary }]}>
+            {closingBalance.toFixed(2)}
+          </Text>
         </View>
+        <View style={styles.divider} />
       </View>
 
       {/* ───── RIGHT CASH OUT PANEL ───── */}

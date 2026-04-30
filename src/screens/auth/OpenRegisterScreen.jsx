@@ -65,11 +65,12 @@ const OpenRegisterScreen = ({ navigation }) => {
         store_id,
       };
       const response = await GET_CASH_REGISTER(query);
+      console.log(response, 'cashh register');
 
       store.dispatch(setCashRegisterData(response?.cashRegister ?? response?.closedRegister));
 
       if (response?.cashRegister && !response?.cashRegister?.is_close) {
-        // Redux update is handled at line 69. 
+        // Redux update is handled at line 69.
         // AppStack will automatically swap to MainDrawer.
       }
     } catch (error) {
@@ -220,6 +221,12 @@ const OpenRegisterScreen = ({ navigation }) => {
     </View>
   );
 
+  const prevOpening = cashRegister?.opening_amount?.amount || 0;
+  const prevSales = cashRegister?.totalSales || 0;
+  const expectedTotal = cashRegister?.net_cash || prevOpening + prevSales;
+  const prevCashOut = cashRegister?.cash_out?.amount || 0;
+  const closingBalance = cashRegister?.remaining_cash || expectedTotal - prevCashOut;
+
   return (
     <View style={styles.root}>
       <StatusBar backgroundColor={Colors.primary} barStyle="light-content" />
@@ -227,7 +234,7 @@ const OpenRegisterScreen = ({ navigation }) => {
       {/* ── Left Panel ── */}
       <View style={styles.leftPanel}>
         <View style={styles.welcomeSection}>
-          <Text style={[styles.welcomeText, Subtitle1]}>Welcome!</Text>
+          <Text style={[styles.welcomeText, Subtitle1]}>Previous Session Summary</Text>
           <Text style={[styles.userName, H2]}>{userData?.employee_name}.</Text>
         </View>
 
@@ -235,30 +242,30 @@ const OpenRegisterScreen = ({ navigation }) => {
 
         <View style={styles.summaryRow}>
           <Text style={[styles.summaryText, Body1]}>Opening Amount</Text>
-          <Text style={[styles.summaryText, Body1]}>
-            {cashRegister?.opening_amount?.amount?.toFixed(2)}
+          <Text style={[styles.summaryText, Body1]}>{prevOpening.toFixed(2)}</Text>
+        </View>
+
+        <View style={styles.divider} />
+
+        <View style={styles.summaryRow}>
+          <Text style={[styles.summaryText, Body1]}>Total</Text>
+          <Text style={[styles.summaryText, Body1]}>{expectedTotal.toFixed(2)}</Text>
+        </View>
+
+        <View style={styles.divider} />
+
+        <View style={styles.summaryRow}>
+          <Text style={[styles.summaryText, Body1]}>Deducted (Cash Out)</Text>
+          <Text style={[styles.summaryText, Body1, { color: 'red' }]}>
+            {prevCashOut.toFixed(2)}
           </Text>
         </View>
 
         <View style={styles.divider} />
 
         <View style={styles.summaryRow}>
-          <Text style={[styles.summaryText, Body1]}>Sales</Text>
-          <Text style={[styles.summaryText, Body1]}>{cashRegister?.cashSales?.toFixed(2)}</Text>
-        </View>
-
-        <View style={styles.divider} />
-
-        <View style={styles.summaryRow}>
-          <Text style={[styles.summaryText, Body1]}>Online Sales</Text>
-          <Text style={[styles.summaryText, Body1]}>{cashRegister?.onlineSales?.toFixed(2)}</Text>
-        </View>
-
-        <View style={styles.divider} />
-
-        <View style={styles.summaryRow}>
-          <Text style={[styles.summaryText, Body1]}>Opening amount with cash register</Text>
-          <Text style={[styles.summaryText, Body1]}>{cashRegister?.net_cash?.toFixed(2)}</Text>
+          <Text style={[styles.summaryText, Body1]}>Closing Balance</Text>
+          <Text style={[styles.summaryText, Body1]}>{closingBalance.toFixed(2)}</Text>
         </View>
       </View>
 
