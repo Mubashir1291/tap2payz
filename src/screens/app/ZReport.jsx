@@ -7,7 +7,10 @@ import {
   TextInput,
   Image,
   ActivityIndicator,
+  Platform,
 } from 'react-native';
+import RNFS from 'react-native-fs';
+import Toast from 'react-native-toast-message';
 import { Subtitle2, Body3, Caption, H2 } from '../../utils/fonts';
 import { IconSize12 } from '../../utils/IconSizes';
 import { SearchIcon, LeftArrowIcon, RightArrowIcon, ExportIcon } from '../../assets/Images';
@@ -16,7 +19,6 @@ import ZReportDetailModal from '../../components/ZReportDetailModal';
 import { GET_ALL_CASH_REGISTER } from '../../services/StoreService';
 import { Colors } from '../../utils/Colors';
 import { useSelector } from 'react-redux';
-
 
 const ZReport = () => {
   const [searchQuery, setSearchQuery] = useState('');
@@ -29,7 +31,7 @@ const ZReport = () => {
 
   const { store_id, userData, store_name } = useSelector(state => state.user);
   const { deviceId } = useSelector(state => state.device);
-  console.log("userData", userData)
+  console.log('userData', userData);
 
   const handleGetAllCashRegister = useCallback(async () => {
     setIsLoading(true);
@@ -46,27 +48,27 @@ const ZReport = () => {
           id: item._id,
           openedAt: item.opening_amount?.opening_date
             ? new Date(item.opening_amount.opening_date)
-              .toLocaleString('en-GB', {
-                day: '2-digit',
-                month: '2-digit',
-                year: '2-digit',
-                hour: '2-digit',
-                minute: '2-digit',
-                hour12: true,
-              })
-              .replace(',', '\n')
+                .toLocaleString('en-GB', {
+                  day: '2-digit',
+                  month: '2-digit',
+                  year: '2-digit',
+                  hour: '2-digit',
+                  minute: '2-digit',
+                  hour12: true,
+                })
+                .replace(',', '\n')
             : 'N/A',
           closedAt: item.is_close
             ? new Date(item.updated_at)
-              .toLocaleString('en-GB', {
-                day: '2-digit',
-                month: '2-digit',
-                year: '2-digit',
-                hour: '2-digit',
-                minute: '2-digit',
-                hour12: true,
-              })
-              .replace(',', '\n')
+                .toLocaleString('en-GB', {
+                  day: '2-digit',
+                  month: '2-digit',
+                  year: '2-digit',
+                  hour: '2-digit',
+                  minute: '2-digit',
+                  hour12: true,
+                })
+                .replace(',', '\n')
             : 'Open',
           opener:
             item.opening_amount?.employee?.employee_email ||
@@ -136,12 +138,65 @@ const ZReport = () => {
           ...report.details?.store,
           name: report.details?.store?.name || store_name,
           address: userData?.company_address || 'N/A',
-
         },
-
       },
     });
     setShowDetailModal(true);
+  };
+
+  const handleExportCSV = async () => {
+    if (!apiData || apiData.length === 0) {
+      Toast.show({
+        type: 'info',
+        text1: 'No Data',
+        text2: 'There are no records to export.',
+      });
+      return;
+    }
+
+    try {
+      const headers = [
+        'ID',
+        'Opened At',
+        'Closed At',
+        'Opener',
+        'Closer',
+        'Opening Amount',
+        'Closing Amount',
+      ];
+      const rows = apiData.map(item => {
+        return [
+          item.id,
+          `"${item.openedAt.replace('\n', ' ')}"`,
+          `"${item.closedAt.replace('\n', ' ')}"`,
+          `"${item.opener}"`,
+          `"${item.closer}"`,
+          `"${item.openAmount}"`,
+          `"${item.closeAmount}"`,
+        ].join(',');
+      });
+
+      const csvString = [headers.join(','), ...rows].join('\n');
+      const fileName = `ZReport_${Date.now()}.csv`;
+      const path =
+        Platform.OS === 'android'
+          ? `${RNFS.DownloadDirectoryPath}/${fileName}`
+          : `${RNFS.DocumentDirectoryPath}/${fileName}`;
+
+      await RNFS.writeFile(path, csvString, 'utf8');
+      Toast.show({
+        type: 'success',
+        text1: 'Export Successful',
+        text2: `Report saved to ${Platform.OS === 'android' ? 'Downloads' : 'Documents'}`,
+      });
+    } catch (error) {
+      console.error('Export Error:', error);
+      Toast.show({
+        type: 'error',
+        text1: 'Export Failed',
+        text2: 'Could not generate the report file.',
+      });
+    }
   };
 
   return (
@@ -161,7 +216,7 @@ const ZReport = () => {
             />
           </View>
 
-          <TouchableOpacity style={styles.exportBtn}>
+          <TouchableOpacity style={styles.exportBtn} onPress={handleExportCSV}>
             <Image source={ExportIcon} style={[IconSize12, styles.exportIconTint]} />
             <Text style={[styles.exportBtnText, Caption]}>Export</Text>
           </TouchableOpacity>
@@ -228,7 +283,7 @@ const ZReport = () => {
           onPress={handlePrevPage}
           disabled={currentPage === 1}
         >
-          <Image source={LeftArrowIcon} style={styles.actionIcon} />
+          <Image source={LeftArrowIcon} style={styles.actionIcon} resizeMode="contain" />
         </TouchableOpacity>
         <Text style={[styles.pageText, Body3]}>{currentPage.toString().padStart(2, '0')}</Text>
         <TouchableOpacity
@@ -239,7 +294,7 @@ const ZReport = () => {
           onPress={handleNextPage}
           disabled={currentPage === totalPages || totalPages === 0}
         >
-          <Image source={RightArrowIcon} style={styles.actionIcon} />
+          <Image source={RightArrowIcon} style={styles.actionIcon} resizeMode="contain" />
         </TouchableOpacity>
         <Text style={[styles.pageText, Body3]}>out of {totalPages || 1}</Text>
       </View>

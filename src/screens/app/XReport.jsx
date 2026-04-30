@@ -1,6 +1,8 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import { useSelector } from 'react-redux';
-import { View, Text, TouchableOpacity, ScrollView, TextInput, Image } from 'react-native';
+import { View, Text, TouchableOpacity, ScrollView, TextInput, Image, Platform } from 'react-native';
+import RNFS from 'react-native-fs';
+import Toast from 'react-native-toast-message';
 import { Subtitle2, Body3, Caption, H2 } from '../../utils/fonts';
 import { IconSize12 } from '../../utils/IconSizes';
 import { SearchIcon, LeftArrowIcon, RightArrowIcon, ExportIcon } from '../../assets/Images';
@@ -117,6 +119,64 @@ const XReport = ({ isActive }) => {
     setHasSelectedDuration(true);
   };
 
+  const handleExportCSV = async () => {
+    if (!reportData || reportData.length === 0) {
+      Toast.show({
+        type: 'info',
+        text1: 'No Data',
+        text2: 'There are no transactions to export for the selected duration.',
+      });
+      return;
+    }
+
+    try {
+      const headers = [
+        'Serial',
+        'Transaction #',
+        'Customer',
+        'Items',
+        'Type',
+        'Date',
+        'Time',
+        'Total Sales',
+      ];
+      const rows = reportData.map(item => {
+        const dateObj = new Date(item.date);
+        return [
+          formatSerialNumber(item.serialNumber),
+          item.transactionNumber,
+          `"${item.buyer_info?.name || 'Walk-in'}"`,
+          item.totalItems,
+          item.transactionType,
+          dateObj.toLocaleDateString('en-GB'),
+          dateObj.toLocaleTimeString('en-GB'),
+          item.totalSales.toFixed(2),
+        ].join(',');
+      });
+
+      const csvString = [headers.join(','), ...rows].join('\n');
+      const fileName = `XReport_${Date.now()}.csv`;
+      const path =
+        Platform.OS === 'android'
+          ? `${RNFS.DownloadDirectoryPath}/${fileName}`
+          : `${RNFS.DocumentDirectoryPath}/${fileName}`;
+
+      await RNFS.writeFile(path, csvString, 'utf8');
+      Toast.show({
+        type: 'success',
+        text1: 'Export Successful',
+        text2: `Report saved to ${Platform.OS === 'android' ? 'Downloads' : 'Documents'}`,
+      });
+    } catch (error) {
+      console.error('Export Error:', error);
+      Toast.show({
+        type: 'error',
+        text1: 'Export Failed',
+        text2: 'Could not generate the report file.',
+      });
+    }
+  };
+
   if (!hasSelectedDuration) {
     return (
       <DurationModal
@@ -144,7 +204,7 @@ const XReport = ({ isActive }) => {
             />
           </View>
 
-          <TouchableOpacity style={styles.exportBtn}>
+          <TouchableOpacity style={styles.exportBtn} onPress={handleExportCSV}>
             <Image source={ExportIcon} style={[IconSize12, styles.exportIconTint]} />
             <Text style={[styles.exportBtnText, Caption]}>Export</Text>
           </TouchableOpacity>
