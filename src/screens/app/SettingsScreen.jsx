@@ -1,5 +1,14 @@
-import React, { useState, useCallback, useMemo } from 'react';
-import { View, Text, StatusBar, TouchableOpacity, Image, ScrollView } from 'react-native';
+import React, { useState, useCallback, useMemo, useEffect } from 'react';
+import {
+  View,
+  Text,
+  StatusBar,
+  TouchableOpacity,
+  Image,
+  ScrollView,
+  Modal,
+  TouchableWithoutFeedback,
+} from 'react-native';
 import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import { LineChart, PieChart } from 'react-native-gifted-charts';
 import { Colors } from '../../utils/Colors';
@@ -17,6 +26,7 @@ import {
   EmployeeIcon,
   ReportIcon,
   OverviewIcon,
+  FilterIcon,
 } from '../../assets/Images';
 import { IconSize20, IconSize12 } from '../../utils/IconSizes';
 import styles from './SettingsScreenStyles';
@@ -95,15 +105,17 @@ const SettingsScreen = () => {
   const [chartWidth, setChartWidth] = useState(S(380)); // default width
   const { store_id, businessId } = useSelector(state => state.user);
   const [analyticsData, setAnalyticsData] = useState();
+  const [timeFrame, setTimeFrame] = useState('weekly');
+  const [showTimeFrameModal, setShowTimeFrameModal] = useState(false);
 
-  const handleGetWeeklyAnalytics = async () => {
+  const handleGetAnalytics = async () => {
     try {
       const payload = {
         storeId: store_id,
-        timeFrame: 'weekly',
+        timeFrame: timeFrame,
       };
       const response = await GET_WEEKLY_ANALYTICS(payload);
-      console.log(response, 'weekly analytics');
+      console.log(response, 'analytics');
       if (response?.status === 'success' || response?.data) {
         setAnalyticsData(response);
       }
@@ -113,8 +125,8 @@ const SettingsScreen = () => {
   };
   useFocusEffect(
     useCallback(() => {
-      handleGetWeeklyAnalytics();
-    }, [store_id]),
+      handleGetAnalytics();
+    }, [store_id, timeFrame]),
   );
 
   const onChartContainerLayout = useCallback(event => {
@@ -135,7 +147,10 @@ const SettingsScreen = () => {
   }, []);
 
   const { chartData, chartLabels } = useMemo(() => {
-    const series = analyticsData?.data?.WeeklySales?.series || [];
+    // Dynamically check for series key based on timeframe
+    const salesKey = timeFrame === 'weekly' ? 'WeeklySales' : 'YearlySales';
+    const series =
+      analyticsData?.data?.[salesKey]?.series || analyticsData?.data?.WeeklySales?.series || [];
 
     if (series.length === 0) {
       return {
@@ -209,6 +224,34 @@ const SettingsScreen = () => {
         <XReport isActive={activeTab === 3} />
       ) : (
         <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
+          {/* Timeframe Filter Button */}
+          <View
+            style={{
+              flexDirection: 'row',
+              justifyContent: 'flex-end',
+              paddingHorizontal: S(20),
+              marginTop: VS(10),
+            }}
+          >
+            <TouchableOpacity
+              style={{
+                flexDirection: 'row',
+                alignItems: 'center',
+                backgroundColor: '#EBF0FF',
+                paddingHorizontal: S(12),
+                paddingVertical: VS(6),
+                borderRadius: MS(8),
+                marginBottom: VS(10),
+              }}
+              onPress={() => setShowTimeFrameModal(true)}
+            >
+              <Text style={[Caption, { color: Colors.primary, marginRight: S(6) }]}>
+                Timeframe: {timeFrame === 'weekly' ? 'Weekly' : 'Yearly'}
+              </Text>
+              <Image source={FilterIcon} style={{ ...IconSize12, tintColor: Colors.primary }} />
+            </TouchableOpacity>
+          </View>
+
           {/* Stats Cards */}
           <View style={styles.statsRow}>
             <View style={styles.statCard}>
@@ -389,6 +432,80 @@ const SettingsScreen = () => {
         transaction={dummyTransaction}
         onClose={() => setShowDetailModal(false)}
       />
+
+      {/* Timeframe Selection Modal */}
+      <Modal
+        visible={showTimeFrameModal}
+        transparent={true}
+        animationType="fade"
+        onRequestClose={() => setShowTimeFrameModal(false)}
+      >
+        <TouchableWithoutFeedback onPress={() => setShowTimeFrameModal(false)}>
+          <View
+            style={{
+              flex: 1,
+              backgroundColor: 'rgba(0,0,0,0.5)',
+              justifyContent: 'center',
+              alignItems: 'center',
+            }}
+          >
+            <View
+              style={{
+                backgroundColor: Colors.white,
+                width: '30%',
+                borderRadius: MS(12),
+                padding: MS(16),
+              }}
+            >
+              <Text style={[Subtitle1, { marginBottom: VS(16), textAlign: 'center' }]}>
+                Select Timeframe
+              </Text>
+              <TouchableOpacity
+                style={{
+                  paddingVertical: VS(12),
+                  borderBottomWidth: 1,
+                  borderBottomColor: Colors.lightGrey,
+                }}
+                onPress={() => {
+                  setTimeFrame('weekly');
+                  setShowTimeFrameModal(false);
+                }}
+              >
+                <Text
+                  style={[
+                    Body2,
+                    {
+                      textAlign: 'center',
+                      color: timeFrame === 'weekly' ? Colors.primary : Colors.black,
+                    },
+                  ]}
+                >
+                  Weekly
+                </Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={{ paddingVertical: VS(12) }}
+                onPress={() => {
+                  setTimeFrame('yearly');
+                  setShowTimeFrameModal(false);
+                }}
+              >
+                <Text
+                  style={[
+                    Body2,
+                    {
+                      textAlign: 'center',
+                      color: timeFrame === 'yearly' ? Colors.primary : Colors.black,
+                    },
+                  ]}
+                >
+                  Yearly
+                </Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </TouchableWithoutFeedback>
+      </Modal>
     </View>
   );
 };
