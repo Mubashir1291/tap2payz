@@ -257,7 +257,6 @@ const SettingsScreen = () => {
             <View style={styles.statCard}>
               <View style={styles.statHeader}>
                 <Text style={[styles.statAmount, H3]}>
-                  {' '}
                   ${analyticsData?.data?.salesTopDashboardStats?.totalSales}
                 </Text>
                 <View style={[styles.statIcon, styles.lightGreenBg]}>

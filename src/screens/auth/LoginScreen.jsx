@@ -243,7 +243,7 @@ const LoginScreen = () => {
                   Welcome Back
                 </Text>
                 <Text style={[styles.subtitle, Body1, { color: Colors.grey }]}>
-                  Sign in to your POS terminal
+                  Sign in to your Account
                 </Text>
 
                 <View style={styles.inputsWrapper}>

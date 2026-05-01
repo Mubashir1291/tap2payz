@@ -902,7 +902,7 @@ const TableSelectionScreen = () => {
         onClose={() => setShowQuickSaleModal(false)}
       />
 
-      <ConfirmationModal
+      {/* <ConfirmationModal
         visible={showCancelModal}
         icon={CancelOrderIcon}
         iconStyle={IconSize40}
@@ -912,7 +912,7 @@ const TableSelectionScreen = () => {
         confirmButtonColor="#E74C3C"
         onConfirm={confirmCancelOrder}
         onCancel={() => setShowCancelModal(false)}
-      />
+      /> */}
 
       <ProcessOrderModal
         visible={showProcessModal}

@@ -249,6 +249,11 @@ const SaleCartPanel = ({ cart, setCart, onAddToCart }) => {
     setShowDeleteModal(true);
   };
 
+  const handleCancelTapCard = () => {
+    setShowTapCardModal(false);
+    NfcManager.cancelTechnologyRequest().catch(() => {});
+  };
+
   const confirmDeleteCart = () => {
     setCart([]);
     setTipAmount(null);
@@ -574,7 +579,7 @@ const SaleCartPanel = ({ cart, setCart, onAddToCart }) => {
         onClose={() => setShowKitchenInvoiceModal(false)}
       />
 
-      <TapCardModal visible={showTapCardModal} />
+      <TapCardModal visible={showTapCardModal} onClose={handleCancelTapCard} />
     </View>
   );
 };

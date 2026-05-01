@@ -900,19 +900,23 @@ const OrderProcessingScreen = () => {
 
           <View style={styles.bottomActions}>
             <TouchableOpacity
-              style={[styles.processBtn, cart.length === 0 && styles.disabledBtn]}
+              style={[
+                styles.processBtn,
+                { width: '100%' },
+                cart.length === 0 && styles.disabledBtn,
+              ]}
               onPress={handleProcessOrder}
               disabled={cart.length === 0}
             >
               <Text style={[styles.processBtnText, ButtonTextSmall]}>Process Order</Text>
             </TouchableOpacity>
-            <TouchableOpacity
+            {/* <TouchableOpacity
               style={[styles.cancelBtn, cart.length === 0 && styles.disabledBtn]}
               onPress={handleCancelOrder}
               disabled={cart.length === 0}
             >
               <Text style={[styles.cancelBtnText, ButtonTextSmall]}>Cancel Order</Text>
-            </TouchableOpacity>
+            </TouchableOpacity> */}
           </View>
 
           <TouchableOpacity

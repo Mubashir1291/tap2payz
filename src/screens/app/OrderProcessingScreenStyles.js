@@ -280,8 +280,8 @@ const styles = StyleSheet.create({
   },
   bottomActions: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
     marginBottom: VS(12),
+    width: '100%',
   },
   secondaryBtn: {
     flex: 0.48,
@@ -292,7 +292,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   processBtn: {
-    flex: 0.48,
     height: VS(50),
     backgroundColor: '#E6F9FF',
     borderColor: '#29CCFF',
