@@ -3,7 +3,7 @@ import { View, Text, Modal, TouchableOpacity, Image, ScrollView, StyleSheet } fr
 import { Colors } from '../utils/Colors';
 import { S, VS, MS } from '../utils/Responsive';
 import { H3, Body2, Subtitle1, Subtitle2, ButtonText } from '../utils/fonts';
-import { PSPIcon, PrinterIcon } from '../assets/Images';
+import { Tap2PayLogo, PrinterIcon } from '../assets/Images';
 
 const InvoiceModal = ({
   visible = false,
@@ -33,8 +33,8 @@ const InvoiceModal = ({
 
             {/* Invoice Card */}
             <View style={styles.invoiceCard}>
-              {/* PSP Logo */}
-              <Image source={PSPIcon} style={styles.pspLogo} />
+              {/* Brand Logo */}
+              <Image source={Tap2PayLogo} style={styles.pspLogo} />
 
               {/* Buyer Info */}
               {buyerInfo && (

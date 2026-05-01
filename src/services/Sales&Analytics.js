@@ -56,8 +56,8 @@ export const GENERATE_X_REPORT = ({ device_id = '', store_id = '', timeFrame = '
 //   );
 // };
 
-export const GET_WEEKLY_ANALYTICS = ({  storeId = '',timeFrame='',totalSalesFilter='' }) => {
+export const GET_WEEKLY_ANALYTICS = ({ storeId = '', timeFrame = '' }) => {
   return Fetch.get(
-    `${BASE_PREFIX}${ENDPOINTS.SALES$ANALYTICS.GET_WEEKLY_ANALYTICS}?storeId=${storeId}&timeFrame=${timeFrame}&totalSalesFilter=${totalSalesFilter}`,
+    `${BASE_PREFIX}${ENDPOINTS.SALES$ANALYTICS.GET_WEEKLY_ANALYTICS}?storeId=${storeId}&timeFrame=${timeFrame}`,
   );
 };

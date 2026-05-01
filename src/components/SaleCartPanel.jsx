@@ -3,7 +3,16 @@ import { View, Text, TouchableOpacity, FlatList, Image, NativeModules } from 're
 import ViewShot from 'react-native-view-shot';
 import ReceiptTemplate from './ReceiptTemplate';
 import RNFS from 'react-native-fs';
-import { Caption, Body2, Body3, Subtitle1, Subtitle2, H4, ButtonText, ButtonTextSmall } from '../utils/fonts';
+import {
+  Caption,
+  Body2,
+  Body3,
+  Subtitle1,
+  Subtitle2,
+  H4,
+  ButtonText,
+  ButtonTextSmall,
+} from '../utils/fonts';
 import { IconSize12, IconSize20, IconSize24, IconSize40, IconSize60 } from '../utils/IconSizes';
 import {
   CashIcon,
@@ -16,7 +25,8 @@ import {
   BuyersIcon,
   TickIcon,
   WarningIcon,
-  PSPIcon,
+  Tap2PayIcon,
+  Tap2PayLogo,
 } from '../assets/Images';
 import SwipeableCartItem from './SwipeableCartItem';
 import styles from '../screens/app/SaleScreenStyles';
@@ -86,7 +96,7 @@ const SaleCartPanel = ({ cart, setCart, onAddToCart }) => {
     };
   };
 
-  const handleCashProceed = async (data) => {
+  const handleCashProceed = async data => {
     try {
       const payload = buildTransactionPayload();
       console.log(payload, 'create transaction ');
@@ -96,7 +106,7 @@ const SaleCartPanel = ({ cart, setCart, onAddToCart }) => {
       setPaymentInfo({
         method: 'Cash',
         received: data?.amount || payload.transaction.transAmntIn,
-        change: data?.change || 0
+        change: data?.change || 0,
       });
 
       setShowCashPayModal(false);
@@ -124,7 +134,7 @@ const SaleCartPanel = ({ cart, setCart, onAddToCart }) => {
 
       await PrinterModule.printFun({
         logoBase64: base64Rest,
-        content: "\n"
+        content: '\n',
       });
 
       // Small delay
@@ -137,9 +147,8 @@ const SaleCartPanel = ({ cart, setCart, onAddToCart }) => {
 
       await PrinterModule.printFun({
         logoBase64: base64Cust,
-        content: "\n"
+        content: '\n',
       });
-
     } catch (error) {
       console.log('PRINT ERROR:', error);
       Toast.show({
@@ -311,7 +320,7 @@ const SaleCartPanel = ({ cart, setCart, onAddToCart }) => {
         setPaymentInfo({
           method: 'Card',
           received: total,
-          change: 0
+          change: 0,
         });
         setShowTransactionModal(true);
       } catch {
@@ -480,8 +489,6 @@ const SaleCartPanel = ({ cart, setCart, onAddToCart }) => {
             <Text style={[styles.paymentBtnText, Subtitle2]}>Card Pay</Text>
           </TouchableOpacity>
         </View>
-
-
 
         <TouchableOpacity style={styles.placeOrderBtn} onPress={handlePlaceOrder}>
           <Text style={[styles.placeOrderText, ButtonText]}>Place Order</Text>

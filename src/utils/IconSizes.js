@@ -59,3 +59,23 @@ export const IconSize60 = {
   width: S(60),
   resizeMode: 'contain',
 };
+export const IconSize120 = {
+  height: VS(120),
+  width: S(120),
+  resizeMode: 'contain',
+};
+export const IconSize150 = {
+  height: VS(150),
+  width: S(150),
+  resizeMode: 'contain',
+};
+export const IconSize175 = {
+  height: VS(175),
+  width: S(175),
+  resizeMode: 'contain',
+};
+export const IconSize200 = {
+  height: VS(200),
+  width: S(200),
+  resizeMode: 'contain',
+};

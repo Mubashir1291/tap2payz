@@ -53,8 +53,6 @@ const salesLineData = [
   { value: 130 },
 ];
 
-
-
 const pieColors = ['#3B4B8A', '#7FD4E8', '#70ede5ff', '#5A67D8', '#E0E0E0'];
 
 const xLabels = [
@@ -71,8 +69,6 @@ const xLabels = [
   'Nov',
   'Dec',
 ];
-
-
 
 const dummyTransaction = {
   serialNumber: '213542',
@@ -98,17 +94,13 @@ const SettingsScreen = () => {
   const [detailType, setDetailType] = useState('sale');
   const [chartWidth, setChartWidth] = useState(S(380)); // default width
   const { store_id, businessId } = useSelector(state => state.user);
-  const [analyticsData, setAnalyticsData] = useState()
-
-
-
+  const [analyticsData, setAnalyticsData] = useState();
 
   const handleGetWeeklyAnalytics = async () => {
     try {
       const payload = {
         storeId: store_id,
         timeFrame: 'weekly',
-        totalSalesFilter: 1,
       };
       const response = await GET_WEEKLY_ANALYTICS(payload);
       console.log(response, 'weekly analytics');
@@ -119,11 +111,11 @@ const SettingsScreen = () => {
       console.log(error);
     }
   };
-  useFocusEffect(useCallback(() => {
-    handleGetWeeklyAnalytics()
-  }, [
-    store_id
-  ]))
+  useFocusEffect(
+    useCallback(() => {
+      handleGetWeeklyAnalytics();
+    }, [store_id]),
+  );
 
   const onChartContainerLayout = useCallback(event => {
     const { width } = event.nativeEvent.layout;
@@ -217,63 +209,68 @@ const SettingsScreen = () => {
         <XReport isActive={activeTab === 3} />
       ) : (
         <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
-
-
           {/* Stats Cards */}
           <View style={styles.statsRow}>
             <View style={styles.statCard}>
               <View style={styles.statHeader}>
-                <Text style={[styles.statAmount, H3]}>$10.10K</Text>
+                <Text style={[styles.statAmount, H3]}>
+                  {' '}
+                  ${analyticsData?.data?.salesTopDashboardStats?.totalSales}
+                </Text>
                 <View style={[styles.statIcon, styles.lightGreenBg]}>
                   <Image source={SignalsIcon} style={IconSize20} />
                 </View>
               </View>
               <View style={styles.statFooter}>
                 <Text style={[styles.statLabel, Body2]}>Total Revenue</Text>
-                <View style={styles.percentContainer}>
+                {/* <View style={styles.percentContainer}>
                   <Image source={CurveIcon} style={styles.trendIcon} resizeMode="contain" />
                   <Text style={[styles.statPercent, Caption, styles.greenPercentText]}>
                     55.23 %
                   </Text>
-                </View>
+                </View> */}
               </View>
             </View>
 
             <View style={styles.statCard}>
               <View style={styles.statHeader}>
-                <Text style={[styles.statAmount, H3]}>$10.10K</Text>
+                <Text style={[styles.statAmount, H3]}>
+                  ${analyticsData?.data?.salesTopDashboardStats?.totalSales}
+                </Text>
                 <View style={[styles.statIcon, styles.lightGreenBg]}>
                   <Image source={GreenDollarIcon} style={IconSize20} />
                 </View>
               </View>
               <View style={styles.statFooter}>
                 <Text style={[styles.statLabel, Body2]}>Total Sales</Text>
-                <View style={styles.percentContainer}>
+                {/* <View style={styles.percentContainer}>
                   <Image source={CurveIcon} style={styles.trendIcon} resizeMode="contain" />
                   <Text style={[styles.statPercent, Caption, styles.greenPercentText]}>
                     50.23 %
                   </Text>
-                </View>
+                </View> */}
               </View>
             </View>
 
             <View style={styles.statCard}>
               <View style={styles.statHeader}>
-                <Text style={[styles.statAmount, H3]}>$10.10K</Text>
+                <Text style={[styles.statAmount, H3]}>
+                  ${analyticsData?.data?.salesTopDashboardStats?.todayTotalSales}
+                </Text>
                 <View style={[styles.statIcon, styles.lightPurpleBg]}>
                   <Image source={PurpleDollarIcon} style={IconSize20} />
                 </View>
               </View>
               <View style={styles.statFooter}>
-                <Text style={[styles.statLabel, Body2]}>Total Revenue</Text>
-                <View style={styles.percentContainer}>
+                <Text style={[styles.statLabel, Body2]}>Today Sales</Text>
+                {/* <View style={styles.percentContainer}>
                   <Image
                     source={CurveRedDownArrowIcon}
                     style={styles.trendIcon}
                     resizeMode="contain"
                   />
                   <Text style={[styles.statPercent, Caption, styles.redPercentText]}>90.23 %</Text>
-                </View>
+                </View> */}
               </View>
             </View>
           </View>
@@ -337,7 +334,10 @@ const SettingsScreen = () => {
                       innerRadius={MS(35)}
                       innerCircleColor={Colors.white}
                       centerLabelComponent={pieContainerImage}
-
+                      sectionAutoFocus
+                      sectionRadius={12}
+                      strokeWidth={3}
+                      strokeColor={Colors.white}
                     />
                   </View>
 
@@ -367,7 +367,13 @@ const SettingsScreen = () => {
                   </View>
                 </>
               ) : (
-                <View style={[styles.flexFull, styles.rowCentered, { justifyContent: 'center', marginTop: VS(20) }]}>
+                <View
+                  style={[
+                    styles.flexFull,
+                    styles.rowCentered,
+                    { justifyContent: 'center', marginTop: VS(20) },
+                  ]}
+                >
                   <Text style={[Caption, { color: Colors.grey }]}>No data available</Text>
                 </View>
               )}

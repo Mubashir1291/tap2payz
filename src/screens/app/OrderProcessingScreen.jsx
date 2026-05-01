@@ -45,7 +45,6 @@ import {
   SplitIcon,
   TickIcon,
   CancelOrderIcon,
-  PSPIcon,
 } from '../../assets/Images';
 import styles from './OrderProcessingScreenStyles';
 import TipModal from '../../components/TipModal';

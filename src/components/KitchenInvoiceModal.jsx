@@ -1,7 +1,8 @@
 import React from 'react';
-import { View, Text, Modal, TouchableOpacity, ScrollView, StyleSheet } from 'react-native';
+import { View, Text, Modal, TouchableOpacity, ScrollView, StyleSheet, Image } from 'react-native';
 import { S, VS, MS } from '../utils/Responsive';
 import { H3, Body1, Body2 } from '../utils/fonts';
+import { Tap2PayLogo } from '../assets/Images';
 
 const KitchenInvoiceModal = ({
   visible = true, // Set to true for demonstration
@@ -43,11 +44,7 @@ const KitchenInvoiceModal = ({
 
             {/* Logo Section */}
             <View style={styles.logoContainer}>
-              <View style={styles.logoCircle}>
-                {/* Replace with your logo source */}
-                <Text style={styles.logoCircleText}>FL</Text>
-                {/* <Image source={PSPIcon} style={styles.logo} /> */}
-              </View>
+              <Image source={Tap2PayLogo} style={styles.logo} />
             </View>
 
             {/* Order Info */}
@@ -136,21 +133,9 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginBottom: VS(25),
   },
-  logoCircle: {
-    width: MS(90),
-    height: MS(90),
-    borderRadius: MS(45),
-    backgroundColor: '#FFB79D',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  logoCircleText: {
-    fontSize: MS(40),
-    color: '#31333A',
-  },
   logo: {
-    width: MS(55),
-    height: MS(55),
+    width: MS(120),
+    height: MS(80),
     resizeMode: 'contain',
   },
   infoSection: {

@@ -22,8 +22,8 @@ import { Colors } from '../../utils/Colors';
 import { S, VS, MS } from '../../utils/Responsive';
 import { H1, H4, Body1, ButtonText } from '../../utils/fonts';
 import CustomInput from '../../components/CustomInput';
-import { PSPIcon } from '../../assets/Images';
-import { IconSize60 } from '../../utils/IconSizes';
+import { Tap2PayIcon, Tap2PayLogo } from '../../assets/Images';
+import { IconSize150, IconSize175, IconSize200, IconSize60 } from '../../utils/IconSizes';
 import { LOGIN_ACCOUNT, ME } from '../../services/AuthService';
 import { VERIFY_DEVICE, GET_CASH_REGISTER } from '../../services/StoreService';
 import { setIsLogin, setAccessToken, setUserData } from '../../redux/Reducers/userReducer';
@@ -89,7 +89,6 @@ const LoginScreen = () => {
           business_type: employeeBusiness?.business_type,
           store_name: employeeStore?.store_name,
           company_address: employeeStore?.company_address,
-
         }),
       );
 
@@ -218,10 +217,9 @@ const LoginScreen = () => {
         {/* Left branding panel */}
         <View style={styles.brandPanel}>
           <View style={styles.brandContent}>
-            <View style={styles.logoCircle}>
-              <Image source={PSPIcon} style={IconSize60} />
-            </View>
-            <Text style={[styles.brandTitle, H1, { color: Colors.white }]}>Point of Sale</Text>
+            {/* <View style={styles.logoCircle}> */}
+            <Image source={Tap2PayLogo} style={IconSize200} />
+            {/* </View> */}
             <Text style={[styles.brandTitle, Body1, { color: Colors.white }]}>
               Manage your store with ease
             </Text>
@@ -308,7 +306,7 @@ const LoginScreen = () => {
       </View>
 
       {/* ── Device ID Modal ── */}
-      <Modal visible={showDeviceModal} transparent animationType="fade" onRequestClose={() => { }}>
+      <Modal visible={showDeviceModal} transparent animationType="fade" onRequestClose={() => {}}>
         <KeyboardAvoidingView
           behavior={Platform.OS === 'ios' ? 'padding' : undefined}
           style={styles.modalOverlay}
@@ -389,7 +387,7 @@ const styles = StyleSheet.create({
     marginBottom: VS(24),
   },
   brandTitle: {
-    marginBottom: VS(8),
+    marginTop: VS(-75),
   },
   formPanel: {
     flex: 0.6,
