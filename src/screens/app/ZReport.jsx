@@ -145,7 +145,8 @@ const ZReport = () => {
   };
 
   const handleExportCSV = async () => {
-    if (!apiData || apiData.length === 0) {
+    const dataToExport = filteredData;
+    if (!dataToExport || dataToExport.length === 0) {
       Toast.show({
         type: 'info',
         text1: 'No Data',
@@ -164,15 +165,16 @@ const ZReport = () => {
         'Opening Amount',
         'Closing Amount',
       ];
-      const rows = apiData.map(item => {
+      const rows = dataToExport.map(item => {
+        const raw = item.details;
         return [
           item.id,
           `"${item.openedAt.replace('\n', ' ')}"`,
           `"${item.closedAt.replace('\n', ' ')}"`,
           `"${item.opener}"`,
           `"${item.closer}"`,
-          `"${item.openAmount}"`,
-          `"${item.closeAmount}"`,
+          `"$ ${(raw.opening_amount?.amount || 0).toFixed(2)}"`,
+          `"$ ${(raw.closing_amount?.amount || 0).toFixed(2)}"`,
         ].join(',');
       });
 
