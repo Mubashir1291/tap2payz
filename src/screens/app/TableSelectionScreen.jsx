@@ -315,6 +315,22 @@ const TableSelectionScreen = () => {
     }
   }, [route.params?.newlyProcessedTable, route.params?.orderDetail, navigation]);
 
+  // Effect to clear cart and related states when switching to 'Dine in' tab
+  useEffect(() => {
+    if (activeTab === 'Dine in') {
+      setCart([]);
+      setTipAmount(null);
+      setBuyerInfo(null);
+      setDiscountCode('');
+      setDiscountAmount(0);
+      setOrderDetail(null); // Clear any lingering order details from Take Away
+      setTerminalReferenceNumber('');
+      setTerminalNr('');
+      setPaymentInfo({ received: 0, change: 0, method: '' });
+      setBuyerId(null);
+    }
+  }, [activeTab]);
+
   const toggleDropdown = () => {
     if (areaSelectorRef.current) {
       areaSelectorRef.current.measure((fx, fy, width, height, px, py) => {
