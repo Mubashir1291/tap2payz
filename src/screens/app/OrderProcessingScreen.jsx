@@ -127,7 +127,6 @@ const OrderProcessingScreen = () => {
   const handleGetResOrderDetail = useCallback(async () => {
     try {
       const res = await GET_RES_ACTIVE_ORDERS(tableId);
-      console.log(res, 'Order Details Response');
       const order = res?.order;
       if (order) {
         setOrderDetail(order);
@@ -147,22 +146,12 @@ const OrderProcessingScreen = () => {
     }
   }, [tableId]);
 
-  // Debugging hook to check for Native Modules
-  useEffect(() => {
-    console.log('--- NATIVE MODULES DEBUG ---');
-    console.log('Available Modules:', Object.keys(NativeModules));
-    console.log('PrinterModule found:', !!NativeModules.PrinterModule);
-    console.log('DisplayManager found:', !!NativeModules.DisplayManager);
-    console.log('---------------------------');
-  }, []);
-
   // Initialize printer hardware on mount
   useEffect(() => {
     const initPrinter = async () => {
       if (PrinterModule && PrinterModule.initializePrinter) {
         try {
           await PrinterModule.initializePrinter();
-          console.log('printer initialzed successfully');
         } catch (err) {
           console.warn('Printer initialization failed:', err);
         }
@@ -185,7 +174,6 @@ const OrderProcessingScreen = () => {
     };
     try {
       const response = await CREATE_RES_ORDER(payload);
-      console.log(response, 'Order Response');
       setOrderDetail(response?.order);
       setShowProcessModal(true);
     } catch (error) {
@@ -219,7 +207,6 @@ const OrderProcessingScreen = () => {
         storeId: store_id,
         getAll: 'true',
       });
-      console.log(response, 'Category Response');
       setCategories(response?.items || []);
     } catch (error) {
       console.error('Error fetching categories:', error);
@@ -233,7 +220,6 @@ const OrderProcessingScreen = () => {
     }
     try {
       const response = await GET_ALL_PRODUCTS_WITH_INVENTORY(query);
-      console.log(response, 'product response');
 
       if (loadMore) {
         setProducts(prev => [...prev, ...(response?.items || [])]);
@@ -287,10 +273,8 @@ const OrderProcessingScreen = () => {
       })),
       deviceId: deviceId,
     };
-    console.log(payload, 'payload for get terminal status');
     try {
       const res = await GET_TERMINAL_STATUS(payload);
-      console.log(res, 'Terminal Response');
       setTerminalReferenceNumber(res?.transaction?.referenceNumber || '');
       setTerminalNr(res?.transaction?.nr || '');
       return true;
@@ -327,7 +311,6 @@ const OrderProcessingScreen = () => {
     };
     try {
       const res = await CREATE_RES_TRANSACTION(payload);
-      console.log(res, 'Transaction Response');
       return res;
     } catch (error) {
       console.error('Error creating transaction:', error);
@@ -1023,7 +1006,6 @@ const OrderProcessingScreen = () => {
         totalAmount={parseFloat(total)}
         currency="$"
         onProceed={async data => {
-          console.log('Payment Proceeded with data:', data);
           setShowPaymentModal(false);
 
           setPaymentInfo({
@@ -1043,10 +1025,8 @@ const OrderProcessingScreen = () => {
             setShowTapCardModal(true);
             try {
               await NfcManager.start();
-              console.log('NFC Manager started, waiting for tap...');
 
               await NfcManager.requestTechnology(NfcTech.Ndef); // Use NfcTech.IsoDep if you are reading standard EMV Credit Cards
-              console.log('NFC Technology acquired');
 
               await handleResTransaction(data.method);
 

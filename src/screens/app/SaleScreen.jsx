@@ -77,7 +77,6 @@ const SaleScreen = () => {
     }
     try {
       const response = await GET_ALL_CATEGORIES(query);
-      // console.log(response, 'categoriesssssssssssssss');
 
       if (loadMore) {
         setCategories(prev => [...prev, ...(response?.items || [])]);
@@ -106,7 +105,6 @@ const SaleScreen = () => {
     }
     try {
       const response = await GET_ALL_PRODUCTS_WITH_INVENTORY(query);
-      console.log(response, 'productsssssssssssssss');
 
       if (loadMore) {
         setProducts(prev => [...prev, ...(response?.items || [])]);
@@ -131,7 +129,6 @@ const SaleScreen = () => {
   useEffect(() => {
     handleFetchAllCategories(categorySearchQuery, categorySearchQuery.page > 1);
   }, [categorySearchQuery]);
-  // console.log(productSearchQuery, 'searchhhhhhhhhhhhh');
   useEffect(() => {
     handleFetchAllProducts(productSearchQuery, productSearchQuery.page > 1);
   }, [productSearchQuery]);
@@ -173,8 +170,12 @@ const SaleScreen = () => {
         <Text style={[styles.priceText, Caption]}>${item.price}</Text>
       </View>
       <Image source={ImageFrameIcon} style={styles.productImage} />
-      <Text style={[styles.productName, Subtitle2, item.quantity <= 0 && { color: 'red' }]}>{item.name}</Text>
-      {item.quantity <= 0 && <Text style={[Caption, { color: 'red', textAlign: 'center' }]}>Out of Stock</Text>}
+      <Text style={[styles.productName, Subtitle2, item.quantity <= 0 && { color: 'red' }]}>
+        {item.name}
+      </Text>
+      {item.quantity <= 0 && (
+        <Text style={[Caption, { color: 'red', textAlign: 'center' }]}>Out of Stock</Text>
+      )}
     </TouchableOpacity>
   );
 

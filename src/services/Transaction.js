@@ -17,8 +17,6 @@ export const GET_INVENTORY_STATUS = payload => {
   return response;
 };
 export const GET_TRANSACTION_DETAIL = ({ id, store_id }) => {
-  // console.log(id, 'iddddd');
-  // console.log(store_id, 'storeee id');
   const response = Fetch.get(
     `${BASE_PREFIX}${ENDPOINTS.TRANSACTION.GET_TRANSACTION_DETAIL}/${id}/${store_id}`,
   );

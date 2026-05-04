@@ -58,16 +58,13 @@ const LoginScreen = () => {
       employee_id: values.employeeId,
       password: values.password,
     };
-    console.log(payload, 'payload');
     try {
       const response = await LOGIN_ACCOUNT(payload);
-      console.log(response, 'login');
 
       store.dispatch(setAccessToken(response.token));
 
       // Hit ME API right after login
       const meResponse = await ME();
-      console.log(meResponse, 'me');
 
       const employeeData = meResponse?.employee;
 
@@ -154,7 +151,6 @@ const LoginScreen = () => {
         device_id: trimmedId,
         store_id,
       };
-      console.log(payload, 'device');
       const response = await VERIFY_DEVICE(payload);
 
       const newDeviceId = response?.device?._id;

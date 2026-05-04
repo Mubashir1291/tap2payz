@@ -3,7 +3,6 @@ import { setIsLogin, setAccessToken } from '../redux/Reducers/userReducer';
 
 function getAuthToken() {
   const state = store.getState();
-  // console.log(state?.user?.accessToken, 'this is my token');
   return state?.user?.accessToken || null;
 }
 
@@ -61,11 +60,11 @@ async function get(url) {
 async function post(url, body, isMultipart = false) {
   const headers = buildHeaders(isMultipart);
 
-  console.log('📤 API REQUEST');
-  console.log('➡️ URL:', url);
-  console.log('➡️ METHOD: POST');
-  console.log('➡️ HEADERS:', headers);
-  console.log('➡️ BODY:', isMultipart ? body : JSON.stringify(body));
+  // console.log('📤 API REQUEST');
+  // console.log('➡️ URL:', url);
+  // console.log('➡️ METHOD: POST');
+  // console.log('➡️ HEADERS:', headers);
+  // console.log('➡️ BODY:', isMultipart ? body : JSON.stringify(body));
 
   const response = await fetch(url, {
     method: 'POST',

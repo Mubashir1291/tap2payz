@@ -55,8 +55,7 @@ const ViewOrdersScreen = () => {
       setIsLoading(true);
       try {
         const response = await GET_RES_ORDERS(payload);
-        console.log(response, 'response');
-        console.log(payload, 'payload');
+
         const mappedOrders = (response?.items || []).map(item => ({
           id: item._id,
           table: item.table_id?.table_no || 'N/A',

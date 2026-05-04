@@ -57,7 +57,6 @@ const CreateEmployeeModal = ({ visible, onClose, onCreate }) => {
           store_id,
           employee_profile: image,
         });
-        console.log(response, 'employee created response');
         Toast.show({ type: 'success', text1: 'Employee created successfully' });
         resetForm();
         setImage(null);

@@ -31,7 +31,6 @@ const ZReport = () => {
 
   const { store_id, userData, store_name } = useSelector(state => state.user);
   const { deviceId } = useSelector(state => state.device);
-  console.log('userData', userData);
 
   const handleGetAllCashRegister = useCallback(async () => {
     setIsLoading(true);
@@ -192,7 +191,6 @@ const ZReport = () => {
         text2: `Report saved to ${Platform.OS === 'android' ? 'Downloads' : 'Documents'}`,
       });
     } catch (error) {
-      console.error('Export Error:', error);
       Toast.show({
         type: 'error',
         text1: 'Export Failed',

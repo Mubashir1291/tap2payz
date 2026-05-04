@@ -64,7 +64,6 @@ const TransactionReportScreen = () => {
     }
     try {
       const response = await GET_ALL_TRANSACTION(query);
-      console.log(response, 'transactions Zreports');
 
       const items = response?.data?.items || [];
 
@@ -252,9 +251,7 @@ const TransactionReportScreen = () => {
             </View>
           ) : detailError ? (
             <View style={styles.centerContainer}>
-              <Text style={[Subtitle2, styles.errorText]}>
-                {detailError}
-              </Text>
+              <Text style={[Subtitle2, styles.errorText]}>{detailError}</Text>
             </View>
           ) : selectedItem ? (
             <View style={{ flex: 1 }}>

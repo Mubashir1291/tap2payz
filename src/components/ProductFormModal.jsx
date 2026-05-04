@@ -110,7 +110,6 @@ const ProductFormModal = ({ visible, onClose, formType, initialData, onSubmit })
   const handleSubmit = async () => {
     try {
       const response = await CREATE_PRODUCT(payload);
-      console.log('Product Creation', response);
       if (response) {
         Toast.show({
           type: 'success',
@@ -126,15 +125,11 @@ const ProductFormModal = ({ visible, onClose, formType, initialData, onSubmit })
         text1: 'Error',
         text2: 'Failed to create product',
       });
-      console.log(error, 'Product Creation Error');
-      console.log(payload, 'payload');
     }
   };
   const handleUpdateProduct = async () => {
     try {
-      console.log('Payload for update', payload);
       const response = await UPDATE_PRODUCT(formData._id, payload);
-      console.log('Product Update', response);
       if (response) {
         Toast.show({
           type: 'success',
@@ -150,7 +145,6 @@ const ProductFormModal = ({ visible, onClose, formType, initialData, onSubmit })
         text1: 'Error',
         text2: 'Failed to update product',
       });
-      console.log(error, 'Product Update Error');
     }
   };
 

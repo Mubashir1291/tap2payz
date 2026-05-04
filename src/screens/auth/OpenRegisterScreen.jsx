@@ -65,7 +65,6 @@ const OpenRegisterScreen = ({ navigation }) => {
         store_id,
       };
       const response = await GET_CASH_REGISTER(query);
-      console.log(response, 'cashh register');
 
       store.dispatch(setCashRegisterData(response?.cashRegister ?? response?.closedRegister));
 

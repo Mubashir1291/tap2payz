@@ -18,15 +18,11 @@ import {
   CashIcon,
   CardIcon,
   DeleteIcon,
-  RefreshICon,
-  ChipIcon,
   DiscountIcon,
   DollarIcon,
   BuyersIcon,
   TickIcon,
   WarningIcon,
-  Tap2PayIcon,
-  Tap2PayLogo,
 } from '../assets/Images';
 import SwipeableCartItem from './SwipeableCartItem';
 import styles from '../screens/app/SaleScreenStyles';
@@ -99,9 +95,7 @@ const SaleCartPanel = ({ cart, setCart, onAddToCart }) => {
   const handleCashProceed = async data => {
     try {
       const payload = buildTransactionPayload();
-      console.log(payload, 'create transaction ');
       const response = await CREATE_TRANSACTION(payload);
-      console.log(response, ' Cash process');
 
       setPaymentInfo({
         method: 'Cash',
@@ -150,7 +144,6 @@ const SaleCartPanel = ({ cart, setCart, onAddToCart }) => {
         content: '\n',
       });
     } catch (error) {
-      console.log('PRINT ERROR:', error);
       Toast.show({
         type: 'error',
         text1: 'Print Error',
@@ -184,10 +177,8 @@ const SaleCartPanel = ({ cart, setCart, onAddToCart }) => {
         sale_store: store_id,
         deviceID: deviceId,
       };
-      // console.log(payload, 'payloaddddddddddddd');
       const response = await GET_INVENTORY_STATUS(payload);
       setTransReferenceId(response?.transaction?.referenceNumber);
-      console.log(response, 'Inventory Status');
       return true; // Successfully verified
     } catch (error) {
       console.log(error, 'Inventory Status Error');

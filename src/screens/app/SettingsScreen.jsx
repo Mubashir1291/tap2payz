@@ -115,7 +115,6 @@ const SettingsScreen = () => {
         timeFrame: timeFrame,
       };
       const response = await GET_WEEKLY_ANALYTICS(payload);
-      console.log(response, 'analytics');
       if (response?.status === 'success' || response?.data) {
         setAnalyticsData(response);
       }

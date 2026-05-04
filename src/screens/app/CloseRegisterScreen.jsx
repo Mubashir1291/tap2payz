@@ -78,7 +78,6 @@ const CloseRegisterScreen = () => {
       };
 
       const response = await CLOSE_REGISTER(payload);
-      console.log(response, 'Close Register');
       store.dispatch(setCashRegisterData(null));
       store.dispatch(logout());
 

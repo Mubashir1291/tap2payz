@@ -44,7 +44,6 @@ const TableManagementScreen = () => {
   const [dropdownPosition, setDropdownPosition] = useState({ top: 0, left: 0, width: 0 });
   const areaSelectorRef = useRef(null);
 
-
   const handleDeletePress = table => {
     setSelectedTable(table);
     setShowDeleteModal(true);
@@ -58,7 +57,6 @@ const TableManagementScreen = () => {
         itemsPerPage: 10,
         storeId: store_id,
       });
-      console.log('Floors fetched successfully:', response);
       const fetchedAreas = response?.items || [];
       setAreas(fetchedAreas);
 
@@ -93,14 +91,12 @@ const TableManagementScreen = () => {
     if (!selectedTable?._id) return;
     try {
       const response = await DELETE_TABLE(selectedTable._id);
-      console.log('Table deleted successfully:', response);
       setShowDeleteModal(false);
       setSuccessMessage('Table Deleted Successfully');
       setShowSuccessModal(true);
       // Refresh the current page
       handleGetTables({ page, itemsPerPage: 10 });
     } catch (error) {
-      console.error('Error deleting table:', error);
       Toast.show({
         type: 'error',
         text1: 'Delete Failed',
@@ -114,9 +110,8 @@ const TableManagementScreen = () => {
     if (!selectedTable?._id) return;
     try {
       const response = await UPDATE_TABLE(selectedTable._id, {
-        seats: parseInt(updatedSeats, 10) || 0
+        seats: parseInt(updatedSeats, 10) || 0,
       });
-      console.log('Table updated successfully:', response);
 
       // Update local state for immediate UI feedback (optional but good)
       setTables(prev =>
@@ -132,7 +127,6 @@ const TableManagementScreen = () => {
       setShowSuccessModal(true);
       handleGetTables({ page, itemsPerPage: 10 }); // Refetch to sync with server
     } catch (error) {
-      console.error('Error updating table:', error);
       Toast.show({
         type: 'error',
         text1: 'Update Failed',
@@ -146,7 +140,6 @@ const TableManagementScreen = () => {
     try {
       const payload = { seats: parseInt(editSeats, 10) || 0 };
       const response = await UPDATE_TABLE(editingTable._id, payload);
-      console.log('Table updated successfully:', response);
 
       setShowEditModal(false);
       setSuccessMessage('Table Updated Successfully');
@@ -184,7 +177,6 @@ const TableManagementScreen = () => {
           storeId: store_id,
           floor_id: selectedArea?._id,
         });
-        console.log('Tables fetched successfully:', response);
         setTables(response?.items || []);
         setPaginationData(response);
       } catch (error) {

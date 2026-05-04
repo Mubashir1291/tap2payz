@@ -19,11 +19,19 @@ const ViewInvoiceModal = ({ visible, onClose, orderData = null }) => {
   const renderItem = ({ item, index }) => {
     // Dynamic mappings
     const itemNo = String(index + 1).padStart(2, '0');
-    const itemName = item?.product_id?.product_name || item?.product_name || item?.item_name || item?.name || item?.item || 'Unknown Item';
+    const itemName =
+      item?.product_id?.product_name ||
+      item?.product_name ||
+      item?.item_name ||
+      item?.name ||
+      item?.item ||
+      'Unknown Item';
     const itemQty = String(item?.quantity || item?.qty || 1).padStart(2, '0');
     const priceVal = parseFloat(item?.price || item?.product_id?.price || 0);
     const itemPrice = priceVal.toFixed(2);
-    const itemTotal = parseFloat(item?.total_price || item?.totals || (priceVal * (item?.quantity || item?.qty || 1)) || 0).toFixed(2);
+    const itemTotal = parseFloat(
+      item?.total_price || item?.totals || priceVal * (item?.quantity || item?.qty || 1) || 0,
+    ).toFixed(2);
     return (
       <View style={styles.tableRow}>
         <View style={styles.colNo}>
@@ -45,7 +53,6 @@ const ViewInvoiceModal = ({ visible, onClose, orderData = null }) => {
     );
   };
 
-
   return (
     <Modal visible={visible} transparent animationType="fade" onRequestClose={onClose}>
       <View style={styles.modalOverlay}>
@@ -58,14 +65,21 @@ const ViewInvoiceModal = ({ visible, onClose, orderData = null }) => {
           {/* Header */}
           <View style={styles.headerRow}>
             <Text style={[styles.titleText, H1]}>Invoice</Text>
-            <Text style={[styles.orderTitle, H4]}>Order #{orderData?.order_number || orderData?.order_id || orderData?._id?.substring(orderData?._id?.length - 6) || 'N/A'}</Text>
+            <Text style={[styles.orderTitle, H4]}>
+              Order #
+              {orderData?.order_number ||
+                orderData?.order_id ||
+                orderData?._id?.substring(orderData?._id?.length - 6) ||
+                'N/A'}
+            </Text>
           </View>
 
           {/* Info Section */}
           <View style={styles.infoSection}>
             <View style={styles.infoLeft}>
-              <Text style={[styles.infoTextList, Body3]}>{userData?.business_id?.company_address}</Text>
-              {console.log(userData, 'userrrrr')}
+              <Text style={[styles.infoTextList, Body3]}>
+                {userData?.business_id?.company_address}
+              </Text>
 
               <Text style={[styles.infoTextList, Body3]}>
                 {/* <Text style={styles.infoLabel}>Waiter: </Text> */}
@@ -84,10 +98,16 @@ const ViewInvoiceModal = ({ visible, onClose, orderData = null }) => {
               <Text style={[styles.infoTextList, Body3]}>
                 <Text style={styles.infoLabel}>Order Date: </Text>
                 <Text style={styles.infoValue}>
-                  {orderData?.updated_at ? new Date(orderData.updated_at).toLocaleString('en-GB', {
-                    day: '2-digit', month: 'short', year: 'numeric',
-                    hour: '2-digit', minute: '2-digit', hour12: true
-                  }) : 'N/A'}
+                  {orderData?.updated_at
+                    ? new Date(orderData.updated_at).toLocaleString('en-GB', {
+                        day: '2-digit',
+                        month: 'short',
+                        year: 'numeric',
+                        hour: '2-digit',
+                        minute: '2-digit',
+                        hour12: true,
+                      })
+                    : 'N/A'}
                 </Text>
               </Text>
               <Text style={[styles.infoTextList, Body3]}>
@@ -141,24 +161,34 @@ const ViewInvoiceModal = ({ visible, onClose, orderData = null }) => {
           <View style={styles.totalsSection}>
             <View style={styles.totalsRow}>
               <Text style={[styles.totalsLabel, Body3]}>Tip:</Text>
-              <Text style={[styles.totalsValue, Body3]}>$ {parseFloat(orderData?.tip || 0).toFixed(2)}</Text>
+              <Text style={[styles.totalsValue, Body3]}>
+                $ {parseFloat(orderData?.tip || 0).toFixed(2)}
+              </Text>
             </View>
             <View style={styles.totalsRow}>
               <Text style={[styles.totalsLabel, Body3]}>Promotion:</Text>
-              <Text style={[styles.totalsValue, Body3]}>$ {parseFloat(orderData?.discount || 0).toFixed(2)}</Text>
+              <Text style={[styles.totalsValue, Body3]}>
+                $ {parseFloat(orderData?.discount || 0).toFixed(2)}
+              </Text>
             </View>
             <View style={styles.totalsRow}>
               <Text style={[styles.totalsLabel, Body3]}>Subtotal:</Text>
-              <Text style={[styles.totalsValue, Body3]}>$ {parseFloat(orderData?.subtotal || 0).toFixed(2)}</Text>
+              <Text style={[styles.totalsValue, Body3]}>
+                $ {parseFloat(orderData?.subtotal || 0).toFixed(2)}
+              </Text>
             </View>
             <View style={styles.totalsRow}>
               <Text style={[styles.totalsLabel, Body3]}>Tax:</Text>
-              <Text style={[styles.totalsValue, Body3]}>$ {parseFloat(orderData?.tax || 0).toFixed(2)}</Text>
+              <Text style={[styles.totalsValue, Body3]}>
+                $ {parseFloat(orderData?.tax || 0).toFixed(2)}
+              </Text>
             </View>
 
             <View style={styles.grandTotalRow}>
               <Text style={[styles.grandTotalLabel, Subtitle1]}>Total:</Text>
-              <Text style={[styles.grandTotalValue, H4]}>$ {parseFloat(orderData?.total_price || 0).toFixed(2)}</Text>
+              <Text style={[styles.grandTotalValue, H4]}>
+                $ {parseFloat(orderData?.total_price || 0).toFixed(2)}
+              </Text>
             </View>
 
             <TouchableOpacity style={styles.printBtn}>

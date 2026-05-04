@@ -75,7 +75,6 @@ const AddNewTableScreen = () => {
       if (!store_id || !floorId) return;
       try {
         const response = await GET_TABLES({ floor_id: floorId, store_id: store_id });
-        console.log(store_id, 'storeee');
         const fetchedTables = (response?.items || []).map(t => ({
           id: (t.table_no - 1).toString(), // Mapping table_no back to grid ID
           seats: t.seats,
@@ -83,7 +82,6 @@ const AddNewTableScreen = () => {
           _id: t._id,
         }));
         setAddedTables(fetchedTables);
-        console.log('Total tables already created for this area:', fetchedTables.length);
       } catch (error) {
         console.error('Error fetching tables:', error);
       }
@@ -111,7 +109,6 @@ const AddNewTableScreen = () => {
     };
     try {
       const response = await CREATE_FLOORS(payload);
-      console.log('Floor created successfully:', response);
       setNewAreaName('');
       setShowAddAreaModal(false);
       setSuccessMessage('Area Added Successfully');
@@ -128,7 +125,6 @@ const AddNewTableScreen = () => {
     try {
       const payload = { seats: parseInt(editSeats, 10) || 0 };
       const response = await UPDATE_TABLE(editingTable._id, payload);
-      console.log('Table updated successfully:', response);
 
       setShowEditModal(false);
       setSuccessMessage('Table Updated Successfully');
@@ -144,8 +140,6 @@ const AddNewTableScreen = () => {
     if (!tableToDelete?._id) return;
     try {
       const response = await DELETE_TABLE(tableToDelete._id);
-      console.log(tableToDelete._id);
-      console.log('Table deleted successfully:', response);
 
       setShowDeleteModal(false);
       setSuccessMessage('Table Deleted Successfully');
@@ -169,7 +163,6 @@ const AddNewTableScreen = () => {
       };
 
       const response = await CREATE_TABLE(payload);
-      console.log('Tables created successfully:', response);
       setSuccessMessage('Table Added Successfully');
       handleGetTables(selectedArea._id); // Refresh tables from server
       setSelectedTableId(null);

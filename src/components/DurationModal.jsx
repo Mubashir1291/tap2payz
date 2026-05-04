@@ -82,8 +82,6 @@ const DurationModal = ({ visible = false, onClose, onProceed }) => {
 
       const response = await GET_X_REPORT(params);
 
-      console.log('X REPORT RESPONSE:', response);
-
       // Pass both response and the params used so XReport can reuse params for pagination
       onProceed?.(response, params);
 
@@ -196,7 +194,6 @@ const DurationModal = ({ visible = false, onClose, onProceed }) => {
                 <>
                   <Text style={[styles.proceedBtnText, Subtitle2]}>Proceed</Text>
                   <Image source={HalfArrowIcon} style={IconSize16} />
-
                 </>
               )}
             </TouchableOpacity>
@@ -213,12 +210,12 @@ const DurationModal = ({ visible = false, onClose, onProceed }) => {
           activeDateField === 'from'
             ? fromDate
             : activeDateField === 'to'
-              ? toDate
-              : activeTimeField === 'fromTime'
-                ? fromTime
-                : activeTimeField === 'toTime'
-                  ? toTime
-                  : new Date()
+            ? toDate
+            : activeTimeField === 'fromTime'
+            ? fromTime
+            : activeTimeField === 'toTime'
+            ? toTime
+            : new Date()
         }
         onConfirm={date => {
           if (activeDateField === 'from') setFromDate(date);

@@ -24,7 +24,6 @@ import {
   ArrowDownIcon,
   MenuIcon,
   ImageFrameIcon,
-  CancelOrderIcon,
 } from '../../assets/Images';
 import styles from './TableSelectionScreenStyles';
 
@@ -121,18 +120,14 @@ const TableSelectionScreen = () => {
         getAll: 'true',
       });
       setCategories(response?.items || []);
-    } catch (error) {
-      console.error('Error fetching categories:', error);
-    }
+    } catch (error) {}
   }, [store_id]);
 
   const handleFetchAllProducts = useCallback(async query => {
     try {
       const response = await GET_ALL_PRODUCTS_WITH_INVENTORY(query);
       setProducts(response?.items || []);
-    } catch (error) {
-      console.error('Error fetching products:', error);
-    }
+    } catch (error) {}
   }, []);
 
   const handleGetFloors = useCallback(async () => {
@@ -144,9 +139,7 @@ const TableSelectionScreen = () => {
       if (fetchedAreas.length > 0 && !selectedArea) {
         setSelectedArea(fetchedAreas[0]);
       }
-    } catch (error) {
-      console.error('Error fetching floors:', error);
-    }
+    } catch (error) {}
   }, [store_id, selectedArea]);
 
   const handleGetTables = useCallback(
@@ -193,7 +186,6 @@ const TableSelectionScreen = () => {
     console.log(payload, 'payload for get terminal status');
     try {
       const res = await GET_TERMINAL_STATUS(payload);
-      console.log(res, 'Terminal Response');
       setTerminalReferenceNumber(res?.transaction?.referenceNumber || '');
       setTerminalNr(res?.transaction?.nr || '');
     } catch (error) {
@@ -223,10 +215,8 @@ const TableSelectionScreen = () => {
     };
     try {
       const res = await CREATE_RES_TRANSACTION(payload);
-      console.log(res, 'Transaction Response');
       return res;
     } catch (error) {
-      console.error('Error creating transaction:', error);
       Toast.show({
         type: 'error',
         text1: 'Transaction Error',
@@ -265,7 +255,6 @@ const TableSelectionScreen = () => {
         content: '\n',
       });
     } catch (error) {
-      console.log('PRINT ERROR:', error);
       Toast.show({
         type: 'error',
         text1: 'Print Error',
@@ -359,12 +348,10 @@ const TableSelectionScreen = () => {
 
     try {
       const response = await CREATE_RES_ORDER(payload);
-      console.log('Take Away Order Response:', response);
       const createdOrder = response?.order;
       setOrderDetail(createdOrder);
       setShowProcessModal(true);
     } catch (error) {
-      console.error('Error creating take away order:', error);
       Toast.show({
         type: 'error',
         text1: 'Order Error',
@@ -957,7 +944,6 @@ const TableSelectionScreen = () => {
         totalAmount={parseFloat(total)}
         currency="$"
         onProceed={async data => {
-          console.log('Payment Proceeded with data:', data);
           setShowPaymentModal(false);
           setPaymentInfo({
             received: data.amount,
@@ -979,7 +965,6 @@ const TableSelectionScreen = () => {
               setShowTapCardModal(false);
               setShowTransactionModal(true);
             } catch (error) {
-              console.error('NFC or Transaction Error:', error);
               setShowTapCardModal(false);
             } finally {
               NfcManager.cancelTechnologyRequest();
