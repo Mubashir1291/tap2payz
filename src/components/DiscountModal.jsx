@@ -38,7 +38,7 @@ const DiscountModal = ({
           {/* {availableDiscount && (
             <View style={styles.promoContainer}>
               <Text style={[Caption, styles.promoText]}>
-                Available: <Text style={{ fontWeight: 'bold' }}>{availableDiscount.code}</Text> (
+                Available: <Text style={styles.promoBold}>{availableDiscount.code}</Text> (
                 {availableDiscount.percentage}%)
               </Text>
             </View>
@@ -129,6 +129,9 @@ const styles = StyleSheet.create({
   },
   promoText: {
     color: '#2E7D32',
+  },
+  promoBold: {
+    fontWeight: 'bold',
   },
   inputContainer: {
     width: '100%',

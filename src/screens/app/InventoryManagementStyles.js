@@ -603,6 +603,18 @@ const styles = StyleSheet.create({
     lineHeight: VS(26),
     fontSize: S(18),
   },
+  emptyListContainer: {
+    padding: 10,
+  },
+  emptyListText: {
+    textAlign: 'center',
+  },
+  emptyImageBg: {
+    backgroundColor: '#E0E0E0',
+  },
+  detailScrollContent: {
+    paddingBottom: 20,
+  },
 });
 
 export default styles;

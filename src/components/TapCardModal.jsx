@@ -14,13 +14,8 @@ const TapCardModal = ({ visible, onClose }) => {
           <TouchableOpacity style={styles.closeBtn} onPress={onClose}>
             <Text style={styles.closeText}>✕</Text>
           </TouchableOpacity>
-          <LottieView
-            source={TapCardIcon}
-            autoPlay
-            loop
-            style={{ width: S(150), height: VS(150) }}
-          />
-          <Text style={[H2, { marginTop: VS(20), color: Colors.black }]}>Please Tap Your Card</Text>
+          <LottieView source={TapCardIcon} autoPlay loop style={styles.lottieIcon} />
+          <Text style={[H2, styles.tapCardText]}>Please Tap Your Card</Text>
         </View>
       </View>
     </Modal>
@@ -59,6 +54,14 @@ const styles = StyleSheet.create({
   closeText: {
     color: Colors.grey,
     fontSize: MS(16),
+  },
+  lottieIcon: {
+    width: S(150),
+    height: VS(150),
+  },
+  tapCardText: {
+    marginTop: VS(20),
+    color: Colors.black,
   },
 });
 

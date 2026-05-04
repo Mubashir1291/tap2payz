@@ -241,21 +241,19 @@ const ProductFormModal = ({ visible, onClose, formType, initialData, onSubmit })
                       )}
                       ListEmptyComponent={
                         isLoadingCategories ? (
-                          <View style={{ padding: 10 }}>
-                            <Text style={[Body3, { textAlign: 'center' }]}>Loading...</Text>
+                          <View style={styles.emptyListContainer}>
+                            <Text style={[Body3, styles.emptyListText]}>Loading...</Text>
                           </View>
                         ) : (
-                          <View style={{ padding: 10 }}>
-                            <Text style={[Body3, { textAlign: 'center' }]}>
-                              No categories found
-                            </Text>
+                          <View style={styles.emptyListContainer}>
+                            <Text style={[Body3, styles.emptyListText]}>No categories found</Text>
                           </View>
                         )
                       }
                       ListFooterComponent={
                         isFetchingMoreCategories ? (
-                          <View style={{ padding: 10 }}>
-                            <Text style={[Body3, { textAlign: 'center' }]}>Loading more...</Text>
+                          <View style={styles.emptyListContainer}>
+                            <Text style={[Body3, styles.emptyListText]}>Loading more...</Text>
                           </View>
                         ) : null
                       }

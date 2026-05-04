@@ -435,4 +435,12 @@ export default StyleSheet.create({
   saveChangesText: {
     color: Colors.black,
   },
+  tableIdText: {
+    fontSize: 8,
+    color: Colors.grey,
+  },
+  headerRight: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
 });

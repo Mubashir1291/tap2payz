@@ -216,7 +216,7 @@ const LoginScreen = () => {
             {/* <View style={styles.logoCircle}> */}
             <Image source={Tap2PayLogo} style={IconSize200} />
             {/* </View> */}
-            <Text style={[styles.brandTitle, Body1, { color: Colors.white }]}>
+            <Text style={[styles.brandTitle, Body1, styles.whiteText]}>
               Manage your store with ease
             </Text>
           </View>
@@ -225,7 +225,7 @@ const LoginScreen = () => {
         {/* Right form panel */}
         <View style={styles.formPanel}>
           <KeyboardAvoidingView
-            style={{ flex: 1 }}
+            style={styles.keyboardAvoidingView}
             behavior={Platform.OS === 'ios' ? 'padding' : 'padding'}
             keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : VS(20)}
           >
@@ -235,10 +235,8 @@ const LoginScreen = () => {
               showsVerticalScrollIndicator={false}
             >
               <View style={styles.formCard}>
-                <Text style={[styles.welcomeText, H1, { fontSize: MS(26), color: Colors.primary }]}>
-                  Welcome Back
-                </Text>
-                <Text style={[styles.subtitle, Body1, { color: Colors.grey }]}>
+                <Text style={[styles.welcomeText, H1, styles.welcomeTextMod]}>Welcome Back</Text>
+                <Text style={[styles.subtitle, Body1, styles.subtitleMod]}>
                   Sign in to your Account
                 </Text>
 
@@ -292,7 +290,7 @@ const LoginScreen = () => {
                   {isLoading ? (
                     <ActivityIndicator color={Colors.white} />
                   ) : (
-                    <Text style={[ButtonText, { color: Colors.white }]}>Login</Text>
+                    <Text style={[ButtonText, styles.whiteText]}>Login</Text>
                   )}
                 </TouchableOpacity>
               </View>
@@ -347,7 +345,7 @@ const LoginScreen = () => {
               activeOpacity={0.85}
               onPress={handleDeviceSubmit}
             >
-              <Text style={[ButtonText, { color: Colors.white }]}>Verify & Continue</Text>
+              <Text style={[ButtonText, styles.whiteText]}>Verify & Continue</Text>
             </TouchableOpacity>
           </View>
         </KeyboardAvoidingView>
@@ -408,8 +406,21 @@ const styles = StyleSheet.create({
   welcomeText: {
     marginBottom: VS(4),
   },
+  welcomeTextMod: {
+    fontSize: MS(26),
+    color: Colors.primary,
+  },
   subtitle: {
     marginBottom: VS(32),
+  },
+  subtitleMod: {
+    color: Colors.grey,
+  },
+  keyboardAvoidingView: {
+    flex: 1,
+  },
+  whiteText: {
+    color: Colors.white,
   },
   inputsWrapper: {
     marginBottom: VS(12),

@@ -236,7 +236,7 @@ const AddNewTableScreen = () => {
               <Image source={TickIcon} style={styles.selectionDot} />
             </View>
           ) : (
-            <Text style={{ fontSize: 8, color: Colors.grey }}>{Number(item.id) + 1}</Text>
+            <Text style={styles.tableIdText}>{Number(item.id) + 1}</Text>
           )}
         </View>
       </TouchableOpacity>
@@ -257,7 +257,7 @@ const AddNewTableScreen = () => {
           </TouchableOpacity>
           <Text style={[styles.headerTitle, H2]}>Add New Table</Text>
         </View>
-        <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+        <View style={styles.headerRight}>
           <TouchableOpacity style={styles.addAreaBtn} onPress={() => setShowAddAreaModal(true)}>
             <Text style={[styles.addAreaText, Subtitle2]}>Add Area +</Text>
           </TouchableOpacity>
