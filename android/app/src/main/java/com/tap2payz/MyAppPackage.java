@@ -1,4 +1,4 @@
-package com.psp_pos; // replace your-app-name with your app’s name
+package com.tap2payz; // replace your-app-name with your app’s name
 
 import android.os.Build;
 

@@ -1,4 +1,4 @@
-package com.psp_pos;
+package com.tap2payz;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -9,7 +9,7 @@ import android.util.Log;
 
 public class UsbPermissionReceiver extends BroadcastReceiver {
     private static final String TAG = "UsbPermissionReceiver";
-    public static final String ACTION_USB_PERMISSION = "com.psp_pos.USB_PERMISSION";
+    public static final String ACTION_USB_PERMISSION = "com.tap2payz.USB_PERMISSION";
 
     @Override
     public void onReceive(Context context, Intent intent) {

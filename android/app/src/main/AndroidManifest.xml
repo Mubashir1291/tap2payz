@@ -44,7 +44,7 @@
           android:name=".UsbPermissionReceiver" 
           android:exported="false">
           <intent-filter>
-              <action android:name="com.psp_pos.USB_PERMISSION" />
+              <action android:name="com.tap2payz.USB_PERMISSION" />
           </intent-filter>
       </receiver>
 

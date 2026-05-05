@@ -1,4 +1,4 @@
-package com.psp_pos;
+package com.tap2payz;
 
 import com.facebook.react.ReactPackage;
 import com.facebook.react.bridge.ReactApplicationContext;

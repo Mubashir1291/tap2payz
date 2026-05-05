@@ -55,11 +55,14 @@ const ViewOrdersScreen = () => {
       setIsLoading(true);
       try {
         const response = await GET_RES_ORDERS(payload);
+        // console.log(response, "=====================================")
 
         const mappedOrders = (response?.items || []).map(item => ({
           id: item._id,
           table: item.table_id?.table_no || 'N/A',
-          // waiter: item.employee_id?.employee_name || 'N/A',
+          productsSummary: (item.products || [])
+            .map(p => p.product_id?.product_name || p.product_name || 'Unknown')
+            .join(', '),
           handleBy: item?.transactions[0]?.empID?.employee_name || 'N/A',
           date: new Date(item.updated_at).toLocaleString('en-GB', {
             day: '2-digit',
@@ -70,7 +73,7 @@ const ViewOrdersScreen = () => {
             hour12: true,
           }),
           total: `$ ${item.total_price?.toFixed(2) || '0.00'}`,
-          subTotal: `$ ${item.subtotal?.toFixed(2) || '0.00'}`,
+          // subTotal: `$ ${item.subtotal?.toFixed(2) || '0.00'}`,
           rawOrder: item,
         }));
         setOrders(mappedOrders);
@@ -111,9 +114,11 @@ const ViewOrdersScreen = () => {
       <View style={styles.colTable}>
         <Text style={[styles.rowText, Body3]}>{item.table}</Text>
       </View>
-      <View style={styles.colWaiter}>
-        <Text style={[styles.rowText, Body3]}>{item.waiter}</Text>
-      </View>
+      {/* <View style={styles.colWaiter}>
+        <Text style={[styles.rowText, Body3]} numberOfLines={1}>
+          {item.productsSummary || 'No Items'}
+        </Text>
+      </View> */}
       <View style={styles.colHandleBy}>
         <Text style={[styles.rowText, Body3]}>{item.handleBy}</Text>
       </View>
@@ -190,9 +195,9 @@ const ViewOrdersScreen = () => {
           <View style={styles.colTable}>
             <Text style={[styles.headerText, Subtitle2]}>Table</Text>
           </View>
-          <View style={styles.colWaiter}>
-            <Text style={[styles.headerText, Subtitle2]}>Waiter</Text>
-          </View>
+          {/* <View style={styles.colWaiter}>
+            <Text style={[styles.headerText, Subtitle2]}>Products</Text>
+          </View> */}
           <View style={styles.colHandleBy}>
             <Text style={[styles.headerText, Subtitle2]}>Order Handle By</Text>
           </View>
@@ -202,9 +207,9 @@ const ViewOrdersScreen = () => {
           <View style={styles.colTotal}>
             <Text style={[styles.headerText, Subtitle2]}>Total</Text>
           </View>
-          <View style={styles.colSubTotal}>
+          {/* <View style={styles.colSubTotal}>
             <Text style={[styles.headerText, Subtitle2]}>Sub Total</Text>
-          </View>
+          </View> */}
           <View style={styles.colActions}>
             <Text style={[styles.headerText, Subtitle2]}>Actions</Text>
           </View>

@@ -1,4 +1,4 @@
-package com.psp_pos;
+package com.tap2payz;
 
 import android.app.Presentation;
 import android.content.Context;

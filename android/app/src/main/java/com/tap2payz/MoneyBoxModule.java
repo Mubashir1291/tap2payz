@@ -1,4 +1,4 @@
-package com.psp_pos;
+package com.tap2payz;
 
 import com.common.apiutil.ErrorCode;
 import com.common.apiutil.moneybox.MoneyBox;

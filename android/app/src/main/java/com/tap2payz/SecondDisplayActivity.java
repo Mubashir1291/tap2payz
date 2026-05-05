@@ -1,4 +1,4 @@
-package com.psp_pos;
+package com.tap2payz;
 
 import android.app.Activity;
 import android.content.Context;
@@ -12,7 +12,7 @@ import android.view.Gravity;
 import android.view.WindowManager;
 import android.widget.ImageView;
 
-import com.psp_pos.R;
+import com.tap2payz.R;
 
 public class SecondDisplayActivity extends Activity {
 

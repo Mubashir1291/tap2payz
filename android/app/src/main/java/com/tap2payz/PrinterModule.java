@@ -1,4 +1,4 @@
-package com.psp_pos;
+package com.tap2payz;
 
 import android.content.Context;
 import android.hardware.usb.UsbDevice;
@@ -305,9 +305,6 @@ public class PrinterModule extends ReactContextBaseJavaModule {
             promise.reject("Error", e.getMessage());
         }
     }
-
-
-
 
     private byte[] bitmapToEscPos(Bitmap bitmap) {
         // Simple implementation of GS v 0 (Normal mode)

@@ -1,4 +1,4 @@
-package com.psp_pos;
+package com.tap2payz;
 
 import com.facebook.react.ReactPackage;
 import com.facebook.react.bridge.NativeModule;
@@ -9,12 +9,12 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-public class PrinterPackage implements ReactPackage {
+public class PermissionPackage implements ReactPackage {
 
     @Override
     public List<NativeModule> createNativeModules(ReactApplicationContext reactContext) {
         List<NativeModule> modules = new ArrayList<>();
-        modules.add(new PrinterModule(reactContext));
+        modules.add(new PermissionModule(reactContext));
         return modules;
     }
 

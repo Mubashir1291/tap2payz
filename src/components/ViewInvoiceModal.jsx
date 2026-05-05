@@ -14,6 +14,7 @@ const dummyInvoiceItems = [
 ];
 
 const ViewInvoiceModal = ({ visible, onClose, orderData = null }) => {
+  console.log(orderData, orderData)
   const { userData, business_id } = useSelector(state => state.user);
 
   const renderItem = ({ item, index }) => {
@@ -92,21 +93,25 @@ const ViewInvoiceModal = ({ visible, onClose, orderData = null }) => {
                 <Text style={styles.infoValue}>{orderData?.table_id?.table_no || 'N/A'}</Text>
               </Text>
               <Text style={[styles.infoTextList, Body3]}>
-                <Text style={styles.infoLabel}>No of Peoples: </Text>
-                <Text style={styles.infoValue}>{orderData?.person_capacity || 'N/A'}</Text>
+                <Text style={styles.infoLabel}>
+                  {orderData?.person_capacity ? 'No of Peoples: ' : 'Table Seats: '}
+                </Text>
+                <Text style={styles.infoValue}>
+                  {orderData?.person_capacity || orderData?.table_id?.seats || 'N/A'}
+                </Text>
               </Text>
               <Text style={[styles.infoTextList, Body3]}>
                 <Text style={styles.infoLabel}>Order Date: </Text>
                 <Text style={styles.infoValue}>
                   {orderData?.updated_at
                     ? new Date(orderData.updated_at).toLocaleString('en-GB', {
-                        day: '2-digit',
-                        month: 'short',
-                        year: 'numeric',
-                        hour: '2-digit',
-                        minute: '2-digit',
-                        hour12: true,
-                      })
+                      day: '2-digit',
+                      month: 'short',
+                      year: 'numeric',
+                      hour: '2-digit',
+                      minute: '2-digit',
+                      hour12: true,
+                    })
                     : 'N/A'}
                 </Text>
               </Text>
