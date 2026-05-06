@@ -35,7 +35,9 @@ const ViewOrdersScreen = () => {
 
   const handleGetResOrders = useCallback(
     async (pageNumber = 1) => {
-      if (!store_id) return;
+      if (!store_id) {
+        return;
+      }
 
       const statusMap = {
         All: '',
@@ -58,7 +60,7 @@ const ViewOrdersScreen = () => {
         // console.log(response, "=====================================")
 
         const mappedOrders = (response?.items || []).map(item => ({
-          id: item._id,
+          id: item.order_number || item.order_id || item._id?.toString().slice(-6).toUpperCase() || 'N/A',
           table: item.table_id?.table_no || 'N/A',
           productsSummary: (item.products || [])
             .map(p => p.product_id?.product_name || p.product_name || 'Unknown')
@@ -85,7 +87,7 @@ const ViewOrdersScreen = () => {
         setIsLoading(false);
       }
     },
-    [store_id, activeTab, searchQuery],
+    [store_id, activeTab],
   );
 
   useEffect(() => {
@@ -126,11 +128,11 @@ const ViewOrdersScreen = () => {
         <Text style={[styles.rowText, Body3]}>{item.date}</Text>
       </View>
       <View style={styles.colTotal}>
-        <Text style={[styles.rowText, Body3]}>{item.total}</Text>
+        <Text style={[styles.rowTextRight, Body3]}>{item.total}</Text>
       </View>
-      <View style={styles.colSubTotal}>
+      {/* <View style={styles.colSubTotal}>
         <Text style={[styles.rowText, Body3]}>{item.subTotal}</Text>
-      </View>
+      </View> */}
       <View style={styles.colActions}>
         <TouchableOpacity
           style={styles.viewInvoiceBtn}
@@ -205,7 +207,7 @@ const ViewOrdersScreen = () => {
             <Text style={[styles.headerText, Subtitle2]}>Date</Text>
           </View>
           <View style={styles.colTotal}>
-            <Text style={[styles.headerText, Subtitle2]}>Total</Text>
+            <Text style={[styles.headerTextRight, Subtitle2]}>Total</Text>
           </View>
           {/* <View style={styles.colSubTotal}>
             <Text style={[styles.headerText, Subtitle2]}>Sub Total</Text>
@@ -217,7 +219,7 @@ const ViewOrdersScreen = () => {
 
         {/* Table List */}
         {isLoading ? (
-          <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+          <View style={styles.loadingContainer}>
             <ActivityIndicator size="large" color={Colors.primary} />
           </View>
         ) : (
@@ -227,14 +229,14 @@ const ViewOrdersScreen = () => {
             renderItem={renderOrderRow}
             showsVerticalScrollIndicator={false}
             ListEmptyComponent={
-              <View style={{ padding: 40, alignItems: 'center' }}>
-                <Text style={[Subtitle2, { color: Colors.grey }]}>No orders found.</Text>
+              <View style={styles.emptyContainer}>
+                <Text style={[Subtitle2, styles.emptyText]}>No orders found.</Text>
               </View>
             }
             ListFooterComponent={
               <View style={styles.paginationRow}>
                 <TouchableOpacity
-                  style={[styles.pageBtn, page <= 1 && { opacity: 0.5 }]}
+                  style={[styles.pageBtn, page <= 1 && styles.disabledPageBtn]}
                   onPress={() => handleGetResOrders(page - 1)}
                   disabled={page <= 1}
                 >
@@ -246,7 +248,7 @@ const ViewOrdersScreen = () => {
                 </TouchableOpacity>
                 <Text style={[styles.pageText, Body3]}>{String(page).padStart(2, '0')}</Text>
                 <TouchableOpacity
-                  style={[styles.pageBtn, !paginationData?.hasNextPage && { opacity: 0.8 }]}
+                  style={[styles.pageBtn, !paginationData?.hasNextPage && styles.nextPageBtn]}
                   onPress={() => handleGetResOrders(page + 1)}
                   disabled={!paginationData?.hasNextPage}
                 >

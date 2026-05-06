@@ -85,6 +85,9 @@ const OrderProcessingScreen = () => {
 
   const [selectedCategory, setSelectedCategory] = useState({ _id: 'all', name: 'All' });
   const [cart, setCart] = useState([]);
+  const hasQuickSale = useMemo(() => {
+    return cart.some(item => item.productId?.toString().startsWith('quick_'));
+  }, [cart]);
 
   const [tipAmount, setTipAmount] = useState(null);
   const [showTipModal, setShowTipModal] = useState(false);
@@ -127,11 +130,12 @@ const OrderProcessingScreen = () => {
   const handleGetResOrderDetail = useCallback(async () => {
     try {
       const res = await GET_RES_ACTIVE_ORDERS(tableId);
+      console.log('Order details response:', res);
       const order = res?.order;
       if (order) {
         setOrderDetail(order);
         // Map products from API response to component cart state
-        const mappedCart = (order.products || []).map(item => ({
+        const mappedProducts = (order.products || []).map(item => ({
           id: item._id, // Local ID for cart management
           productId: item.product_id?._id,
           name: item.product_id?.product_name || 'Unknown',
@@ -139,7 +143,19 @@ const OrderProcessingScreen = () => {
           qty: item.quantity,
           note: item.note || '',
         }));
-        setCart(mappedCart);
+
+        const mappedQuickSales = (order.quick_sales || []).flatMap(qs =>
+          (qs.quick_sale_id?.products || []).map(p => ({
+            id: p._id,
+            productId: `quick_${p._id}`,
+            name: p.product_name,
+            price: p.price,
+            qty: p.quantity,
+            note: p.note || '',
+          }))
+        );
+
+        setCart([...mappedProducts, ...mappedQuickSales]);
       }
     } catch (error) {
       console.error('Error fetching order details:', error);
@@ -164,16 +180,31 @@ const OrderProcessingScreen = () => {
     const payload = {
       type: isTakeAway ? 'TakeAway' : 'DineIn',
       table_id: tableId || '',
-      products: cart.map(item => ({
-        pid: item.productId || item.id,
-        quantity: item.qty,
-        note: item.note || '',
-      })),
+      products: cart.map(item => {
+        const prodId = item.productId || item.id;
+        if (prodId?.toString().startsWith('quick_')) {
+          return {
+            quickSale: true,
+            product_name: item.name,
+            price: item.price,
+            quantity: item.qty,
+            note: item.note || '',
+          };
+        }
+        return {
+          pid: prodId,
+          quantity: item.qty,
+          note: item.note || '',
+          quickSale: false,
+        };
+      }),
       employee_id: userData?._id || '',
       note: '',
+      quickSale: hasQuickSale,
     };
     try {
       const response = await CREATE_RES_ORDER(payload);
+      console.log(response, 'create order')
       setOrderDetail(response?.order);
       setShowProcessModal(true);
     } catch (error) {
@@ -267,11 +298,20 @@ const OrderProcessingScreen = () => {
     const payload = {
       order_id: detail._id,
       transaction_type: 'CASH',
-      products: detail?.products?.map(item => ({
-        product_id: item?.product_id?._id,
-        quantity: item?.quantity,
-      })),
+      products: [
+        ...(detail?.products?.map(item => ({
+          product_id: item?.product_id?._id,
+          quantity: item?.quantity,
+        })) || []),
+        ...(detail?.quick_sales?.flatMap(qs =>
+          (qs.quick_sale_id?.products || []).map(p => ({
+            product_id: p._id,
+            quantity: p.quantity,
+          }))
+        ) || []),
+      ],
       deviceId: deviceId,
+      quickSale: hasQuickSale,
     };
     try {
       const res = await GET_TERMINAL_STATUS(payload);
@@ -484,13 +524,11 @@ const OrderProcessingScreen = () => {
     return (subtotal - discountAmount + (parseFloat(tipAmount) || 0)).toFixed(2);
   }, [subtotal, discountAmount, tipAmount]);
 
-  const hasQuickSale = useMemo(() => {
-    return cart.some(item => item.productId?.toString().startsWith('quick_'));
-  }, [cart]);
+
 
   const handleCancelTapCard = () => {
     setShowTapCardModal(false);
-    NfcManager.cancelTechnologyRequest().catch(() => {});
+    NfcManager.cancelTechnologyRequest().catch(() => { });
   };
 
   // Modals Handlers
@@ -566,7 +604,7 @@ const OrderProcessingScreen = () => {
     navigation.navigate('MainDrawer', {
       screen: 'TableSelectionScreen',
       params: {
-        newlyProcessedTable: isTakeAway ? undefined : tableNumber,
+        completedTable: isTakeAway ? undefined : tableNumber,
         orderType: isTakeAway ? 'Take Away' : 'Dine in',
       },
     });

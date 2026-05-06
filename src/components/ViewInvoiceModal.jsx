@@ -14,8 +14,7 @@ const dummyInvoiceItems = [
 ];
 
 const ViewInvoiceModal = ({ visible, onClose, orderData = null }) => {
-  console.log(orderData, orderData)
-  const { userData, business_id } = useSelector(state => state.user);
+  const { userData } = useSelector(state => state.user);
 
   const renderItem = ({ item, index }) => {
     // Dynamic mappings

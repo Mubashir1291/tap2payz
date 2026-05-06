@@ -73,6 +73,7 @@ const TableSelectionScreen = () => {
 
   const [selectedCategory, setSelectedCategory] = useState({ _id: 'all', category_name: 'All' });
   const [cart, setCart] = useState([]);
+  const hasQuickSale = cart.some(item => item.productId?.toString().startsWith('quick_'));
   const [tables, setTables] = useState([]);
   const [categories, setCategories] = useState([]);
   const [products, setProducts] = useState([]);
@@ -120,14 +121,14 @@ const TableSelectionScreen = () => {
         getAll: 'true',
       });
       setCategories(response?.items || []);
-    } catch (error) {}
+    } catch (error) { }
   }, [store_id]);
 
   const handleFetchAllProducts = useCallback(async query => {
     try {
       const response = await GET_ALL_PRODUCTS_WITH_INVENTORY(query);
       setProducts(response?.items || []);
-    } catch (error) {}
+    } catch (error) { }
   }, []);
 
   const handleGetFloors = useCallback(async () => {
@@ -139,7 +140,7 @@ const TableSelectionScreen = () => {
       if (fetchedAreas.length > 0 && !selectedArea) {
         setSelectedArea(fetchedAreas[0]);
       }
-    } catch (error) {}
+    } catch (error) { }
   }, [store_id, selectedArea]);
 
   const handleGetTables = useCallback(
@@ -177,15 +178,25 @@ const TableSelectionScreen = () => {
     const payload = {
       order_id: detail._id,
       transaction_type: 'CASH',
-      products: detail?.products?.map(item => ({
-        product_id: item?.product_id?._id,
-        quantity: item?.quantity,
-      })),
+      products: [
+        ...(detail?.products?.map(item => ({
+          product_id: item?.product_id?._id,
+          quantity: item?.quantity,
+        })) || []),
+        ...(detail?.quick_sales?.flatMap(qs =>
+          (qs.quick_sale_id?.products || []).map(p => ({
+            product_id: p._id,
+            quantity: p.quantity,
+          }))
+        ) || []),
+      ],
       deviceId: deviceId,
+      quickSale: hasQuickSale,
     };
     console.log(payload, 'payload for get terminal status');
     try {
       const res = await GET_TERMINAL_STATUS(payload);
+      console.log('Terminal status response:', res);
       setTerminalReferenceNumber(res?.transaction?.referenceNumber || '');
       setTerminalNr(res?.transaction?.nr || '');
     } catch (error) {
@@ -195,6 +206,9 @@ const TableSelectionScreen = () => {
 
   const handleResTransaction = async method => {
     const payload = {
+      order_id: orderDetail?._id || route.params?.orderDetail?._id,
+      quickSale: hasQuickSale,
+      quick_sales: (orderDetail?.quick_sales || route.params?.orderDetail?.quick_sales)?.map(qs => qs._id) || [],
       transaction: {
         deviceID: deviceId || '',
         storeID: store_id || '',
@@ -215,6 +229,7 @@ const TableSelectionScreen = () => {
     };
     try {
       const res = await CREATE_RES_TRANSACTION(payload);
+      console.log('Transaction response:', res);
       return res;
     } catch (error) {
       Toast.show({
@@ -298,6 +313,10 @@ const TableSelectionScreen = () => {
       });
       navigation.setParams({ newlyProcessedTable: undefined });
     }
+    if (route.params?.completedTable) {
+      setProcessingTables(prev => prev.filter(tNo => tNo !== route.params.completedTable));
+      navigation.setParams({ completedTable: undefined });
+    }
     // Sync orderDetail from route params (coming back from OrderProcessingScreen)
     if (route.params?.orderDetail) {
       setOrderDetail(route.params.orderDetail);
@@ -337,13 +356,26 @@ const TableSelectionScreen = () => {
     const payload = {
       type: 'TakeAway',
       table_id: '',
-      products: cart.map(item => ({
-        pid: item.productId,
-        quantity: item.qty,
-        note: item.note || '',
-      })),
+      products: cart.map(item => {
+        if (item.productId?.toString().startsWith('quick_')) {
+          return {
+            quickSale: true,
+            product_name: item.name,
+            price: item.price,
+            quantity: item.qty,
+            note: item.note || '',
+          };
+        }
+        return {
+          pid: item.productId,
+          quantity: item.qty,
+          note: item.note || '',
+          quickSale: false,
+        };
+      }),
       employee_id: userData?._id || '',
       note: '',
+      quickSale: hasQuickSale,
     };
 
     try {
@@ -396,7 +428,7 @@ const TableSelectionScreen = () => {
   const subtotal = cart.reduce((sum, item) => sum + item.price * item.qty, 0);
   const total = (subtotal - discountAmount + (parseFloat(tipAmount) || 0)).toFixed(2);
 
-  const hasQuickSale = cart.some(item => item.productId?.toString().startsWith('quick_'));
+
 
   // Modals Handlers
   const handleOpenTipModal = () => setShowTipModal(true);
@@ -955,7 +987,7 @@ const TableSelectionScreen = () => {
             try {
               await handleResTransaction(data.method);
               setShowSuccessModal(true);
-            } catch (error) {}
+            } catch (error) { }
           } else {
             setShowTapCardModal(true);
             try {

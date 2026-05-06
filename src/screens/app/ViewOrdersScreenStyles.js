@@ -112,8 +112,8 @@ const styles = StyleSheet.create({
   colWaiter: { flex: 1.5 },
   colHandleBy: { flex: 1.5 },
   colDate: { flex: 2 },
-  colTotal: { flex: 1 },
-  colSubTotal: { flex: 1 },
+  colTotal: { flex: 1, alignItems: 'flex-end' },
+  colSubTotal: { flex: 1, alignItems: 'flex-end' },
   colActions: { flex: 1.5, alignItems: 'center', justifyContent: 'center' },
 
   // ─── Table Row ───
@@ -127,6 +127,15 @@ const styles = StyleSheet.create({
   rowText: {
     color: '#555',
     textAlign: 'center',
+  },
+  rowTextRight: {
+    color: '#555',
+    textAlign: 'right',
+  },
+  headerTextRight: {
+    color: '#444',
+    fontWeight: 'bold',
+    textAlign: 'right',
   },
 
   // ─── Action Button ───
@@ -165,6 +174,24 @@ const styles = StyleSheet.create({
   },
   pageText: {
     color: '#555',
+  },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  emptyContainer: {
+    padding: VS(40),
+    alignItems: 'center',
+  },
+  emptyText: {
+    color: Colors.grey,
+  },
+  disabledPageBtn: {
+    opacity: 0.5,
+  },
+  nextPageBtn: {
+    opacity: 0.8,
   },
 });
 

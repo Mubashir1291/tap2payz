@@ -18,7 +18,7 @@ const CashPayModal = ({ visible = false, totalAmount = 0, onProceed, onClose }) 
 
   const handleProceed = () => {
     if (parsedAmount >= totalAmount && onProceed) {
-      onProceed({ amount: parsedAmount.toFixed(2), change: change, method: 'Cash' });
+      onProceed({ amount: parsedAmount.toFixed(2), change, method: 'Cash' });
     }
   };
 
