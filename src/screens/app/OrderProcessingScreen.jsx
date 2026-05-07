@@ -199,9 +199,9 @@ const OrderProcessingScreen = () => {
         };
       }),
       employee_id: userData?._id || '',
-      note: '',
-      quickSale: hasQuickSale,
+
     };
+    console.log(payload, 'payload12234')
     try {
       const response = await CREATE_RES_ORDER(payload);
       console.log(response, 'create order')
@@ -347,10 +347,13 @@ const OrderProcessingScreen = () => {
         vat: 0,
         status: 'Completed',
         buyerID: buyerId,
+        quickSale: hasQuickSale,
       },
     };
+    console.log('quick_sale Payload', payload)
     try {
       const res = await CREATE_RES_TRANSACTION(payload);
+      console.log(res, 'transaction')
       return res;
     } catch (error) {
       console.error('Error creating transaction:', error);

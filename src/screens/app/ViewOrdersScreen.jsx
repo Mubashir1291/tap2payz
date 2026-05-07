@@ -18,11 +18,15 @@ import ViewInvoiceModal from '../../components/ViewInvoiceModal';
 import { GET_RES_ORDERS } from '../../services/Restaurant/Order/Order';
 import { useSelector } from 'react-redux';
 import { Colors } from '../../utils/Colors';
+import useDebounce from '../../utils/useDebounce';
+
 
 const ViewOrdersScreen = () => {
   const navigation = useNavigation();
   const [activeTab, setActiveTab] = useState('All');
   const [searchQuery, setSearchQuery] = useState('');
+  const debouncedSearchQuery = useDebounce(searchQuery, 500);
+
   const [modalVisible, setModalVisible] = useState(false);
   const [selectedOrder, setSelectedOrder] = useState(null);
   const [orders, setOrders] = useState([]);
@@ -32,6 +36,8 @@ const ViewOrdersScreen = () => {
   const { store_id } = useSelector(state => state.user);
 
   const isFirstRender = useRef(true);
+  const lastFetchParams = useRef('');
+
 
   const handleGetResOrders = useCallback(
     async (pageNumber = 1) => {
@@ -45,19 +51,26 @@ const ViewOrdersScreen = () => {
         'In Processing': 'Processing',
       };
 
+      // Create a unique key for the current fetch parameters
+      const currentParams = `${store_id}-${activeTab}-${debouncedSearchQuery}-${pageNumber}`;
+
+      // Prevent duplicate hits with same parameters
+      if (lastFetchParams.current === currentParams) {
+        return;
+      }
+      lastFetchParams.current = currentParams;
+
       const payload = {
         page: pageNumber,
         itemsPerPage: 10,
         store_id,
         status: statusMap[activeTab],
-        // type: 'DineIn',
-        // sort: 'desc',
+        searchText: debouncedSearchQuery,
       };
 
       setIsLoading(true);
       try {
         const response = await GET_RES_ORDERS(payload);
-        // console.log(response, "=====================================")
 
         const mappedOrders = (response?.items || []).map(item => ({
           id: item.order_number || item.order_id || item._id?.toString().slice(-6).toUpperCase() || 'N/A',
@@ -75,7 +88,6 @@ const ViewOrdersScreen = () => {
             hour12: true,
           }),
           total: `$ ${item.total_price?.toFixed(2) || '0.00'}`,
-          // subTotal: `$ ${item.subtotal?.toFixed(2) || '0.00'}`,
           rawOrder: item,
         }));
         setOrders(mappedOrders);
@@ -87,21 +99,18 @@ const ViewOrdersScreen = () => {
         setIsLoading(false);
       }
     },
-    [store_id, activeTab],
+    [store_id, activeTab, debouncedSearchQuery],
   );
 
   useEffect(() => {
     handleGetResOrders(1);
-  }, [handleGetResOrders]);
-
-  // Optional: Reset page when tab changes
-  useEffect(() => {
-    if (isFirstRender.current) {
+    // Reset page when filters change
+    if (!isFirstRender.current) {
+      setPage(1);
+    } else {
       isFirstRender.current = false;
-      return;
     }
-    setPage(1);
-  }, [activeTab]);
+  }, [store_id, activeTab, debouncedSearchQuery, handleGetResOrders]);
 
   const handleOpenInvoice = orderData => {
     setSelectedOrder(orderData);
@@ -116,11 +125,7 @@ const ViewOrdersScreen = () => {
       <View style={styles.colTable}>
         <Text style={[styles.rowText, Body3]}>{item.table}</Text>
       </View>
-      {/* <View style={styles.colWaiter}>
-        <Text style={[styles.rowText, Body3]} numberOfLines={1}>
-          {item.productsSummary || 'No Items'}
-        </Text>
-      </View> */}
+
       <View style={styles.colHandleBy}>
         <Text style={[styles.rowText, Body3]}>{item.handleBy}</Text>
       </View>
@@ -130,9 +135,6 @@ const ViewOrdersScreen = () => {
       <View style={styles.colTotal}>
         <Text style={[styles.rowTextRight, Body3]}>{item.total}</Text>
       </View>
-      {/* <View style={styles.colSubTotal}>
-        <Text style={[styles.rowText, Body3]}>{item.subTotal}</Text>
-      </View> */}
       <View style={styles.colActions}>
         <TouchableOpacity
           style={styles.viewInvoiceBtn}
@@ -218,13 +220,14 @@ const ViewOrdersScreen = () => {
         </View>
 
         {/* Table List */}
-        {isLoading ? (
+        {isLoading && orders.length === 0 ? (
           <View style={styles.loadingContainer}>
             <ActivityIndicator size="large" color={Colors.primary} />
           </View>
         ) : (
           <FlatList
             data={orders}
+
             keyExtractor={item => item.id}
             renderItem={renderOrderRow}
             showsVerticalScrollIndicator={false}

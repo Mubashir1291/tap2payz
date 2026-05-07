@@ -22,6 +22,7 @@ const ENDPOINTS = {
     UPDATE_PRODUCT: '/product/update-product',
     DELETE_PRODUCT: '/product/delete-product',
   },
+  
   TRANSACTION: {
     CREATE_TRANSACTION: '/create-transaction',
     GET_INVENTORY_STATUS: '/get-inventory-status',

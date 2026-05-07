@@ -11,9 +11,10 @@ export const GET_RES_ORDERS = ({
   status = '',
   type = '',
   sort = '',
+  searchText = '',
 } = {}) => {
   const response = Fetch.get(
-    `${BASE_PREFIX}${ENDPOINTS.ORDER.GET_ORDERS}?page=${page}&itemsPerPage=${itemsPerPage}&store_id=${store_id}&status=${status}&type=${type}&sort=${sort}`,
+    `${BASE_PREFIX}${ENDPOINTS.ORDER.GET_ORDERS}?page=${page}&itemsPerPage=${itemsPerPage}&store_id=${store_id}&status=${status}&type=${type}&sort=${sort}&searchText=${searchText}`,
   );
   return response;
 };
