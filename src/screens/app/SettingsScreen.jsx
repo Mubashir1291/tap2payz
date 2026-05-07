@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useMemo, useEffect } from 'react';
+import React, { useState, useCallback, useMemo } from 'react';
 import {
   View,
   Text,
@@ -8,6 +8,8 @@ import {
   ScrollView,
   Modal,
   TouchableWithoutFeedback,
+  ActivityIndicator,
+  StyleSheet,
 } from 'react-native';
 import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import { LineChart, PieChart } from 'react-native-gifted-charts';
@@ -19,8 +21,7 @@ import {
   GreenDollarIcon,
   PurpleDollarIcon,
   SignalsIcon,
-  CurveIcon,
-  CurveRedDownArrowIcon,
+
   CartIcon,
   InventoryIcon,
   EmployeeIcon,
@@ -37,6 +38,7 @@ import InventoryManagement from './InventoryManagement';
 import TransactionReportScreen from './TransactionReportScreen';
 import { GET_WEEKLY_ANALYTICS } from '../../services/Sales&Analytics';
 import { useSelector } from 'react-redux';
+import Toast from 'react-native-toast-message';
 
 const tabs = [
   { label: 'Reports Overview', icon: OverviewIcon },
@@ -103,35 +105,41 @@ const SettingsScreen = () => {
   const [showDetailModal, setShowDetailModal] = useState(false);
   const [detailType, setDetailType] = useState('sale');
   const [chartWidth, setChartWidth] = useState(S(380)); // default width
-  const { store_id, businessId } = useSelector(state => state.user);
+  const { store_id } = useSelector(state => state.user);
   const [analyticsData, setAnalyticsData] = useState();
   const [timeFrame, setTimeFrame] = useState('weekly');
+  const [isLoading, setIsLoading] = useState(false);
   const [showTimeFrameModal, setShowTimeFrameModal] = useState(false);
 
-  const handleGetAnalytics = async () => {
+  const handleGetAnalytics = useCallback(async () => {
+    setIsLoading(true);
     try {
       const payload = {
         storeId: store_id,
-        timeFrame: timeFrame,
+        timeFrame,
       };
       const response = await GET_WEEKLY_ANALYTICS(payload);
       if (response?.status === 'success' || response?.data) {
         setAnalyticsData(response);
       }
     } catch (error) {
-      console.log(error);
+      Toast.show({
+        type: 'error',
+        text1: 'Error fetching analytics',
+        text2: error.message,
+      });
+    } finally {
+      setIsLoading(false);
     }
-  };
+  }, [store_id, timeFrame]);
   useFocusEffect(
     useCallback(() => {
       handleGetAnalytics();
-    }, [store_id, timeFrame]),
+    }, [handleGetAnalytics]),
   );
 
   const onChartContainerLayout = useCallback(event => {
     const { width } = event.nativeEvent.layout;
-    // The gifted chart requires the specific width for drawing area.
-    // Subtract ~S(40) to account for Y-axis labels and padding.
     setChartWidth(width - S(40));
   }, []);
 
@@ -140,37 +148,211 @@ const SettingsScreen = () => {
     setShowDetailModal(true);
   }, []);
 
-  const openRefundDetail = useCallback(() => {
-    setDetailType('refund');
-    setShowDetailModal(true);
-  }, []);
 
   const { chartData, chartLabels } = useMemo(() => {
     // Dynamically check for series key based on timeframe
-    const salesKey = timeFrame === 'weekly' ? 'WeeklySales' : 'YearlySales';
-    const series =
-      analyticsData?.data?.[salesKey]?.series || analyticsData?.data?.WeeklySales?.series || [];
-
-    if (series.length === 0) {
+    if (isLoading || !analyticsData) {
       return {
         chartData: salesLineData.map(item => ({ ...item, onPress: openSaleDetail })),
         chartLabels: xLabels,
       };
     }
 
+    const salesKey = timeFrame === 'weekly' ? 'WeeklySales' : 'YearlySales';
+    const series =
+      analyticsData?.data?.[salesKey]?.series || analyticsData?.data?.WeeklySales?.series || [];
+
     return {
-      chartData: series.map(item => ({
-        value: Number(item.y) || 0,
-        onPress: openSaleDetail,
-      })),
+      chartData:
+        series.length > 0
+          ? series.map(item => ({
+            value: Number(item.y) || 0,
+            onPress: openSaleDetail,
+          }))
+          : salesLineData.map(item => ({ ...item, onPress: openSaleDetail })),
       chartLabels: series.map(item => (item.name ? item.name.slice(0, 3) : '')),
     };
-  }, [analyticsData, openSaleDetail]);
+  }, [analyticsData, openSaleDetail, timeFrame]);
 
   const pieContainerImage = () => <Image source={CartIcon} style={IconSize20} />;
 
+  const renderActiveTab = () => {
+    switch (activeTab) {
+      case 1:
+        return <TransactionReportScreen />;
+      case 2:
+        return <ZReport />;
+      case 3:
+        return <XReport isActive={activeTab === 3} />;
+      case 4:
+        return <EmployeeManagement />;
+      case 5:
+        return <InventoryManagement />;
+      default:
+        return (
+          <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
+            {isLoading && !analyticsData ? (
+              <View style={internalStyles.mainLoader}>
+                <ActivityIndicator size="large" color={Colors.primary} />
+              </View>
+            ) : (
+              <>
+                {/* Timeframe Filter Button */}
+                <View style={styles.timeframeFilterContainer}>
+                  <TouchableOpacity style={styles.timeframeBtn} onPress={() => setShowTimeFrameModal(true)}>
+                    <Text style={[Caption, styles.timeframeText]}>
+                      Timeframe: {timeFrame === 'weekly' ? 'Weekly' : 'Yearly'}
+                    </Text>
+                    <Image source={FilterIcon} style={[IconSize12, styles.filterIcon]} />
+                  </TouchableOpacity>
+                </View>
+
+                {/* Stats Cards */}
+                <View style={styles.statsRow}>
+                  <View style={styles.statCard}>
+                    <View style={styles.statHeader}>
+                      <Text style={[styles.statAmount, H3]}>
+                        ${analyticsData?.data?.salesTopDashboardStats?.totalSales || '0.00'}
+                      </Text>
+                      <View style={[styles.statIcon, styles.lightGreenBg]}>
+                        <Image source={SignalsIcon} style={IconSize20} />
+                      </View>
+                    </View>
+                    <View style={styles.statFooter}>
+                      <Text style={[styles.statLabel, Body2]}>Total Revenue</Text>
+                    </View>
+                  </View>
+
+                  <View style={styles.statCard}>
+                    <View style={styles.statHeader}>
+                      <Text style={[styles.statAmount, H3]}>
+                        ${analyticsData?.data?.salesTopDashboardStats?.totalSales || '0.00'}
+                      </Text>
+                      <View style={[styles.statIcon, styles.lightGreenBg]}>
+                        <Image source={GreenDollarIcon} style={IconSize20} />
+                      </View>
+                    </View>
+                    <View style={styles.statFooter}>
+                      <Text style={[styles.statLabel, Body2]}>Total Sales</Text>
+                    </View>
+                  </View>
+
+                  <View style={styles.statCard}>
+                    <View style={styles.statHeader}>
+                      <Text style={[styles.statAmount, H3]}>
+                        ${analyticsData?.data?.salesTopDashboardStats?.todayTotalSales || '0.00'}
+                      </Text>
+                      <View style={[styles.statIcon, styles.lightPurpleBg]}>
+                        <Image source={PurpleDollarIcon} style={IconSize20} />
+                      </View>
+                    </View>
+                    <View style={styles.statFooter}>
+                      <Text style={[styles.statLabel, Body2]}>Today Sales</Text>
+                    </View>
+                  </View>
+                </View>
+
+                {/* Charts Row */}
+                <View style={styles.chartsRow}>
+                  {/* Sales Line Chart */}
+                  <View style={styles.lineChartCard}>
+                    <View style={styles.chartHeader}>
+                      <Text style={[styles.chartTitle, H1]}>Sales</Text>
+                      <View style={styles.legendRow}>
+                        <TouchableOpacity style={styles.legendItem} onPress={openSaleDetail}>
+                          <View style={[styles.legendDot, styles.lightBlueLegendDot]} />
+                          <Text style={[styles.legendText, Caption]}>Sales</Text>
+                        </TouchableOpacity>
+                      </View>
+                    </View>
+                    <View style={styles.flexFull} onLayout={onChartContainerLayout}>
+                      <LineChart
+                        data={chartData}
+                        height={VS(160)}
+                        width={chartWidth}
+                        spacing={Math.max((chartWidth - S(20)) / (chartData.length - 1 || 1), S(20))}
+                        initialSpacing={S(10)}
+                        color1="#A8C8F0"
+                        thickness={2}
+                        hideDataPoints
+                        curved
+                        yAxisColor="transparent"
+                        xAxisColor={Colors.lightGrey}
+                        yAxisTextStyle={[Caption, { color: Colors.grey }]}
+                        xAxisLabelTexts={chartLabels}
+                        xAxisLabelTextStyle={[Caption, { color: Colors.grey }]}
+                        noOfSections={5}
+                        rulesType="solid"
+                        rulesColor={Colors.lightGrey}
+                      />
+                    </View>
+                  </View>
+
+                  {/* Top Selling Products Pie Chart */}
+                  <View style={styles.pieChartCard}>
+                    <Text style={[styles.chartTitle, Subtitle1]}>Top Selling Products</Text>
+                    {analyticsData?.data?.topSellingProducts?.length > 0 ? (
+                      <>
+                        <View style={styles.pieContainer}>
+                          <PieChart
+                            data={analyticsData?.data?.topSellingProducts?.map((item, index) => ({
+                              value: Number(item.totalSales) || 0,
+                              color: pieColors[index % pieColors.length],
+                              text: item.productName,
+                            }))}
+                            donut
+                            radius={MS(60)}
+                            innerRadius={MS(35)}
+                            innerCircleColor={Colors.white}
+                            centerLabelComponent={pieContainerImage}
+                            sectionAutoFocus
+                            sectionRadius={12}
+                            strokeWidth={3}
+                            strokeColor={Colors.white}
+                          />
+                        </View>
+
+                        {/* Pie Legend */}
+                        <View style={styles.pieLegend}>
+                          {analyticsData?.data?.topSellingProducts?.map((item, index) => (
+                            <View key={index} style={styles.pieLegendItem}>
+                              <View
+                                style={[
+                                  styles.pieLegendDot,
+                                  { backgroundColor: pieColors[index % pieColors.length] },
+                                ]}
+                              />
+                              <Text style={[styles.pieLegendText, Caption]} numberOfLines={1}>
+                                {item.productName}
+                              </Text>
+                              <View style={styles.pieLegendValueContainer}>
+                                <Text style={[styles.pieLegendPercent, Subtitle2]}>
+                                  ${Number(item.totalSales).toLocaleString()}
+                                </Text>
+                                <Text style={[Caption, styles.greyText]}>
+                                  {item.totalItems} Items
+                                </Text>
+                              </View>
+                            </View>
+                          ))}
+                        </View>
+                      </>
+                    ) : (
+                      <View style={[styles.flexFull, styles.rowCentered, styles.emptyChartContainer]}>
+                        <Text style={[Caption, styles.emptyChartText]}>No data available</Text>
+                      </View>
+                    )}
+                  </View>
+                </View>
+              </>
+            )}
+          </ScrollView>
+        );
+    }
+  };
+
   return (
-    <View style={styles.root}>
+    <View style={[styles.root, internalStyles.flex1]}>
       <StatusBar backgroundColor={Colors.primary} barStyle="light-content" />
 
       {/* Header */}
@@ -198,9 +380,9 @@ const SettingsScreen = () => {
                 style={[
                   IconSize12,
                   {
-                    tintColor: activeTab === index ? Colors.white : Colors.black,
-                    marginRight: S(8),
+                    tintColor: activeTab === index ? Colors.black : Colors.white,
                   },
+                  styles.tabIcon,
                 ]}
               />
               <Text style={[styles.tabText, Caption, activeTab === index && styles.activeTabText]}>
@@ -211,217 +393,9 @@ const SettingsScreen = () => {
         </ScrollView>
       </View>
 
-      {activeTab === 5 ? (
-        <InventoryManagement />
-      ) : activeTab === 4 ? (
-        <EmployeeManagement />
-      ) : activeTab === 2 ? (
-        <ZReport />
-      ) : activeTab === 1 ? (
-        <TransactionReportScreen />
-      ) : activeTab === 3 ? (
-        <XReport isActive={activeTab === 3} />
-      ) : (
-        <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
-          {/* Timeframe Filter Button */}
-          <View
-            style={{
-              flexDirection: 'row',
-              justifyContent: 'flex-end',
-              paddingHorizontal: S(20),
-              marginTop: VS(10),
-            }}
-          >
-            <TouchableOpacity
-              style={{
-                flexDirection: 'row',
-                alignItems: 'center',
-                backgroundColor: '#EBF0FF',
-                paddingHorizontal: S(12),
-                paddingVertical: VS(6),
-                borderRadius: MS(8),
-                marginBottom: VS(10),
-              }}
-              onPress={() => setShowTimeFrameModal(true)}
-            >
-              <Text style={[Caption, { color: Colors.primary, marginRight: S(6) }]}>
-                Timeframe: {timeFrame === 'weekly' ? 'Weekly' : 'Yearly'}
-              </Text>
-              <Image source={FilterIcon} style={{ ...IconSize12, tintColor: Colors.primary }} />
-            </TouchableOpacity>
-          </View>
-
-          {/* Stats Cards */}
-          <View style={styles.statsRow}>
-            <View style={styles.statCard}>
-              <View style={styles.statHeader}>
-                <Text style={[styles.statAmount, H3]}>
-                  ${analyticsData?.data?.salesTopDashboardStats?.totalSales}
-                </Text>
-                <View style={[styles.statIcon, styles.lightGreenBg]}>
-                  <Image source={SignalsIcon} style={IconSize20} />
-                </View>
-              </View>
-              <View style={styles.statFooter}>
-                <Text style={[styles.statLabel, Body2]}>Total Revenue</Text>
-                {/* <View style={styles.percentContainer}>
-                  <Image source={CurveIcon} style={styles.trendIcon} resizeMode="contain" />
-                  <Text style={[styles.statPercent, Caption, styles.greenPercentText]}>
-                    55.23 %
-                  </Text>
-                </View> */}
-              </View>
-            </View>
-
-            <View style={styles.statCard}>
-              <View style={styles.statHeader}>
-                <Text style={[styles.statAmount, H3]}>
-                  ${analyticsData?.data?.salesTopDashboardStats?.totalSales}
-                </Text>
-                <View style={[styles.statIcon, styles.lightGreenBg]}>
-                  <Image source={GreenDollarIcon} style={IconSize20} />
-                </View>
-              </View>
-              <View style={styles.statFooter}>
-                <Text style={[styles.statLabel, Body2]}>Total Sales</Text>
-                {/* <View style={styles.percentContainer}>
-                  <Image source={CurveIcon} style={styles.trendIcon} resizeMode="contain" />
-                  <Text style={[styles.statPercent, Caption, styles.greenPercentText]}>
-                    50.23 %
-                  </Text>
-                </View> */}
-              </View>
-            </View>
-
-            <View style={styles.statCard}>
-              <View style={styles.statHeader}>
-                <Text style={[styles.statAmount, H3]}>
-                  ${analyticsData?.data?.salesTopDashboardStats?.todayTotalSales}
-                </Text>
-                <View style={[styles.statIcon, styles.lightPurpleBg]}>
-                  <Image source={PurpleDollarIcon} style={IconSize20} />
-                </View>
-              </View>
-              <View style={styles.statFooter}>
-                <Text style={[styles.statLabel, Body2]}>Today Sales</Text>
-                {/* <View style={styles.percentContainer}>
-                  <Image
-                    source={CurveRedDownArrowIcon}
-                    style={styles.trendIcon}
-                    resizeMode="contain"
-                  />
-                  <Text style={[styles.statPercent, Caption, styles.redPercentText]}>90.23 %</Text>
-                </View> */}
-              </View>
-            </View>
-          </View>
-
-          {/* Charts Row */}
-          <View style={styles.chartsRow}>
-            {/* Sales & Refund Line Chart */}
-            <View style={styles.lineChartCard}>
-              <View style={styles.chartHeader}>
-                <Text style={[styles.chartTitle, H1]}>Sales</Text>
-                <View style={styles.legendRow}>
-                  <TouchableOpacity style={styles.legendItem} onPress={openSaleDetail}>
-                    <View style={[styles.legendDot, styles.lightBlueLegendDot]} />
-                    <Text style={[styles.legendText, Caption]}>Sales</Text>
-                  </TouchableOpacity>
-                  {/* <TouchableOpacity style={styles.legendItem} onPress={openRefundDetail}>
-                    <View style={[styles.legendDot, styles.darkBlueLegendDot]} />
-                    <Text style={[styles.legendText, Caption]}>Refund</Text>
-                  </TouchableOpacity> */}
-                </View>
-              </View>
-              <View style={styles.flexFull} onLayout={onChartContainerLayout}>
-                <LineChart
-                  data={chartData}
-                  // data2={refundLineData.map(item => ({ ...item, onPress: openRefundDetail }))}
-                  height={VS(160)}
-                  width={chartWidth}
-                  spacing={Math.max((chartWidth - S(20)) / (chartData.length - 1 || 1), S(20))}
-                  initialSpacing={S(10)}
-                  color1="#A8C8F0"
-                  color2="#3B4B8A"
-                  thickness={2}
-                  hideDataPoints
-                  curved
-                  yAxisColor="transparent"
-                  xAxisColor={Colors.lightGrey}
-                  yAxisTextStyle={[Caption, { color: Colors.grey }]}
-                  xAxisLabelTexts={chartLabels}
-                  xAxisLabelTextStyle={[Caption, { color: Colors.grey }]}
-                  noOfSections={5}
-                  rulesType="solid"
-                  rulesColor={Colors.lightGrey}
-                />
-              </View>
-            </View>
-
-            {/* Top Selling Products Pie Chart */}
-            <View style={styles.pieChartCard}>
-              <Text style={[styles.chartTitle, Subtitle1]}>Top Selling Products</Text>
-              {analyticsData?.data?.topSellingProducts?.length > 0 ? (
-                <>
-                  <View style={styles.pieContainer}>
-                    <PieChart
-                      data={analyticsData?.data?.topSellingProducts?.map((item, index) => ({
-                        value: Number(item.totalSales) || 0,
-                        color: pieColors[index % pieColors.length],
-                        text: item.productName,
-                      }))}
-                      donut
-                      radius={MS(60)}
-                      innerRadius={MS(35)}
-                      innerCircleColor={Colors.white}
-                      centerLabelComponent={pieContainerImage}
-                      sectionAutoFocus
-                      sectionRadius={12}
-                      strokeWidth={3}
-                      strokeColor={Colors.white}
-                    />
-                  </View>
-
-                  {/* Pie Legend */}
-                  <View style={styles.pieLegend}>
-                    {analyticsData?.data?.topSellingProducts?.map((item, index) => (
-                      <View key={index} style={styles.pieLegendItem}>
-                        <View
-                          style={[
-                            styles.pieLegendDot,
-                            { backgroundColor: pieColors[index % pieColors.length] },
-                          ]}
-                        />
-                        <Text style={[styles.pieLegendText, Caption]} numberOfLines={1}>
-                          {item.productName}
-                        </Text>
-                        <View style={{ alignItems: 'flex-end' }}>
-                          <Text style={[styles.pieLegendPercent, Subtitle2]}>
-                            ${Number(item.totalSales).toLocaleString()}
-                          </Text>
-                          <Text style={[Caption, { color: Colors.grey }]}>
-                            {item.totalItems} Items
-                          </Text>
-                        </View>
-                      </View>
-                    ))}
-                  </View>
-                </>
-              ) : (
-                <View
-                  style={[
-                    styles.flexFull,
-                    styles.rowCentered,
-                    { justifyContent: 'center', marginTop: VS(20) },
-                  ]}
-                >
-                  <Text style={[Caption, { color: Colors.grey }]}>No data available</Text>
-                </View>
-              )}
-            </View>
-          </View>
-        </ScrollView>
-      )}
+      <View style={internalStyles.tabContent}>
+        {renderActiveTab()}
+      </View>
 
       {/* Detail Modal */}
       <SalesRefundDetailModal
@@ -439,62 +413,34 @@ const SettingsScreen = () => {
         onRequestClose={() => setShowTimeFrameModal(false)}
       >
         <TouchableWithoutFeedback onPress={() => setShowTimeFrameModal(false)}>
-          <View
-            style={{
-              flex: 1,
-              backgroundColor: 'rgba(0,0,0,0.5)',
-              justifyContent: 'center',
-              alignItems: 'center',
-            }}
-          >
-            <View
-              style={{
-                backgroundColor: Colors.white,
-                width: '30%',
-                borderRadius: MS(12),
-                padding: MS(16),
-              }}
-            >
-              <Text style={[Subtitle1, { marginBottom: VS(16), textAlign: 'center' }]}>
+          <View style={styles.modalOverlay}>
+            <View style={styles.modalContent}>
+              <Text style={[Subtitle1, styles.modalTitle]}>
                 Select Timeframe
               </Text>
-              <TouchableOpacity
-                style={{
-                  paddingVertical: VS(12),
-                  borderBottomWidth: 1,
-                  borderBottomColor: Colors.lightGrey,
-                }}
-                onPress={() => {
-                  setTimeFrame('weekly');
-                  setShowTimeFrameModal(false);
-                }}
-              >
+              <TouchableOpacity style={styles.modalOptionBtn} onPress={() => {
+                setTimeFrame('weekly');
+                setShowTimeFrameModal(false);
+              }}>
                 <Text
                   style={[
                     Body2,
-                    {
-                      textAlign: 'center',
-                      color: timeFrame === 'weekly' ? Colors.primary : Colors.black,
-                    },
+                    styles.modalOptionText,
+                    { color: timeFrame === 'weekly' ? Colors.primary : Colors.black },
                   ]}
                 >
                   Weekly
                 </Text>
               </TouchableOpacity>
-              <TouchableOpacity
-                style={{ paddingVertical: VS(12) }}
-                onPress={() => {
-                  setTimeFrame('yearly');
-                  setShowTimeFrameModal(false);
-                }}
-              >
+              <TouchableOpacity style={styles.modalOptionBtnLast} onPress={() => {
+                setTimeFrame('yearly');
+                setShowTimeFrameModal(false);
+              }}>
                 <Text
                   style={[
                     Body2,
-                    {
-                      textAlign: 'center',
-                      color: timeFrame === 'yearly' ? Colors.primary : Colors.black,
-                    },
+                    styles.modalOptionText,
+                    { color: timeFrame === 'yearly' ? Colors.primary : Colors.black },
                   ]}
                 >
                   Yearly
@@ -507,5 +453,32 @@ const SettingsScreen = () => {
     </View>
   );
 };
+
+const internalStyles = StyleSheet.create({
+  flex1: {
+    flex: 1,
+  },
+  tabContent: {
+    flex: 1,
+    backgroundColor: Colors.white,
+  },
+  mainLoader: {
+    height: VS(400),
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.5)',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  modalContent: {
+    backgroundColor: Colors.white,
+    borderRadius: MS(12),
+    padding: MS(20),
+    width: S(280),
+  },
+});
 
 export default SettingsScreen;

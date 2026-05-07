@@ -50,7 +50,9 @@ const TableManagementScreen = () => {
   };
 
   const handleGetFloors = useCallback(async () => {
-    if (!store_id) return;
+    if (!store_id) {
+      return;
+    }
     try {
       const response = await GET_FLOORS({
         page: 1,
@@ -88,9 +90,11 @@ const TableManagementScreen = () => {
   };
 
   const confirmDelete = async () => {
-    if (!selectedTable?._id) return;
+    if (!selectedTable?._id) {
+      return;
+    }
     try {
-      const response = await DELETE_TABLE(selectedTable._id);
+      await DELETE_TABLE(selectedTable._id);
       setShowDeleteModal(false);
       setSuccessMessage('Table Deleted Successfully');
       setShowSuccessModal(true);
@@ -107,9 +111,11 @@ const TableManagementScreen = () => {
   };
 
   const confirmEdit = async updatedSeats => {
-    if (!selectedTable?._id) return;
+    if (!selectedTable?._id) {
+      return;
+    }
     try {
-      const response = await UPDATE_TABLE(selectedTable._id, {
+      await UPDATE_TABLE(selectedTable._id, {
         seats: parseInt(updatedSeats, 10) || 0,
       });
 
@@ -135,21 +141,7 @@ const TableManagementScreen = () => {
     }
   };
 
-  const handleUpdateTable = async () => {
-    if (!editingTable?._id) return;
-    try {
-      const payload = { seats: parseInt(editSeats, 10) || 0 };
-      const response = await UPDATE_TABLE(editingTable._id, payload);
 
-      setShowEditModal(false);
-      setSuccessMessage('Table Updated Successfully');
-      setShowSuccessModal(true);
-      setTimeout(() => setShowSuccessModal(false), 2000);
-      handleGetTables(selectedArea._id); // Refresh data from server
-    } catch (error) {
-      console.error('Error updating table:', error);
-    }
-  };
 
   const renderItem = ({ item }) => (
     <View style={styles.tableRow}>
@@ -169,7 +161,9 @@ const TableManagementScreen = () => {
 
   const handleGetTables = useCallback(
     async query => {
-      if (!store_id) return;
+      if (!store_id) {
+        return;
+      }
       setIsLoading(true);
       try {
         const response = await GET_TABLES({
@@ -201,11 +195,11 @@ const TableManagementScreen = () => {
   }, [page, store_id, selectedArea, handleGetTables]);
 
   const handleNextPage = () => {
-    if (paginationData?.hasNextPage) setPage(prev => prev + 1);
+    if (paginationData?.hasNextPage) { setPage(prev => prev + 1); }
   };
 
   const handlePrevPage = () => {
-    if (page > 1) setPage(prev => prev - 1);
+    if (page > 1) { setPage(prev => prev - 1); }
   };
 
   return (
@@ -247,18 +241,9 @@ const TableManagementScreen = () => {
                     style={[
                       styles.dropdownContainer,
                       {
-                        position: 'absolute',
                         top: dropdownPosition.top + 5,
                         left: dropdownPosition.left,
                         width: dropdownPosition.width,
-                        backgroundColor: Colors.white,
-                        borderRadius: 8,
-                        elevation: 5,
-                        shadowColor: '#000',
-                        shadowOffset: { width: 0, height: 2 },
-                        shadowOpacity: 0.1,
-                        shadowRadius: 4,
-                        overflow: 'hidden',
                       },
                     ]}
                   >
@@ -267,8 +252,7 @@ const TableManagementScreen = () => {
                         key={area._id}
                         style={[
                           styles.dropdownItem,
-                          { paddingVertical: 12, paddingHorizontal: 16 },
-                          selectedArea?._id === area._id && { backgroundColor: '#F0F4F9' },
+                          selectedArea?._id === area._id && styles.dropdownItemActive,
                         ]}
                         onPress={() => {
                           setSelectedArea(area);
@@ -280,9 +264,7 @@ const TableManagementScreen = () => {
                           style={[
                             styles.dropdownItemText,
                             Subtitle2,
-                            {
-                              color: selectedArea?._id === area._id ? Colors.primary : Colors.black,
-                            },
+                            selectedArea?._id === area._id ? styles.primaryText : styles.blackText,
                           ]}
                         >
                           {area.name}
@@ -337,7 +319,7 @@ const TableManagementScreen = () => {
           {/* Pagination */}
           <View style={styles.pagination}>
             <TouchableOpacity
-              style={[styles.pageArrow, page === 1 && { opacity: 0.5 }]}
+              style={[styles.pageArrow, page === 1 && styles.disabledOpacity]}
               disabled={page === 1}
               onPress={handlePrevPage}
             >
@@ -345,7 +327,7 @@ const TableManagementScreen = () => {
             </TouchableOpacity>
             <Text style={[styles.pageText, Body2]}>{String(page).padStart(2, '0')}</Text>
             <TouchableOpacity
-              style={[styles.pageArrow, !paginationData?.hasNextPage && { opacity: 0.5 }]}
+              style={[styles.pageArrow, !paginationData?.hasNextPage && styles.disabledOpacity]}
               disabled={!paginationData?.hasNextPage}
               onPress={handleNextPage}
             >

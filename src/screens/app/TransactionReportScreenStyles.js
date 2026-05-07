@@ -1,7 +1,6 @@
 import { StyleSheet } from 'react-native';
 import { Colors } from '../../utils/Colors';
 import { S, VS, MS } from '../../utils/Responsive';
-import { H2 } from '../../utils/fonts';
 
 const styles = StyleSheet.create({
   root: {
@@ -125,6 +124,11 @@ const styles = StyleSheet.create({
   rowText: {
     color: '#333333',
   },
+  statusWrapper: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: MS(8),
+  },
   typeRow: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -144,6 +148,9 @@ const styles = StyleSheet.create({
   arrowIcon: {
     tintColor: '#999999',
   },
+  footerLoader: {
+    paddingVertical: VS(20),
+  },
   rightPanel: {
     flex: 1,
     padding: MS(24),
@@ -155,6 +162,9 @@ const styles = StyleSheet.create({
     borderBottomColor: '#F5F7FA',
     paddingBottom: VS(16),
     marginBottom: VS(24),
+  },
+  flexFull: {
+    flex: 1,
   },
   detailLabel: {
     color: '#666666',
@@ -213,6 +223,9 @@ const styles = StyleSheet.create({
   tableRowPrice: {
     color: '#666666',
     textAlign: 'right',
+  },
+  centerTextAlign: {
+    textAlign: 'center',
   },
   subtotalContainer: {
     flexDirection: 'row',

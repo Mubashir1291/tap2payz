@@ -27,7 +27,7 @@ const ZReportDetailModal = ({ visible = false, reportData = null, onClose }) => 
             <View style={styles.logoContainer}>
               <Image
                 source={Tap2PayLogo}
-                style={{ width: S(120), height: VS(80), resizeMode: 'contain' }}
+                style={styles.logo}
               />
             </View>
 
@@ -150,8 +150,8 @@ const ZReportDetailModal = ({ visible = false, reportData = null, onClose }) => 
           {/* Action Buttons */}
           <View style={styles.actionButtonsContainer}>
             <TouchableOpacity style={styles.printBtn}>
-              <Text style={[styles.btnText, Subtitle2, { color: Colors.white }]}>Print</Text>
-              <Image source={PrinterIcon} style={[styles.btnIcon, { tintColor: Colors.white }]} />
+              <Text style={[styles.btnText, Subtitle2, styles.whiteText]}>Print</Text>
+              <Image source={PrinterIcon} style={[styles.btnIcon, styles.whiteTint]} />
             </TouchableOpacity>
 
             <TouchableOpacity style={styles.downloadBtn}>
@@ -207,6 +207,11 @@ const styles = StyleSheet.create({
     color: Colors.black,
     marginBottom: VS(16),
   },
+  logo: {
+    width: S(120),
+    height: VS(80),
+    resizeMode: 'contain',
+  },
   logoContainer: {
     alignItems: 'center',
     marginBottom: VS(24),
@@ -251,6 +256,12 @@ const styles = StyleSheet.create({
   },
   totalValue: {
     color: '#3B4B8A',
+  },
+  whiteText: {
+    color: Colors.white,
+  },
+  whiteTint: {
+    tintColor: Colors.white,
   },
   actionButtonsContainer: {
     flexDirection: 'row',

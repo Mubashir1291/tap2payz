@@ -9,6 +9,7 @@ import {
   TextInput,
   ScrollView,
   ActivityIndicator,
+  StyleSheet,
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { Colors } from '../../utils/Colors';
@@ -47,7 +48,6 @@ const SaleScreen = () => {
     category_id: '',
   });
   const [products, setProducts] = useState([]);
-  // eslint-disable-next-line unused-imports/no-unused-vars
   const [productsData, setProductsData] = useState(null);
   const [isLoadingMoreProducts, setIsLoadingMoreProducts] = useState(false);
   const isLoadingProductsRef = useRef(false);
@@ -151,7 +151,7 @@ const SaleScreen = () => {
       style={[
         styles.productCard,
         item.quantity <= 0 && styles.outOfStockCard,
-        item.quantity <= 0 && { backgroundColor: '#E0E0E0' },
+        item.quantity <= 0 && internalStyles.outOfStockBg,
       ]}
       activeOpacity={0.5}
       onPress={() => {
@@ -170,11 +170,11 @@ const SaleScreen = () => {
         <Text style={[styles.priceText, Caption]}>${item.price}</Text>
       </View>
       <Image source={ImageFrameIcon} style={styles.productImage} />
-      <Text style={[styles.productName, Subtitle2, item.quantity <= 0 && { color: 'red' }]}>
+      <Text style={[styles.productName, Subtitle2, item.quantity <= 0 && internalStyles.redText]}>
         {item.name}
       </Text>
       {item.quantity <= 0 && (
-        <Text style={[Caption, { color: 'red', textAlign: 'center' }]}>Out of Stock</Text>
+        <Text style={[Caption, internalStyles.outOfStockLabel]}>Out of Stock</Text>
       )}
     </TouchableOpacity>
   );
@@ -270,7 +270,7 @@ const SaleScreen = () => {
           </TouchableOpacity>
           {/* Search Bar */}
           <View style={styles.searchBar}>
-            <Image source={SearchIcon} style={[IconSize12, { marginRight: S(8) }]} />
+            <Image source={SearchIcon} style={[IconSize12, internalStyles.searchIcon]} />
             <TextInput
               style={[styles.searchInput, Body3]}
               placeholder="Search..."
@@ -305,8 +305,8 @@ const SaleScreen = () => {
 
         {/* Categories */}
         {isAllCategoriesView ? (
-          <View style={{ marginBottom: VS(16), paddingHorizontal: S(6) }}>
-            <Text style={[Subtitle1, { color: Colors.black }]}>
+          <View style={internalStyles.categoryCountContainer}>
+            <Text style={[Subtitle1, internalStyles.blackText]}>
               Total Categories: {categoriesData?.totalItems}
             </Text>
           </View>
@@ -406,7 +406,7 @@ const SaleScreen = () => {
             onEndReachedThreshold={0.1}
             ListFooterComponent={
               isLoadingMoreCategories ? (
-                <View style={{ padding: 20 }}>
+                <View style={internalStyles.footerLoader}>
                   <ActivityIndicator size="large" color={Colors.primary} />
                 </View>
               ) : null
@@ -424,7 +424,7 @@ const SaleScreen = () => {
             onEndReachedThreshold={0.1}
             ListFooterComponent={
               isLoadingMoreProducts ? (
-                <View style={{ padding: 20 }}>
+                <View style={internalStyles.footerLoader}>
                   <ActivityIndicator size="large" color={Colors.primary} />
                 </View>
               ) : null
@@ -438,5 +438,31 @@ const SaleScreen = () => {
     </View>
   );
 };
+
+const internalStyles = StyleSheet.create({
+  outOfStockBg: {
+    backgroundColor: '#E0E0E0',
+  },
+  redText: {
+    color: 'red',
+  },
+  outOfStockLabel: {
+    color: 'red',
+    textAlign: 'center',
+  },
+  searchIcon: {
+    marginRight: S(8),
+  },
+  categoryCountContainer: {
+    marginBottom: VS(16),
+    paddingHorizontal: S(6),
+  },
+  blackText: {
+    color: Colors.black,
+  },
+  footerLoader: {
+    padding: 20,
+  },
+});
 
 export default SaleScreen;

@@ -29,7 +29,6 @@ import SuccessModal from '../../components/SuccessModal';
 import SortModal, { applySort } from '../../components/SortModal';
 import ConfirmationModal from '../../components/ConfirmationModal';
 import { DELETE_EMPLOYEE, GET_EMPLOYEES } from '../../services/Employee';
-import { MS } from '../../utils/Responsive';
 import useDebounce from '../../utils/useDebounce';
 
 const EmployeeManagement = () => {
@@ -69,8 +68,7 @@ const EmployeeManagement = () => {
 
   const confirmDelete = async () => {
     try {
-      const response = await DELETE_EMPLOYEE(selectedEmployee?.id);
-      console.log('Employee Delete response', response);
+      await DELETE_EMPLOYEE(selectedEmployee?.id);
     } catch (error) {
       console.error('Network Error', error);
       Toast.show({
@@ -170,7 +168,7 @@ const EmployeeManagement = () => {
         {/* Table Content */}
         <ScrollView showsVerticalScrollIndicator={false}>
           {isLoading ? (
-            <View style={{ padding: 40, justifyContent: 'center', alignItems: 'center' }}>
+            <View style={styles.loadingWrapper}>
               <ActivityIndicator size="large" color={Colors.primary} />
             </View>
           ) : (
@@ -182,15 +180,7 @@ const EmployeeManagement = () => {
                   {item.image ? (
                     <Image
                       source={{ uri: item?.image }}
-                      style={[
-                        IconSize20,
-                        {
-                          backgroundColor: 'white',
-                          borderWidth: MS(1),
-                          borderRadius: MS(20),
-                          marginRight: MS(5),
-                        },
-                      ]}
+                      style={[IconSize20, styles.employeeImage]}
                     />
                   ) : (
                     <View style={[IconSize40, styles.placeholderImage]}>
@@ -229,7 +219,7 @@ const EmployeeManagement = () => {
       {/* Pagination Footer */}
       <View style={styles.paginationRow}>
         <TouchableOpacity
-          style={[styles.pageBtn, page <= 1 && { opacity: 0.5 }]}
+          style={[styles.pageBtn, page <= 1 && styles.disabledPageBtn]}
           disabled={page <= 1 || isLoading}
           onPress={() => setPage(prev => prev - 1)}
         >
@@ -239,7 +229,7 @@ const EmployeeManagement = () => {
         <TouchableOpacity
           style={[
             styles.pageBtn,
-            (!paginationData?.hasNextPage || page >= paginationData?.lastPage) && { opacity: 0.5 },
+            (!paginationData?.hasNextPage || page >= paginationData?.lastPage) && styles.disabledPageBtn,
           ]}
           disabled={!paginationData?.hasNextPage || page >= paginationData?.lastPage || isLoading}
           onPress={() => setPage(prev => prev + 1)}

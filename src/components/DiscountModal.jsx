@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { View, Text, Modal, StyleSheet, TouchableOpacity, TextInput } from 'react-native';
 import { Colors } from '../utils/Colors';
 import { S, VS, MS } from '../utils/Responsive';
-import { H3, Body1, ButtonText, Subtitle2, Caption } from '../utils/fonts';
+import { H3, Body1, ButtonText, Subtitle2 } from '../utils/fonts';
 
 const DiscountModal = ({
   visible,
@@ -10,7 +10,6 @@ const DiscountModal = ({
   onSave,
   onDelete,
   initialDiscountCode = '',
-  availableDiscount,
 }) => {
   const [code, setCode] = useState(initialDiscountCode);
 

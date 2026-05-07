@@ -77,7 +77,7 @@ const CategoryFormModal = ({ visible, onClose, formType, initialData, onSubmit }
       Toast.show({
         type: 'error',
         text1: 'Error',
-        text2: 'Failed to create category',
+        text2: error?.message || 'Failed to create category',
       });
     }
   };
@@ -98,7 +98,7 @@ const CategoryFormModal = ({ visible, onClose, formType, initialData, onSubmit }
       Toast.show({
         type: 'error',
         text1: 'Error',
-        text2: 'Failed to update category',
+        text2: error?.message || 'Failed to update category',
       });
     }
   };

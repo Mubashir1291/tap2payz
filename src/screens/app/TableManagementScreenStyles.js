@@ -155,4 +155,31 @@ export default StyleSheet.create({
   whiteIconTint: {
     tintColor: Colors.white,
   },
+  dropdownContainer: {
+    position: 'absolute',
+    backgroundColor: Colors.white,
+    borderRadius: MS(8),
+    elevation: 5,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    overflow: 'hidden',
+  },
+  dropdownItem: {
+    paddingVertical: VS(12),
+    paddingHorizontal: S(16),
+  },
+  dropdownItemActive: {
+    backgroundColor: '#F0F4F9',
+  },
+  primaryText: {
+    color: Colors.primary,
+  },
+  blackText: {
+    color: Colors.black,
+  },
+  disabledOpacity: {
+    opacity: 0.5,
+  },
 });

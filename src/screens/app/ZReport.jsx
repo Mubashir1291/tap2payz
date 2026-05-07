@@ -47,27 +47,27 @@ const ZReport = () => {
           id: item._id,
           openedAt: item.opening_amount?.opening_date
             ? new Date(item.opening_amount.opening_date)
-                .toLocaleString('en-GB', {
-                  day: '2-digit',
-                  month: '2-digit',
-                  year: '2-digit',
-                  hour: '2-digit',
-                  minute: '2-digit',
-                  hour12: true,
-                })
-                .replace(',', '\n')
+              .toLocaleString('en-GB', {
+                day: '2-digit',
+                month: '2-digit',
+                year: '2-digit',
+                hour: '2-digit',
+                minute: '2-digit',
+                hour12: true,
+              })
+              .replace(',', '\n')
             : 'N/A',
           closedAt: item.is_close
             ? new Date(item.updated_at)
-                .toLocaleString('en-GB', {
-                  day: '2-digit',
-                  month: '2-digit',
-                  year: '2-digit',
-                  hour: '2-digit',
-                  minute: '2-digit',
-                  hour12: true,
-                })
-                .replace(',', '\n')
+              .toLocaleString('en-GB', {
+                day: '2-digit',
+                month: '2-digit',
+                year: '2-digit',
+                hour: '2-digit',
+                minute: '2-digit',
+                hour12: true,
+              })
+              .replace(',', '\n')
             : 'Open',
           opener:
             item.opening_amount?.employee?.employee_email ||
@@ -83,7 +83,11 @@ const ZReport = () => {
         setApiData(transformedData);
       }
     } catch (error) {
-      console.log('Error fetching cash registers:', error);
+      Toast.show({
+        type: 'error',
+        text1: 'Error',
+        text2: error?.message || 'Failed to fetch cash registers',
+      });
     } finally {
       setIsLoading(false);
     }
@@ -194,7 +198,7 @@ const ZReport = () => {
       Toast.show({
         type: 'error',
         text1: 'Export Failed',
-        text2: 'Could not generate the report file.',
+        text2: error?.message || 'Could not generate the report file.',
       });
     }
   };
@@ -279,7 +283,7 @@ const ZReport = () => {
       {/* Pagination Footer */}
       <View style={styles.paginationRow}>
         <TouchableOpacity
-          style={[styles.pageBtn, currentPage === 1 && { opacity: 0.5 }]}
+          style={[styles.pageBtn, currentPage === 1 && styles.disabledBtn]}
           onPress={handlePrevPage}
           disabled={currentPage === 1}
         >
@@ -289,7 +293,7 @@ const ZReport = () => {
         <TouchableOpacity
           style={[
             styles.pageBtn,
-            (currentPage === totalPages || totalPages === 0) && { opacity: 0.5 },
+            (currentPage === totalPages || totalPages === 0) && styles.disabledBtn,
           ]}
           onPress={handleNextPage}
           disabled={currentPage === totalPages || totalPages === 0}

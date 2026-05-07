@@ -7,6 +7,7 @@ import {
   TextInput,
   Image,
   ActivityIndicator,
+  StyleSheet,
 } from 'react-native';
 import Toast from 'react-native-toast-message';
 import { useSelector } from 'react-redux';
@@ -413,7 +414,7 @@ const InventoryManagement = () => {
         <ScrollView showsVerticalScrollIndicator={false}>
           {(viewType === 'products' && isLoadingProducts) ||
           (viewType === 'categories' && isLoadingCategories) ? (
-            <View style={{ padding: 40, justifyContent: 'center', alignItems: 'center' }}>
+            <View style={internalStyles.loadingContainer}>
               <ActivityIndicator size="large" color={Colors.primary} />
             </View>
           ) : (
@@ -532,7 +533,7 @@ const InventoryManagement = () => {
       {/* Pagination Footer */}
       <View style={styles.paginationRow}>
         <TouchableOpacity
-          style={[styles.pageBtn, !canGoPrev && { opacity: 0.5 }]}
+          style={[styles.pageBtn, !canGoPrev && internalStyles.disabledOpacity]}
           onPress={handlePrevPage}
           disabled={!canGoPrev}
         >
@@ -540,7 +541,7 @@ const InventoryManagement = () => {
         </TouchableOpacity>
         <Text style={[styles.pageText, Body3]}>{String(currentPage).padStart(2, '0')}</Text>
         <TouchableOpacity
-          style={[styles.pageBtn, !canGoNext && { opacity: 0.5 }]}
+          style={[styles.pageBtn, !canGoNext && internalStyles.disabledOpacity]}
           onPress={handleNextPage}
           disabled={!canGoNext}
         >
@@ -620,5 +621,16 @@ const InventoryManagement = () => {
     </View>
   );
 };
+
+const internalStyles = StyleSheet.create({
+  loadingContainer: {
+    padding: 40,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  disabledOpacity: {
+    opacity: 0.5,
+  },
+});
 
 export default InventoryManagement;

@@ -178,12 +178,14 @@ const RestaurantCartPanel = ({
 
         <View style={styles.bottomButtonGroup}>
           <TouchableOpacity
-            style={[styles.processBtn, { width: '100%' }, cart.length === 0 && styles.halfOpacity]}
+            style={[styles.processBtn, cart.length === 0 && styles.halfOpacity]}
             onPress={() => cart.length > 0 && setShowProcessModal(true)}
             disabled={cart.length === 0}
           >
             <Text style={styles.processBtnText}>Process Order</Text>
           </TouchableOpacity>
+
+          {/* for in future if cancel button functionality added  */}
           {/* <TouchableOpacity
             style={[styles.cancelBtn, cart.length === 0 && styles.halfOpacity]}
             onPress={() => cart.length > 0 && setShowCancelModal(true)}

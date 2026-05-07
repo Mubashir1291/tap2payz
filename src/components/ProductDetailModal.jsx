@@ -1,12 +1,12 @@
 import React from 'react';
-import { View, Text, TouchableOpacity, Image, Modal, ScrollView } from 'react-native';
+import { View, Text, TouchableOpacity, Image, Modal, ScrollView, StyleSheet } from 'react-native';
 import { H1, Body3, Subtitle2 } from '../utils/fonts';
 import { EditCircleIcon, DeleteCircleIcon } from '../assets/Images';
 import styles from '../screens/app/InventoryManagementStyles';
 import { SvgUri } from 'react-native-svg';
 
 const ProductDetailModal = ({ visible, onClose, product, onEdit, onDelete }) => {
-  if (!product) return null;
+  if (!product) { return null; }
 
   const renderImage = () => {
     const uri = product.product_image || product.image;
@@ -47,7 +47,7 @@ const ProductDetailModal = ({ visible, onClose, product, onEdit, onDelete }) => 
                     <TouchableOpacity style={styles.detailEditBtn} onPress={() => onEdit(product)}>
                       <Image
                         source={EditCircleIcon}
-                        style={[styles.detailActionIcon, { tintColor: 'white' }]}
+                        style={[styles.detailActionIcon, localStyles.whiteTint]}
                       />
                       <Text style={styles.detailEditBtnText}>Edit Product</Text>
                     </TouchableOpacity>
@@ -57,7 +57,7 @@ const ProductDetailModal = ({ visible, onClose, product, onEdit, onDelete }) => 
                     >
                       <Image
                         source={DeleteCircleIcon}
-                        style={[styles.detailActionIcon, { tintColor: '#E53935' }]}
+                        style={[styles.detailActionIcon, localStyles.redTint]}
                       />
                       <Text style={styles.detailDeleteBtnText}>Delete Product</Text>
                     </TouchableOpacity>
@@ -79,7 +79,7 @@ const ProductDetailModal = ({ visible, onClose, product, onEdit, onDelete }) => 
                   </View>
                 </View>
 
-                <View style={[styles.detailGrid, { marginBottom: 24 }]}>
+                <View style={[styles.detailGrid, localStyles.gridMarginBottom]}>
                   <View style={styles.detailGridCol}>
                     <Text style={[Subtitle2, styles.detailLabel]}>Category:</Text>
                     <Text style={[Body3, styles.detailValue]}>
@@ -142,5 +142,17 @@ const ProductDetailModal = ({ visible, onClose, product, onEdit, onDelete }) => 
     </Modal>
   );
 };
+
+const localStyles = StyleSheet.create({
+  whiteTint: {
+    tintColor: 'white',
+  },
+  redTint: {
+    tintColor: '#E53935',
+  },
+  gridMarginBottom: {
+    marginBottom: 24,
+  },
+});
 
 export default ProductDetailModal;

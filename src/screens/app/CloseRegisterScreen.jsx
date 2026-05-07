@@ -77,7 +77,7 @@ const CloseRegisterScreen = () => {
         store_id,
       };
 
-      const response = await CLOSE_REGISTER(payload);
+      await CLOSE_REGISTER(payload);
       store.dispatch(setCashRegisterData(null));
       store.dispatch(logout());
 

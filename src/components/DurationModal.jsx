@@ -32,7 +32,6 @@ const DurationModal = ({ visible = false, onClose, onProceed }) => {
   const [loading, setLoading] = React.useState(false);
 
   const { store_id, business_id } = useSelector(state => state.user);
-  const { deviceId } = useSelector(state => state.device);
 
   // ✅ FORMAT FUNCTIONS
   const formatDate = date => {
@@ -87,7 +86,6 @@ const DurationModal = ({ visible = false, onClose, onProceed }) => {
 
       onClose();
     } catch (error) {
-      console.log('X REPORT ERROR:', error);
       Toast.show({
         type: 'error',
         text1: 'Report Error',
@@ -210,18 +208,23 @@ const DurationModal = ({ visible = false, onClose, onProceed }) => {
           activeDateField === 'from'
             ? fromDate
             : activeDateField === 'to'
-            ? toDate
-            : activeTimeField === 'fromTime'
-            ? fromTime
-            : activeTimeField === 'toTime'
-            ? toTime
-            : new Date()
+              ? toDate
+              : activeTimeField === 'fromTime'
+                ? fromTime
+                : activeTimeField === 'toTime'
+                  ? toTime
+                  : new Date()
         }
         onConfirm={date => {
-          if (activeDateField === 'from') setFromDate(date);
-          else if (activeDateField === 'to') setToDate(date);
-          else if (activeTimeField === 'fromTime') setFromTime(date);
-          else if (activeTimeField === 'toTime') setToTime(date);
+          if (activeDateField === 'from') {
+            setFromDate(date);
+          } else if (activeDateField === 'to') {
+            setToDate(date);
+          } else if (activeTimeField === 'fromTime') {
+            setFromTime(date);
+          } else if (activeTimeField === 'toTime') {
+            setToTime(date);
+          }
 
           setActiveDateField(null);
           setActiveTimeField(null);

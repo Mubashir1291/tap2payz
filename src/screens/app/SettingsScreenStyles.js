@@ -2,187 +2,192 @@ import { StyleSheet } from 'react-native';
 import { Colors } from '../../utils/Colors';
 import { S, VS, MS } from '../../utils/Responsive';
 
-const styles = StyleSheet.create({
+export default StyleSheet.create({
   root: {
     flex: 1,
-    backgroundColor: '#F5F7FA',
+    backgroundColor: Colors.white,
   },
   header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: Colors.white,
-    paddingHorizontal: S(16),
-    paddingVertical: VS(10),
+    backgroundColor: Colors.primary,
+    paddingTop: VS(20),
+    paddingBottom: VS(10),
+    paddingHorizontal: S(20),
   },
   hamburgerBtn: {
-    width: S(36),
-    height: VS(36),
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginRight: S(10),
+    width: S(30),
+    height: VS(25),
+    justifyContent: 'space-between',
+    marginBottom: VS(15),
   },
   hamburgerLine: {
-    width: S(22),
-    height: VS(2.5),
-    backgroundColor: Colors.black,
+    height: VS(3),
+    backgroundColor: Colors.white,
     borderRadius: MS(2),
-    marginVertical: VS(2),
   },
   hamburgerLineShort: {
-    width: S(16),
-    alignSelf: 'flex-start',
-    marginLeft: S(7),
+    width: '70%',
   },
   tabsContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: MS(6),
+    paddingBottom: VS(5),
   },
   tab: {
+    paddingHorizontal: S(15),
     paddingVertical: VS(8),
-    paddingHorizontal: S(14),
     borderRadius: MS(20),
-    backgroundColor: '#F5F7FA',
+    marginRight: S(10),
+    backgroundColor: 'rgba(255,255,255,0.2)',
   },
   activeTab: {
-    backgroundColor: '#3B4B8A',
+    backgroundColor: Colors.white,
   },
   tabText: {
-    color: Colors.black,
+    color: Colors.white,
   },
   activeTabText: {
-    color: Colors.white,
+    color: Colors.black,
+  },
+  rowCentered: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  tabIcon: {
+    marginRight: S(8),
   },
   content: {
     flex: 1,
-    padding: MS(16),
   },
-  sortRow: {
+  timeframeFilterContainer: {
     flexDirection: 'row',
     justifyContent: 'flex-end',
-    marginBottom: VS(12),
+    paddingHorizontal: S(20),
+    marginTop: VS(10),
   },
-  sortBtn: {
+  timeframeBtn: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingVertical: VS(6),
+    backgroundColor: '#EBF0FF',
     paddingHorizontal: S(12),
-    backgroundColor: Colors.white,
+    paddingVertical: VS(6),
     borderRadius: MS(8),
-    borderWidth: 1,
-    borderColor: Colors.lightGrey,
+    marginBottom: VS(10),
   },
-  sortText: {
-    color: Colors.black,
+  timeframeText: {
+    color: Colors.primary,
+    marginRight: S(6),
   },
-
-  // Stats
+  filterIcon: {
+    tintColor: Colors.primary,
+  },
   statsRow: {
     flexDirection: 'row',
-    gap: MS(12),
-    marginBottom: VS(12),
+    paddingHorizontal: S(20),
+    justifyContent: 'space-between',
+    marginBottom: VS(20),
   },
   statCard: {
     flex: 1,
     backgroundColor: Colors.white,
-    borderRadius: MS(14),
-    padding: MS(16),
+    padding: MS(15),
+    borderRadius: MS(12),
+    marginHorizontal: S(5),
+    elevation: 3,
   },
   statHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: VS(4),
+    marginBottom: VS(10),
   },
   statAmount: {
     color: Colors.black,
   },
   statIcon: {
-    width: S(32),
-    height: VS(32),
+    padding: MS(8),
     borderRadius: MS(8),
-    justifyContent: 'center',
+  },
+  lightGreenBg: {
+    backgroundColor: '#E8F5E9',
+  },
+  lightPurpleBg: {
+    backgroundColor: '#F3E5F5',
+  },
+  statFooter: {
+    flexDirection: 'row',
     alignItems: 'center',
   },
   statLabel: {
     color: Colors.grey,
   },
-  statFooter: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginTop: VS(8),
-  },
-  percentContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  trendIcon: {
-    width: S(12),
-    height: VS(12),
-    marginRight: S(4),
-  },
-  statPercent: {},
-
-  // Charts
   chartsRow: {
     flexDirection: 'row',
-    gap: MS(12),
+    paddingHorizontal: S(20),
+    justifyContent: 'space-between',
+    marginBottom: VS(20),
   },
   lineChartCard: {
-    flex: 0.6,
+    flex: 1.5,
     backgroundColor: Colors.white,
-    borderRadius: MS(14),
-    padding: MS(16),
-  },
-  pieChartCard: {
-    flex: 0.4,
-    backgroundColor: Colors.white,
-    borderRadius: MS(14),
-    padding: MS(16),
+    padding: MS(15),
+    borderRadius: MS(12),
+    marginRight: S(10),
+    elevation: 3,
   },
   chartHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: VS(12),
+    marginBottom: VS(15),
   },
   chartTitle: {
     color: Colors.black,
   },
   legendRow: {
     flexDirection: 'row',
-    gap: MS(12),
   },
   legendItem: {
     flexDirection: 'row',
     alignItems: 'center',
+    marginLeft: S(15),
   },
   legendDot: {
-    width: S(8),
-    height: VS(8),
-    borderRadius: MS(4),
-    marginRight: S(4),
+    width: S(10),
+    height: S(10),
+    borderRadius: S(5),
+    marginRight: S(5),
+  },
+  lightBlueLegendDot: {
+    backgroundColor: '#A8C8F0',
   },
   legendText: {
     color: Colors.grey,
   },
+  flexFull: {
+    flex: 1,
+  },
+  pieChartCard: {
+    flex: 1,
+    backgroundColor: Colors.white,
+    padding: MS(15),
+    borderRadius: MS(12),
+    elevation: 3,
+  },
   pieContainer: {
     alignItems: 'center',
-    marginVertical: VS(12),
+    marginVertical: VS(15),
   },
   pieLegend: {
-    marginTop: VS(8),
+    marginTop: VS(10),
   },
   pieLegendItem: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: VS(6),
+    justifyContent: 'space-between',
+    marginBottom: VS(8),
   },
   pieLegendDot: {
-    width: S(10),
-    height: VS(10),
-    borderRadius: MS(5),
+    width: S(8),
+    height: S(8),
+    borderRadius: S(4),
     marginRight: S(8),
   },
   pieLegendText: {
@@ -192,40 +197,44 @@ const styles = StyleSheet.create({
   pieLegendPercent: {
     color: Colors.black,
   },
-
-  // INLINE STYLE REPLACEMENTS
-  tabIconStyle: {
-    marginRight: S(6),
-    // tintColor is conditional: activeTab === index ? Colors.white : Colors.black
+  pieLegendValueContainer: {
+    alignItems: 'flex-end',
   },
-  lightGreenBg: {
-    backgroundColor: '#E8F5E9',
+  greyText: {
+    color: Colors.grey,
   },
-  lightPurpleBg: {
-    backgroundColor: '#F3E5F5',
+  emptyChartContainer: {
+    justifyContent: 'center',
+    marginTop: VS(20),
   },
-  lightBlueLegendDot: {
-    backgroundColor: '#A8C8F0',
+  emptyChartText: {
+    color: Colors.grey,
   },
-  darkBlueLegendDot: {
-    backgroundColor: '#3B4B8A',
-  },
-  flexFull: {
+  modalOverlay: {
     flex: 1,
-  },
-  dynamicColorLegendDot: {
-    // backgroundColor is dynamic: item.color
-  },
-  greenPercentText: {
-    color: '#4CAF50',
-  },
-  redPercentText: {
-    color: '#E74C3C',
-  },
-  rowCentered: {
-    flexDirection: 'row',
+    backgroundColor: 'rgba(0,0,0,0.5)',
+    justifyContent: 'center',
     alignItems: 'center',
   },
+  modalContent: {
+    backgroundColor: Colors.white,
+    width: '30%',
+    borderRadius: MS(12),
+    padding: MS(16),
+  },
+  modalTitle: {
+    marginBottom: VS(16),
+    textAlign: 'center',
+  },
+  modalOptionBtn: {
+    paddingVertical: VS(12),
+    borderBottomWidth: 1,
+    borderBottomColor: Colors.lightGrey,
+  },
+  modalOptionText: {
+    textAlign: 'center',
+  },
+  modalOptionBtnLast: {
+    paddingVertical: VS(12),
+  },
 });
-
-export default styles;

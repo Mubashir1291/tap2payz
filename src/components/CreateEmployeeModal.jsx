@@ -50,7 +50,7 @@ const CreateEmployeeModal = ({ visible, onClose, onCreate }) => {
     onSubmit: async (values, { resetForm }) => {
       setIsLoading(true);
       try {
-        const response = await CREATE_EMPLOYEE({
+        await CREATE_EMPLOYEE({
           name: values.name,
           email: values.email,
           create_password: values.password,

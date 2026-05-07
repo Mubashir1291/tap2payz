@@ -57,7 +57,9 @@ const AddNewTableScreen = () => {
   const [newAreaName, setNewAreaName] = useState('');
 
   const handleGetFloors = useCallback(async () => {
-    if (!store_id) return;
+    if (!store_id) {
+      return;
+    }
     try {
       const response = await GET_FLOORS({ storeId: store_id });
       const fetchedAreas = response?.items || [];
@@ -72,13 +74,13 @@ const AddNewTableScreen = () => {
 
   const handleGetTables = useCallback(
     async floorId => {
-      if (!store_id || !floorId) return;
+      if (!store_id || !floorId) { return; }
       try {
-        const response = await GET_TABLES({ floor_id: floorId, store_id: store_id });
+        const response = await GET_TABLES({ floor_id: floorId, store_id });
         const fetchedTables = (response?.items || []).map(t => ({
           id: (t.table_no - 1).toString(), // Mapping table_no back to grid ID
           seats: t.seats,
-          floorId: floorId,
+          floorId,
           _id: t._id,
         }));
         setAddedTables(fetchedTables);
@@ -102,13 +104,13 @@ const AddNewTableScreen = () => {
   );
 
   const handleCreateFloor = async () => {
-    if (newAreaName.trim() === '') return;
+    if (newAreaName.trim() === '') { return; }
     const payload = {
       name: newAreaName.trim(),
       store_id: store_id || '',
     };
     try {
-      const response = await CREATE_FLOORS(payload);
+      await CREATE_FLOORS(payload);
       setNewAreaName('');
       setShowAddAreaModal(false);
       setSuccessMessage('Area Added Successfully');
@@ -121,10 +123,10 @@ const AddNewTableScreen = () => {
   };
 
   const handleUpdateTable = async () => {
-    if (!editingTable?._id) return;
+    if (!editingTable?._id) { return; }
     try {
       const payload = { seats: parseInt(editSeats, 10) || 0 };
-      const response = await UPDATE_TABLE(editingTable._id, payload);
+      await UPDATE_TABLE(editingTable._id, payload);
 
       setShowEditModal(false);
       setSuccessMessage('Table Updated Successfully');
@@ -137,9 +139,9 @@ const AddNewTableScreen = () => {
   };
 
   const handleDeleteTable = async () => {
-    if (!tableToDelete?._id) return;
+    if (!tableToDelete?._id) { return; }
     try {
-      const response = await DELETE_TABLE(tableToDelete._id);
+      await DELETE_TABLE(tableToDelete._id);
 
       setShowDeleteModal(false);
       setSuccessMessage('Table Deleted Successfully');
@@ -153,7 +155,7 @@ const AddNewTableScreen = () => {
   };
 
   const handleCreateTable = async newTable => {
-    if (!selectedArea || !newTable) return;
+    if (!selectedArea || !newTable) { return; }
 
     try {
       const payload = {
@@ -162,7 +164,7 @@ const AddNewTableScreen = () => {
         store_id: store_id || '',
       };
 
-      const response = await CREATE_TABLE(payload);
+      await CREATE_TABLE(payload);
       setSuccessMessage('Table Added Successfully');
       handleGetTables(selectedArea._id); // Refresh tables from server
       setSelectedTableId(null);

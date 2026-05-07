@@ -99,12 +99,12 @@ const InvoiceModal = ({
                 )}
 
                 {/* Solid Divider */}
-                <View style={[styles.solidDivider, { marginTop: VS(8) }]} />
+                <View style={[styles.solidDivider, styles.dividerMarginTop]} />
 
                 {/* Total */}
                 <View style={styles.totalRow}>
                   <Text style={[styles.totalLabel, Subtitle1]}>Total</Text>
-                  <Text style={[styles.totalValue, { color: Colors.primary }, Subtitle1]}>
+                  <Text style={[styles.totalValue, Subtitle1]}>
                     ${totalAmount.toFixed(2)}
                   </Text>
                 </View>
@@ -217,6 +217,9 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1.5,
     borderBottomColor: Colors.black,
     marginVertical: VS(8),
+  },
+  dividerMarginTop: {
+    marginTop: VS(8),
   },
   totalRow: {
     flexDirection: 'row',

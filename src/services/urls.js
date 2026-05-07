@@ -11,4 +11,4 @@ const URLS = {
   },
 };
 
-export default URLS.LOCAL;
+export default URLS.LIVE;

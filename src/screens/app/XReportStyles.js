@@ -135,6 +135,9 @@ const styles = StyleSheet.create({
   emptyText: {
     color: Colors.grey,
   },
+  disabledBtn: {
+    opacity: 0.5,
+  },
 });
 
 export default styles;

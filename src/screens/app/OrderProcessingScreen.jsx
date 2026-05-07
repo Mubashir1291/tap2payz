@@ -9,9 +9,9 @@ import {
   ScrollView,
   ActivityIndicator,
   NativeModules,
+  StyleSheet,
 } from 'react-native';
 import { useNavigation, useRoute } from '@react-navigation/native';
-import ViewShot from 'react-native-view-shot';
 import ReceiptTemplate from '../../components/ReceiptTemplate';
 import RNFS from 'react-native-fs';
 import {
@@ -23,7 +23,6 @@ import {
   H2,
   ButtonTextSmall,
   Body2,
-  H4,
 } from '../../utils/fonts';
 import {
   IconSize12,
@@ -31,8 +30,7 @@ import {
   IconSize20,
   IconSize24,
   IconSize40,
-  IconSize50,
-  IconSize60,
+
 } from '../../utils/IconSizes';
 import {
   LeftArrowIcon,
@@ -42,7 +40,6 @@ import {
   DeleteIcon,
   ImageFrameIcon,
   RefreshICon,
-  SplitIcon,
   TickIcon,
   CancelOrderIcon,
 } from '../../assets/Images';
@@ -98,7 +95,6 @@ const OrderProcessingScreen = () => {
   const [showCancelModal, setShowCancelModal] = useState(false);
   const [showProcessModal, setShowProcessModal] = useState(false);
   const [showNoteModal, setShowNoteModal] = useState(false);
-  const [showDiscountModal, setShowDiscountModal] = useState(false);
   const [showPaymentModal, setShowPaymentModal] = useState(false);
   const [showInvoiceModal, setShowInvoiceModal] = useState(false);
   const [showTransactionModal, setShowTransactionModal] = useState(false);
@@ -108,7 +104,6 @@ const OrderProcessingScreen = () => {
   const [orderDetail, setOrderDetail] = useState(null);
   const [terminalReferenceNumber, setTerminalReferenceNumber] = useState('');
   const [terminalNr, setTerminalNr] = useState('');
-  const [availableDiscount, setAvailableDiscount] = useState(null);
 
   const [paymentInfo, setPaymentInfo] = useState({ received: 0, change: 0, method: '' });
   // API Data State
@@ -130,7 +125,6 @@ const OrderProcessingScreen = () => {
   const handleGetResOrderDetail = useCallback(async () => {
     try {
       const res = await GET_RES_ACTIVE_ORDERS(tableId);
-      console.log('Order details response:', res);
       const order = res?.order;
       if (order) {
         setOrderDetail(order);
@@ -201,10 +195,8 @@ const OrderProcessingScreen = () => {
       employee_id: userData?._id || '',
 
     };
-    console.log(payload, 'payload12234')
     try {
       const response = await CREATE_RES_ORDER(payload);
-      console.log(response, 'create order')
       setOrderDetail(response?.order);
       setShowProcessModal(true);
     } catch (error) {
@@ -232,7 +224,7 @@ const OrderProcessingScreen = () => {
     }
   }, [isNewOrder, tableId, handleGetResOrderDetail]);
 
-  const handleFetchAllCategories = async () => {
+  const handleFetchAllCategories = useCallback(async () => {
     try {
       const response = await GET_ALL_CATEGORIES({
         storeId: store_id,
@@ -242,9 +234,9 @@ const OrderProcessingScreen = () => {
     } catch (error) {
       console.error('Error fetching categories:', error);
     }
-  };
+  }, [store_id]);
 
-  const handleFetchAllProducts = async (query, loadMore = false) => {
+  const handleFetchAllProducts = useCallback(async (query, loadMore = false) => {
     isLoadingProductsRef.current = true;
     if (loadMore) {
       setIsLoadingMoreProducts(true);
@@ -270,19 +262,19 @@ const OrderProcessingScreen = () => {
       }
       isLoadingProductsRef.current = false;
     }
-  };
+  }, []);
 
   useEffect(() => {
     if (store_id) {
       handleFetchAllCategories();
     }
-  }, [store_id]);
+  }, [store_id, handleFetchAllCategories]);
 
   useEffect(() => {
     if (store_id) {
       handleFetchAllProducts(productSearchQuery, productSearchQuery.page > 1);
     }
-  }, [productSearchQuery, store_id]);
+  }, [productSearchQuery, store_id, handleFetchAllProducts]);
 
   const handleCheckTerminalStatus = async order => {
     const detail = order || orderDetail;
@@ -310,7 +302,7 @@ const OrderProcessingScreen = () => {
           }))
         ) || []),
       ],
-      deviceId: deviceId,
+      deviceId,
       quickSale: hasQuickSale,
     };
     try {
@@ -350,10 +342,8 @@ const OrderProcessingScreen = () => {
         quickSale: hasQuickSale,
       },
     };
-    console.log('quick_sale Payload', payload)
     try {
       const res = await CREATE_RES_TRANSACTION(payload);
-      console.log(res, 'transaction')
       return res;
     } catch (error) {
       console.error('Error creating transaction:', error);
@@ -400,7 +390,6 @@ const OrderProcessingScreen = () => {
         content: '\n',
       });
     } catch (error) {
-      console.log('PRINT ERROR:', error);
       Toast.show({
         type: 'error',
         text1: 'Print Error',
@@ -581,9 +570,7 @@ const OrderProcessingScreen = () => {
     handleCreateResOrder();
   };
 
-  const handleCancelOrder = () => {
-    setShowCancelModal(true);
-  };
+
 
   const confirmCancelOrder = () => {
     setCart([]);
@@ -649,7 +636,7 @@ const OrderProcessingScreen = () => {
     <TouchableOpacity
       style={[
         styles.productCard,
-        item?.quantity <= 0 && [styles.outOfStockCard, { backgroundColor: '#E0E0E0' }],
+        item?.quantity <= 0 && [styles.outOfStockCard, internalStyles.outOfStockBg],
       ]}
       activeOpacity={0.7}
       onPress={() => {
@@ -665,19 +652,8 @@ const OrderProcessingScreen = () => {
       }}
     >
       {item?.quantity <= 0 && (
-        <View
-          style={{
-            position: 'absolute',
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0,
-            justifyContent: 'center',
-            alignItems: 'center',
-            zIndex: 1,
-          }}
-        >
-          <Text style={[Body2, { color: 'red', textAlign: 'center', fontWeight: 'bold' }]}>
+        <View style={internalStyles.outOfStockOverlay}>
+          <Text style={[Body2, internalStyles.outOfStockText]}>
             Out of Stock
           </Text>
         </View>
@@ -760,7 +736,7 @@ const OrderProcessingScreen = () => {
           onEndReachedThreshold={0.1}
           ListFooterComponent={
             isLoadingMoreProducts ? (
-              <View style={{ padding: 20 }}>
+              <View style={internalStyles.footerLoader}>
                 <ActivityIndicator size="large" color="#3B4B8A" />
               </View>
             ) : null
@@ -926,7 +902,7 @@ const OrderProcessingScreen = () => {
             <TouchableOpacity
               style={[
                 styles.processBtn,
-                { width: '100%' },
+                internalStyles.fullWidth,
                 cart.length === 0 && styles.disabledBtn,
               ]}
               onPress={handleProcessOrder}
@@ -947,7 +923,7 @@ const OrderProcessingScreen = () => {
             style={[
               styles.primaryBtn,
               (cart.length === 0 || printing) && styles.primaryBtnDisabled,
-              { backgroundColor: printing ? '#999' : '#3B4B8A' },
+              printing ? internalStyles.checkoutBtnPrinting : internalStyles.checkoutBtn,
             ]}
             disabled={cart.length === 0 || printing}
             onPress={async () => {
@@ -1020,7 +996,7 @@ const OrderProcessingScreen = () => {
             screen: 'TableSelectionScreen',
             params: {
               newlyProcessedTable: tableNumber,
-              orderDetail: orderDetail,
+              orderDetail,
             },
           });
         }}
@@ -1060,7 +1036,11 @@ const OrderProcessingScreen = () => {
               await handleResTransaction(data.method);
               setShowSuccessModal(true);
             } catch (error) {
-              // Error handled in handleResTransaction
+              Toast.show({
+                type: 'error',
+                text1: 'Error',
+                text2: error?.message || 'Failed to process transaction',
+              });
             }
           } else {
             setShowTapCardModal(true);
@@ -1117,5 +1097,38 @@ const OrderProcessingScreen = () => {
     </View>
   );
 };
+
+const internalStyles = StyleSheet.create({
+  outOfStockBg: {
+    backgroundColor: '#E0E0E0',
+  },
+  outOfStockOverlay: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    justifyContent: 'center',
+    alignItems: 'center',
+    zIndex: 1,
+  },
+  outOfStockText: {
+    color: 'red',
+    textAlign: 'center',
+    fontWeight: 'bold',
+  },
+  footerLoader: {
+    padding: 20,
+  },
+  fullWidth: {
+    width: '100%',
+  },
+  checkoutBtn: {
+    backgroundColor: '#3B4B8A',
+  },
+  checkoutBtnPrinting: {
+    backgroundColor: '#999',
+  },
+});
 
 export default OrderProcessingScreen;

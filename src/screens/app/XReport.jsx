@@ -1,6 +1,6 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import { useSelector } from 'react-redux';
-import { View, Text, TouchableOpacity, ScrollView, TextInput, Image, Platform } from 'react-native';
+import { View, Text, TouchableOpacity, ScrollView, TextInput, Image, Platform, ActivityIndicator } from 'react-native';
 import RNFS from 'react-native-fs';
 import Toast from 'react-native-toast-message';
 import { Subtitle2, Body3, Caption, H2 } from '../../utils/fonts';
@@ -10,7 +10,6 @@ import styles from './XReportStyles';
 import SalesRefundDetailModal from '../../components/SalesRefundDetailModal';
 import DurationModal from '../../components/DurationModal';
 import { Colors } from '../../utils/Colors';
-import { ActivityIndicator } from 'react-native';
 import { GET_X_REPORT } from '../../services/Sales&Analytics';
 
 const XReport = ({ isActive }) => {
@@ -52,7 +51,9 @@ const XReport = ({ isActive }) => {
   }, [searchQuery, reportData]);
 
   const formatSerialNumber = serial => {
-    if (!serial) return 'N/A';
+    if (!serial) {
+      return 'N/A';
+    }
     return serial.length > 6 ? serial.slice(-6) : serial;
   };
 
@@ -92,8 +93,12 @@ const XReport = ({ isActive }) => {
   };
 
   const handlePageChange = async newPage => {
-    if (!currentParams || isLoading) return;
-    if (newPage < 1 || (pagination && newPage > pagination.lastPage)) return;
+    if (!currentParams || isLoading) {
+      return;
+    }
+    if (newPage < 1 || (pagination && newPage > pagination.lastPage)) {
+      return;
+    }
 
     try {
       setIsLoading(true);
@@ -289,7 +294,7 @@ const XReport = ({ isActive }) => {
       {/* Pagination Footer */}
       <View style={styles.paginationRow}>
         <TouchableOpacity
-          style={[styles.pageBtn, (pagination?.currentPage || 1) <= 1 && { opacity: 0.5 }]}
+          style={[styles.pageBtn, (pagination?.currentPage || 1) <= 1 && styles.disabledBtn]}
           disabled={(pagination?.currentPage || 1) <= 1 || isLoading}
           onPress={() => handlePageChange((pagination?.currentPage || 1) - 1)}
         >
@@ -301,7 +306,7 @@ const XReport = ({ isActive }) => {
         <TouchableOpacity
           style={[
             styles.pageBtn,
-            (pagination?.currentPage || 1) >= (pagination?.lastPage || 1) && { opacity: 0.5 },
+            (pagination?.currentPage || 1) >= (pagination?.lastPage || 1) && styles.disabledBtn,
           ]}
           disabled={(pagination?.currentPage || 1) >= (pagination?.lastPage || 1) || isLoading}
           onPress={() => handlePageChange((pagination?.currentPage || 1) + 1)}

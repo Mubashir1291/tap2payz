@@ -295,6 +295,8 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     marginRight: S(4),
+    width:'100%'
+    
   },
   cancelBtn: {
     flex: 1,
@@ -550,6 +552,24 @@ const styles = StyleSheet.create({
   },
   greyTextColor: {
     color: Colors.grey,
+  },
+  outOfStockBg: {
+    backgroundColor: '#E0E0E0',
+  },
+  outOfStockOverlay: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    justifyContent: 'center',
+    alignItems: 'center',
+    zIndex: 1,
+  },
+  outOfStockText: {
+    color: 'red',
+    textAlign: 'center',
+    fontWeight: 'bold',
   },
 });
 

@@ -7,13 +7,12 @@ import {
   TextInput,
   Image,
   Modal,
-  Switch,
   FlatList,
+  StyleSheet,
 } from 'react-native';
 import Toast from 'react-native-toast-message';
 import { launchImageLibrary } from 'react-native-image-picker';
 import { useSelector } from 'react-redux';
-import { Colors } from '../utils/Colors';
 import { H1, Body3, Caption } from '../utils/fonts';
 import { UploadIcon, ArrowDownIcon } from '../assets/Images';
 import styles from '../screens/app/InventoryManagementStyles';
@@ -48,10 +47,12 @@ const ProductFormModal = ({ visible, onClose, formType, initialData, onSubmit })
   };
 
   const fetchCategories = async (page = 1) => {
-    if (!hasMoreCategories && page !== 1) return;
+    if (!hasMoreCategories && page !== 1) {
+      return;
+    }
 
-    if (page === 1) setIsLoadingCategories(true);
-    else setIsFetchingMoreCategories(true);
+    if (page === 1) { setIsLoadingCategories(true); }
+    else { setIsFetchingMoreCategories(true); }
 
     try {
       const response = await GET_ALL_CATEGORIES({
@@ -74,10 +75,16 @@ const ProductFormModal = ({ visible, onClose, formType, initialData, onSubmit })
         setHasMoreCategories(false);
       }
     } catch (error) {
-      console.log('Failed to fetch categories', error);
+
+      Toast.show({
+        type: 'error',
+        text1: 'Error',
+        text2: error?.message || 'Failed to fetch categories',
+      });
+
     } finally {
-      if (page === 1) setIsLoadingCategories(false);
-      else setIsFetchingMoreCategories(false);
+      if (page === 1) { setIsLoadingCategories(false); }
+      else { setIsFetchingMoreCategories(false); }
     }
   };
 
@@ -123,7 +130,7 @@ const ProductFormModal = ({ visible, onClose, formType, initialData, onSubmit })
       Toast.show({
         type: 'error',
         text1: 'Error',
-        text2: 'Failed to create product',
+        text2: error?.message || 'Failed to create product',
       });
     }
   };
@@ -143,7 +150,7 @@ const ProductFormModal = ({ visible, onClose, formType, initialData, onSubmit })
       Toast.show({
         type: 'error',
         text1: 'Error',
-        text2: 'Failed to update product',
+        text2: error?.m || 'Failed to update product',
       });
     }
   };
@@ -215,7 +222,7 @@ const ProductFormModal = ({ visible, onClose, formType, initialData, onSubmit })
                   <Image source={ArrowDownIcon} style={styles.dropdownIcon} resizeMode="contain" />
                 </TouchableOpacity>
                 {showCategoryDropdown && (
-                  <View style={[styles.dropdownList, { maxHeight: 200 }]}>
+                  <View style={[styles.dropdownList, localStyles.dropdownMaxHeight]}>
                     <FlatList
                       data={categories}
                       keyExtractor={(cat, i) => (cat._id ? cat._id.toString() : i.toString())}
@@ -442,5 +449,11 @@ const ProductFormModal = ({ visible, onClose, formType, initialData, onSubmit })
     </Modal>
   );
 };
+
+const localStyles = StyleSheet.create({
+  dropdownMaxHeight: {
+    maxHeight: 200,
+  },
+});
 
 export default ProductFormModal;

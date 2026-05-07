@@ -130,6 +130,9 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
+  disabledBtn: {
+    opacity: 0.5,
+  },
 });
 
 export default styles;

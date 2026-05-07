@@ -9,12 +9,10 @@ import {
   ActivityIndicator,
   FlatList,
 } from 'react-native';
-import { Subtitle2, Body3, Caption, H2, Overline, Overline2, Subtitle1 } from '../../utils/fonts';
+import { Subtitle2, Body3, Caption, H2, Overline } from '../../utils/fonts';
 import { IconSize12 } from '../../utils/IconSizes';
 import {
   SearchIcon,
-  UploadIcon,
-  ListIcon,
   RightArrowIcon,
   CardpaymentIcon,
   CashIcon,
@@ -22,14 +20,12 @@ import {
   ExportIcon,
 } from '../../assets/Images';
 import styles from './TransactionReportScreenStyles';
-import { S, MS } from '../../utils/Responsive';
 import SortModal, { applySort } from '../../components/SortModal';
 import { useSelector } from 'react-redux';
 import { GET_ALL_TRANSACTION } from '../../services/Reports';
 import useDebounce from '../../utils/useDebounce';
 
 const TransactionReportScreen = () => {
-  const [activeTab, setActiveTab] = useState('Sales');
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedItem, setSelectedItem] = useState(null);
   const [showSortModal, setShowSortModal] = useState(false);
@@ -42,7 +38,7 @@ const TransactionReportScreen = () => {
     itemsPerPage: 10,
     searchText: '',
     storeId: store_id,
-    deviceId: deviceId,
+    deviceId,
     transType: '',
   });
   const [transactions, setTransactions] = useState([]);
@@ -50,7 +46,7 @@ const TransactionReportScreen = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [loadingMore, setLoadingMore] = useState(false);
   const [detailLoading, setDetailLoading] = useState(false);
-  const [detailError, setDetailError] = useState(null);
+  const [detailError, _setDetailError] = useState(null);
   const isLoadingRef = useRef(false);
 
   const debouncedValue = useDebounce(searchQuery, 500);
@@ -71,7 +67,7 @@ const TransactionReportScreen = () => {
         setTransactions(prev => [...prev, ...items]);
       } else {
         setTransactions(items);
-        if (items.length > 0) setSelectedItem(items[0]);
+        if (items.length > 0) { setSelectedItem(items[0]); }
       }
 
       setTransactionsData(response?.data);
@@ -84,9 +80,11 @@ const TransactionReportScreen = () => {
     }
   };
 
+  const isLoadMore = transactionSearchQuery.page > 1;
+
   useEffect(() => {
-    handleFetchAllTransactions(transactionSearchQuery, transactionSearchQuery.page > 1);
-  }, [transactionSearchQuery, transactionSearchQuery.page > 1]);
+    handleFetchAllTransactions(transactionSearchQuery, isLoadMore);
+  }, [transactionSearchQuery, isLoadMore]);
 
   useEffect(() => {
     setTransactionSearchQuery(prev => ({
@@ -100,7 +98,7 @@ const TransactionReportScreen = () => {
     setTransactionSearchQuery(prev => ({
       ...prev,
       storeId: store_id,
-      deviceId: deviceId,
+      deviceId,
       page: 1,
     }));
   }, [store_id, deviceId]);
@@ -130,7 +128,7 @@ const TransactionReportScreen = () => {
   }, [currentFilter, transactions]);
 
   const processedOrderItems = useMemo(() => {
-    if (!selectedItem?.products) return [];
+    if (!selectedItem?.products) { return []; }
 
     return applySort(selectedItem.products, currentFilter, item => item.product_name);
   }, [selectedItem, currentFilter]);
@@ -208,14 +206,7 @@ const TransactionReportScreen = () => {
                     </Text>
                   </View>
                   <View
-                    style={[
-                      styles.colStatus,
-                      {
-                        flexDirection: 'row',
-                        alignItems: 'center',
-                        gap: MS(8),
-                      },
-                    ]}
+                    style={[styles.colStatus, styles.statusWrapper]}
                   >
                     <Text
                       style={[
@@ -233,7 +224,7 @@ const TransactionReportScreen = () => {
               onEndReachedThreshold={0.1}
               ListFooterComponent={
                 loadingMore ? (
-                  <View style={{ paddingVertical: 20 }}>
+                  <View style={styles.footerLoader}>
                     <ActivityIndicator size="large" color="#3B4B8A" />
                   </View>
                 ) : null
@@ -254,7 +245,7 @@ const TransactionReportScreen = () => {
               <Text style={[Subtitle2, styles.errorText]}>{detailError}</Text>
             </View>
           ) : selectedItem ? (
-            <View style={{ flex: 1 }}>
+            <View style={styles.flexFull}>
               <View style={styles.topDetailsContainer}>
                 <View>
                   <Text style={[styles.detailLabel, Body3]}>Transaction Number:</Text>
@@ -299,7 +290,7 @@ const TransactionReportScreen = () => {
                 <View style={styles.tableHeader}>
                   <Text style={[styles.colQT, styles.headerText, Body3]}>QT</Text>
                   <Text style={[styles.colItem, styles.headerText, Body3]}>Items</Text>
-                  <Text style={[styles.colSKU, styles.headerText, Body3, { textAlign: 'center' }]}>
+                  <Text style={[styles.colSKU, styles.headerText, Body3, styles.centerTextAlign]}>
                     SKU
                   </Text>
                   <Text style={[styles.colPrice, styles.headerText, Body3]}>Price</Text>
@@ -312,9 +303,7 @@ const TransactionReportScreen = () => {
                       <Text style={[styles.colItem, styles.tableRowText, Body3]}>
                         {row.product_name}
                       </Text>
-                      <Text
-                        style={[styles.colSKU, styles.tableRowText, Body3, { textAlign: 'center' }]}
-                      >
+                      <Text style={[styles.colSKU, styles.tableRowText, Body3, styles.centerTextAlign]}>
                         {row.sku_code || 'N/A'}
                       </Text>
                       <Text style={[styles.colPrice, styles.tableRowPrice, Body3]}>

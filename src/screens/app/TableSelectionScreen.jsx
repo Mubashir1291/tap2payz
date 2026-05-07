@@ -10,14 +10,12 @@ import {
   TouchableWithoutFeedback,
   ScrollView,
   NativeModules,
-  ActivityIndicator,
 } from 'react-native';
 import { useNavigation, useRoute, useFocusEffect } from '@react-navigation/native';
-import ViewShot from 'react-native-view-shot';
 import RNFS from 'react-native-fs';
 import ReceiptTemplate from '../../components/ReceiptTemplate';
-import { Subtitle2, Body3, H4, Subtitle1, Overline, Body1, Body2 } from '../../utils/fonts';
-import { IconSize12, IconSize16, IconSize20, IconSize40 } from '../../utils/IconSizes';
+import { Subtitle2, Body3, Overline, Body2 } from '../../utils/fonts';
+import { IconSize12, IconSize16, IconSize20 } from '../../utils/IconSizes';
 import {
   LeftArrowIcon,
   RightArrowIcon,
@@ -32,7 +30,6 @@ import CartNoteModal from '../../components/CartNoteModal';
 import PaymentMethodModal from '../../components/PaymentMethodModal';
 import InvoiceModal from '../../components/InvoiceModal';
 import TransactionProcessModal from '../../components/TransactionProcessModal';
-import ConfirmationModal from '../../components/ConfirmationModal';
 import SuccessModal from '../../components/SuccessModal';
 import TapCardModal from '../../components/TapCardModal';
 import NfcManager, { NfcTech } from 'react-native-nfc-manager';
@@ -60,7 +57,7 @@ const TableSelectionScreen = () => {
   const { PrinterModule } = NativeModules;
   const viewShotCustomerRef = useRef();
   const viewShotRestaurantRef = useRef();
-  const [printing, setPrinting] = useState(false);
+  const [_printing, setPrinting] = useState(false);
   const [paymentInfo, setPaymentInfo] = useState({ received: 0, change: 0, method: '' });
   const [buyerId, setBuyerId] = useState(null);
 
@@ -105,7 +102,6 @@ const TableSelectionScreen = () => {
   const [selectedCartItem, setSelectedCartItem] = useState(null);
   const [showNoteModal, setShowNoteModal] = useState(false);
   const [showProcessModal, setShowProcessModal] = useState(false);
-  const [showCancelModal, setShowCancelModal] = useState(false);
   const [showSuccessModal, setShowSuccessModal] = useState(false);
   const [showTapCardModal, setShowTapCardModal] = useState(false);
   const [orderDetail, setOrderDetail] = useState(null);
@@ -121,18 +117,32 @@ const TableSelectionScreen = () => {
         getAll: 'true',
       });
       setCategories(response?.items || []);
-    } catch (error) { }
+    } catch (error) {
+      Toast.show({
+        type: 'error',
+        text1: 'Error fetching categories',
+        text2: error?.message || 'Please try again later',
+      })
+    }
   }, [store_id]);
 
   const handleFetchAllProducts = useCallback(async query => {
     try {
       const response = await GET_ALL_PRODUCTS_WITH_INVENTORY(query);
       setProducts(response?.items || []);
-    } catch (error) { }
+    } catch (error) {
+      Toast.show({
+        type: 'error',
+        text1: 'Error fetching products',
+        text2: error?.message || 'Please try again later',
+      })
+    }
   }, []);
 
   const handleGetFloors = useCallback(async () => {
-    if (!store_id) return;
+    if (!store_id) {
+      return;
+    }
     try {
       const response = await GET_FLOORS({ storeId: store_id });
       const fetchedAreas = response?.items || [];
@@ -140,12 +150,20 @@ const TableSelectionScreen = () => {
       if (fetchedAreas.length > 0 && !selectedArea) {
         setSelectedArea(fetchedAreas[0]);
       }
-    } catch (error) { }
+    } catch (error) {
+      Toast.show({
+        type: 'error',
+        text1: 'Error fetching floors',
+        text2: error?.message || 'Please try again later',
+      })
+    }
   }, [store_id, selectedArea]);
 
   const handleGetTables = useCallback(
     async floorId => {
-      if (!store_id || !floorId) return;
+      if (!store_id || !floorId) {
+        return;
+      }
       try {
         const response = await GET_TABLES({ floor_id: floorId, storeId: store_id });
         const items = response?.items || [];
@@ -190,13 +208,11 @@ const TableSelectionScreen = () => {
           }))
         ) || []),
       ],
-      deviceId: deviceId,
+      deviceId,
       quickSale: hasQuickSale,
     };
-    console.log(payload, 'payload for get terminal status');
     try {
       const res = await GET_TERMINAL_STATUS(payload);
-      console.log('Terminal status response:', res);
       setTerminalReferenceNumber(res?.transaction?.referenceNumber || '');
       setTerminalNr(res?.transaction?.nr || '');
     } catch (error) {
@@ -229,7 +245,6 @@ const TableSelectionScreen = () => {
     };
     try {
       const res = await CREATE_RES_TRANSACTION(payload);
-      console.log('Transaction response:', res);
       return res;
     } catch (error) {
       Toast.show({
@@ -321,7 +336,7 @@ const TableSelectionScreen = () => {
     if (route.params?.orderDetail) {
       setOrderDetail(route.params.orderDetail);
     }
-  }, [route.params?.newlyProcessedTable, route.params?.orderDetail, navigation]);
+  }, [route.params?.newlyProcessedTable, route.params?.orderDetail, route.params?.completedTable, navigation]);
 
   // Effect to clear cart and related states when switching to 'Dine in' tab
   useEffect(() => {
@@ -431,7 +446,6 @@ const TableSelectionScreen = () => {
 
 
   // Modals Handlers
-  const handleOpenTipModal = () => setShowTipModal(true);
   const handleAddTip = amount => {
     setTipAmount(amount);
     setShowTipModal(false);
@@ -445,7 +459,6 @@ const TableSelectionScreen = () => {
     setShowTipModal(false);
   };
 
-  const handleOpenBuyerModal = () => setShowBuyerModal(true);
   const handleAddBuyerInfo = info => {
     setBuyerInfo(info);
     setShowBuyerModal(false);
@@ -516,7 +529,7 @@ const TableSelectionScreen = () => {
   };
 
   const handleProcessOrder = () => {
-    if (cart.length === 0) return;
+    if (cart.length === 0) { return; }
 
     if (activeTab === 'Take Away') {
       handleCreateResOrder();
@@ -525,14 +538,7 @@ const TableSelectionScreen = () => {
     }
   };
 
-  const confirmCancelOrder = () => {
-    setCart([]);
-    setTipAmount(null);
-    setBuyerInfo(null);
-    setDiscountCode('');
-    setDiscountAmount(0);
-    setShowCancelModal(false);
-  };
+
 
   useEffect(() => {
     let timer;
@@ -560,7 +566,7 @@ const TableSelectionScreen = () => {
     <TouchableOpacity
       style={[
         styles.productCard,
-        item?.quantity <= 0 && [styles.outOfStockCard, { backgroundColor: '#E0E0E0' }],
+        item?.quantity <= 0 && [styles.outOfStockCard, styles.outOfStockBg],
       ]}
       activeOpacity={0.7}
       onPress={() => {
@@ -576,19 +582,8 @@ const TableSelectionScreen = () => {
       }}
     >
       {item?.quantity <= 0 && (
-        <View
-          style={{
-            position: 'absolute',
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0,
-            justifyContent: 'center',
-            alignItems: 'center',
-            zIndex: 1,
-          }}
-        >
-          <Text style={[Body2, { color: 'red', textAlign: 'center', fontWeight: 'bold' }]}>
+        <View style={styles.outOfStockOverlay}>
+          <Text style={[Body2, styles.outOfStockText]}>
             Out of Stock
           </Text>
         </View>
@@ -634,29 +629,29 @@ const TableSelectionScreen = () => {
       >
         {/* Top Chair */}
         <View
-          style={[styles.chairTop, [styles.chairTopPositioning, { backgroundColor: chairColor }]]}
+          style={[styles.chairTop, styles.chairTopPositioning, { backgroundColor: chairColor }]}
         />
         {/* Bottom Chair */}
         <View
           style={[
             styles.chairBottom,
-            [styles.chairBottomPositioning, { backgroundColor: chairColor }],
+            styles.chairBottomPositioning, { backgroundColor: chairColor },
           ]}
         />
         {/* Left Chair */}
         <View
-          style={[styles.chairLeft, [styles.chairLeftPositioning, { backgroundColor: chairColor }]]}
+          style={[styles.chairLeft, styles.chairLeftPositioning, { backgroundColor: chairColor }]}
         />
         {/* Right Chair */}
         <View
           style={[
             styles.chairRight,
-            [styles.chairRightPositioning, { backgroundColor: chairColor }],
+            styles.chairRightPositioning, { backgroundColor: chairColor },
           ]}
         />
 
         {/* Table Core (the square part) */}
-        <View style={[styles.tableCore, [styles.tableCoreDynamic, { backgroundColor: coreColor }]]}>
+        <View style={[styles.tableCore, styles.tableCoreDynamic, { backgroundColor: coreColor }]}>
           <Text style={styles.tableNameText}>Table {item.table_no}</Text>
           <Text style={[styles.greyOverlineText]}>Seats: {item.seats}</Text>
 
@@ -873,7 +868,6 @@ const TableSelectionScreen = () => {
         setShowQuickSaleModal={setShowQuickSaleModal}
         setShowBuyerModal={setShowBuyerModal}
         setShowProcessModal={handleProcessOrder}
-        setShowCancelModal={setShowCancelModal}
         setShowPaymentModal={setShowPaymentModal}
         setSelectedCartItem={setSelectedCartItem}
         setShowNoteModal={setShowNoteModal}
@@ -987,7 +981,13 @@ const TableSelectionScreen = () => {
             try {
               await handleResTransaction(data.method);
               setShowSuccessModal(true);
-            } catch (error) { }
+            } catch (error) {
+              Toast.show({
+                type: 'error',
+                text1: 'Error processing transaction',
+                text2: error?.message || 'Please try again later',
+              })
+            }
           } else {
             setShowTapCardModal(true);
             try {
@@ -998,6 +998,11 @@ const TableSelectionScreen = () => {
               setShowTransactionModal(true);
             } catch (error) {
               setShowTapCardModal(false);
+              Toast.show({
+                type: 'error',
+                text1: 'Error processing transaction',
+                text2: error?.message || 'Please try again later',
+              })
             } finally {
               NfcManager.cancelTechnologyRequest();
             }

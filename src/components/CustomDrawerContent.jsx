@@ -36,7 +36,7 @@ const CustomDrawerContent = ({ navigation, state }) => {
   const { userData } = useSelector(_ => _.user);
 
   const handleLogout = () => {
-    const response = LOGOUT();
+    LOGOUT();
     store.dispatch(logout(true));
   };
 
@@ -57,10 +57,11 @@ const CustomDrawerContent = ({ navigation, state }) => {
     return (first + last).toUpperCase();
   }
 
-  const retailDrawerItems = ["Sale", "Close Register", "Settings"];
-  const restaurantDrawerItems = ["Restaurant Orders", "Table Management", "Close Register"];
+
 
   const filteredItems = useMemo(() => {
+    const retailDrawerItems = ["Sale", "Close Register", "Settings"];
+    const restaurantDrawerItems = ["Restaurant Orders", "Table Management", "Close Register"];
 
     const labels = userData?.business_type === 'restaurant'
       ? restaurantDrawerItems
@@ -101,7 +102,9 @@ const CustomDrawerContent = ({ navigation, state }) => {
 
           const handlePress = () => {
             if (isSettingsTab) {
-              if (!isSettingsActive) setShowPasskey(true);
+              if (!isSettingsActive) {
+                setShowPasskey(true);
+              }
             } else if (item.route) {
               navigation.navigate(item.route);
               navigation.closeDrawer();
