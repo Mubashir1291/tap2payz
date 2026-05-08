@@ -1,6 +1,15 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import { useSelector } from 'react-redux';
-import { View, Text, TouchableOpacity, ScrollView, TextInput, Image, Platform, ActivityIndicator } from 'react-native';
+import {
+  View,
+  Text,
+  TouchableOpacity,
+  ScrollView,
+  TextInput,
+  Image,
+  Platform,
+  ActivityIndicator,
+} from 'react-native';
 import RNFS from 'react-native-fs';
 import Toast from 'react-native-toast-message';
 import { Subtitle2, Body3, Caption, H2 } from '../../utils/fonts';
@@ -216,7 +225,8 @@ const XReport = ({ isActive }) => {
           {currentParams && (
             <TouchableOpacity onPress={() => setShowDurationModal(true)} activeOpacity={0.7}>
               <Text style={[styles.selectedDateText, Caption]}>
-                {formatDisplayDate(currentParams.displayFrom)} — {formatDisplayDate(currentParams.displayTo)}
+                {formatDisplayDate(currentParams.displayFrom)} —{' '}
+                {formatDisplayDate(currentParams.displayTo)}
                 <Text style={{ color: Colors.primary }}> (Change)</Text>
               </Text>
             </TouchableOpacity>

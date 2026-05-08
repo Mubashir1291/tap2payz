@@ -229,7 +229,8 @@ const EmployeeManagement = () => {
         <TouchableOpacity
           style={[
             styles.pageBtn,
-            (!paginationData?.hasNextPage || page >= paginationData?.lastPage) && styles.disabledPageBtn,
+            (!paginationData?.hasNextPage || page >= paginationData?.lastPage) &&
+              styles.disabledPageBtn,
           ]}
           disabled={!paginationData?.hasNextPage || page >= paginationData?.lastPage || isLoading}
           onPress={() => setPage(prev => prev + 1)}

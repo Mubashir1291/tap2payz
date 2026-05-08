@@ -20,7 +20,6 @@ import { useSelector } from 'react-redux';
 import { Colors } from '../../utils/Colors';
 import useDebounce from '../../utils/useDebounce';
 
-
 const ViewOrdersScreen = () => {
   const navigation = useNavigation();
   const [activeTab, setActiveTab] = useState('All');
@@ -37,7 +36,6 @@ const ViewOrdersScreen = () => {
 
   const isFirstRender = useRef(true);
   const lastFetchParams = useRef('');
-
 
   const handleGetResOrders = useCallback(
     async (pageNumber = 1) => {
@@ -73,7 +71,11 @@ const ViewOrdersScreen = () => {
         const response = await GET_RES_ORDERS(payload);
 
         const mappedOrders = (response?.items || []).map(item => ({
-          id: item.order_number || item.order_id || item._id?.toString().slice(-6).toUpperCase() || 'N/A',
+          id:
+            item.order_number ||
+            item.order_id ||
+            item._id?.toString().slice(-6).toUpperCase() ||
+            'N/A',
           table: item.table_id?.table_no || 'N/A',
           productsSummary: (item.products || [])
             .map(p => p.product_id?.product_name || p.product_name || 'Unknown')
@@ -227,7 +229,6 @@ const ViewOrdersScreen = () => {
         ) : (
           <FlatList
             data={orders}
-
             keyExtractor={item => item.id}
             renderItem={renderOrderRow}
             showsVerticalScrollIndicator={false}

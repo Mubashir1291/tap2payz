@@ -104,9 +104,7 @@ const InvoiceModal = ({
                 {/* Total */}
                 <View style={styles.totalRow}>
                   <Text style={[styles.totalLabel, Subtitle1]}>Total</Text>
-                  <Text style={[styles.totalValue, Subtitle1]}>
-                    ${totalAmount.toFixed(2)}
-                  </Text>
+                  <Text style={[styles.totalValue, Subtitle1]}>${totalAmount.toFixed(2)}</Text>
                 </View>
               </View>
             </View>

@@ -141,8 +141,6 @@ const TableManagementScreen = () => {
     }
   };
 
-
-
   const renderItem = ({ item }) => (
     <View style={styles.tableRow}>
       <Text style={[styles.cell, Body2, styles.flexLarge]}>{item.floor_id?.name || 'N/A'}</Text>
@@ -195,11 +193,15 @@ const TableManagementScreen = () => {
   }, [page, store_id, selectedArea, handleGetTables]);
 
   const handleNextPage = () => {
-    if (paginationData?.hasNextPage) { setPage(prev => prev + 1); }
+    if (paginationData?.hasNextPage) {
+      setPage(prev => prev + 1);
+    }
   };
 
   const handlePrevPage = () => {
-    if (page > 1) { setPage(prev => prev - 1); }
+    if (page > 1) {
+      setPage(prev => prev - 1);
+    }
   };
 
   return (

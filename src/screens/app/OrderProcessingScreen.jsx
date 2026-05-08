@@ -24,14 +24,7 @@ import {
   ButtonTextSmall,
   Body2,
 } from '../../utils/fonts';
-import {
-  IconSize12,
-  IconSize16,
-  IconSize20,
-  IconSize24,
-  IconSize40,
-
-} from '../../utils/IconSizes';
+import { IconSize12, IconSize16, IconSize20, IconSize24, IconSize40 } from '../../utils/IconSizes';
 import {
   LeftArrowIcon,
   RightArrowIcon,
@@ -146,7 +139,7 @@ const OrderProcessingScreen = () => {
             price: p.price,
             qty: p.quantity,
             note: p.note || '',
-          }))
+          })),
         );
 
         setCart([...mappedProducts, ...mappedQuickSales]);
@@ -193,7 +186,6 @@ const OrderProcessingScreen = () => {
         };
       }),
       employee_id: userData?._id || '',
-
     };
     try {
       const response = await CREATE_RES_ORDER(payload);
@@ -299,7 +291,7 @@ const OrderProcessingScreen = () => {
           (qs.quick_sale_id?.products || []).map(p => ({
             product_id: p._id,
             quantity: p.quantity,
-          }))
+          })),
         ) || []),
       ],
       deviceId,
@@ -516,11 +508,9 @@ const OrderProcessingScreen = () => {
     return (subtotal - discountAmount + (parseFloat(tipAmount) || 0)).toFixed(2);
   }, [subtotal, discountAmount, tipAmount]);
 
-
-
   const handleCancelTapCard = () => {
     setShowTapCardModal(false);
-    NfcManager.cancelTechnologyRequest().catch(() => { });
+    NfcManager.cancelTechnologyRequest().catch(() => {});
   };
 
   // Modals Handlers
@@ -569,8 +559,6 @@ const OrderProcessingScreen = () => {
     }
     handleCreateResOrder();
   };
-
-
 
   const confirmCancelOrder = () => {
     setCart([]);
@@ -653,9 +641,7 @@ const OrderProcessingScreen = () => {
     >
       {item?.quantity <= 0 && (
         <View style={internalStyles.outOfStockOverlay}>
-          <Text style={[Body2, internalStyles.outOfStockText]}>
-            Out of Stock
-          </Text>
+          <Text style={[Body2, internalStyles.outOfStockText]}>Out of Stock</Text>
         </View>
       )}
       <View style={styles.priceTag}>

@@ -6,7 +6,9 @@ import styles from '../screens/app/InventoryManagementStyles';
 import { SvgUri } from 'react-native-svg';
 
 const ProductDetailModal = ({ visible, onClose, product, onEdit, onDelete }) => {
-  if (!product) { return null; }
+  if (!product) {
+    return null;
+  }
 
   const renderImage = () => {
     const uri = product.product_image || product.image;

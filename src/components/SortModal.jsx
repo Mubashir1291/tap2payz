@@ -11,24 +11,36 @@ const sortOptions = [
 ];
 
 export const applySort = (data, sortType, keyExtractor) => {
-  if (!data || !Array.isArray(data)) { return []; }
-  if (!sortType) { return data; }
+  if (!data || !Array.isArray(data)) {
+    return [];
+  }
+  if (!sortType) {
+    return data;
+  }
 
   const sorted = [...data];
   if (sortType === 'a-z' || sortType === 'name') {
     sorted.sort((a, b) => {
       const valA = (keyExtractor ? keyExtractor(a) : a)?.toLowerCase() || '';
       const valB = (keyExtractor ? keyExtractor(b) : b)?.toLowerCase() || '';
-      if (valA < valB) { return -1; }
-      if (valA > valB) { return 1; }
+      if (valA < valB) {
+        return -1;
+      }
+      if (valA > valB) {
+        return 1;
+      }
       return 0;
     });
   } else if (sortType === 'z-a') {
     sorted.sort((a, b) => {
       const valA = (keyExtractor ? keyExtractor(a) : a)?.toLowerCase() || '';
       const valB = (keyExtractor ? keyExtractor(b) : b)?.toLowerCase() || '';
-      if (valA > valB) { return -1; }
-      if (valA < valB) { return 1; }
+      if (valA > valB) {
+        return -1;
+      }
+      if (valA < valB) {
+        return 1;
+      }
       return 0;
     });
   }

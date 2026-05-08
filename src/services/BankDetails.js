@@ -5,7 +5,6 @@ import URLS from './urls';
 const BASE_PREFIX = `${URLS.EMPLOYEE_SERVICE}/store`;
 // Bank Details
 export const GET_BANK_DETAILS = ({ business_id = '', store_id = '' }) => {
-
   return Fetch.get(
     `${BASE_PREFIX}${ENDPOINTS.BANK_DETAILS.GET_BANK_DETAILS}?business_id=${business_id}&store_id=${store_id}`,
   );

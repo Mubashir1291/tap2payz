@@ -57,15 +57,12 @@ const CustomDrawerContent = ({ navigation, state }) => {
     return (first + last).toUpperCase();
   }
 
-
-
   const filteredItems = useMemo(() => {
-    const retailDrawerItems = ["Sale", "Close Register", "Settings"];
-    const restaurantDrawerItems = ["Restaurant Orders", "Table Management", "Close Register"];
+    const retailDrawerItems = ['Sale', 'Close Register', 'Settings'];
+    const restaurantDrawerItems = ['Restaurant Orders', 'Table Management', 'Close Register'];
 
-    const labels = userData?.business_type === 'restaurant'
-      ? restaurantDrawerItems
-      : retailDrawerItems;
+    const labels =
+      userData?.business_type === 'restaurant' ? restaurantDrawerItems : retailDrawerItems;
 
     return drawerItems.filter(item => labels.includes(item.label));
   }, [userData?.business_type]);

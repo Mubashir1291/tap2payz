@@ -25,10 +25,7 @@ const ZReportDetailModal = ({ visible = false, reportData = null, onClose }) => 
             <Text style={[styles.title, H4]}>Z - Report</Text>
 
             <View style={styles.logoContainer}>
-              <Image
-                source={Tap2PayLogo}
-                style={styles.logo}
-              />
+              <Image source={Tap2PayLogo} style={styles.logo} />
             </View>
 
             {/* Store Information */}

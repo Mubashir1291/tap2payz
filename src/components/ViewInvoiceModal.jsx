@@ -104,13 +104,13 @@ const ViewInvoiceModal = ({ visible, onClose, orderData = null }) => {
                 <Text style={styles.infoValue}>
                   {orderData?.updated_at
                     ? new Date(orderData.updated_at).toLocaleString('en-GB', {
-                      day: '2-digit',
-                      month: 'short',
-                      year: 'numeric',
-                      hour: '2-digit',
-                      minute: '2-digit',
-                      hour12: true,
-                    })
+                        day: '2-digit',
+                        month: 'short',
+                        year: 'numeric',
+                        hour: '2-digit',
+                        minute: '2-digit',
+                        hour12: true,
+                      })
                     : 'N/A'}
                 </Text>
               </Text>

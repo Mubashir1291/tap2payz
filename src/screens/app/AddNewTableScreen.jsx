@@ -74,7 +74,9 @@ const AddNewTableScreen = () => {
 
   const handleGetTables = useCallback(
     async floorId => {
-      if (!store_id || !floorId) { return; }
+      if (!store_id || !floorId) {
+        return;
+      }
       try {
         const response = await GET_TABLES({ floor_id: floorId, store_id });
         const fetchedTables = (response?.items || []).map(t => ({
@@ -104,7 +106,9 @@ const AddNewTableScreen = () => {
   );
 
   const handleCreateFloor = async () => {
-    if (newAreaName.trim() === '') { return; }
+    if (newAreaName.trim() === '') {
+      return;
+    }
     const payload = {
       name: newAreaName.trim(),
       store_id: store_id || '',
@@ -123,7 +127,9 @@ const AddNewTableScreen = () => {
   };
 
   const handleUpdateTable = async () => {
-    if (!editingTable?._id) { return; }
+    if (!editingTable?._id) {
+      return;
+    }
     try {
       const payload = { seats: parseInt(editSeats, 10) || 0 };
       await UPDATE_TABLE(editingTable._id, payload);
@@ -139,7 +145,9 @@ const AddNewTableScreen = () => {
   };
 
   const handleDeleteTable = async () => {
-    if (!tableToDelete?._id) { return; }
+    if (!tableToDelete?._id) {
+      return;
+    }
     try {
       await DELETE_TABLE(tableToDelete._id);
 
@@ -155,7 +163,9 @@ const AddNewTableScreen = () => {
   };
 
   const handleCreateTable = async newTable => {
-    if (!selectedArea || !newTable) { return; }
+    if (!selectedArea || !newTable) {
+      return;
+    }
 
     try {
       const payload = {

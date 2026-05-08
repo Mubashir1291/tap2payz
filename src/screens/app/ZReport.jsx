@@ -47,27 +47,27 @@ const ZReport = () => {
           id: item._id,
           openedAt: item.opening_amount?.opening_date
             ? new Date(item.opening_amount.opening_date)
-              .toLocaleString('en-GB', {
-                day: '2-digit',
-                month: '2-digit',
-                year: '2-digit',
-                hour: '2-digit',
-                minute: '2-digit',
-                hour12: true,
-              })
-              .replace(',', '\n')
+                .toLocaleString('en-GB', {
+                  day: '2-digit',
+                  month: '2-digit',
+                  year: '2-digit',
+                  hour: '2-digit',
+                  minute: '2-digit',
+                  hour12: true,
+                })
+                .replace(',', '\n')
             : 'N/A',
           closedAt: item.is_close
             ? new Date(item.updated_at)
-              .toLocaleString('en-GB', {
-                day: '2-digit',
-                month: '2-digit',
-                year: '2-digit',
-                hour: '2-digit',
-                minute: '2-digit',
-                hour12: true,
-              })
-              .replace(',', '\n')
+                .toLocaleString('en-GB', {
+                  day: '2-digit',
+                  month: '2-digit',
+                  year: '2-digit',
+                  hour: '2-digit',
+                  minute: '2-digit',
+                  hour12: true,
+                })
+                .replace(',', '\n')
             : 'Open',
           opener:
             item.opening_amount?.employee?.employee_email ||

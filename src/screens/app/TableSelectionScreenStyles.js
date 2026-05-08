@@ -295,8 +295,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     marginRight: S(4),
-    width:'100%'
-    
+    width: '100%',
   },
   cancelBtn: {
     flex: 1,

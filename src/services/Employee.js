@@ -11,7 +11,6 @@ export const GET_EMPLOYEES = ({ page = 1, itemPerPage = 10, searchText, sort, st
   return response;
 };
 
-
 export const GET_EMPLOYEE = id => {
   const response = Fetch.get(`${BASE_PREFIX}${ENDPOINTS.EMPLOYEE.GET_EMPLOYEE}/${id}`);
   return response;

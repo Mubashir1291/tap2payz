@@ -13,7 +13,7 @@ export default StyleSheet.create({
     paddingBottom: VS(10),
     paddingHorizontal: S(20),
   },
-   hamburgerBtn: {
+  hamburgerBtn: {
     width: S(36),
     height: VS(36),
     justifyContent: 'center',

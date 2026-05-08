@@ -3,13 +3,7 @@ import { View, Text, TouchableOpacity, FlatList, Image } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { Subtitle1, Subtitle2, Body3, Overline, H4 } from '../utils/fonts';
 import { IconSize16 } from '../utils/IconSizes';
-import {
-  DeleteIcon,
-  TickIcon,
-  DollarIcon,
-  RefreshICon,
-  BuyersIcon,
-} from '../assets/Images';
+import { DeleteIcon, TickIcon, DollarIcon, RefreshICon, BuyersIcon } from '../assets/Images';
 import styles from '../screens/app/TableSelectionScreenStyles';
 import { useSelector } from 'react-redux';
 

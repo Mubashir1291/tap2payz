@@ -122,7 +122,7 @@ const TableSelectionScreen = () => {
         type: 'error',
         text1: 'Error fetching categories',
         text2: error?.message || 'Please try again later',
-      })
+      });
     }
   }, [store_id]);
 
@@ -135,7 +135,7 @@ const TableSelectionScreen = () => {
         type: 'error',
         text1: 'Error fetching products',
         text2: error?.message || 'Please try again later',
-      })
+      });
     }
   }, []);
 
@@ -155,7 +155,7 @@ const TableSelectionScreen = () => {
         type: 'error',
         text1: 'Error fetching floors',
         text2: error?.message || 'Please try again later',
-      })
+      });
     }
   }, [store_id, selectedArea]);
 
@@ -205,7 +205,7 @@ const TableSelectionScreen = () => {
           (qs.quick_sale_id?.products || []).map(p => ({
             product_id: p._id,
             quantity: p.quantity,
-          }))
+          })),
         ) || []),
       ],
       deviceId,
@@ -224,7 +224,9 @@ const TableSelectionScreen = () => {
     const payload = {
       order_id: orderDetail?._id || route.params?.orderDetail?._id,
       quickSale: hasQuickSale,
-      quick_sales: (orderDetail?.quick_sales || route.params?.orderDetail?.quick_sales)?.map(qs => qs._id) || [],
+      quick_sales:
+        (orderDetail?.quick_sales || route.params?.orderDetail?.quick_sales)?.map(qs => qs._id) ||
+        [],
       transaction: {
         deviceID: deviceId || '',
         storeID: store_id || '',
@@ -336,7 +338,12 @@ const TableSelectionScreen = () => {
     if (route.params?.orderDetail) {
       setOrderDetail(route.params.orderDetail);
     }
-  }, [route.params?.newlyProcessedTable, route.params?.orderDetail, route.params?.completedTable, navigation]);
+  }, [
+    route.params?.newlyProcessedTable,
+    route.params?.orderDetail,
+    route.params?.completedTable,
+    navigation,
+  ]);
 
   // Effect to clear cart and related states when switching to 'Dine in' tab
   useEffect(() => {
@@ -443,8 +450,6 @@ const TableSelectionScreen = () => {
   const subtotal = cart.reduce((sum, item) => sum + item.price * item.qty, 0);
   const total = (subtotal - discountAmount + (parseFloat(tipAmount) || 0)).toFixed(2);
 
-
-
   // Modals Handlers
   const handleAddTip = amount => {
     setTipAmount(amount);
@@ -529,7 +534,9 @@ const TableSelectionScreen = () => {
   };
 
   const handleProcessOrder = () => {
-    if (cart.length === 0) { return; }
+    if (cart.length === 0) {
+      return;
+    }
 
     if (activeTab === 'Take Away') {
       handleCreateResOrder();
@@ -537,8 +544,6 @@ const TableSelectionScreen = () => {
       setShowProcessModal(true);
     }
   };
-
-
 
   useEffect(() => {
     let timer;
@@ -583,9 +588,7 @@ const TableSelectionScreen = () => {
     >
       {item?.quantity <= 0 && (
         <View style={styles.outOfStockOverlay}>
-          <Text style={[Body2, styles.outOfStockText]}>
-            Out of Stock
-          </Text>
+          <Text style={[Body2, styles.outOfStockText]}>Out of Stock</Text>
         </View>
       )}
       <View style={styles.priceTag}>
@@ -635,7 +638,8 @@ const TableSelectionScreen = () => {
         <View
           style={[
             styles.chairBottom,
-            styles.chairBottomPositioning, { backgroundColor: chairColor },
+            styles.chairBottomPositioning,
+            { backgroundColor: chairColor },
           ]}
         />
         {/* Left Chair */}
@@ -644,10 +648,7 @@ const TableSelectionScreen = () => {
         />
         {/* Right Chair */}
         <View
-          style={[
-            styles.chairRight,
-            styles.chairRightPositioning, { backgroundColor: chairColor },
-          ]}
+          style={[styles.chairRight, styles.chairRightPositioning, { backgroundColor: chairColor }]}
         />
 
         {/* Table Core (the square part) */}
@@ -986,7 +987,7 @@ const TableSelectionScreen = () => {
                 type: 'error',
                 text1: 'Error processing transaction',
                 text2: error?.message || 'Please try again later',
-              })
+              });
             }
           } else {
             setShowTapCardModal(true);
@@ -1002,7 +1003,7 @@ const TableSelectionScreen = () => {
                 type: 'error',
                 text1: 'Error processing transaction',
                 text2: error?.message || 'Please try again later',
-              })
+              });
             } finally {
               NfcManager.cancelTechnologyRequest();
             }

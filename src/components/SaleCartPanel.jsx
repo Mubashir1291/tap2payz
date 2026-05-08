@@ -2,15 +2,7 @@ import React, { useState, useMemo, useEffect, useRef } from 'react';
 import { View, Text, TouchableOpacity, FlatList, Image, NativeModules } from 'react-native';
 import ReceiptTemplate from './ReceiptTemplate';
 import RNFS from 'react-native-fs';
-import {
-  Caption,
-  Body2,
-  Body3,
-  Subtitle1,
-  Subtitle2,
-  H4,
-  ButtonText,
-} from '../utils/fonts';
+import { Caption, Body2, Body3, Subtitle1, Subtitle2, H4, ButtonText } from '../utils/fonts';
 import { IconSize12, IconSize24, IconSize40 } from '../utils/IconSizes';
 import {
   CashIcon,
@@ -249,7 +241,7 @@ const SaleCartPanel = ({ cart, setCart, onAddToCart }) => {
 
   const handleCancelTapCard = () => {
     setShowTapCardModal(false);
-    NfcManager.cancelTechnologyRequest().catch(() => { });
+    NfcManager.cancelTechnologyRequest().catch(() => {});
   };
 
   const confirmDeleteCart = () => {

@@ -309,7 +309,7 @@ const LoginScreen = () => {
       </View>
 
       {/* ── Device ID Modal ── */}
-      <Modal visible={showDeviceModal} transparent animationType="fade" onRequestClose={() => { }}>
+      <Modal visible={showDeviceModal} transparent animationType="fade" onRequestClose={() => {}}>
         <KeyboardAvoidingView
           behavior={Platform.OS === 'ios' ? 'padding' : undefined}
           style={styles.modalOverlay}

@@ -67,7 +67,9 @@ const TransactionReportScreen = () => {
         setTransactions(prev => [...prev, ...items]);
       } else {
         setTransactions(items);
-        if (items.length > 0) { setSelectedItem(items[0]); }
+        if (items.length > 0) {
+          setSelectedItem(items[0]);
+        }
       }
 
       setTransactionsData(response?.data);
@@ -128,7 +130,9 @@ const TransactionReportScreen = () => {
   }, [currentFilter, transactions]);
 
   const processedOrderItems = useMemo(() => {
-    if (!selectedItem?.products) { return []; }
+    if (!selectedItem?.products) {
+      return [];
+    }
 
     return applySort(selectedItem.products, currentFilter, item => item.product_name);
   }, [selectedItem, currentFilter]);
@@ -205,9 +209,7 @@ const TransactionReportScreen = () => {
                         item.transactionType?.slice(1).toLowerCase()}
                     </Text>
                   </View>
-                  <View
-                    style={[styles.colStatus, styles.statusWrapper]}
-                  >
+                  <View style={[styles.colStatus, styles.statusWrapper]}>
                     <Text
                       style={[
                         Overline,
@@ -303,7 +305,9 @@ const TransactionReportScreen = () => {
                       <Text style={[styles.colItem, styles.tableRowText, Body3]}>
                         {row.product_name}
                       </Text>
-                      <Text style={[styles.colSKU, styles.tableRowText, Body3, styles.centerTextAlign]}>
+                      <Text
+                        style={[styles.colSKU, styles.tableRowText, Body3, styles.centerTextAlign]}
+                      >
                         {row.sku_code || 'N/A'}
                       </Text>
                       <Text style={[styles.colPrice, styles.tableRowPrice, Body3]}>

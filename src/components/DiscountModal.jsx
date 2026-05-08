@@ -4,13 +4,7 @@ import { Colors } from '../utils/Colors';
 import { S, VS, MS } from '../utils/Responsive';
 import { H3, Body1, ButtonText, Subtitle2 } from '../utils/fonts';
 
-const DiscountModal = ({
-  visible,
-  onClose,
-  onSave,
-  onDelete,
-  initialDiscountCode = '',
-}) => {
+const DiscountModal = ({ visible, onClose, onSave, onDelete, initialDiscountCode = '' }) => {
   const [code, setCode] = useState(initialDiscountCode);
 
   useEffect(() => {

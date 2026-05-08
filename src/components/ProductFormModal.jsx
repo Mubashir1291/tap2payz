@@ -51,8 +51,11 @@ const ProductFormModal = ({ visible, onClose, formType, initialData, onSubmit })
       return;
     }
 
-    if (page === 1) { setIsLoadingCategories(true); }
-    else { setIsFetchingMoreCategories(true); }
+    if (page === 1) {
+      setIsLoadingCategories(true);
+    } else {
+      setIsFetchingMoreCategories(true);
+    }
 
     try {
       const response = await GET_ALL_CATEGORIES({
@@ -75,16 +78,17 @@ const ProductFormModal = ({ visible, onClose, formType, initialData, onSubmit })
         setHasMoreCategories(false);
       }
     } catch (error) {
-
       Toast.show({
         type: 'error',
         text1: 'Error',
         text2: error?.message || 'Failed to fetch categories',
       });
-
     } finally {
-      if (page === 1) { setIsLoadingCategories(false); }
-      else { setIsFetchingMoreCategories(false); }
+      if (page === 1) {
+        setIsLoadingCategories(false);
+      } else {
+        setIsFetchingMoreCategories(false);
+      }
     }
   };
 

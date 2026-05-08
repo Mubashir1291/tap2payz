@@ -23,8 +23,6 @@ const EditEmployeeModal = ({ visible, onClose, onSave, employeeData }) => {
     }
   };
 
-
-
   return (
     <Modal visible={visible} transparent={true} animationType="fade" onRequestClose={onClose}>
       <View style={styles.modalOverlay}>

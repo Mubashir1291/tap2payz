@@ -60,7 +60,9 @@ const SalesRefundDetailModal = ({
                 </View>
                 <View style={styles.detailCol}>
                   <Text style={[styles.detailLabel, Caption]}>Store Name:</Text>
-                  <Text style={[styles.detailValue, Subtitle2]}>{transaction.storeName || 'N/A'}</Text>
+                  <Text style={[styles.detailValue, Subtitle2]}>
+                    {transaction.storeName || 'N/A'}
+                  </Text>
                 </View>
                 <View style={[styles.detailCol, styles.detailColBorder]}>
                   <Text style={[styles.detailLabel, Caption]}>

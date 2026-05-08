@@ -21,7 +21,6 @@ import {
   GreenDollarIcon,
   PurpleDollarIcon,
   SignalsIcon,
-
   CartIcon,
   InventoryIcon,
   EmployeeIcon,
@@ -148,7 +147,6 @@ const SettingsScreen = () => {
     setShowDetailModal(true);
   }, []);
 
-
   const { chartData, chartLabels } = useMemo(() => {
     // Dynamically check for series key based on timeframe
     if (isLoading || !analyticsData) {
@@ -166,9 +164,9 @@ const SettingsScreen = () => {
       chartData:
         series.length > 0
           ? series.map(item => ({
-            value: Number(item.y) || 0,
-            onPress: openSaleDetail,
-          }))
+              value: Number(item.y) || 0,
+              onPress: openSaleDetail,
+            }))
           : salesLineData.map(item => ({ ...item, onPress: openSaleDetail })),
       chartLabels: series.map(item => (item.name ? item.name.slice(0, 3) : '')),
     };
@@ -199,7 +197,10 @@ const SettingsScreen = () => {
               <>
                 {/* Timeframe Filter Button */}
                 <View style={styles.timeframeFilterContainer}>
-                  <TouchableOpacity style={styles.timeframeBtn} onPress={() => setShowTimeFrameModal(true)}>
+                  <TouchableOpacity
+                    style={styles.timeframeBtn}
+                    onPress={() => setShowTimeFrameModal(true)}
+                  >
                     <Text style={[Caption, styles.timeframeText]}>
                       Timeframe: {timeFrame === 'weekly' ? 'Weekly' : 'Yearly'}
                     </Text>
@@ -270,7 +271,10 @@ const SettingsScreen = () => {
                         data={chartData}
                         height={VS(160)}
                         width={chartWidth}
-                        spacing={Math.max((chartWidth - S(20)) / (chartData.length - 1 || 1), S(20))}
+                        spacing={Math.max(
+                          (chartWidth - S(20)) / (chartData.length - 1 || 1),
+                          S(20),
+                        )}
                         initialSpacing={S(10)}
                         color1="#A8C8F0"
                         thickness={2}
@@ -338,7 +342,9 @@ const SettingsScreen = () => {
                         </View>
                       </>
                     ) : (
-                      <View style={[styles.flexFull, styles.rowCentered, styles.emptyChartContainer]}>
+                      <View
+                        style={[styles.flexFull, styles.rowCentered, styles.emptyChartContainer]}
+                      >
                         <Text style={[Caption, styles.emptyChartText]}>No data available</Text>
                       </View>
                     )}
@@ -396,9 +402,7 @@ const SettingsScreen = () => {
         </ScrollView>
       </View>
 
-      <View style={internalStyles.tabContent}>
-        {renderActiveTab()}
-      </View>
+      <View style={internalStyles.tabContent}>{renderActiveTab()}</View>
 
       {/* Detail Modal */}
       <SalesRefundDetailModal
@@ -418,13 +422,14 @@ const SettingsScreen = () => {
         <TouchableWithoutFeedback onPress={() => setShowTimeFrameModal(false)}>
           <View style={styles.modalOverlay}>
             <View style={styles.modalContent}>
-              <Text style={[Subtitle1, styles.modalTitle]}>
-                Select Timeframe
-              </Text>
-              <TouchableOpacity style={styles.modalOptionBtn} onPress={() => {
-                setTimeFrame('weekly');
-                setShowTimeFrameModal(false);
-              }}>
+              <Text style={[Subtitle1, styles.modalTitle]}>Select Timeframe</Text>
+              <TouchableOpacity
+                style={styles.modalOptionBtn}
+                onPress={() => {
+                  setTimeFrame('weekly');
+                  setShowTimeFrameModal(false);
+                }}
+              >
                 <Text
                   style={[
                     Body2,
@@ -435,10 +440,13 @@ const SettingsScreen = () => {
                   Weekly
                 </Text>
               </TouchableOpacity>
-              <TouchableOpacity style={styles.modalOptionBtnLast} onPress={() => {
-                setTimeFrame('yearly');
-                setShowTimeFrameModal(false);
-              }}>
+              <TouchableOpacity
+                style={styles.modalOptionBtnLast}
+                onPress={() => {
+                  setTimeFrame('yearly');
+                  setShowTimeFrameModal(false);
+                }}
+              >
                 <Text
                   style={[
                     Body2,
