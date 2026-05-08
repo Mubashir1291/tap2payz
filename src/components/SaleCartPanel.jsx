@@ -1,6 +1,5 @@
 import React, { useState, useMemo, useEffect, useRef } from 'react';
 import { View, Text, TouchableOpacity, FlatList, Image, NativeModules } from 'react-native';
-import ViewShot from 'react-native-view-shot';
 import ReceiptTemplate from './ReceiptTemplate';
 import RNFS from 'react-native-fs';
 import {
@@ -11,9 +10,8 @@ import {
   Subtitle2,
   H4,
   ButtonText,
-  ButtonTextSmall,
 } from '../utils/fonts';
-import { IconSize12, IconSize20, IconSize24, IconSize40, IconSize60 } from '../utils/IconSizes';
+import { IconSize12, IconSize24, IconSize40 } from '../utils/IconSizes';
 import {
   CashIcon,
   CardIcon,
@@ -40,6 +38,7 @@ import QuickSaleModal from './QuickSaleModal';
 import NfcManager, { NfcTech } from 'react-native-nfc-manager';
 import { CREATE_TRANSACTION, GET_INVENTORY_STATUS } from '../services/Transaction';
 import { useSelector } from 'react-redux';
+import Toast from 'react-native-toast-message';
 
 const SaleCartPanel = ({ cart, setCart, onAddToCart }) => {
   const [paymentType, setPaymentType] = useState(null);
@@ -64,7 +63,7 @@ const SaleCartPanel = ({ cart, setCart, onAddToCart }) => {
 
   const viewShotCustomerRef = useRef();
   const viewShotRestaurantRef = useRef();
-  const [printing, setPrinting] = useState(false);
+  const [_printing, setPrinting] = useState(false);
   const [paymentInfo, setPaymentInfo] = useState(null);
 
   const buildTransactionPayload = () => {
@@ -95,7 +94,7 @@ const SaleCartPanel = ({ cart, setCart, onAddToCart }) => {
   const handleCashProceed = async data => {
     try {
       const payload = buildTransactionPayload();
-      const response = await CREATE_TRANSACTION(payload);
+      await CREATE_TRANSACTION(payload);
 
       setPaymentInfo({
         method: 'Cash',
@@ -106,7 +105,11 @@ const SaleCartPanel = ({ cart, setCart, onAddToCart }) => {
       setShowCashPayModal(false);
       setShowSuccessModal(true);
     } catch (error) {
-      console.log(error, 'Transaction Error');
+      Toast.show({
+        type: 'error',
+        text1: 'Error',
+        text2: error?.message || 'Transaction Failed',
+      });
     }
   };
 
@@ -173,7 +176,7 @@ const SaleCartPanel = ({ cart, setCart, onAddToCart }) => {
 
       const payload = {
         transactionType: 'CASH', // If payment type is CARD then use trncType SALE
-        products: products,
+        products,
         sale_store: store_id,
         deviceID: deviceId,
       };
@@ -181,8 +184,12 @@ const SaleCartPanel = ({ cart, setCart, onAddToCart }) => {
       setTransReferenceId(response?.transaction?.referenceNumber);
       return true; // Successfully verified
     } catch (error) {
-      console.log(error, 'Inventory Status Error');
-      return false; // Stop the flow if inventory check fails
+      Toast.show({
+        type: 'error',
+        text1: 'Error',
+        text2: error?.message || 'Inventory Status Error',
+      });
+      return false;
     }
   };
 
@@ -242,7 +249,7 @@ const SaleCartPanel = ({ cart, setCart, onAddToCart }) => {
 
   const handleCancelTapCard = () => {
     setShowTapCardModal(false);
-    NfcManager.cancelTechnologyRequest().catch(() => {});
+    NfcManager.cancelTechnologyRequest().catch(() => { });
   };
 
   const confirmDeleteCart = () => {

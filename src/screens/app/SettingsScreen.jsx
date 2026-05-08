@@ -172,7 +172,7 @@ const SettingsScreen = () => {
           : salesLineData.map(item => ({ ...item, onPress: openSaleDetail })),
       chartLabels: series.map(item => (item.name ? item.name.slice(0, 3) : '')),
     };
-  }, [analyticsData, openSaleDetail, timeFrame]);
+  }, [analyticsData, isLoading, openSaleDetail, timeFrame]);
 
   const pieContainerImage = () => <Image source={CartIcon} style={IconSize20} />;
 
@@ -356,7 +356,7 @@ const SettingsScreen = () => {
       <StatusBar backgroundColor={Colors.primary} barStyle="light-content" />
 
       {/* Header */}
-      <View style={[styles.header, { flexDirection: 'row', alignItems: 'center' }]}>
+      <View style={[styles.header, internalStyles.headerRow]}>
         <TouchableOpacity style={styles.hamburgerBtn} onPress={() => navigation.openDrawer()}>
           <View style={styles.hamburgerLine} />
           <View style={[styles.hamburgerLine, styles.hamburgerLineShort]} />
@@ -368,7 +368,7 @@ const SettingsScreen = () => {
         {/* Tabs */}
         <ScrollView
           horizontal
-          style={{ flex: 1 }}
+          style={internalStyles.flex1}
           showsHorizontalScrollIndicator={false}
           contentContainerStyle={styles.tabsContainer}
         >
@@ -460,6 +460,10 @@ const SettingsScreen = () => {
 const internalStyles = StyleSheet.create({
   flex1: {
     flex: 1,
+  },
+  headerRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
   },
   tabContent: {
     flex: 1,
