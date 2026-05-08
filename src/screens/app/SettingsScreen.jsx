@@ -356,16 +356,19 @@ const SettingsScreen = () => {
       <StatusBar backgroundColor={Colors.primary} barStyle="light-content" />
 
       {/* Header */}
-      <View style={styles.header}>
+      <View style={[styles.header, { flexDirection: 'row', alignItems: 'center' }]}>
         <TouchableOpacity style={styles.hamburgerBtn} onPress={() => navigation.openDrawer()}>
           <View style={styles.hamburgerLine} />
           <View style={[styles.hamburgerLine, styles.hamburgerLineShort]} />
           <View style={styles.hamburgerLine} />
         </TouchableOpacity>
 
+        <View style={{ width: S(16) }} />
+
         {/* Tabs */}
         <ScrollView
           horizontal
+          style={{ flex: 1 }}
           showsHorizontalScrollIndicator={false}
           contentContainerStyle={styles.tabsContainer}
         >

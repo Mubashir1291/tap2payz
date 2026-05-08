@@ -17,6 +17,10 @@ const styles = StyleSheet.create({
   headerTitle: {
     color: '#3B4B8A',
   },
+  selectedDateText: {
+    color: '#6B7280',
+    marginTop: VS(4),
+  },
   headerActions: {
     flexDirection: 'row',
     alignItems: 'center',

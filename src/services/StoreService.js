@@ -1,7 +1,6 @@
 import ENDPOINTS from './endPoints';
 import { Fetch } from './config';
 import URLS from './urls';
-import { useEffect } from 'react';
 
 const BASE_PREFIX = `${URLS.EMPLOYEE_SERVICE}`;
 

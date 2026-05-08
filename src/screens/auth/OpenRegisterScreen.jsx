@@ -255,7 +255,7 @@ const OpenRegisterScreen = ({ navigation }) => {
 
         <View style={styles.summaryRow}>
           <Text style={[styles.summaryText, Body1]}>Deducted (Cash Out)</Text>
-          <Text style={[styles.summaryText, Body1, { color: 'red' }]}>
+          <Text style={[styles.summaryText, Body1, styles.textRed]}>
             {prevCashOut.toFixed(2)}
           </Text>
         </View>

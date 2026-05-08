@@ -57,6 +57,21 @@ const XReport = ({ isActive }) => {
     return serial.length > 6 ? serial.slice(-6) : serial;
   };
 
+  const formatDisplayDate = dateString => {
+    if (!dateString) {
+      return '';
+    }
+    const date = new Date(dateString);
+    return date.toLocaleString('en-GB', {
+      day: 'numeric',
+      month: 'short',
+      year: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
+      hour12: true,
+    });
+  };
+
   const handleViewDetail = item => {
     // Mapping API response to the format expected by SalesRefundDetailModal
     const detailObj = {
@@ -182,7 +197,7 @@ const XReport = ({ isActive }) => {
     }
   };
 
-  if (!hasSelectedDuration) {
+  if (!hasSelectedDuration && !currentParams) {
     return (
       <DurationModal
         visible={showDurationModal}
@@ -196,7 +211,17 @@ const XReport = ({ isActive }) => {
     <View style={styles.root}>
       {/* Header Row */}
       <View style={styles.headerRow}>
-        <Text style={[styles.headerTitle, H2]}>X - Reports</Text>
+        <View>
+          <Text style={[styles.headerTitle, H2]}>X - Reports</Text>
+          {currentParams && (
+            <TouchableOpacity onPress={() => setShowDurationModal(true)} activeOpacity={0.7}>
+              <Text style={[styles.selectedDateText, Caption]}>
+                {formatDisplayDate(currentParams.displayFrom)} — {formatDisplayDate(currentParams.displayTo)}
+                <Text style={{ color: Colors.primary }}> (Change)</Text>
+              </Text>
+            </TouchableOpacity>
+          )}
+        </View>
         <View style={styles.headerActions}>
           <View style={styles.searchBar}>
             <Image source={SearchIcon} style={IconSize12} />
@@ -324,6 +349,12 @@ const XReport = ({ isActive }) => {
         type={selectedTransaction?.type?.toLowerCase() === 'refund' ? 'refund' : 'sale'}
         transaction={selectedTransaction?.details}
         onClose={() => setShowDetailModal(false)}
+      />
+
+      <DurationModal
+        visible={showDurationModal}
+        onClose={handleDurationClose}
+        onProceed={handleDurationProceed}
       />
     </View>
   );

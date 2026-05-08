@@ -22,8 +22,8 @@ import { Colors } from '../../utils/Colors';
 import { S, VS, MS } from '../../utils/Responsive';
 import { H1, H4, Body1, ButtonText } from '../../utils/fonts';
 import CustomInput from '../../components/CustomInput';
-import { Tap2PayIcon, Tap2PayLogo } from '../../assets/Images';
-import { IconSize150, IconSize175, IconSize200, IconSize60 } from '../../utils/IconSizes';
+import { Tap2PayLogo } from '../../assets/Images';
+import { IconSize200 } from '../../utils/IconSizes';
 import { LOGIN_ACCOUNT, ME } from '../../services/AuthService';
 import { VERIFY_DEVICE, GET_CASH_REGISTER } from '../../services/StoreService';
 import { setIsLogin, setAccessToken, setUserData } from '../../redux/Reducers/userReducer';
@@ -105,6 +105,11 @@ const LoginScreen = () => {
             setCashRegisterData(regResponse?.cashRegister ?? regResponse?.closedRegister),
           );
         } catch (regError) {
+          Toast.show({
+            type: 'error',
+            text1: 'Error fetching cash register',
+            text2: regError.message,
+          });
           // Suppress error log for "Not Found" as it is a valid state before opening a register
           store.dispatch(setCashRegisterData(null));
         }
@@ -129,7 +134,6 @@ const LoginScreen = () => {
         type: 'error',
         text1: error?.message || 'An error occurred during login',
       });
-      console.log(error, 'checking');
     } finally {
       setIsLoading(false);
     }
@@ -171,6 +175,11 @@ const LoginScreen = () => {
           setCashRegisterData(regResponse?.cashRegister ?? regResponse?.closedRegister),
         );
       } catch (regError) {
+        Toast.show({
+          type: 'error',
+          text1: 'Error fetching cash register',
+          text2: regError.message,
+        });
         store.dispatch(setCashRegisterData(null));
       }
 
@@ -300,7 +309,7 @@ const LoginScreen = () => {
       </View>
 
       {/* ── Device ID Modal ── */}
-      <Modal visible={showDeviceModal} transparent animationType="fade" onRequestClose={() => {}}>
+      <Modal visible={showDeviceModal} transparent animationType="fade" onRequestClose={() => { }}>
         <KeyboardAvoidingView
           behavior={Platform.OS === 'ios' ? 'padding' : undefined}
           style={styles.modalOverlay}

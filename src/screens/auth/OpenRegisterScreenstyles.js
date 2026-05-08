@@ -38,6 +38,9 @@ const styles = StyleSheet.create({
   summaryText: {
     color: Colors.black,
   },
+  textDanger: {
+    color: 'red',
+  },
   divider: {
     height: VS(1),
     backgroundColor: Colors.lightGrey,

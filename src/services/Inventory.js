@@ -13,7 +13,6 @@ export const GET_ALL_INVENTORY = ({
   sort = '',
   storeId = '',
   businessId = '',
-  // bypass_cache = true,
 }) => {
   const response = Fetch.get(
     `${BASE_PREFIX}${ENDPOINTS.INVENTORY.GET_ALL_INVENTORY}?page=${page}&itemsPerPage=${itemsPerPage}&getAll=${getAll}&searchText=${searchText}&limited=${limited}&sort=${sort}&storeId=${storeId}&businessId=${businessId}&bypass_cache=${bypass_cache}`,

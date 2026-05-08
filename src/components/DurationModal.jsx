@@ -57,8 +57,14 @@ const DurationModal = ({ visible = false, onClose, onProceed }) => {
   };
 
   // ✅ FORMAT FOR API
-  const formatForAPI = date => {
-    return date.toISOString();
+  const formatForAPIDate = date => {
+    const d = new Date(date);
+    return d.toISOString().split('T')[0];
+  };
+
+  const formatForAPITime = date => {
+    const d = new Date(date);
+    return d.toTimeString().split(' ')[0];
   };
 
   // ✅ HANDLE PROCEED (API CALL)
@@ -72,10 +78,12 @@ const DurationModal = ({ visible = false, onClose, onProceed }) => {
       const params = {
         businessId: business_id,
         storeId: store_id,
-        fromDate: formatForAPI(fromDateTime),
-        toDate: formatForAPI(toDateTime),
-        fromTime: formatForAPI(fromDateTime),
-        toTime: formatForAPI(toDateTime),
+        fromDate: formatForAPIDate(fromDateTime),
+        toDate: formatForAPIDate(toDateTime),
+        fromTime: formatForAPITime(fromDateTime),
+        toTime: formatForAPITime(toDateTime),
+        displayFrom: fromDateTime.toISOString(),
+        displayTo: toDateTime.toISOString(),
         transType: '',
       };
 

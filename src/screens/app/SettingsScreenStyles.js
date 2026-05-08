@@ -13,19 +13,24 @@ export default StyleSheet.create({
     paddingBottom: VS(10),
     paddingHorizontal: S(20),
   },
-  hamburgerBtn: {
-    width: S(30),
-    height: VS(25),
-    justifyContent: 'space-between',
-    marginBottom: VS(15),
+   hamburgerBtn: {
+    width: S(36),
+    height: VS(36),
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: S(10),
   },
   hamburgerLine: {
-    height: VS(3),
-    backgroundColor: Colors.white,
+    width: S(22),
+    height: VS(2.5),
+    backgroundColor: Colors.black,
     borderRadius: MS(2),
+    marginVertical: VS(2),
   },
   hamburgerLineShort: {
-    width: '70%',
+    width: S(16),
+    alignSelf: 'flex-start',
+    marginLeft: S(7),
   },
   tabsContainer: {
     paddingBottom: VS(5),

@@ -211,6 +211,7 @@ const styles = StyleSheet.create({
     width: S(120),
     height: VS(80),
     resizeMode: 'contain',
+    tintColor: Colors.primary,
   },
   logoContainer: {
     alignItems: 'center',
