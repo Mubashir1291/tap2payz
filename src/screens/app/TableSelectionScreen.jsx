@@ -48,6 +48,7 @@ import {
   GET_TERMINAL_STATUS,
   CREATE_RES_TRANSACTION,
 } from '../../services/Restaurant/Sales&Transaction/Sales&Transaction';
+import ShimmerEffect from '../../components/ShimmerEffect';
 
 const TableSelectionScreen = () => {
   const navigation = useNavigation();
@@ -60,6 +61,8 @@ const TableSelectionScreen = () => {
   const [_printing, setPrinting] = useState(false);
   const [paymentInfo, setPaymentInfo] = useState({ received: 0, change: 0, method: '' });
   const [buyerId, setBuyerId] = useState(null);
+  const [isTableLoading, setIsTableLoading] = useState(false);
+  const [isProductLoading, setIsProductLoading] = useState(false);
 
   const [activeTab, setActiveTab] = useState(route.params?.orderType || 'Dine in');
   const [areas, setAreas] = useState([]);
@@ -112,6 +115,7 @@ const TableSelectionScreen = () => {
 
   const handleFetchAllCategories = useCallback(async () => {
     try {
+      setIsProductLoading(true);
       const response = await GET_ALL_CATEGORIES({
         storeId: store_id,
         getAll: 'true',
@@ -123,11 +127,14 @@ const TableSelectionScreen = () => {
         text1: 'Error fetching categories',
         text2: error?.message || 'Please try again later',
       });
+    } finally {
+      setIsProductLoading(false);
     }
   }, [store_id]);
 
   const handleFetchAllProducts = useCallback(async query => {
     try {
+      setIsProductLoading(true);
       const response = await GET_ALL_PRODUCTS_WITH_INVENTORY(query);
       setProducts(response?.items || []);
     } catch (error) {
@@ -136,6 +143,8 @@ const TableSelectionScreen = () => {
         text1: 'Error fetching products',
         text2: error?.message || 'Please try again later',
       });
+    } finally {
+      setIsProductLoading(false);
     }
   }, []);
 
@@ -144,6 +153,7 @@ const TableSelectionScreen = () => {
       return;
     }
     try {
+      setIsTableLoading(true);
       const response = await GET_FLOORS({ storeId: store_id });
       const fetchedAreas = response?.items || [];
       setAreas(fetchedAreas);
@@ -156,6 +166,8 @@ const TableSelectionScreen = () => {
         text1: 'Error fetching floors',
         text2: error?.message || 'Please try again later',
       });
+    } finally {
+      setIsTableLoading(false);
     }
   }, [store_id, selectedArea]);
 
@@ -165,6 +177,7 @@ const TableSelectionScreen = () => {
         return;
       }
       try {
+        setIsTableLoading(true);
         const response = await GET_TABLES({ floor_id: floorId, storeId: store_id });
         const items = response?.items || [];
         setTables(items);
@@ -177,6 +190,8 @@ const TableSelectionScreen = () => {
         );
       } catch (error) {
         console.error('Error fetching tables:', error);
+      } finally {
+        setIsTableLoading(false);
       }
     },
     [store_id],
@@ -496,6 +511,7 @@ const TableSelectionScreen = () => {
   };
 
   const handleFilterByCategory = cat => {
+    setIsProductLoading(true);
     setSelectedCategory(cat);
     setProductSearchQuery(prev => ({
       ...prev,
@@ -703,7 +719,10 @@ const TableSelectionScreen = () => {
           <View style={styles.tabsSwitch}>
             <TouchableOpacity
               style={[styles.tabBtn, activeTab === 'Dine in' && styles.activeTabBtn]}
-              onPress={() => setActiveTab('Dine in')}
+              onPress={() => {
+                setIsTableLoading(true);
+                setActiveTab('Dine in');
+              }}
             >
               <Text
                 style={[Subtitle2, activeTab === 'Dine in' ? styles.activeTabText : styles.tabText]}
@@ -713,7 +732,10 @@ const TableSelectionScreen = () => {
             </TouchableOpacity>
             <TouchableOpacity
               style={[styles.tabBtn, activeTab === 'Take Away' && styles.activeTabBtn]}
-              onPress={() => setActiveTab('Take Away')}
+              onPress={() => {
+                setIsProductLoading(true);
+                setActiveTab('Take Away');
+              }}
             >
               <Text
                 style={[
@@ -779,14 +801,29 @@ const TableSelectionScreen = () => {
 
         {/* Table Grid */}
         {activeTab === 'Dine in' ? (
-          <FlatList
-            data={tables}
-            keyExtractor={item => item._id || item.id}
-            renderItem={renderTable}
-            numColumns={6}
-            showsVerticalScrollIndicator={false}
-            contentContainerStyle={styles.gridContainer}
-          />
+          isTableLoading ? (
+            <FlatList
+              data={Array.from({ length: 30 }, (_, i) => i + 1)}
+              keyExtractor={item => item.toString()}
+              renderItem={() => (
+                <View style={styles.tableWrapper}>
+                  <ShimmerEffect width="100%" height="100%" borderRadius={14} />
+                </View>
+              )}
+              numColumns={6}
+              contentContainerStyle={styles.gridContainer}
+              showsVerticalScrollIndicator={false}
+            />
+          ) : (
+            <FlatList
+              data={tables}
+              keyExtractor={item => item._id || item.id}
+              renderItem={renderTable}
+              numColumns={6}
+              showsVerticalScrollIndicator={false}
+              contentContainerStyle={styles.gridContainer}
+            />
+          )
         ) : (
           <View style={styles.flexFull}>
             {/* Category Slider */}
@@ -809,19 +846,27 @@ const TableSelectionScreen = () => {
                 }}
                 scrollEventThrottle={16}
               >
-                {categoriesItems.map(cat => (
-                  <TouchableOpacity
-                    key={cat._id}
-                    style={[
-                      styles.categoryBtn,
-                      selectedCategory?._id === cat._id && styles.activeCategory,
-                    ]}
-                    onPress={() => handleFilterByCategory(cat)}
-                  >
-                    <Image source={ImageFrameIcon} style={[IconSize16, styles.categoryIcon]} />
-                    <Text style={[styles.categoryText, Subtitle2]}>{cat.category_name}</Text>
-                  </TouchableOpacity>
-                ))}
+                {isProductLoading ? (
+                  [1, 2, 3, 4, 5].map(i => (
+                    <View key={i} style={[styles.categoryBtn, { backgroundColor: 'transparent', borderWidth: 0 }]}>
+                      <ShimmerEffect width={100} height={40} borderRadius={25} />
+                    </View>
+                  ))
+                ) : (
+                  categoriesItems.map(cat => (
+                    <TouchableOpacity
+                      key={cat._id}
+                      style={[
+                        styles.categoryBtn,
+                        selectedCategory?._id === cat._id && styles.activeCategory,
+                      ]}
+                      onPress={() => handleFilterByCategory(cat)}
+                    >
+                      <Image source={ImageFrameIcon} style={[IconSize16, styles.categoryIcon]} />
+                      <Text style={[styles.categoryText, Subtitle2]}>{cat.category_name}</Text>
+                    </TouchableOpacity>
+                  ))
+                )}
               </ScrollView>
               <TouchableOpacity
                 style={styles.categoryArrow}
@@ -835,19 +880,34 @@ const TableSelectionScreen = () => {
             </View>
 
             {/* Product Grid */}
-            <FlatList
-              data={products.map(p => ({
-                _id: p._id,
-                name: p.product_name,
-                price: p.price,
-                quantity: p.quantity,
-              }))}
-              keyExtractor={(item, index) => item._id || index.toString()}
-              renderItem={renderProduct}
-              numColumns={5}
-              contentContainerStyle={styles.productListContent}
-              showsVerticalScrollIndicator={false}
-            />
+            {isProductLoading ? (
+              <FlatList
+                data={Array.from({ length: 25 }, (_, i) => i + 1)}
+                keyExtractor={item => item.toString()}
+                renderItem={() => (
+                  <View style={[styles.productCard, { backgroundColor: 'transparent' }]}>
+                    <ShimmerEffect width="100%" height="100%" borderRadius={14} />
+                  </View>
+                )}
+                numColumns={5}
+                contentContainerStyle={styles.productListContent}
+                showsVerticalScrollIndicator={false}
+              />
+            ) : (
+              <FlatList
+                data={products.map(p => ({
+                  _id: p._id,
+                  name: p.product_name,
+                  price: p.price,
+                  quantity: p.quantity,
+                }))}
+                keyExtractor={(item, index) => item._id || index.toString()}
+                renderItem={renderProduct}
+                numColumns={5}
+                contentContainerStyle={styles.productListContent}
+                showsVerticalScrollIndicator={false}
+              />
+            )}
           </View>
         )}
       </View>

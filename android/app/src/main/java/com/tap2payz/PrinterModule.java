@@ -1,7 +1,13 @@
 package com.tap2payz;
 
+import android.app.PendingIntent;
 import android.content.Context;
+import android.content.Intent;
+import android.hardware.usb.UsbConstants;
 import android.hardware.usb.UsbDevice;
+import android.hardware.usb.UsbDeviceConnection;
+import android.hardware.usb.UsbEndpoint;
+import android.hardware.usb.UsbInterface;
 import android.hardware.usb.UsbManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -20,6 +26,7 @@ import com.facebook.react.bridge.*;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
+
 public class PrinterModule extends ReactContextBaseJavaModule {
 
     private final ReactApplicationContext reactContext;
@@ -27,6 +34,11 @@ public class PrinterModule extends ReactContextBaseJavaModule {
     private static final Object printerLock = new Object();
     private int printerWidth = 576; // Telpo C2 is 80mm
     private static boolean isPrinterOpen = false;
+
+    private static final String ACTION_USB_PERMISSION = "com.tap2payz.USB_PERMISSION";
+    private UsbDevice externalDevice = null;
+    private UsbDeviceConnection connection = null;
+    private UsbEndpoint endpointOut = null;
 
     public PrinterModule(ReactApplicationContext reactContext) {
         super(reactContext);
@@ -55,6 +67,7 @@ public class PrinterModule extends ReactContextBaseJavaModule {
             CountDownLatch latch = new CountDownLatch(1);
             new Handler(Looper.getMainLooper()).post(() -> {
                 try {
+                    // Try to initialize internal printer
                     boolean initOk = ThermalPrinter.init80mmUsbPrinter(reactContext.getApplicationContext());
                     Log.d(TAG, "init80mmUsbPrinter returned: " + initOk);
                     ThermalPrinter.start(reactContext.getApplicationContext());
@@ -70,6 +83,76 @@ public class PrinterModule extends ReactContextBaseJavaModule {
             e.printStackTrace();
         }
     }
+
+    private void findExternalPrinter() {
+        UsbManager manager = (UsbManager) reactContext.getSystemService(Context.USB_SERVICE);
+        externalDevice = null;
+        for (UsbDevice device : manager.getDeviceList().values()) {
+            // Saixiang / Generic 58mm Printer
+            if (device.getVendorId() == 10473 && device.getProductId() == 653) {
+                externalDevice = device;
+                break;
+            }
+            // Check by interface class if VID/PID unknown
+            for (int i = 0; i < device.getInterfaceCount(); i++) {
+                if (device.getInterface(i).getInterfaceClass() == 7) {
+                    externalDevice = device;
+                    break;
+                }
+            }
+            if (externalDevice != null) break;
+        }
+
+        if (externalDevice != null) {
+            if (!manager.hasPermission(externalDevice)) {
+                int flags = android.os.Build.VERSION.SDK_INT >= 31 ? PendingIntent.FLAG_MUTABLE : 0;
+                PendingIntent pi = PendingIntent.getBroadcast(reactContext, 0, new Intent(ACTION_USB_PERMISSION), flags);
+                manager.requestPermission(externalDevice, pi);
+            } else {
+                openExternalConnection();
+            }
+        }
+    }
+
+    private void openExternalConnection() {
+        if (externalDevice == null) return;
+        UsbManager manager = (UsbManager) reactContext.getSystemService(Context.USB_SERVICE);
+        try {
+            connection = manager.openDevice(externalDevice);
+            if (connection != null) {
+                UsbInterface iface = null;
+                for (int i = 0; i < externalDevice.getInterfaceCount(); i++) {
+                    if (externalDevice.getInterface(i).getInterfaceClass() == 7) {
+                        iface = externalDevice.getInterface(i);
+                        break;
+                    }
+                }
+                if (iface == null && externalDevice.getInterfaceCount() > 0) {
+                    iface = externalDevice.getInterface(0);
+                }
+
+                if (iface != null) {
+                    connection.claimInterface(iface, true);
+                    for (int i = 0; i < iface.getEndpointCount(); i++) {
+                        UsbEndpoint ep = iface.getEndpoint(i);
+                        if (ep.getType() == UsbConstants.USB_ENDPOINT_XFER_BULK && ep.getDirection() == UsbConstants.USB_DIR_OUT) {
+                            endpointOut = ep;
+                            break;
+                        }
+                    }
+                }
+            }
+        } catch (Exception e) {
+            Log.e(TAG, "Error opening external printer: " + e.getMessage());
+        }
+    }
+
+    private void sendToExternal(byte[] data) {
+        if (connection != null && endpointOut != null) {
+            connection.bulkTransfer(endpointOut, data, data.length, 5000);
+        }
+    }
+
 
     @ReactMethod
     public void initializePrinter(Promise promise) {
@@ -90,6 +173,7 @@ public class PrinterModule extends ReactContextBaseJavaModule {
 
                 int retry = 0;
                 Exception lastEx = null;
+                findExternalPrinter();
                 while (retry < 3) {
                     try {
                         startPrinterSync();
@@ -214,9 +298,24 @@ public class PrinterModule extends ReactContextBaseJavaModule {
                     boolean hasData = false;
 
                     if (logo != null) {
-                        Bitmap resized = resizeBitmap(logo, printerWidth);
+                        // Create bitmaps for both printers before any printing starts
+                        // to avoid "recycled bitmap" errors if the SDK recycles the input.
+                        Bitmap internalBitmap = resizeBitmap(logo, printerWidth);
+                        Bitmap externalBitmap = (endpointOut != null) ? resizeBitmap(logo, 384) : null;
+
+                        // Print internal
                         ThermalPrinter.setAlgin(ThermalPrinter.ALGIN_MIDDLE);
-                        ThermalPrinter.printLogo(resized);
+                        ThermalPrinter.printLogo(internalBitmap);
+                        
+                        // Print external
+                        if (endpointOut != null && externalBitmap != null) {
+                            byte[] escData = bitmapToEscPos(externalBitmap);
+                            byte[] init = {0x1B, 0x40, 0x1B, 0x61, 0x01}; // Reset + Align Center
+                            sendToExternal(init);
+                            sendToExternal(escData);
+                            sendToExternal(new byte[]{0x0A}); // LF
+                        }
+
                         Thread.sleep(300);
                         hasData = true;
                     }
@@ -226,6 +325,13 @@ public class PrinterModule extends ReactContextBaseJavaModule {
                         if (content != null && !content.isEmpty()) {
                             ThermalPrinter.setAlgin(ThermalPrinter.ALGIN_LEFT);
                             ThermalPrinter.addString(content);
+
+                            // External USB
+                            if (endpointOut != null) {
+                                sendToExternal(new byte[]{0x1B, 0x61, 0x00}); // Align Left
+                                sendToExternal(content.getBytes());
+                            }
+
                             hasData = true;
                         }
                     }
@@ -244,6 +350,12 @@ public class PrinterModule extends ReactContextBaseJavaModule {
                             ThermalPrinter.paperCut();
                         } catch (Exception ignored) {
                             Log.w(TAG, "Cutter not available or error during cut");
+                        }
+                        
+                        // External USB cut
+                        if (endpointOut != null) {
+                            sendToExternal(new byte[]{0x1B, 0x64, 0x05}); // Feed 5 lines
+                            sendToExternal(new byte[]{0x1D, 0x56, 0x42, 0x00}); // Cut
                         }
                     } catch (Exception e) {
                         Log.e(TAG, "Execution failed", e);
@@ -277,10 +389,14 @@ public class PrinterModule extends ReactContextBaseJavaModule {
     }
 
     private Bitmap resizeBitmap(Bitmap bitmap, int maxWidth) {
+        if (bitmap == null || bitmap.isRecycled()) return null;
         int width = bitmap.getWidth();
         int height = bitmap.getHeight();
-        if (width <= maxWidth)
-            return bitmap;
+        
+        // If it's already the right size, still return a copy to be safe from recycling
+        if (width <= maxWidth) {
+            return Bitmap.createBitmap(bitmap);
+        }
 
         float ratio = (float) width / height;
         int newWidth = maxWidth;

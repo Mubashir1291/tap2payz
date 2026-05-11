@@ -12,7 +12,7 @@ const styles = StyleSheet.create({
   // ─── Left Panel ───
   leftPanel: {
     flex: 0.68,
-    backgroundColor: '#c6cdef66', // Light blue background from screenshot
+    backgroundColor: '#b0b7d4', // Slightly darker blue-grey for better contrast
     padding: MS(16),
   },
   header: {

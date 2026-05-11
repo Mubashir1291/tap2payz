@@ -153,7 +153,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     minWidth: S(100),
-    height: VS(110),
+    height: VS(120),
   },
   categoryGridImage: {
     height: VS(32),
@@ -180,6 +180,7 @@ const styles = StyleSheet.create({
     padding: MS(10),
     alignItems: 'center',
     minWidth: S(100),
+    height: VS(120),
   },
   outOfStockCard: {
     backgroundColor: '#F8D7DA',

@@ -57,6 +57,7 @@ import {
   CREATE_RES_TRANSACTION,
   GET_TERMINAL_STATUS,
 } from '../../services/Restaurant/Sales&Transaction/Sales&Transaction';
+import ShimmerEffect from '../../components/ShimmerEffect';
 
 const OrderProcessingScreen = () => {
   const { PrinterModule, DisplayManager } = NativeModules;
@@ -99,6 +100,9 @@ const OrderProcessingScreen = () => {
   const [terminalNr, setTerminalNr] = useState('');
 
   const [paymentInfo, setPaymentInfo] = useState({ received: 0, change: 0, method: '' });
+  const [isCategoriesLoading, setIsCategoriesLoading] = useState(false);
+  const [isProductsLoading, setIsProductsLoading] = useState(false);
+  const [isOrderLoading, setIsOrderLoading] = useState(false);
   // API Data State
   const [products, setProducts] = useState([]);
   const [productsData, setProductsData] = useState(null);
@@ -117,6 +121,7 @@ const OrderProcessingScreen = () => {
 
   const handleGetResOrderDetail = useCallback(async () => {
     try {
+      setIsOrderLoading(true);
       const res = await GET_RES_ACTIVE_ORDERS(tableId);
       const order = res?.order;
       if (order) {
@@ -146,6 +151,8 @@ const OrderProcessingScreen = () => {
       }
     } catch (error) {
       console.error('Error fetching order details:', error);
+    } finally {
+      setIsOrderLoading(false);
     }
   }, [tableId]);
 
@@ -218,6 +225,7 @@ const OrderProcessingScreen = () => {
 
   const handleFetchAllCategories = useCallback(async () => {
     try {
+      setIsCategoriesLoading(true);
       const response = await GET_ALL_CATEGORIES({
         storeId: store_id,
         getAll: 'true',
@@ -225,6 +233,8 @@ const OrderProcessingScreen = () => {
       setCategories(response?.items || []);
     } catch (error) {
       console.error('Error fetching categories:', error);
+    } finally {
+      setIsCategoriesLoading(false);
     }
   }, [store_id]);
 
@@ -232,6 +242,8 @@ const OrderProcessingScreen = () => {
     isLoadingProductsRef.current = true;
     if (loadMore) {
       setIsLoadingMoreProducts(true);
+    } else {
+      setIsProductsLoading(true);
     }
     try {
       const response = await GET_ALL_PRODUCTS_WITH_INVENTORY(query);
@@ -251,6 +263,8 @@ const OrderProcessingScreen = () => {
     } finally {
       if (loadMore) {
         setIsLoadingMoreProducts(false);
+      } else {
+        setIsProductsLoading(false);
       }
       isLoadingProductsRef.current = false;
     }
@@ -411,6 +425,7 @@ const OrderProcessingScreen = () => {
   };
 
   const handleFilterByCategory = cat => {
+    setIsProductsLoading(true);
     setSelectedCategory(cat);
     setProductSearchQuery(prev => ({
       ...prev,
@@ -685,19 +700,27 @@ const OrderProcessingScreen = () => {
             }}
             scrollEventThrottle={16}
           >
-            {categoriesItems.map(cat => (
-              <TouchableOpacity
-                key={cat._id}
-                style={[
-                  styles.categoryBtn,
-                  selectedCategory?._id === cat._id && styles.activeCategory,
-                ]}
-                onPress={() => handleFilterByCategory(cat)}
-              >
-                <Image source={ImageFrameIcon} style={[IconSize16, styles.categoryIcon]} />
-                <Text style={[styles.categoryText, Subtitle2]}>{cat.name}</Text>
-              </TouchableOpacity>
-            ))}
+            {isCategoriesLoading ? (
+              [1, 2, 3, 4, 5].map(i => (
+                <View key={i} style={[styles.categoryBtn, { backgroundColor: 'transparent', borderWidth: 0 }]}>
+                  <ShimmerEffect width={100} height={40} borderRadius={25} />
+                </View>
+              ))
+            ) : (
+              categoriesItems.map(cat => (
+                <TouchableOpacity
+                  key={cat._id}
+                  style={[
+                    styles.categoryBtn,
+                    selectedCategory?._id === cat._id && styles.activeCategory,
+                  ]}
+                  onPress={() => handleFilterByCategory(cat)}
+                >
+                  <Image source={ImageFrameIcon} style={[IconSize16, styles.categoryIcon]} />
+                  <Text style={[styles.categoryText, Subtitle2]}>{cat.name}</Text>
+                </TouchableOpacity>
+              ))
+            )}
           </ScrollView>
           <TouchableOpacity
             style={styles.categoryArrow}
@@ -711,23 +734,38 @@ const OrderProcessingScreen = () => {
         </View>
 
         {/* Product Grid */}
-        <FlatList
-          data={productItems}
-          keyExtractor={(item, index) => `${item._id}-${index}`}
-          renderItem={renderProduct}
-          numColumns={5}
-          contentContainerStyle={styles.productListContent}
-          showsVerticalScrollIndicator={false}
-          onEndReached={loadMoreProducts}
-          onEndReachedThreshold={0.1}
-          ListFooterComponent={
-            isLoadingMoreProducts ? (
-              <View style={internalStyles.footerLoader}>
-                <ActivityIndicator size="large" color="#3B4B8A" />
+        {isProductsLoading ? (
+          <FlatList
+            data={Array.from({ length: 25 }, (_, i) => i + 1)}
+            keyExtractor={item => item.toString()}
+            renderItem={() => (
+              <View style={[styles.productCard, { backgroundColor: 'transparent' }]}>
+                <ShimmerEffect width="100%" height="100%" borderRadius={14} />
               </View>
-            ) : null
-          }
-        />
+            )}
+            numColumns={5}
+            contentContainerStyle={styles.productListContent}
+            showsVerticalScrollIndicator={false}
+          />
+        ) : (
+          <FlatList
+            data={productItems}
+            keyExtractor={(item, index) => `${item._id}-${index}`}
+            renderItem={renderProduct}
+            numColumns={5}
+            contentContainerStyle={styles.productListContent}
+            showsVerticalScrollIndicator={false}
+            onEndReached={loadMoreProducts}
+            onEndReachedThreshold={0.1}
+            ListFooterComponent={
+              isLoadingMoreProducts ? (
+                <View style={internalStyles.footerLoader}>
+                  <ActivityIndicator size="large" color="#3B4B8A" />
+                </View>
+              ) : null
+            }
+          />
+        )}
       </View>
 
       {/* ───── RIGHT PANEL ───── */}
@@ -773,53 +811,66 @@ const OrderProcessingScreen = () => {
           <Text style={[styles.cashierInfo, Body3]}>Cashier:{userData?.employee_name}</Text>
         </View>
 
-        <FlatList
-          data={cart}
-          keyExtractor={item => item.id}
-          renderItem={({ item }) => (
-            <View style={styles.cartItemContainer}>
-              <View style={styles.cartItem}>
-                <View style={styles.itemMainInfo}>
-                  <Text style={[styles.itemName, Subtitle2]}>{item.name}</Text>
-                  <Text style={[styles.itemPrice, Body3]}>$ {item.price.toFixed(2)}</Text>
-                  {item.note ? (
-                    <Text style={[styles.itemNote, Body3]} numberOfLines={2}>
-                      Note: {item.note}
-                    </Text>
-                  ) : null}
-                </View>
-                <View style={styles.itemActions}>
-                  <TouchableOpacity style={styles.addNoteBtn} onPress={() => openNoteModal(item)}>
-                    <Text style={[styles.addNoteText, Overline]}>
-                      {item.note ? 'Edit Note' : '+ Add Note'}
-                    </Text>
-                  </TouchableOpacity>
-                  <View style={styles.qtyRow}>
-                    <TouchableOpacity
-                      style={[styles.qtyBtn, item.qty > 1 && styles.qtyBtnActive]}
-                      onPress={() => updateQty(item.id, -1)}
-                    >
-                      <View style={styles.minusButtonBar} />
+        {isOrderLoading ? (
+          <FlatList
+            data={[1, 2, 3, 4, 5]}
+            keyExtractor={item => item.toString()}
+            renderItem={() => (
+              <View style={styles.cartItemContainer}>
+                <ShimmerEffect width="100%" height={80} borderRadius={8} />
+              </View>
+            )}
+            showsVerticalScrollIndicator={false}
+          />
+        ) : (
+          <FlatList
+            data={cart}
+            keyExtractor={item => item.id}
+            renderItem={({ item }) => (
+              <View style={styles.cartItemContainer}>
+                <View style={styles.cartItem}>
+                  <View style={styles.itemMainInfo}>
+                    <Text style={[styles.itemName, Subtitle2]}>{item.name}</Text>
+                    <Text style={[styles.itemPrice, Body3]}>$ {item.price.toFixed(2)}</Text>
+                    {item.note ? (
+                      <Text style={[styles.itemNote, Body3]} numberOfLines={2}>
+                        Note: {item.note}
+                      </Text>
+                    ) : null}
+                  </View>
+                  <View style={styles.itemActions}>
+                    <TouchableOpacity style={styles.addNoteBtn} onPress={() => openNoteModal(item)}>
+                      <Text style={[styles.addNoteText, Overline]}>
+                        {item.note ? 'Edit Note' : '+ Add Note'}
+                      </Text>
                     </TouchableOpacity>
-                    <Text style={[styles.qtyText, Subtitle2]}>
-                      {item.qty.toString().padStart(2, '0')}
-                    </Text>
-                    <TouchableOpacity
-                      style={[styles.qtyBtn, styles.qtyBtnActive]}
-                      onPress={() => updateQty(item.id, 1)}
-                    >
-                      <Text style={styles.plusButtonText}>+</Text>
-                    </TouchableOpacity>
+                    <View style={styles.qtyRow}>
+                      <TouchableOpacity
+                        style={[styles.qtyBtn, item.qty > 1 && styles.qtyBtnActive]}
+                        onPress={() => updateQty(item.id, -1)}
+                      >
+                        <View style={styles.minusButtonBar} />
+                      </TouchableOpacity>
+                      <Text style={[styles.qtyText, Subtitle2]}>
+                        {item.qty.toString().padStart(2, '0')}
+                      </Text>
+                      <TouchableOpacity
+                        style={[styles.qtyBtn, styles.qtyBtnActive]}
+                        onPress={() => updateQty(item.id, 1)}
+                      >
+                        <Text style={styles.plusButtonText}>+</Text>
+                      </TouchableOpacity>
+                    </View>
                   </View>
                 </View>
+                <TouchableOpacity style={styles.deleteItemBtn} onPress={() => removeItem(item.id)}>
+                  <Image source={DeleteIcon} style={[IconSize20, styles.deleteIcon]} />
+                </TouchableOpacity>
               </View>
-              <TouchableOpacity style={styles.deleteItemBtn} onPress={() => removeItem(item.id)}>
-                <Image source={DeleteIcon} style={[IconSize20, styles.deleteIcon]} />
-              </TouchableOpacity>
-            </View>
-          )}
-          showsVerticalScrollIndicator={false}
-        />
+            )}
+            showsVerticalScrollIndicator={false}
+          />
+        )}
 
         {/* Action Buttons */}
         <View style={styles.actionRow}>

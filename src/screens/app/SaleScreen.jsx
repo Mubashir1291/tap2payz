@@ -29,6 +29,7 @@ import Toast from 'react-native-toast-message';
 import { GET_ALL_CATEGORIES, GET_ALL_PRODUCTS_WITH_INVENTORY } from '../../services/ProductService';
 import { useSelector } from 'react-redux';
 import useDebounce from '../../utils/useDebounce';
+import ShimmerEffect from '../../components/ShimmerEffect';
 
 const SaleScreen = () => {
   const navigation = useNavigation();
@@ -37,6 +38,7 @@ const SaleScreen = () => {
   const [cart, setCart] = useState([]);
   const [isAllCategoriesView, setIsAllCategoriesView] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
 
   const [productSearchQuery, setProductSearchQuery] = useState({
     page: 1,
@@ -74,6 +76,8 @@ const SaleScreen = () => {
     isLoadingCategoriesRef.current = true;
     if (loadMore) {
       setIsLoadingMoreCategories(true);
+    } else {
+      setIsLoading(true);
     }
     try {
       const response = await GET_ALL_CATEGORIES(query);
@@ -93,6 +97,8 @@ const SaleScreen = () => {
     } finally {
       if (loadMore) {
         setIsLoadingMoreCategories(false);
+      } else {
+        setIsLoading(false);
       }
       isLoadingCategoriesRef.current = false;
     }
@@ -102,6 +108,8 @@ const SaleScreen = () => {
     isLoadingProductsRef.current = true;
     if (loadMore) {
       setIsLoadingMoreProducts(true);
+    } else {
+      setIsLoading(true);
     }
     try {
       const response = await GET_ALL_PRODUCTS_WITH_INVENTORY(query);
@@ -121,6 +129,8 @@ const SaleScreen = () => {
     } finally {
       if (loadMore) {
         setIsLoadingMoreProducts(false);
+      } else {
+        setIsLoading(false);
       }
       isLoadingProductsRef.current = false;
     }
@@ -284,6 +294,7 @@ const SaleScreen = () => {
           <TouchableOpacity
             style={styles.allCategoryBtn}
             onPress={() => {
+              setIsLoading(true);
               setIsAllCategoriesView(!isAllCategoriesView);
               setSelectedCategory(null);
               setSearchQuery('');
@@ -331,43 +342,53 @@ const SaleScreen = () => {
               }}
               scrollEventThrottle={16}
             >
-              <TouchableOpacity
-                onPress={() => {
-                  setSelectedCategory(null);
-                  setProductSearchQuery(prev => ({ ...prev, category_id: '', page: 1 }));
-                }}
-                style={[styles.categoryBtn, selectedCategory === null && styles.activeCategory]}
-              >
-                <Text
-                  style={[
-                    styles.categoryText,
-                    Body3,
-                    selectedCategory === null && styles.activeCategoryText,
-                  ]}
-                >
-                  All
-                </Text>
-              </TouchableOpacity>
-              {categoriesItems?.map((cat, index) => (
-                <TouchableOpacity
-                  key={index}
-                  onPress={() => handleFilterByCategory(cat)}
-                  style={[
-                    styles.categoryBtn,
-                    selectedCategory?._id === cat?._id && styles.activeCategory,
-                  ]}
-                >
-                  <Text
-                    style={[
-                      styles.categoryText,
-                      Body3,
-                      selectedCategory?._id === cat?._id && styles.activeCategoryText,
-                    ]}
+              {isLoading ? (
+                [1, 2, 3, 4, 5].map(i => (
+                  <View key={i} style={[styles.categoryBtn, { backgroundColor: 'transparent', borderWidth: 0 }]}>
+                    <ShimmerEffect width={100} height={40} borderRadius={25} />
+                  </View>
+                ))
+              ) : (
+                <>
+                  <TouchableOpacity
+                    onPress={() => {
+                      setSelectedCategory(null);
+                      setProductSearchQuery(prev => ({ ...prev, category_id: '', page: 1 }));
+                    }}
+                    style={[styles.categoryBtn, selectedCategory === null && styles.activeCategory]}
                   >
-                    {cat?.name}
-                  </Text>
-                </TouchableOpacity>
-              ))}
+                    <Text
+                      style={[
+                        styles.categoryText,
+                        Body3,
+                        selectedCategory === null && styles.activeCategoryText,
+                      ]}
+                    >
+                      All
+                    </Text>
+                  </TouchableOpacity>
+                  {categoriesItems?.map((cat, index) => (
+                    <TouchableOpacity
+                      key={index}
+                      onPress={() => handleFilterByCategory(cat)}
+                      style={[
+                        styles.categoryBtn,
+                        selectedCategory?._id === cat?._id && styles.activeCategory,
+                      ]}
+                    >
+                      <Text
+                        style={[
+                          styles.categoryText,
+                          Body3,
+                          selectedCategory?._id === cat?._id && styles.activeCategoryText,
+                        ]}
+                      >
+                        {cat?.name}
+                      </Text>
+                    </TouchableOpacity>
+                  ))}
+                </>
+              )}
             </ScrollView>
 
             <TouchableOpacity
@@ -384,33 +405,61 @@ const SaleScreen = () => {
 
         {/* Grid View */}
         {isAllCategoriesView ? (
+          isLoading ? (
+            <FlatList
+              data={Array.from({ length: 25 }, (_, i) => i)}
+              keyExtractor={item => item.toString()}
+              renderItem={() => (
+                <View style={[styles.categoryGridCard, { backgroundColor: 'transparent' }]}>
+                  <ShimmerEffect width="100%" height="100%" borderRadius={14} />
+                </View>
+              )}
+              numColumns={5}
+              contentContainerStyle={styles.productListContent}
+              showsVerticalScrollIndicator={false}
+            />
+          ) : (
+            <FlatList
+              data={categoriesItems}
+              keyExtractor={(item, index) => (item?._id ? String(item._id) : `category-${index}`)}
+              renderItem={({ item }) => (
+                <TouchableOpacity
+                  style={styles.categoryGridCard}
+                  activeOpacity={0.5}
+                  onPress={() => {
+                    handleFilterByCategory(item);
+                    setIsAllCategoriesView(false);
+                  }}
+                >
+                  <Text style={[styles.categoryGridText, Subtitle2]}>{item?.name}</Text>
+                </TouchableOpacity>
+              )}
+              numColumns={5}
+              showsVerticalScrollIndicator={false}
+              contentContainerStyle={styles.productListContent}
+              onEndReached={loadMoreCategories}
+              onEndReachedThreshold={0.1}
+              ListFooterComponent={
+                isLoadingMoreCategories ? (
+                  <View style={internalStyles.footerLoader}>
+                    <ActivityIndicator size="large" color={Colors.primary} />
+                  </View>
+                ) : null
+              }
+            />
+          )
+        ) : isLoading ? (
           <FlatList
-            data={categoriesItems}
-            keyExtractor={(item, index) => (item?._id ? String(item._id) : `category-${index}`)}
-            renderItem={({ item }) => (
-              <TouchableOpacity
-                style={styles.categoryGridCard}
-                activeOpacity={0.5}
-                onPress={() => {
-                  handleFilterByCategory(item);
-                  setIsAllCategoriesView(false);
-                }}
-              >
-                <Text style={[styles.categoryGridText, Subtitle2]}>{item?.name}</Text>
-              </TouchableOpacity>
+            data={Array.from({ length: 25 }, (_, i) => i)}
+            keyExtractor={item => item.toString()}
+            renderItem={() => (
+              <View style={[styles.productCard, { backgroundColor: 'transparent' }]}>
+                <ShimmerEffect width="100%" height="100%" borderRadius={14} />
+              </View>
             )}
             numColumns={5}
-            showsVerticalScrollIndicator={false}
             contentContainerStyle={styles.productListContent}
-            onEndReached={loadMoreCategories}
-            onEndReachedThreshold={0.1}
-            ListFooterComponent={
-              isLoadingMoreCategories ? (
-                <View style={internalStyles.footerLoader}>
-                  <ActivityIndicator size="large" color={Colors.primary} />
-                </View>
-              ) : null
-            }
+            showsVerticalScrollIndicator={false}
           />
         ) : (
           <FlatList
