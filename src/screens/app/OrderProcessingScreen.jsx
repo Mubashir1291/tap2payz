@@ -525,7 +525,7 @@ const OrderProcessingScreen = () => {
 
   const handleCancelTapCard = () => {
     setShowTapCardModal(false);
-    NfcManager.cancelTechnologyRequest().catch(() => {});
+    NfcManager.cancelTechnologyRequest().catch(() => { });
   };
 
   // Modals Handlers
@@ -702,7 +702,7 @@ const OrderProcessingScreen = () => {
           >
             {isCategoriesLoading ? (
               [1, 2, 3, 4, 5].map(i => (
-                <View key={i} style={[styles.categoryBtn, { backgroundColor: 'transparent', borderWidth: 0 }]}>
+                <View key={i} style={[styles.categoryBtn, internalStyles.skeletonCategory]}>
                   <ShimmerEffect width={100} height={40} borderRadius={25} />
                 </View>
               ))
@@ -739,7 +739,7 @@ const OrderProcessingScreen = () => {
             data={Array.from({ length: 25 }, (_, i) => i + 1)}
             keyExtractor={item => item.toString()}
             renderItem={() => (
-              <View style={[styles.productCard, { backgroundColor: 'transparent' }]}>
+              <View style={[styles.productCard, internalStyles.skeletonCard]}>
                 <ShimmerEffect width="100%" height="100%" borderRadius={14} />
               </View>
             )}
@@ -1165,6 +1165,13 @@ const internalStyles = StyleSheet.create({
   },
   checkoutBtnPrinting: {
     backgroundColor: '#999',
+  },
+  skeletonCategory: {
+    backgroundColor: 'transparent',
+    borderWidth: 0,
+  },
+  skeletonCard: {
+    backgroundColor: 'transparent',
   },
 });
 
