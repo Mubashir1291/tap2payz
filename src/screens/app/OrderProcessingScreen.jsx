@@ -525,7 +525,7 @@ const OrderProcessingScreen = () => {
 
   const handleCancelTapCard = () => {
     setShowTapCardModal(false);
-    NfcManager.cancelTechnologyRequest().catch(() => { });
+    NfcManager.cancelTechnologyRequest().catch(() => {});
   };
 
   // Modals Handlers
@@ -700,27 +700,25 @@ const OrderProcessingScreen = () => {
             }}
             scrollEventThrottle={16}
           >
-            {isCategoriesLoading ? (
-              [1, 2, 3, 4, 5].map(i => (
-                <View key={i} style={[styles.categoryBtn, internalStyles.skeletonCategory]}>
-                  <ShimmerEffect width={100} height={40} borderRadius={25} />
-                </View>
-              ))
-            ) : (
-              categoriesItems.map(cat => (
-                <TouchableOpacity
-                  key={cat._id}
-                  style={[
-                    styles.categoryBtn,
-                    selectedCategory?._id === cat._id && styles.activeCategory,
-                  ]}
-                  onPress={() => handleFilterByCategory(cat)}
-                >
-                  <Image source={ImageFrameIcon} style={[IconSize16, styles.categoryIcon]} />
-                  <Text style={[styles.categoryText, Subtitle2]}>{cat.name}</Text>
-                </TouchableOpacity>
-              ))
-            )}
+            {isCategoriesLoading
+              ? [1, 2, 3, 4, 5].map(i => (
+                  <View key={i} style={[styles.categoryBtn, internalStyles.skeletonCategory]}>
+                    <ShimmerEffect width={100} height={40} borderRadius={25} />
+                  </View>
+                ))
+              : categoriesItems.map(cat => (
+                  <TouchableOpacity
+                    key={cat._id}
+                    style={[
+                      styles.categoryBtn,
+                      selectedCategory?._id === cat._id && styles.activeCategory,
+                    ]}
+                    onPress={() => handleFilterByCategory(cat)}
+                  >
+                    <Image source={ImageFrameIcon} style={[IconSize16, styles.categoryIcon]} />
+                    <Text style={[styles.categoryText, Subtitle2]}>{cat.name}</Text>
+                  </TouchableOpacity>
+                ))}
           </ScrollView>
           <TouchableOpacity
             style={styles.categoryArrow}

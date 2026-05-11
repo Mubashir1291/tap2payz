@@ -26,8 +26,8 @@ const ShimmerEffect = ({
       style={[
         {
           borderRadius,
-          width: isWidthPercent ? width : (width || '100%'),
-          height: isHeightPercent ? height : (height || 100),
+          width: isWidthPercent ? width : width || '100%',
+          height: isHeightPercent ? height : height || 100,
         },
         style,
       ]}
