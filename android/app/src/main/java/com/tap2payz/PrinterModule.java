@@ -26,7 +26,6 @@ import com.facebook.react.bridge.*;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
-
 public class PrinterModule extends ReactContextBaseJavaModule {
 
     private final ReactApplicationContext reactContext;
@@ -57,6 +56,11 @@ public class PrinterModule extends ReactContextBaseJavaModule {
         try {
             ThermalPrinter.stop();
             isPrinterOpen = false;
+            if (connection != null) {
+                connection.close();
+                connection = null;
+                endpointOut = null;
+            }
         } catch (Exception e) {
             Log.e(TAG, "Stop error: " + e.getMessage());
         }
@@ -87,26 +91,33 @@ public class PrinterModule extends ReactContextBaseJavaModule {
     private void findExternalPrinter() {
         UsbManager manager = (UsbManager) reactContext.getSystemService(Context.USB_SERVICE);
         externalDevice = null;
+
+        // Telpo Internal Printer Vendor ID (from MainActivity)
+        int internalVid = 10473;
+
         for (UsbDevice device : manager.getDeviceList().values()) {
-            // Saixiang / Generic 58mm Printer
-            if (device.getVendorId() == 10473 && device.getProductId() == 653) {
-                externalDevice = device;
-                break;
-            }
-            // Check by interface class if VID/PID unknown
+            boolean isPrinter = false;
             for (int i = 0; i < device.getInterfaceCount(); i++) {
-                if (device.getInterface(i).getInterfaceClass() == 7) {
-                    externalDevice = device;
+                if (device.getInterface(i).getInterfaceClass() == UsbConstants.USB_CLASS_PRINTER) {
+                    isPrinter = true;
                     break;
                 }
             }
-            if (externalDevice != null) break;
+
+            // Identify as external only if it's a printer class device and NOT the internal
+            // Telpo device
+            if (isPrinter && device.getVendorId() != internalVid) {
+                externalDevice = device;
+                Log.d(TAG, "External printer found: VID=" + device.getVendorId() + " PID=" + device.getProductId());
+                break;
+            }
         }
 
         if (externalDevice != null) {
             if (!manager.hasPermission(externalDevice)) {
                 int flags = android.os.Build.VERSION.SDK_INT >= 31 ? PendingIntent.FLAG_MUTABLE : 0;
-                PendingIntent pi = PendingIntent.getBroadcast(reactContext, 0, new Intent(ACTION_USB_PERMISSION), flags);
+                PendingIntent pi = PendingIntent.getBroadcast(reactContext, 0, new Intent(ACTION_USB_PERMISSION),
+                        flags);
                 manager.requestPermission(externalDevice, pi);
             } else {
                 openExternalConnection();
@@ -115,7 +126,8 @@ public class PrinterModule extends ReactContextBaseJavaModule {
     }
 
     private void openExternalConnection() {
-        if (externalDevice == null) return;
+        if (externalDevice == null)
+            return;
         UsbManager manager = (UsbManager) reactContext.getSystemService(Context.USB_SERVICE);
         try {
             connection = manager.openDevice(externalDevice);
@@ -135,7 +147,8 @@ public class PrinterModule extends ReactContextBaseJavaModule {
                     connection.claimInterface(iface, true);
                     for (int i = 0; i < iface.getEndpointCount(); i++) {
                         UsbEndpoint ep = iface.getEndpoint(i);
-                        if (ep.getType() == UsbConstants.USB_ENDPOINT_XFER_BULK && ep.getDirection() == UsbConstants.USB_DIR_OUT) {
+                        if (ep.getType() == UsbConstants.USB_ENDPOINT_XFER_BULK
+                                && ep.getDirection() == UsbConstants.USB_DIR_OUT) {
                             endpointOut = ep;
                             break;
                         }
@@ -152,7 +165,6 @@ public class PrinterModule extends ReactContextBaseJavaModule {
             connection.bulkTransfer(endpointOut, data, data.length, 5000);
         }
     }
-
 
     @ReactMethod
     public void initializePrinter(Promise promise) {
@@ -236,6 +248,11 @@ public class PrinterModule extends ReactContextBaseJavaModule {
                 synchronized (printerLock) {
                     Log.d(TAG, "Processing print job. isPrinterOpen: " + isPrinterOpen);
 
+                    // Ensure external printer is connected if it exists but wasn't initialized
+                    if (endpointOut == null) {
+                        findExternalPrinter();
+                    }
+
                     if (!isPrinterOpen) {
                         try {
                             ThermalPrinter.stop();
@@ -306,14 +323,14 @@ public class PrinterModule extends ReactContextBaseJavaModule {
                         // Print internal
                         ThermalPrinter.setAlgin(ThermalPrinter.ALGIN_MIDDLE);
                         ThermalPrinter.printLogo(internalBitmap);
-                        
+
                         // Print external
                         if (endpointOut != null && externalBitmap != null) {
                             byte[] escData = bitmapToEscPos(externalBitmap);
-                            byte[] init = {0x1B, 0x40, 0x1B, 0x61, 0x01}; // Reset + Align Center
+                            byte[] init = { 0x1B, 0x40, 0x1B, 0x61, 0x01 }; // Reset + Align Center
                             sendToExternal(init);
                             sendToExternal(escData);
-                            sendToExternal(new byte[]{0x0A}); // LF
+                            sendToExternal(new byte[] { 0x0A }); // LF
                         }
 
                         Thread.sleep(300);
@@ -328,8 +345,11 @@ public class PrinterModule extends ReactContextBaseJavaModule {
 
                             // External USB
                             if (endpointOut != null) {
-                                sendToExternal(new byte[]{0x1B, 0x61, 0x00}); // Align Left
+                                sendToExternal(new byte[] { 0x1B, 0x61, 0x00 }); // Align Left
                                 sendToExternal(content.getBytes());
+                                if (!content.endsWith("\n")) {
+                                    sendToExternal(new byte[] { 0x0A }); // Add Line Feed if missing
+                                }
                             }
 
                             hasData = true;
@@ -351,11 +371,11 @@ public class PrinterModule extends ReactContextBaseJavaModule {
                         } catch (Exception ignored) {
                             Log.w(TAG, "Cutter not available or error during cut");
                         }
-                        
+
                         // External USB cut
                         if (endpointOut != null) {
-                            sendToExternal(new byte[]{0x1B, 0x64, 0x05}); // Feed 5 lines
-                            sendToExternal(new byte[]{0x1D, 0x56, 0x42, 0x00}); // Cut
+                            sendToExternal(new byte[] { 0x1B, 0x64, 0x05 }); // Feed 5 lines
+                            sendToExternal(new byte[] { 0x1D, 0x56, 0x42, 0x00 }); // Cut
                         }
                     } catch (Exception e) {
                         Log.e(TAG, "Execution failed", e);
@@ -389,10 +409,11 @@ public class PrinterModule extends ReactContextBaseJavaModule {
     }
 
     private Bitmap resizeBitmap(Bitmap bitmap, int maxWidth) {
-        if (bitmap == null || bitmap.isRecycled()) return null;
+        if (bitmap == null || bitmap.isRecycled())
+            return null;
         int width = bitmap.getWidth();
         int height = bitmap.getHeight();
-        
+
         // If it's already the right size, still return a copy to be safe from recycling
         if (width <= maxWidth) {
             return Bitmap.createBitmap(bitmap);
