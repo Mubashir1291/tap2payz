@@ -88,12 +88,35 @@ public class PrinterModule extends ReactContextBaseJavaModule {
         }
     }
 
+    private boolean isInternalPrinter(UsbDevice device) {
+        // Match hardware IDs for internal Telpo printers to avoid blocking external
+        // ones
+        if (device.getVendorId() != 10473)
+            return false;
+        int pid = device.getProductId();
+        // Known internal PIDs: 653 (C2 default), 650, 651, 654, 1539
+        return (pid == 653 || pid == 650 || pid == 651 || pid == 654 || pid == 1539);
+    }
+
+    private void closeExternalConnection() {
+        try {
+            if (connection != null) {
+                connection.close();
+            }
+        } catch (Exception ignored) {
+        }
+        connection = null;
+        endpointOut = null;
+        externalDevice = null;
+    }
+
     private void findExternalPrinter() {
         UsbManager manager = (UsbManager) reactContext.getSystemService(Context.USB_SERVICE);
-        externalDevice = null;
 
-        // Telpo Internal Printer Vendor ID (from MainActivity)
-        int internalVid = 10473;
+        // Reset state if current device is no longer physically present (cable swapped)
+        if (externalDevice != null && !manager.getDeviceList().containsKey(externalDevice.getDeviceName())) {
+            closeExternalConnection();
+        }
 
         for (UsbDevice device : manager.getDeviceList().values()) {
             boolean isPrinter = false;
@@ -104,9 +127,13 @@ public class PrinterModule extends ReactContextBaseJavaModule {
                 }
             }
 
-            // Identify as external only if it's a printer class device and NOT the internal
-            // Telpo device
-            if (isPrinter && device.getVendorId() != internalVid) {
+            // Check device class as well (some printers report class at device level)
+            if (device.getDeviceClass() == UsbConstants.USB_CLASS_PRINTER) {
+                isPrinter = true;
+            }
+
+            // Identify as external ONLY if it's a printer and NOT the internal hardware
+            if (isPrinter && !isInternalPrinter(device)) {
                 externalDevice = device;
                 Log.d(TAG, "External printer found: VID=" + device.getVendorId() + " PID=" + device.getProductId());
                 break;
@@ -162,7 +189,12 @@ public class PrinterModule extends ReactContextBaseJavaModule {
 
     private void sendToExternal(byte[] data) {
         if (connection != null && endpointOut != null) {
-            connection.bulkTransfer(endpointOut, data, data.length, 5000);
+            int result = connection.bulkTransfer(endpointOut, data, data.length, 5000);
+            if (result < 0) {
+                Log.e(TAG, "External write failed. Clearing stale connection.");
+                // Connection likely broken or printer unplugged
+                closeExternalConnection();
+            }
         }
     }
 
@@ -247,6 +279,13 @@ public class PrinterModule extends ReactContextBaseJavaModule {
 
                 synchronized (printerLock) {
                     Log.d(TAG, "Processing print job. isPrinterOpen: " + isPrinterOpen);
+
+                    // Force re-scan if current external printer is disconnected
+                    UsbManager usbManager = (UsbManager) reactContext.getSystemService(Context.USB_SERVICE);
+                    if (externalDevice != null
+                            && !usbManager.getDeviceList().containsKey(externalDevice.getDeviceName())) {
+                        closeExternalConnection();
+                    }
 
                     // Ensure external printer is connected if it exists but wasn't initialized
                     if (endpointOut == null) {
