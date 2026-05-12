@@ -108,7 +108,7 @@ const ProductFormModal = ({ visible, onClose, formType, initialData, onSubmit })
     product_name: formData.name || '',
     sku_code: formData.sku || '',
     bar_code: formData.barcode || '',
-    category: formData.category_id || '',
+    category: formData.category || '',
     status: formData.status || 'Active',
     product_price: formData.price || '',
     product_tax: formData.tax || '',

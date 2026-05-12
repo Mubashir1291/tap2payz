@@ -23,7 +23,7 @@ export default StyleSheet.create({
   hamburgerLine: {
     width: S(22),
     height: VS(2.5),
-    backgroundColor: Colors.black,
+    backgroundColor: Colors.white,
     borderRadius: MS(2),
     marginVertical: VS(2),
   },

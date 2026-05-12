@@ -262,7 +262,7 @@ const XReport = ({ isActive }) => {
           <Text style={[styles.colCustomer, styles.headerText, Subtitle2]}>Customer</Text>
           <Text style={[styles.colItems, styles.headerText, Subtitle2]}>Total Items</Text>
           <Text style={[styles.colType, styles.headerText, Subtitle2]}>Transaction Type</Text>
-          <Text style={[styles.colDate, styles.headerText, Subtitle2]}>by Date & Time</Text>
+          <Text style={[styles.colDate, styles.headerText, Subtitle2]}>Date & Time</Text>
           <Text style={[styles.colSales, styles.headerText, Subtitle2]}>Total Sales</Text>
           <View style={styles.colAction}>
             <Text style={[styles.headerText, Subtitle2]}>Actions</Text>

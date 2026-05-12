@@ -167,12 +167,13 @@ const CategoryFormModal = ({ visible, onClose, formType, initialData, onSubmit }
                   placeholder="Men's Wear"
                   value={catFormData.category_name}
                   onChangeText={t => setCatFormData({ ...catFormData, category_name: t })}
+                  placeholderTextColor="lightgrey"
                 />
               </View>
               <View style={[styles.catFormCol, styles.zIndexHigh]}>
                 <View style={styles.formLabelRow}>
                   <Text style={[styles.formLabel, Body3]}>Status</Text>
-                </View>
+                </View>123454321
                 <TouchableOpacity
                   style={styles.dropdownInput}
                   onPress={() => setShowCatStatusDropdown(!showCatStatusDropdown)}

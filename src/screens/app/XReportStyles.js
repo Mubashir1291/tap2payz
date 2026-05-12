@@ -78,10 +78,10 @@ const styles = StyleSheet.create({
   colTransaction: { flex: 0.15 },
   colCustomer: { flex: 0.15 },
   colItems: { flex: 0.1 },
-  colType: { flex: 0.1 },
-  colDate: { flex: 0.15 },
+  colType: { flex: 0.12, paddingRight: S(20) },
+  colDate: { flex: 0.18 },
   colSales: { flex: 0.1 },
-  colAction: { flex: 0.15, alignItems: 'center' },
+  colAction: { flex: 0.1, alignItems: 'center' },
 
   tableRow: {
     flexDirection: 'row',

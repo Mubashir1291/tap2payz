@@ -132,6 +132,7 @@ const DurationModal = ({ visible = false, onClose, onProceed }) => {
                   style={[styles.input, Body2]}
                   value={formatDate(fromDate)}
                   editable={false}
+                  placeholderTextColor="lightgrey"
                 />
                 <Text>📅</Text>
               </TouchableOpacity>
@@ -148,6 +149,7 @@ const DurationModal = ({ visible = false, onClose, onProceed }) => {
                   style={[styles.input, Body2]}
                   value={formatTime(fromTime)}
                   editable={false}
+                  placeholderTextColor="lightgrey"
                 />
                 <Text>🕒</Text>
               </TouchableOpacity>
@@ -216,12 +218,12 @@ const DurationModal = ({ visible = false, onClose, onProceed }) => {
           activeDateField === 'from'
             ? fromDate
             : activeDateField === 'to'
-            ? toDate
-            : activeTimeField === 'fromTime'
-            ? fromTime
-            : activeTimeField === 'toTime'
-            ? toTime
-            : new Date()
+              ? toDate
+              : activeTimeField === 'fromTime'
+                ? fromTime
+                : activeTimeField === 'toTime'
+                  ? toTime
+                  : new Date()
         }
         onConfirm={date => {
           if (activeDateField === 'from') {
