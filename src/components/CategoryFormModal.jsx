@@ -173,7 +173,8 @@ const CategoryFormModal = ({ visible, onClose, formType, initialData, onSubmit }
               <View style={[styles.catFormCol, styles.zIndexHigh]}>
                 <View style={styles.formLabelRow}>
                   <Text style={[styles.formLabel, Body3]}>Status</Text>
-                </View>123454321
+                </View>
+                123454321
                 <TouchableOpacity
                   style={styles.dropdownInput}
                   onPress={() => setShowCatStatusDropdown(!showCatStatusDropdown)}

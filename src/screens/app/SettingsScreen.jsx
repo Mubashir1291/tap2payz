@@ -164,9 +164,9 @@ const SettingsScreen = () => {
       chartData:
         series.length > 0
           ? series.map(item => ({
-            value: Number(item.y) || 0,
-            onPress: openSaleDetail,
-          }))
+              value: Number(item.y) || 0,
+              onPress: openSaleDetail,
+            }))
           : salesLineData.map(item => ({ ...item, onPress: openSaleDetail })),
       chartLabels: series.map(item => (item.name ? item.name.slice(0, 3) : '')),
     };
