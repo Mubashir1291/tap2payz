@@ -605,7 +605,13 @@ const TableSelectionScreen = () => {
     >
       {item?.quantity <= 0 && (
         <View style={styles.outOfStockOverlay}>
-          <Text style={[Body2, styles.outOfStockText]}>Out of Stock</Text>
+          <Text
+            style={[Body2, styles.outOfStockText]}
+            numberOfLines={1}
+            adjustsFontSizeToFit
+          >
+            Out of Stock
+          </Text>
         </View>
       )}
       <View style={styles.priceTag}>

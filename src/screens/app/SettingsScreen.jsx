@@ -177,7 +177,7 @@ const SettingsScreen = () => {
   const renderActiveTab = () => {
     switch (activeTab) {
       case 1:
-        return <TransactionReportScreen />;
+        return <TransactionReportScreen hideDrawerMenu={true} />;
       case 2:
         return <ZReport />;
       case 3:

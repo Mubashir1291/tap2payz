@@ -25,7 +25,10 @@ import { useSelector } from 'react-redux';
 import { GET_ALL_TRANSACTION } from '../../services/Reports';
 import useDebounce from '../../utils/useDebounce';
 
-const TransactionReportScreen = () => {
+import { useNavigation } from '@react-navigation/native';
+
+const TransactionReportScreen = ({ hideDrawerMenu = false }) => {
+  const navigation = useNavigation();
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedItem, setSelectedItem] = useState(null);
   const [showSortModal, setShowSortModal] = useState(false);
@@ -141,6 +144,16 @@ const TransactionReportScreen = () => {
     <View style={styles.root}>
       {/* Header Row */}
       <View style={styles.headerRow}>
+        {!hideDrawerMenu && (
+          <TouchableOpacity
+            style={styles.hamburgerBtn}
+            onPress={() => navigation.openDrawer()}
+          >
+            <View style={styles.hamburgerLine} />
+            <View style={[styles.hamburgerLine, styles.hamburgerLineShort]} />
+            <View style={styles.hamburgerLine} />
+          </TouchableOpacity>
+        )}
         <Text style={[styles.title, H2]}>Transaction Report</Text>
 
         <View style={styles.spacer} />

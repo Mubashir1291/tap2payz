@@ -1,7 +1,7 @@
 import React, { useState, useCallback } from 'react';
 import { View, StatusBar, TouchableOpacity, Modal, Text, Image, TextInput } from 'react-native';
 import { Colors } from '../../utils/Colors';
-import { WarningIcon } from '../../assets/Images';
+import { WarningIcon, LogoutIcon } from '../../assets/Images';
 import { IconSize24 } from '../../utils/IconSizes';
 import {
   H2,
@@ -21,13 +21,14 @@ import { OPEN_REGISTER, GET_CASH_REGISTER } from '../../services/StoreService';
 import Toast from 'react-native-toast-message';
 import { useSelector } from 'react-redux';
 import { setCashRegisterData } from '../../redux/Reducers/deviceReducer';
+import { logout } from '../../redux/Reducers/userReducer';
 import { useFocusEffect } from '@react-navigation/native';
 
 const numpadKeys = [
   ['1', '2', '3'],
   ['4', '5', '6'],
   ['7', '8', '9'],
-  ['C', '0', '⌫'],
+  ['C', '0', '.', '⌫'],
 ];
 
 // Canadian Currency Denominations
@@ -141,14 +142,9 @@ const OpenRegisterScreen = ({ navigation }) => {
     setIsCurrencyModalVisible(true);
   };
 
-  // Function to handle skipping the register opening
-  const handleSkip = () => {
-    // Direct user after skipping based on business type
-    if (userData?.business_type?.toLowerCase() === 'restaurant') {
-      navigation.navigate('MainDrawer', { screen: 'TableSelectionScreen' });
-    } else {
-      navigation.navigate('MainDrawer', { screen: 'SaleScreen' });
-    }
+  // Function to handle logout
+  const handleLogout = () => {
+    store.dispatch(logout());
   };
 
   const calculatedTotal = Object.keys(currencyCounts)
@@ -255,7 +251,7 @@ const OpenRegisterScreen = ({ navigation }) => {
 
         <View style={styles.summaryRow}>
           <Text style={[styles.summaryText, Body1]}>Deducted (Cash Out)</Text>
-          <Text style={[styles.summaryText, Body1, styles.textRed]}>{prevCashOut.toFixed(2)}</Text>
+          <Text style={[styles.summaryText, Body1, styles.textDanger]}>{prevCashOut.toFixed(2)}</Text>
         </View>
 
         <View style={styles.divider} />
@@ -268,13 +264,11 @@ const OpenRegisterScreen = ({ navigation }) => {
 
       {/* ── Right Panel ── */}
       <View style={styles.rightPanel}>
-        <TouchableOpacity style={styles.skipButton} onPress={handleSkip}>
-          <Text style={[styles.skipButtonText, ButtonTextSmall]}>Skip</Text>
+        <TouchableOpacity style={styles.logoutBtn} onPress={handleLogout}>
+          <Image source={LogoutIcon} style={IconSize24} />
         </TouchableOpacity>
         <View style={styles.cashInCard}>
-          <TouchableOpacity style={styles.closeBtn} onPress={() => navigation.goBack()}>
-            <Text style={[styles.closeBtnText, H4]}>✕</Text>
-          </TouchableOpacity>
+
 
           <View style={styles.cashInHeader}>
             <Text style={[styles.cashInLabel, Subtitle1]}>Cash In</Text>

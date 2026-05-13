@@ -24,6 +24,25 @@ const styles = StyleSheet.create({
     overflow: 'hidden',
     alignItems: 'center',
   },
+  hamburgerBtn: {
+    width: S(36),
+    height: VS(36),
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: S(10),
+  },
+  hamburgerLine: {
+    width: S(22),
+    height: VS(2.5),
+    backgroundColor: '#323E6E',
+    borderRadius: MS(2),
+    marginVertical: VS(2),
+  },
+  hamburgerLineShort: {
+    width: S(16),
+    alignSelf: 'flex-start',
+    marginLeft: S(7),
+  },
   tabBtn: {
     paddingVertical: VS(8),
     paddingHorizontal: S(20),

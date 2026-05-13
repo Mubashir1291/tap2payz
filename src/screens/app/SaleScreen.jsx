@@ -14,7 +14,7 @@ import {
 import { useNavigation } from '@react-navigation/native';
 import { Colors } from '../../utils/Colors';
 import { S, VS } from '../../utils/Responsive';
-import { Caption, Body3, Subtitle1, Subtitle2 } from '../../utils/fonts';
+import { Caption, Body3, Subtitle1, Subtitle2, Body2 } from '../../utils/fonts';
 import { IconSize12 } from '../../utils/IconSizes';
 import {
   CategoriesIcon,
@@ -180,11 +180,19 @@ const SaleScreen = () => {
         <Text style={[styles.priceText, Caption]}>${item.price}</Text>
       </View>
       <Image source={ImageFrameIcon} style={styles.productImage} />
-      <Text style={[styles.productName, Subtitle2, item.quantity <= 0 && internalStyles.redText]}>
+      <Text style={[styles.productName, Subtitle2]}>
         {item.name}
       </Text>
       {item.quantity <= 0 && (
-        <Text style={[Caption, internalStyles.outOfStockLabel]}>Out of Stock</Text>
+        <View style={internalStyles.outOfStockOverlay}>
+          <Text
+            style={[Body2, internalStyles.outOfStockLabel]}
+            numberOfLines={1}
+            adjustsFontSizeToFit
+          >
+            Out of Stock
+          </Text>
+        </View>
       )}
     </TouchableOpacity>
   );
@@ -492,12 +500,21 @@ const internalStyles = StyleSheet.create({
   outOfStockBg: {
     backgroundColor: '#E0E0E0',
   },
-  redText: {
-    color: 'red',
-  },
   outOfStockLabel: {
     color: 'red',
     textAlign: 'center',
+    width: '100%',
+    fontWeight: 'bold',
+  },
+  outOfStockOverlay: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    justifyContent: 'center',
+    alignItems: 'center',
+    zIndex: 1,
   },
   searchIcon: {
     marginRight: S(8),

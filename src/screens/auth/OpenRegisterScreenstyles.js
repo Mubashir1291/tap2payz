@@ -62,21 +62,6 @@ const styles = StyleSheet.create({
     elevation: 4,
     position: 'relative',
   },
-  closeBtn: {
-    position: 'absolute',
-    top: VS(16),
-    right: S(20),
-    zIndex: 10,
-    width: S(32),
-    height: VS(32),
-    borderRadius: MS(16),
-    backgroundColor: Colors.lightGrey,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  closeBtnText: {
-    color: Colors.grey,
-  },
   cashInHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
@@ -302,18 +287,18 @@ const styles = StyleSheet.create({
   confirmButtonText: {
     color: Colors.white,
   },
-  skipButtonText: {
-    color: Colors.primary,
-  },
-  skipButton: {
+  logoutBtn: {
     position: 'absolute',
     top: VS(16),
     right: S(20),
     zIndex: 10,
-    paddingHorizontal: S(12),
-    paddingVertical: VS(6),
-    borderRadius: MS(10),
+    width: MS(40),
+    height: MS(40),
+    borderRadius: MS(20),
     backgroundColor: Colors.white,
+    justifyContent: 'center',
+    alignItems: 'center',
+    elevation: 2,
   },
 });
 

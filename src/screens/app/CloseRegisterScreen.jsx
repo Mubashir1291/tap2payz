@@ -110,6 +110,12 @@ const CloseRegisterScreen = () => {
 
       {/* ───── LEFT SUMMARY PANEL ───── */}
       <View style={styles.leftPanel}>
+        <TouchableOpacity style={styles.hamburgerBtn} onPress={() => navigation.openDrawer()}>
+          <View style={styles.hamburgerLine} />
+          <View style={[styles.hamburgerLine, styles.hamburgerLineShort]} />
+          <View style={styles.hamburgerLine} />
+        </TouchableOpacity>
+
         {/* Welcome */}
         <View style={styles.welcomeSection}>
           <Text style={[styles.welcomeLabel, Body2]}>Welcome!</Text>
@@ -202,6 +208,29 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.white,
     padding: MS(28),
     justifyContent: 'center',
+    position: 'relative',
+  },
+  hamburgerBtn: {
+    width: S(36),
+    height: VS(36),
+    justifyContent: 'center',
+    alignItems: 'center',
+    position: 'absolute',
+    top: VS(10),
+    left: S(10),
+    zIndex: 10,
+  },
+  hamburgerLine: {
+    width: S(22),
+    height: VS(2.5),
+    backgroundColor: Colors.black,
+    borderRadius: MS(2),
+    marginVertical: VS(2),
+  },
+  hamburgerLineShort: {
+    width: S(16),
+    alignSelf: 'flex-start',
+    marginLeft: S(7),
   },
   welcomeSection: {
     marginBottom: VS(8),

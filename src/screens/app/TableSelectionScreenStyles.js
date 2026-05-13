@@ -569,6 +569,8 @@ const styles = StyleSheet.create({
     color: 'red',
     textAlign: 'center',
     fontWeight: 'bold',
+    width: '100%',
+    paddingHorizontal: 2,
   },
 });
 

@@ -656,7 +656,13 @@ const OrderProcessingScreen = () => {
     >
       {item?.quantity <= 0 && (
         <View style={internalStyles.outOfStockOverlay}>
-          <Text style={[Body2, internalStyles.outOfStockText]}>Out of Stock</Text>
+          <Text
+            style={[Body2, internalStyles.outOfStockText]}
+            numberOfLines={1}
+            adjustsFontSizeToFit
+          >
+            Out of Stock
+          </Text>
         </View>
       )}
       <View style={styles.priceTag}>
@@ -1151,6 +1157,8 @@ const internalStyles = StyleSheet.create({
     color: 'red',
     textAlign: 'center',
     fontWeight: 'bold',
+    width: '100%',
+    paddingHorizontal: 2,
   },
   footerLoader: {
     padding: 20,
