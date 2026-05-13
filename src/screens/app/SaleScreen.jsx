@@ -180,9 +180,7 @@ const SaleScreen = () => {
         <Text style={[styles.priceText, Caption]}>${item.price}</Text>
       </View>
       <Image source={ImageFrameIcon} style={styles.productImage} />
-      <Text style={[styles.productName, Subtitle2]}>
-        {item.name}
-      </Text>
+      <Text style={[styles.productName, Subtitle2]}>{item.name}</Text>
       {item.quantity <= 0 && (
         <View style={internalStyles.outOfStockOverlay}>
           <Text

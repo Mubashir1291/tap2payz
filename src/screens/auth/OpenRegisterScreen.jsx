@@ -251,7 +251,9 @@ const OpenRegisterScreen = () => {
 
         <View style={styles.summaryRow}>
           <Text style={[styles.summaryText, Body1]}>Deducted (Cash Out)</Text>
-          <Text style={[styles.summaryText, Body1, styles.textDanger]}>{prevCashOut.toFixed(2)}</Text>
+          <Text style={[styles.summaryText, Body1, styles.textDanger]}>
+            {prevCashOut.toFixed(2)}
+          </Text>
         </View>
 
         <View style={styles.divider} />
@@ -268,8 +270,6 @@ const OpenRegisterScreen = () => {
           <Image source={LogoutIcon} style={IconSize24} />
         </TouchableOpacity>
         <View style={styles.cashInCard}>
-
-
           <View style={styles.cashInHeader}>
             <Text style={[styles.cashInLabel, Subtitle1]}>Cash In</Text>
             <Text style={[styles.cashInAmount, H2]}>CAD {amount}</Text>

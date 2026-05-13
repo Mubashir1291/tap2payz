@@ -10,10 +10,7 @@ const ConnectedDevicesScreen = () => {
 
   return (
     <View style={styles.root}>
-      <TouchableOpacity
-        style={styles.hamburgerBtn}
-        onPress={() => navigation.openDrawer()}
-      >
+      <TouchableOpacity style={styles.hamburgerBtn} onPress={() => navigation.openDrawer()}>
         <View style={styles.hamburgerLine} />
         <View style={[styles.hamburgerLine, styles.hamburgerLineShort]} />
         <View style={styles.hamburgerLine} />
