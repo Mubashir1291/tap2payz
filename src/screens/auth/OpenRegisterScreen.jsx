@@ -48,7 +48,7 @@ const DENOMINATIONS = {
   $100: 100.0,
 };
 
-const OpenRegisterScreen = ({ navigation }) => {
+const OpenRegisterScreen = () => {
   const { deviceId, cashRegister } = useSelector(state => state.device);
   const { userData, store_id } = useSelector(state => state.user);
 
